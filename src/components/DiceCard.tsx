@@ -44,7 +44,7 @@ export const DiceCard = ({ card, isFlipped, result, onFlip }: DiceCardProps) => 
           <span className="dice-card__eyebrow">{resultLabel}</span>
           <strong className="dice-card__total">{result?.total ?? "—"}</strong>
           <span className="dice-card__formula">{formatRolls(result)}</span>
-          <small>Click again to roll this card again.</small>
+          <small>The card resets after a few seconds so it can be used again.</small>
         </span>
       </span>
     </button>
