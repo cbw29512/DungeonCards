@@ -33,7 +33,18 @@ export type RollResult = {
   isFailure: boolean;
 };
 
+export type RollHistoryEntry = {
+  id: string;
+  cardId: string;
+  cardName: string;
+  category: CardCategory;
+  formula: string;
+  result: RollResult;
+  rolledAt: string;
+};
+
 export type DeckState = {
-  flippedCardIds: string[];
+  activeFlippedCardId: string | null;
   rollResults: Record<string, RollResult>;
+  rollHistory: RollHistoryEntry[];
 };
