@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { sampleCards } from "../data/sampleCards";
 import type { DeckState, DiceCard as DiceCardType, RollHistoryEntry } from "../types/cards";
 import { rollDiceFormula } from "../utils/rollDice";
 import { DiceCard } from "./DiceCard";
@@ -14,6 +13,13 @@ const initialDeckState: DeckState = {
   rollHistory: []
 };
 
+type DeckGridProps = {
+  cards: DiceCardType[];
+  eyebrow: string;
+  title: string;
+  description: string;
+};
+
 const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"]): RollHistoryEntry => {
   return {
     id: `${card.id}-${Date.now()}`,
@@ -26,7 +32,7 @@ const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"
   };
 };
 
-export const DeckGrid = () => {
+export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) => {
   const [deckState, setDeckState] = useState<DeckState>(initialDeckState);
   const resetTimerRef = useRef<number | null>(null);
 
@@ -69,15 +75,16 @@ export const DeckGrid = () => {
   };
 
   return (
-    <section className="deck-section" aria-labelledby="player-deck-title">
+    <section className="deck-section" aria-labelledby="deck-title">
       <div className="section-heading">
-        <p>Player Deck</p>
-        <h2 id="player-deck-title">Flip the card. Get the result.</h2>
+        <p>{eyebrow}</p>
+        <h2 id="deck-title">{title}</h2>
+        <span>{description}</span>
       </div>
 
       <div className="deck-layout">
         <div className="deck-grid">
-          {sampleCards.map((card) => (
+          {cards.map((card) => (
             <DiceCard
               card={card}
               isFlipped={deckState.activeFlippedCardId === card.id}
