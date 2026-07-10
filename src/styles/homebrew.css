@@ -1,0 +1,113 @@
+.homebrew-builder {
+  padding: 2rem 1.5rem 1rem;
+}
+
+.homebrew-form {
+  display: grid;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 1.5rem;
+  background: rgb(0 0 0 / 24%);
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.homebrew-form label {
+  display: grid;
+  color: #fff0c2;
+  font-weight: 700;
+  gap: 0.45rem;
+}
+
+.homebrew-form input,
+.homebrew-form textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.9rem;
+  background: rgb(255 255 255 / 8%);
+}
+
+.homebrew-form input:focus,
+.homebrew-form textarea:focus {
+  border-color: #f7c76b;
+  outline: 2px solid rgb(247 199 107 / 18%);
+}
+
+.homebrew-form small {
+  color: #d9c9b8;
+  font-weight: 400;
+}
+
+.homebrew-form__description {
+  grid-column: 1 / -1;
+}
+
+.homebrew-form__checkbox {
+  display: flex !important;
+  align-items: center;
+  grid-column: 1 / -1;
+  grid-template-columns: auto 1fr;
+}
+
+.homebrew-form__checkbox input {
+  width: auto;
+}
+
+.primary-button,
+.delete-card-button {
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.primary-button {
+  justify-self: start;
+  color: #160d07;
+  border: 0;
+  background: linear-gradient(135deg, #ffd36f, #f08a4b);
+  grid-column: 1 / -1;
+}
+
+.delete-card-button {
+  color: #ffd9d9;
+  border: 1px solid rgb(255 125 125 / 35%);
+  background: rgb(105 16 16 / 38%);
+}
+
+.primary-button:hover,
+.primary-button:focus-visible,
+.delete-card-button:hover,
+.delete-card-button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.form-error {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  color: #ffd9d9;
+  border: 1px solid rgb(255 125 125 / 35%);
+  border-radius: 0.9rem;
+  background: rgb(105 16 16 / 38%);
+  grid-column: 1 / -1;
+}
+
+.homebrew-empty {
+  max-width: 1180px;
+  margin: 0 auto 4rem;
+  padding: 1.25rem;
+  color: #d9c9b8;
+  border: 1px dashed rgb(255 255 255 / 18%);
+  border-radius: 1.25rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .homebrew-form {
+    grid-template-columns: 1fr;
+  }
+}
