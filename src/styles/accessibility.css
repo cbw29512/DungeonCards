@@ -1,0 +1,23 @@
+.top-nav button[aria-pressed="true"] {
+  color: #160d07;
+  border-color: #ffd36f;
+  background: linear-gradient(135deg, #ffd36f, #f08a4b);
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #fff0c2;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
