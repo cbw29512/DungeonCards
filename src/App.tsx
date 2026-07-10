@@ -6,6 +6,7 @@ import { sampleCards } from "./data/sampleCards";
 import { useHomebrewCards } from "./hooks/useHomebrewCards";
 import "./styles/base.css";
 import "./styles/cards.css";
+import "./styles/history.css";
 import "./styles/homebrew.css";
 import "./styles/accessibility.css";
 
