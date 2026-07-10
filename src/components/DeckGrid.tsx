@@ -18,6 +18,7 @@ type DeckGridProps = {
   eyebrow: string;
   title: string;
   description: string;
+  onDeleteCard?: (cardId: string) => boolean;
 };
 
 const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"]): RollHistoryEntry => {
@@ -32,7 +33,7 @@ const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"
   };
 };
 
-export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) => {
+export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: DeckGridProps) => {
   const [deckState, setDeckState] = useState<DeckState>(initialDeckState);
   const resetTimerRef = useRef<number | null>(null);
 
@@ -56,7 +57,10 @@ export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) 
 
   const handleFlip = (card: DiceCardType) => {
     try {
-      const result = rollDiceFormula(card.formula);
+      const result = rollDiceFormula(card.formula, {
+        critOn: card.critOn,
+        failOn: card.failOn
+      });
       const historyEntry = buildHistoryEntry(card, result);
 
       setDeckState((currentState) => ({
@@ -74,24 +78,42 @@ export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) 
     }
   };
 
+  const handleDelete = (cardId: string) => {
+    try {
+      onDeleteCard?.(cardId);
+    } catch (error) {
+      console.error("Card deletion failed", { cardId, error });
+    }
+  };
+
   return (
-    <section className="deck-section" aria-labelledby="deck-title">
+    <section className="deck-section" aria-labelledby={`${eyebrow.toLowerCase().replace(/\s+/g, "-")}-title`}>
       <div className="section-heading">
         <p>{eyebrow}</p>
-        <h2 id="deck-title">{title}</h2>
+        <h2 id={`${eyebrow.toLowerCase().replace(/\s+/g, "-")}-title`}>{title}</h2>
         <span>{description}</span>
       </div>
 
       <div className="deck-layout">
         <div className="deck-grid">
           {cards.map((card) => (
-            <DiceCard
-              card={card}
-              isFlipped={deckState.activeFlippedCardId === card.id}
-              key={card.id}
-              onFlip={handleFlip}
-              result={deckState.rollResults[card.id]}
-            />
+            <div className="deck-card-item" key={card.id}>
+              <DiceCard
+                card={card}
+                isFlipped={deckState.activeFlippedCardId === card.id}
+                onFlip={handleFlip}
+                result={deckState.rollResults[card.id]}
+              />
+              {onDeleteCard && (
+                <button
+                  className="delete-card-button"
+                  onClick={() => handleDelete(card.id)}
+                  type="button"
+                >
+                  Delete {card.name}
+                </button>
+              )}
+            </div>
           ))}
         </div>
 
