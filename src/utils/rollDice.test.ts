@@ -8,9 +8,11 @@ describe("validateDiceFormula", () => {
     expect(() => validateDiceFormula("2d8+4")).not.toThrow();
   });
 
-  it("rejects unsupported text and excessive dice counts", () => {
+  it("rejects unsupported text and unsafe roll sizes", () => {
     expect(() => validateDiceFormula("fireball 10d6")).toThrow("Unsupported dice formula");
-    expect(() => validateDiceFormula("101d6")).toThrow("Dice count cannot exceed 100");
+    expect(() => validateDiceFormula("101d6")).toThrow("Dice count cannot exceed 100 per term");
+    expect(() => validateDiceFormula("60d6+60d6")).toThrow("cannot roll more than 100 dice");
+    expect(() => validateDiceFormula("1d1001")).toThrow("Die size cannot exceed d1000");
   });
 });
 
@@ -30,7 +32,7 @@ describe("rollDiceFormula", () => {
     }
   });
 
-  it("rolls an upcast spell formula", () => {
+  it("rolls an upcast spell without treating a damage die as a natural failure", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
     try {
@@ -44,7 +46,7 @@ describe("rollDiceFormula", () => {
     }
   });
 
-  it("uses the card's natural-roll thresholds", () => {
+  it("uses a card's natural-roll thresholds for a single attack die", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.999);
 
     try {
@@ -52,6 +54,20 @@ describe("rollDiceFormula", () => {
 
       expect(result.total).toBe(28);
       expect(result.isCritical).toBe(true);
+      expect(result.isFailure).toBe(false);
+    } finally {
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("does not invent natural-roll outcomes without card thresholds", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    try {
+      const result = rollDiceFormula("1d20+2");
+
+      expect(result.total).toBe(3);
+      expect(result.isCritical).toBe(false);
       expect(result.isFailure).toBe(false);
     } finally {
       vi.restoreAllMocks();
