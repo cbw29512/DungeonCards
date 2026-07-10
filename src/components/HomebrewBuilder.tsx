@@ -8,16 +8,15 @@ type HomebrewBuilderProps = {
   storageError: string | null;
 };
 
-const getErrorMessage = (error: unknown): string => {
-  return error instanceof Error ? error.message : "The card could not be created.";
-};
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : "The card could not be created.";
 
 export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps) => {
   const [name, setName] = useState("");
   const [formula, setFormula] = useState("1d20+5");
   const [description, setDescription] = useState("");
   const [imageEmoji, setImageEmoji] = useState("✨");
-  const [usesD20Outcomes, setUsesD20Outcomes] = useState(true);
+  const [usesAttackOutcomes, setUsesAttackOutcomes] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const resetForm = () => {
@@ -25,7 +24,7 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
     setFormula("1d20+5");
     setDescription("");
     setImageEmoji("✨");
-    setUsesD20Outcomes(true);
+    setUsesAttackOutcomes(false);
     setFormError(null);
   };
 
@@ -53,8 +52,8 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
         formula: trimmedFormula,
         description: trimmedDescription,
         imageEmoji: trimmedEmoji,
-        critOn: usesD20Outcomes ? 20 : undefined,
-        failOn: usesD20Outcomes ? 1 : undefined,
+        critOn: usesAttackOutcomes ? 20 : undefined,
+        failOn: usesAttackOutcomes ? 1 : undefined,
         isFavorite: false
       });
 
@@ -83,7 +82,8 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
           <input
             maxLength={60}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Rage Greatclub"
+            placeholder="Rage Greataxe"
+            required
             value={name}
           />
         </label>
@@ -94,6 +94,7 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
             maxLength={30}
             onChange={(event) => setFormula(event.target.value)}
             placeholder="1d12+7"
+            required
             value={formula}
           />
           <small>Examples: 1d20+8, 2d6+4, 10d6</small>
@@ -114,7 +115,8 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
           <textarea
             maxLength={180}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Greatclub damage with 20 Strength and Rage bonus."
+            placeholder="Greataxe damage with 20 Strength and a +2 Rage damage bonus."
+            required
             rows={4}
             value={description}
           />
@@ -122,11 +124,11 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
 
         <label className="homebrew-form__checkbox">
           <input
-            checked={usesD20Outcomes}
-            onChange={(event) => setUsesD20Outcomes(event.target.checked)}
+            checked={usesAttackOutcomes}
+            onChange={(event) => setUsesAttackOutcomes(event.target.checked)}
             type="checkbox"
           />
-          Mark natural 20 and natural 1 outcomes
+          Treat a single d20 as an attack roll with natural 20 and natural 1 markers
         </label>
 
         {(formError || storageError) && (
