@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { DiceCard, HomebrewCardDraft } from "../types/cards";
 import { loadHomebrewCards, saveHomebrewCards } from "../utils/homebrewStorage";
 import { validateDiceFormula } from "../utils/rollDice";
@@ -8,9 +8,8 @@ type InitialHomebrewState = {
   error: string | null;
 };
 
-const getErrorMessage = (error: unknown): string => {
-  return error instanceof Error ? error.message : "An unexpected homebrew card error occurred.";
-};
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : "An unexpected homebrew card error occurred.";
 
 const createCardId = (): string => {
   try {
@@ -21,11 +20,15 @@ const createCardId = (): string => {
     return `homebrew-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   } catch (error) {
     console.error("Generating a homebrew card ID failed", { error });
-    return `homebrew-${Date.now()}`;
+    return `homebrew-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 };
 
 const loadInitialState = (): InitialHomebrewState => {
+  if (typeof window === "undefined") {
+    return { cards: [], error: null };
+  }
+
   try {
     return {
       cards: loadHomebrewCards(window.localStorage),
@@ -43,11 +46,13 @@ const loadInitialState = (): InitialHomebrewState => {
 export const useHomebrewCards = () => {
   const [initialState] = useState<InitialHomebrewState>(loadInitialState);
   const [cards, setCards] = useState<DiceCard[]>(initialState.cards);
+  const cardsRef = useRef<DiceCard[]>(initialState.cards);
   const [storageError, setStorageError] = useState<string | null>(initialState.error);
 
   const persistCards = (nextCards: DiceCard[]): boolean => {
     try {
       saveHomebrewCards(window.localStorage, nextCards);
+      cardsRef.current = nextCards;
       setCards(nextCards);
       setStorageError(null);
       return true;
@@ -61,14 +66,13 @@ export const useHomebrewCards = () => {
   const createCard = (draft: HomebrewCardDraft): boolean => {
     try {
       validateDiceFormula(draft.formula);
-
       const card: DiceCard = {
         ...draft,
         id: createCardId(),
         category: "homebrew"
       };
 
-      return persistCards([card, ...cards]);
+      return persistCards([card, ...cardsRef.current]);
     } catch (error) {
       console.error("Creating a homebrew card failed", { draft, error });
       setStorageError(getErrorMessage(error));
@@ -78,7 +82,7 @@ export const useHomebrewCards = () => {
 
   const deleteCard = (cardId: string): boolean => {
     try {
-      return persistCards(cards.filter((card) => card.id !== cardId));
+      return persistCards(cardsRef.current.filter((card) => card.id !== cardId));
     } catch (error) {
       console.error("Deleting a homebrew card failed", { cardId, error });
       setStorageError(getErrorMessage(error));
