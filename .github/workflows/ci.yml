@@ -10,7 +10,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test-and-build:
@@ -28,12 +28,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Upload resolved dependency lock
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-lock
-          path: package-lock.json
-          retention-days: 1
+      - name: Commit dependency lock on the feature branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/homebrew-builder-mvp'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Lock audited npm dependencies"
+            git push
+          fi
 
       - name: Run unit tests
         run: npm test
