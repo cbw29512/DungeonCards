@@ -33,6 +33,8 @@ export const App = () => {
         </div>
       </nav>
 
+      {activePage !== "home" && <h1 className="sr-only">Dungeon Cards</h1>}
+
       {activePage === "home" && (
         <section className="hero compact-hero">
           <div className="hero__content">
