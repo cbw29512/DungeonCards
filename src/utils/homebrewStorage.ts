@@ -32,13 +32,13 @@ const isHomebrewCard = (value: unknown): value is DiceCard => {
   );
 };
 
-const validateCardCollection = (cards: unknown): asserts cards is DiceCard[] => {
+function validateCardCollection(cards: unknown): asserts cards is DiceCard[] {
   if (!Array.isArray(cards) || cards.length > MAX_STORED_CARDS || !cards.every(isHomebrewCard)) {
     throw new Error("Saved homebrew card data has an invalid shape.");
   }
 
   cards.forEach((card) => validateDiceFormula(card.formula));
-};
+}
 
 export const loadHomebrewCards = (storage: StorageAdapter): DiceCard[] => {
   try {
