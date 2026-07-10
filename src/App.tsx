@@ -7,6 +7,7 @@ import { useHomebrewCards } from "./hooks/useHomebrewCards";
 import "./styles/base.css";
 import "./styles/cards.css";
 import "./styles/homebrew.css";
+import "./styles/accessibility.css";
 
 type AppPage = "home" | "player" | "dm" | "homebrew";
 
