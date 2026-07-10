@@ -24,10 +24,10 @@ export const App = () => {
       <nav className="top-nav" aria-label="Primary navigation">
         <strong>Dungeon Cards</strong>
         <div>
-          <button type="button" onClick={() => setActivePage("home")}>Home</button>
-          <button type="button" onClick={() => setActivePage("player")}>Player Deck</button>
-          <button type="button" onClick={() => setActivePage("dm")}>DM Deck</button>
-          <button type="button" onClick={() => setActivePage("homebrew")}>Homebrew</button>
+          <button aria-pressed={activePage === "home"} type="button" onClick={() => setActivePage("home")}>Home</button>
+          <button aria-pressed={activePage === "player"} type="button" onClick={() => setActivePage("player")}>Player Deck</button>
+          <button aria-pressed={activePage === "dm"} type="button" onClick={() => setActivePage("dm")}>DM Deck</button>
+          <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => setActivePage("homebrew")}>Homebrew</button>
         </div>
       </nav>
 
@@ -48,7 +48,7 @@ export const App = () => {
               <button className="role-card" type="button" onClick={() => setActivePage("dm")}>
                 <span>🎲</span>
                 <strong>DM Deck</strong>
-                <small>Traps, mimics, treasure, ambushes, puzzles, and encounter tools.</small>
+                <small>Traps, treasure, ambushes, prompts, and encounter tools.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
                 <span>🛠️</span>
@@ -65,7 +65,7 @@ export const App = () => {
           cards={sampleCards}
           eyebrow="Player Deck"
           title="Your most-used actions, ready immediately."
-          description="Flip attacks, damage, saves, spells, and favorite actions without searching a character sheet."
+          description="Flip attacks, damage, spells, initiative, and favorite actions without searching a character sheet."
         />
       )}
 
@@ -74,7 +74,7 @@ export const App = () => {
           cards={dmCards}
           eyebrow="DM Deck"
           title="Fast encounter tools for the table."
-          description="Prototype DM cards for traps, mimic chests, ambushes, and treasure."
+          description="Configurable prototype prompts for traps, chests, ambushes, and treasure."
         />
       )}
 
