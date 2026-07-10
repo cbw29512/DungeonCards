@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DeckState, DiceCard as DiceCardType, RollHistoryEntry } from "../types/cards";
 import { rollDiceFormula } from "../utils/rollDice";
 import { DiceCard } from "./DiceCard";
@@ -21,21 +21,20 @@ type DeckGridProps = {
   onDeleteCard?: (cardId: string) => boolean;
 };
 
-const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"]): RollHistoryEntry => {
-  return {
-    id: `${card.id}-${Date.now()}`,
-    cardId: card.id,
-    cardName: card.name,
-    category: card.category,
-    formula: card.formula,
-    result,
-    rolledAt: new Date().toISOString()
-  };
-};
+const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"]): RollHistoryEntry => ({
+  id: `${card.id}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  cardId: card.id,
+  cardName: card.name,
+  category: card.category,
+  formula: card.formula,
+  result,
+  rolledAt: new Date().toISOString()
+});
 
 export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: DeckGridProps) => {
   const [deckState, setDeckState] = useState<DeckState>(initialDeckState);
   const resetTimerRef = useRef<number | null>(null);
+  const sectionTitleId = `${eyebrow.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`;
 
   const clearResetTimer = () => {
     if (resetTimerRef.current !== null) {
@@ -44,9 +43,12 @@ export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: D
     }
   };
 
+  useEffect(() => {
+    return () => clearResetTimer();
+  }, []);
+
   const scheduleCardReset = () => {
     clearResetTimer();
-
     resetTimerRef.current = window.setTimeout(() => {
       setDeckState((currentState) => ({
         ...currentState,
@@ -71,7 +73,6 @@ export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: D
         },
         rollHistory: [historyEntry, ...currentState.rollHistory].slice(0, MAX_HISTORY_ITEMS)
       }));
-
       scheduleCardReset();
     } catch (error) {
       console.error("Card flip failed", { cardId: card.id, error });
@@ -80,17 +81,21 @@ export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: D
 
   const handleDelete = (cardId: string) => {
     try {
-      onDeleteCard?.(cardId);
+      const deleted = onDeleteCard?.(cardId);
+
+      if (deleted === false) {
+        console.error("Card deletion was not persisted", { cardId });
+      }
     } catch (error) {
       console.error("Card deletion failed", { cardId, error });
     }
   };
 
   return (
-    <section className="deck-section" aria-labelledby={`${eyebrow.toLowerCase().replace(/\s+/g, "-")}-title`}>
+    <section className="deck-section" aria-labelledby={sectionTitleId}>
       <div className="section-heading">
         <p>{eyebrow}</p>
-        <h2 id={`${eyebrow.toLowerCase().replace(/\s+/g, "-")}-title`}>{title}</h2>
+        <h2 id={sectionTitleId}>{title}</h2>
         <span>{description}</span>
       </div>
 
