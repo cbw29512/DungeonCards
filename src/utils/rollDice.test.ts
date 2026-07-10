@@ -1,5 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
-import { rollDiceFormula } from "./rollDice";
+import { rollDiceFormula, validateDiceFormula } from "./rollDice";
+
+describe("validateDiceFormula", () => {
+  it("accepts supported combat formulas", () => {
+    expect(() => validateDiceFormula("1d20+8")).not.toThrow();
+    expect(() => validateDiceFormula("10d6")).not.toThrow();
+    expect(() => validateDiceFormula("2d8+4")).not.toThrow();
+  });
+
+  it("rejects unsupported text and excessive dice counts", () => {
+    expect(() => validateDiceFormula("fireball 10d6")).toThrow("Unsupported dice formula");
+    expect(() => validateDiceFormula("101d6")).toThrow("Dice count cannot exceed 100");
+  });
+});
 
 describe("rollDiceFormula", () => {
   it("rolls a weapon damage formula with a modifier", () => {
@@ -25,12 +38,23 @@ describe("rollDiceFormula", () => {
 
       expect(result.dice[0].results).toHaveLength(10);
       expect(result.total).toBe(10);
+      expect(result.isFailure).toBe(false);
     } finally {
       vi.restoreAllMocks();
     }
   });
 
-  it("rejects unsupported formula text", () => {
-    expect(() => rollDiceFormula("fireball 10d6")).toThrow("Unsupported dice formula");
+  it("uses the card's natural-roll thresholds", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.999);
+
+    try {
+      const result = rollDiceFormula("1d20+8", { critOn: 20, failOn: 1 });
+
+      expect(result.total).toBe(28);
+      expect(result.isCritical).toBe(true);
+      expect(result.isFailure).toBe(false);
+    } finally {
+      vi.restoreAllMocks();
+    }
   });
 });
