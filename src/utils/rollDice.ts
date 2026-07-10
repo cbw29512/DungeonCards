@@ -119,6 +119,12 @@ export const rollDiceFormula = (formula: string, options: RollOptions = {}): Rol
       results: Array.from({ length: term.count }, () => rollSingleDie(term.sides) * term.sign)
     }));
     const diceTotal = dice.flatMap((die) => die.results).reduce((sum, roll) => sum + roll, 0);
+    const total = diceTotal + parsed.modifier;
+
+    if (!Number.isSafeInteger(total)) {
+      throw new Error("The final dice total is outside the supported range.");
+    }
+
     const singleNaturalRoll =
       dice.length === 1 && dice[0].results.length === 1 && dice[0].results[0] > 0
         ? dice[0].results[0]
@@ -128,7 +134,7 @@ export const rollDiceFormula = (formula: string, options: RollOptions = {}): Rol
       formula,
       dice,
       modifier: parsed.modifier,
-      total: diceTotal + parsed.modifier,
+      total,
       isCritical: options.critOn !== undefined && singleNaturalRoll === options.critOn,
       isFailure: options.failOn !== undefined && singleNaturalRoll === options.failOn
     };
