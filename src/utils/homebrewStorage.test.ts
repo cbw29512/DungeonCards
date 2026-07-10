@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DiceCard } from "../types/cards";
 import {
+  HOMEBREW_STORAGE_KEY,
   loadHomebrewCards,
   saveHomebrewCards,
   type StorageAdapter
@@ -40,17 +41,34 @@ describe("homebrew card storage", () => {
   });
 
   it("returns an empty list when no cards have been saved", () => {
-    const storage = new MemoryStorage();
-
-    expect(loadHomebrewCards(storage)).toEqual([]);
+    expect(loadHomebrewCards(new MemoryStorage())).toEqual([]);
   });
 
-  it("rejects malformed saved card data", () => {
-    const storage = new MemoryStorage();
-    storage.setItem("dungeon-cards.homebrew.v1", "not-json");
+  it("rejects malformed JSON and malformed card fields", () => {
+    const malformedJsonStorage = new MemoryStorage();
+    malformedJsonStorage.setItem(HOMEBREW_STORAGE_KEY, "not-json");
 
-    expect(() => loadHomebrewCards(storage)).toThrow(
+    expect(() => loadHomebrewCards(malformedJsonStorage)).toThrow(
       "Saved homebrew cards could not be loaded"
+    );
+
+    const malformedCardStorage = new MemoryStorage();
+    malformedCardStorage.setItem(
+      HOMEBREW_STORAGE_KEY,
+      JSON.stringify([{ ...homebrewCard, name: "", critOn: Number.NaN }])
+    );
+
+    expect(() => loadHomebrewCards(malformedCardStorage)).toThrow(
+      "Saved homebrew cards could not be loaded"
+    );
+  });
+
+  it("refuses to persist invalid formulas", () => {
+    const storage = new MemoryStorage();
+    const invalidCard = { ...homebrewCard, formula: "roll a d20" };
+
+    expect(() => saveHomebrewCards(storage, [invalidCard])).toThrow(
+      "Homebrew cards could not be saved"
     );
   });
 });
