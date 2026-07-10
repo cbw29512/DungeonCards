@@ -19,6 +19,8 @@ export type DiceCard = {
   isFavorite: boolean;
 };
 
+export type HomebrewCardDraft = Omit<DiceCard, "id" | "category">;
+
 export type DieRoll = {
   sides: number;
   results: number[];
