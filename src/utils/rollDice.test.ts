@@ -73,4 +73,10 @@ describe("rollDiceFormula", () => {
       vi.restoreAllMocks();
     }
   });
+
+  it("rejects a final total outside JavaScript's safe integer range", () => {
+    expect(() => rollDiceFormula("1d6+9007199254740991")).toThrow(
+      "final dice total is outside the supported range"
+    );
+  });
 });
