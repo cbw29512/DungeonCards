@@ -1,6 +1,24 @@
 import type { DieRoll, RollResult } from "../types/cards";
 
 const DICE_FORMULA_PATTERN = /([+-]?\d*d\d+)|([+-]\d+)/gi;
+const MAX_DICE_PER_TERM = 100;
+const MAX_DIE_SIDES = 1000;
+
+type RollOptions = {
+  critOn?: number;
+  failOn?: number;
+};
+
+type ParsedDiceTerm = {
+  count: number;
+  sides: number;
+  sign: 1 | -1;
+};
+
+type ParsedFormula = {
+  diceTerms: ParsedDiceTerm[];
+  modifier: number;
+};
 
 const parseSignedNumber = (value: string): number => {
   const parsed = Number.parseInt(value, 10);
@@ -12,58 +30,94 @@ const parseSignedNumber = (value: string): number => {
   return parsed;
 };
 
-const rollSingleDie = (sides: number): number => {
-  if (!Number.isInteger(sides) || sides < 2) {
-    throw new Error(`Invalid die size: d${sides}`);
+const parseDiceFormula = (formula: string): ParsedFormula => {
+  const cleanedFormula = formula.replace(/\s+/g, "");
+
+  if (!cleanedFormula) {
+    throw new Error("Dice formula is required.");
   }
 
+  const matches = cleanedFormula.match(DICE_FORMULA_PATTERN);
+
+  if (!matches || matches.join("") !== cleanedFormula) {
+    throw new Error(`Unsupported dice formula: ${formula}`);
+  }
+
+  const diceTerms: ParsedDiceTerm[] = [];
+  let modifier = 0;
+
+  matches.forEach((token) => {
+    if (!token.toLowerCase().includes("d")) {
+      modifier += parseSignedNumber(token);
+      return;
+    }
+
+    const sign: 1 | -1 = token.startsWith("-") ? -1 : 1;
+    const unsignedToken = token.replace(/^[+-]/, "");
+    const [countText, sidesText] = unsignedToken.toLowerCase().split("d");
+    const count = countText === "" ? 1 : parseSignedNumber(countText);
+    const sides = parseSignedNumber(sidesText);
+
+    if (!Number.isInteger(count) || count < 1) {
+      throw new Error(`Invalid dice count: ${count}`);
+    }
+
+    if (count > MAX_DICE_PER_TERM) {
+      throw new Error(`Dice count cannot exceed ${MAX_DICE_PER_TERM}.`);
+    }
+
+    if (!Number.isInteger(sides) || sides < 2) {
+      throw new Error(`Invalid die size: d${sides}`);
+    }
+
+    if (sides > MAX_DIE_SIDES) {
+      throw new Error(`Die size cannot exceed d${MAX_DIE_SIDES}.`);
+    }
+
+    diceTerms.push({ count, sides, sign });
+  });
+
+  if (diceTerms.length === 0) {
+    throw new Error("A dice formula must contain at least one die.");
+  }
+
+  return { diceTerms, modifier };
+};
+
+const rollSingleDie = (sides: number): number => {
   return Math.floor(Math.random() * sides) + 1;
 };
 
-export const rollDiceFormula = (formula: string): RollResult => {
+export const validateDiceFormula = (formula: string): void => {
   try {
-    const cleanedFormula = formula.replace(/\s+/g, "");
-    const matches = cleanedFormula.match(DICE_FORMULA_PATTERN);
+    parseDiceFormula(formula);
+  } catch (error) {
+    console.error("Dice formula validation failed", { formula, error });
+    throw error;
+  }
+};
 
-    if (!matches || matches.join("") !== cleanedFormula) {
-      throw new Error(`Unsupported dice formula: ${formula}`);
-    }
-
-    const dice: DieRoll[] = [];
-    let modifier = 0;
-
-    matches.forEach((token) => {
-      const isDiceToken = token.toLowerCase().includes("d");
-
-      if (!isDiceToken) {
-        modifier += parseSignedNumber(token);
-        return;
-      }
-
-      const sign = token.startsWith("-") ? -1 : 1;
-      const unsignedToken = token.replace(/^[+-]/, "");
-      const [countText, sidesText] = unsignedToken.toLowerCase().split("d");
-      const count = countText === "" ? 1 : parseSignedNumber(countText);
-      const sides = parseSignedNumber(sidesText);
-
-      if (!Number.isInteger(count) || count < 1) {
-        throw new Error(`Invalid dice count: ${count}`);
-      }
-
-      const results = Array.from({ length: count }, () => rollSingleDie(sides) * sign);
-      dice.push({ sides, results });
-    });
+export const rollDiceFormula = (formula: string, options: RollOptions = {}): RollResult => {
+  try {
+    const parsed = parseDiceFormula(formula);
+    const dice: DieRoll[] = parsed.diceTerms.map((term) => ({
+      sides: term.sides,
+      results: Array.from({ length: term.count }, () => rollSingleDie(term.sides) * term.sign)
+    }));
 
     const diceTotal = dice.flatMap((die) => die.results).reduce((sum, roll) => sum + roll, 0);
-    const allRolls = dice.flatMap((die) => die.results.map(Math.abs));
+    const singleNaturalRoll =
+      dice.length === 1 && dice[0].results.length === 1 && dice[0].results[0] > 0
+        ? dice[0].results[0]
+        : null;
 
     return {
       formula,
       dice,
-      modifier,
-      total: diceTotal + modifier,
-      isCritical: allRolls.length === 1 && allRolls[0] === 20,
-      isFailure: allRolls.length === 1 && allRolls[0] === 1
+      modifier: parsed.modifier,
+      total: diceTotal + parsed.modifier,
+      isCritical: options.critOn !== undefined && singleNaturalRoll === options.critOn,
+      isFailure: options.failOn !== undefined && singleNaturalRoll === options.failOn
     };
   } catch (error) {
     console.error("Dice formula roll failed", { formula, error });
