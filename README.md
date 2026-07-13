@@ -21,16 +21,12 @@ A user can:
 
 ### Player cards
 
-- The complete SRD 5.1 weapon table: 37 weapons.
-- The complete SRD 5.2.1 weapon table: 38 weapons.
-- 2014-only Net behavior and 2024-only Musket and Pistol variants remain ruleset-specific.
-- Weapon cards include attack, damage, and critical-damage modes when the weapon has a damage roll.
-- Versatile weapons select one-handed or two-handed damage directly on the card.
-- 2024 weapon variants display one of the eight SRD mastery properties; 2014 variants do not.
-- Blowgun uses fixed damage plus the selected modifier instead of fake dice.
+- Complete SRD 5.1 weapon table: 37 weapons.
+- Complete SRD 5.2.1 weapon table: 38 weapons.
+- 2014-only Net and 2024-only Musket and Pistol remain ruleset-specific.
+- Attack, damage, critical, versatile, and fixed-damage weapon behavior is modeled explicitly.
 - Seventeen audited spell families: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, Scorching Ray, Burning Hands, Thunderwave, Shatter, Lightning Bolt, Cone of Cold, Call Lightning, Moonbeam, Blight, Guiding Bolt, Hellish Rebuke, and Blink.
-- Slot-scaled spells calculate their formula from the selected spell-slot level.
-- Cantrips calculate their formula from the selected character level.
+- Spell slots, character level, attack bonus, and relevant alternate modes are selected on the card.
 - Blink preserves its edition-specific random check: 2014 uses 1d20 and 2024 uses 1d6.
 
 ### DM cards
@@ -40,10 +36,10 @@ A user can:
 - Sentient-item ability scores, alignment, communication, senses, and purpose.
 - Magic-item raw-material availability.
 - Wand recharge and last-charge destruction checks.
-- The SRD 5.2.1 Wand of Wonder d100 effect table.
+- SRD 5.2.1 Wand of Wonder d100 effect table.
 - Armor of Resistance random damage type for both SRDs.
 
-Weapon coverage is complete for both selected SRDs. The 17-spell set and DM tools are audited expansion batches, not a claim that every SRD spell, trap, or magic item has already been imported.
+Weapon coverage is complete for both selected SRDs. The spell and DM sets are audited expansion batches, not a claim that every SRD spell, trap, or magic item has already been imported.
 
 ## Rules Card Schema
 
@@ -71,12 +67,12 @@ Each card family can contain independent 2014 and 2024 variants. Selecting a rul
 
 ## Rules Guardrails
 
-- SRD variants are stored as source-referenced, read-only application data.
+- SRD variants are source-referenced, read-only application data.
 - Homebrew cards are stored separately in browser localStorage.
-- Natural 20 and natural 1 outcomes are available only for a formula containing exactly one positive d20 plus an optional static modifier.
-- Initiative, ability checks, damage, healing, and random tables do not automatically gain attack-roll outcomes.
-- Critical-damage modes double weapon damage dice rather than doubling static modifiers.
-- Fixed weapon damage remains fixed on a critical hit because there are no damage dice to double.
+- Natural 20 and natural 1 outcomes are limited to valid attack-roll formulas.
+- Initiative, checks, damage, healing, and random tables do not gain attack-roll outcomes.
+- Critical-damage modes double damage dice, not static modifiers.
+- Fixed weapon damage stays fixed on a critical hit because there are no damage dice to double.
 - Advantage and Disadvantage roll two d20s and keep the appropriate die.
 - 2014 and 2024 variants are regression-tested for separation.
 
@@ -99,8 +95,8 @@ The parser rejects unsupported text, unsafe integers, more than 100 total dice, 
 ## State Ownership
 
 - `App` owns navigation.
-- `RulesDeck` owns search and the shared rules-card history.
-- `useRuleCardState` owns one card's selected ruleset, mode, option, scaling, modifiers, Advantage state, and latest result.
+- `RulesDeck` owns search and shared rules-card history.
+- `useRuleCardState` owns each card's ruleset, mode, choice, scaling, modifiers, Advantage state, and latest result.
 - `ruleCardFormula.ts` owns spell scaling, formula choices, and table-range resolution.
 - `rollDice.ts` owns validated rolling, kept dice, fixed results, and attack-roll outcomes.
 - `useHomebrewCards` owns separately persisted custom cards.
@@ -126,17 +122,17 @@ GitHub Actions runs dependency installation, a high-severity audit, unit and cat
 
 ## Current Limitations
 
-- The non-weapon SRD catalog is intentionally being expanded in audited batches rather than bulk-imported without verification.
-- Homebrew cards use the original single-formula builder and have not yet adopted every multi-mode rules-card control.
+- Non-weapon SRD content is expanded in audited batches rather than bulk-imported without verification.
+- Homebrew still uses the original single-formula builder and has not adopted every multi-mode control.
 - Homebrew remains local to the current browser and device.
 - There is no account, cloud synchronization, deck import/export, or print-sheet generator yet.
 - The table log resets when its page unmounts or the browser reloads.
 
 ## Next Audited Expansion
 
-1. Add more scalable spells, including cantrips, multi-target spells, and spells whose scaling changes target count rather than dice.
+1. Add more cantrips, multi-target spells, and spells whose scaling changes target count instead of dice.
 2. Add more SRD random magic items, recharge tables, traps, and encounter-facing tools.
-3. Migrate Homebrew to the multi-mode card schema with explicit ruleset and source badges.
+3. Migrate Homebrew to the multi-mode schema with explicit ruleset and source badges.
 4. Add component-level interaction and visual-regression tests.
 5. Add print sheets sized for 2.5 × 3.5 inch poker cards.
 
