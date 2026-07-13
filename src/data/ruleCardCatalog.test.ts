@@ -101,6 +101,18 @@ describe("rules card catalog", () => {
     expect(oldChoices?.[2]?.table?.[7]?.result).toBe("Tiger");
   });
 
+  it("preserves Bag of Beans range changes between editions", () => {
+    const card = ruleCardCatalog.find((candidate) => candidate.id === "bag-of-beans");
+    const oldTable = card?.variants["srd-5.1-2014"]?.modes[0].choices?.[0].table;
+    const newTable = card?.variants["srd-5.2.1-2024"]?.modes[0].choices?.[0].table;
+
+    expect(oldTable).toHaveLength(12);
+    expect(newTable).toHaveLength(12);
+    expect(oldTable?.find((entry) => entry.min === 91)?.max).toBe(99);
+    expect(newTable?.find((entry) => entry.min === 91)?.max).toBe(95);
+    expect(newTable?.find((entry) => entry.min === 96)?.result).toContain("beanstalk");
+  });
+
   it("keeps the random resistance table identical across both SRDs", () => {
     const card = ruleCardCatalog.find((candidate) => candidate.id === "armor-of-resistance");
     const oldTable = card?.variants["srd-5.1-2014"]?.modes[0].choices?.[0].table;
