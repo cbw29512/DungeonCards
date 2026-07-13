@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import type { RuleCard } from "../types/ruleCards";
 import type { WorkspaceMoveDirection, WorkspaceRole } from "../types/workspaces";
 import {
   addWorkspaceCard,
@@ -14,7 +13,12 @@ import {
 
 const STARTER_CARD_COUNT = 6;
 
-export const useCardWorkspace = (role: WorkspaceRole, cards: RuleCard[]) => {
+type WorkspaceItem = { id: string };
+
+export const useCardWorkspace = <T extends WorkspaceItem>(
+  role: WorkspaceRole,
+  cards: T[]
+) => {
   const allowedCardIds = useMemo(() => cards.map((card) => card.id), [cards]);
   const defaultCardIds = useMemo(
     () => allowedCardIds.slice(0, STARTER_CARD_COUNT),
