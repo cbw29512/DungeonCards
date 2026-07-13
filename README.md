@@ -1,67 +1,120 @@
 # Dungeon Cards
 
-Dungeon Cards is a React and TypeScript MVP for fast tabletop action cards. A user can flip a card, receive a validated randomized dice result, review recent rolls, and create reusable homebrew cards that are saved in the browser.
+Dungeon Cards is a React and TypeScript tabletop card engine. Player and DM cards use a uniform 5:7 poker-card shape, place their controls directly on the card, and keep SRD 5.1 (2014) and SRD 5.2.1 (2024) mechanics separate.
 
-## Current MVP Definition of Done
+## Current Play Experience
 
-A player can:
+A Player or DM can:
 
-1. Open the responsive React website.
-2. Choose a Player, DM, or Homebrew deck.
-3. Flip a card and receive a randomized result.
-4. See the individual dice, modifier, and final total.
-5. Review the latest 25 rolls in the session log.
-6. Create a custom card with a name, formula, icon, and description.
-7. Receive a clear validation error for unsupported formulas.
-8. Save custom cards in browser localStorage.
-9. Refresh the page without losing saved custom cards.
-10. Delete a saved custom card.
+1. Open a separate Player or DM workspace.
+2. Use **My Table** to see only the cards selected for current play.
+3. Open **Library** to search every available card for that role.
+4. Add or remove cards without deleting or changing official card data.
+5. Pin important cards to the front of My Table.
+6. Move cards earlier or later within their pinned or unpinned group.
+7. Reload the browser and restore the Player and DM tables independently.
+8. Reset either workspace to its starter six-card table.
+9. Select 2014 or 2024, roll modes, modifiers, spell slots, character levels, and Advantage directly on a card.
+10. Resolve random tables and review recent results in the shared roll log.
 
-## Card Data Schema
+The current workspace owner is an anonymous local profile. Workspace persistence is behind a `WorkspaceRepository` interface so authenticated cloud persistence can replace local storage without rewriting the card UI.
+
+## Current Audited Catalog
+
+### Player cards
+
+- Complete SRD 5.1 weapon table: 37 weapons.
+- Complete SRD 5.2.1 weapon table: 38 weapons.
+- 2014-only Net and 2024-only Musket and Pistol remain ruleset-specific.
+- Attack, damage, critical, versatile, and fixed-damage weapon behavior is modeled explicitly.
+- Twenty-two audited spell families: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, Scorching Ray, Burning Hands, Thunderwave, Shatter, Lightning Bolt, Cone of Cold, Call Lightning, Moonbeam, Blight, Guiding Bolt, Hellish Rebuke, Blink, Chill Touch, Poison Spray, Ray of Frost, Sacred Flame, and Eldritch Blast.
+- Spell slots, character level, attack bonus, and relevant alternate modes are selected on the card.
+- Blink preserves its edition-specific random check: 2014 uses 1d20 and 2024 uses 1d6.
+- Chill Touch preserves its 2014 ranged d8 version and 2024 Touch d10 version.
+- Poison Spray preserves its 2014 Constitution-save version and 2024 ranged-attack version.
+- Eldritch Blast provides separate attack and per-beam damage controls plus a convenience total when all beams hit.
+
+### DM cards
+
+- 2014 trap damage severity by party tier and severity.
+- 2024 Hidden Pit and Poisoned Darts scaling.
+- Sentient-item ability scores, alignment, communication, senses, and purpose.
+- Magic-item raw-material availability.
+- Wand recharge and last-charge destruction checks.
+- SRD 5.2.1 Wand of Wonder d100 effect table.
+- Armor of Resistance random damage type for both SRDs.
+- Bag of Tricks with selectable Gray, Rust, and Tan d8 creature tables.
+- Bag of Beans with separate 2014 and 2024 d100 effects and dump-damage modes.
+
+Weapon coverage is complete for both selected SRDs. The spell and DM sets are audited expansion batches, not a claim that every SRD spell, trap, or magic item has already been imported.
+
+## Rules Card Schema
 
 ```ts
-type DiceCard = {
+type RuleCard = {
   id: string;
   name: string;
-  category: CardCategory;
-  formula: string;
-  description: string;
+  kind: "weapon" | "spell" | "trap" | "magic-item" | "dm-table";
   imageEmoji: string;
-  critOn?: number;
-  failOn?: number;
-  isFavorite: boolean;
+  variants: Partial<Record<RulesetId, RuleCardVariant>>;
 };
 ```
 
-`HomebrewCardDraft` is the same structure without `id` or `category`. The application adds those values only after validation.
+Each card family can contain independent 2014 and 2024 variants. Selecting a ruleset loads that variant rather than mutating or blending SRD content.
 
-## State Ownership
+## Workspace Schema
 
-- `App` owns the active page.
-- `useHomebrewCards` owns custom-card state and localStorage persistence.
-- `DeckGrid` owns active-card state, roll results, reset timing, and the session roll history.
-- `rollDice.ts` owns formula parsing, limits, random rolling, and natural-roll evaluation.
-- `homebrewStorage.ts` owns persisted-data validation and serialization.
+```ts
+type CardWorkspace = {
+  schemaVersion: 1;
+  id: string;
+  ownerKey: string;
+  name: string;
+  role: "player" | "dm";
+  activeCardIds: string[];
+  pinnedCardIds: string[];
+  cardOrder: string[];
+  updatedAt: string;
+};
+```
+
+Workspaces store card IDs rather than copies of official cards. Removing a card from My Table changes only workspace visibility.
+
+## Rules Guardrails
+
+- SRD variants are source-referenced, read-only application data.
+- Player and DM workspace selections are stored independently.
+- Homebrew cards remain separate from SRD cards.
+- Natural 20 and natural 1 outcomes are limited to valid attack-roll formulas.
+- Initiative, checks, damage, healing, and random tables do not gain attack-roll outcomes.
+- Critical-damage modes double damage dice, not static modifiers.
+- Fixed weapon damage stays fixed on a critical hit because there are no damage dice to double.
+- Advantage and Disadvantage roll two d20s and keep the appropriate die.
+- 2014 and 2024 variants are regression-tested for separation.
 
 ## Dice Engine
 
 Supported examples include:
 
 - `1d20+8`
-- `1d12+5`
 - `10d6`
 - `2d8+4`
 - `2d6-1`
+- `4d6kh3` — roll four d6 and keep the highest three
+- `2d20kl1` — roll two d20 and keep the lowest one
+- `1+3` — fixed damage plus a modifier
 
-The parser rejects unsupported text, unsafe integers, more than 100 total dice, more than 100 dice in one term, dice larger than d1000, and formulas longer than 60 characters.
+Production rolls use `crypto.getRandomValues` with rejection sampling. Tests inject deterministic integer sources so mechanics can be verified without weakening production randomness.
 
-Natural 20 and natural 1 markers are opt-in card rules. They are enabled on attack cards and are not automatically applied to initiative, damage rolls, or arbitrary d20 checks.
+## State Ownership
 
-## Rules Accuracy Guardrails
-
-Starter player cards are examples and state their assumptions. DM cards are labeled as configurable prompts instead of official encounter, CR, monster, trap, or treasure rules.
-
-Before adding a production library of official game actions, the schema must add an explicit ruleset field so 2014 and 2024 material cannot be mixed accidentally. Content should also record its source or be clearly labeled as homebrew.
+- `App` owns top-level navigation.
+- `RulesDeck` owns My Table/Library view, search, and shared roll history.
+- `useCardWorkspace` owns active cards, pins, ordering, reset, and repository persistence.
+- `WorkspaceRepository` is the boundary between the UI and local or future cloud storage.
+- `useRuleCardState` owns each card's ruleset, mode, choice, scaling, modifiers, Advantage state, and latest result.
+- `rollDice.ts` owns validated rolling, kept dice, fixed results, and attack-roll outcomes.
+- `useHomebrewCards` owns separately persisted custom cards.
 
 ## Local Setup
 
@@ -80,25 +133,30 @@ npm run build
 npm run check
 ```
 
-GitHub Actions runs the tests and production build for feature branches, pull requests, and `main`.
+GitHub Actions runs dependency installation, a high-severity audit, unit and catalog regression tests, strict TypeScript compilation, and the Vite production build.
 
 ## Current Limitations
 
-- Homebrew cards are stored only in the current browser and device.
-- There is no account, backend, cloud synchronization, or import/export yet.
-- Advantage, disadvantage, spell upcasting controls, favorites, and deck folders are not implemented yet.
-- The session roll history resets when its deck page unmounts or the browser reloads.
+- There is no production login or cloud synchronization yet.
+- Only one local Player workspace and one local DM workspace exist; multiple named characters, campaigns, and encounters are still pending.
+- Card-specific selected modes and modifiers are not yet restored across sessions.
+- Non-weapon SRD content is expanded in audited batches rather than bulk-imported without verification.
+- Homebrew still uses the original single-formula builder.
+- There is no deck import/export or print-sheet generator yet.
+- The roll log resets when its page unmounts or the browser reloads.
 
-## Next Build Steps
+## Next Expansion
 
-1. Add explicit 2014 and 2024 ruleset metadata.
-2. Add deck folders: Player Deck, DM Deck, Monster Deck, and Favorites.
-3. Add advantage and disadvantage rules.
-4. Add spell upcast controls.
-5. Add deck import and export.
-6. Add component-level interaction tests.
-7. Add backend authentication and database storage only after the browser MVP is validated.
+1. Add multiple named Player and DM workspaces.
+2. Select a production authentication and cloud-storage provider.
+3. Persist each card's selected ruleset, mode, slot, level, and modifiers per workspace.
+4. Add more spells, random magic items, traps, and encounter-facing tools.
+5. Add print sheets sized for 2.5 × 3.5 inch poker cards.
+
+## Attribution
+
+See [ATTRIBUTION.md](ATTRIBUTION.md) for the required SRD 5.1 and SRD 5.2.1 Creative Commons attribution statements.
 
 ## Architecture Rule
 
-Keep source files under 150 lines where practical. Split components, data, styling, persistence, and rules logic before files become difficult to review.
+Keep handwritten source files under 150 lines where practical. Split components, data, styling, persistence, and rules logic before they become difficult to audit.

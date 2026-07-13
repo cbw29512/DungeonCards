@@ -1,0 +1,79 @@
+.rule-history {
+  position: sticky;
+  top: 5.5rem;
+  max-height: calc(100vh - 7rem);
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 1.15rem;
+  background: rgb(0 0 0 / 24%);
+  overflow: hidden;
+}
+
+.rule-history header,
+.rule-history li div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.rule-history h3 {
+  margin: 0;
+}
+
+.rule-history button {
+  padding: 0.35rem 0.6rem;
+  color: #f8efe0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 8%);
+  font-size: 0.7rem;
+}
+
+.rule-history > p {
+  color: #d9c9b8;
+}
+
+.rule-history ol {
+  display: grid;
+  max-height: calc(100vh - 12rem);
+  margin: 0.8rem 0 0;
+  padding: 0;
+  gap: 0.55rem;
+  list-style: none;
+  overflow: auto;
+}
+
+.rule-history li {
+  padding: 0.65rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 6%);
+}
+
+.rule-history li span {
+  color: #fff0c2;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.rule-history small {
+  color: #f7c76b;
+}
+
+.rule-history li p {
+  margin: 0.35rem 0 0;
+  color: #d9c9b8;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 900px) {
+  .rule-history {
+    position: static;
+    max-height: none;
+  }
+
+  .rule-history ol {
+    max-height: 360px;
+  }
+}

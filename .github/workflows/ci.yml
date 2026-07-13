@@ -5,9 +5,11 @@ on:
     branches:
       - main
       - "feature/**"
+      - "agent/**"
   pull_request:
     branches:
       - main
+      - "feature/**"
 
 permissions:
   contents: read

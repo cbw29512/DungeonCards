@@ -27,6 +27,27 @@ describe("formatRollBreakdown", () => {
     expect(formatRollBreakdown(result)).toBe("4 - 2 - 1");
   });
 
+  it("shows all dice and the kept result for advantage", () => {
+    const result = makeResult({
+      dice: [{ sides: 20, results: [4, 18], keptResults: [18] }],
+      modifier: 5,
+      total: 23
+    });
+
+    expect(formatRollBreakdown(result)).toBe("[4, 18] → 18 + 5");
+  });
+
+  it("formats a fixed result without a leading plus sign", () => {
+    const result = makeResult({
+      formula: "1+3",
+      dice: [],
+      modifier: 4,
+      total: 4
+    });
+
+    expect(formatRollBreakdown(result)).toBe("4");
+  });
+
   it("shows a ready state before a card is rolled", () => {
     expect(formatRollBreakdown()).toBe("Ready");
   });

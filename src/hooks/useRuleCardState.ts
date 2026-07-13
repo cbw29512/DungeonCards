@@ -1,0 +1,148 @@
+import { useMemo, useState } from "react";
+import type {
+  AdvantageMode,
+  RuleCard,
+  RuleRollHistoryEntry,
+  RuleRollMode,
+  RuleRollResult,
+  RulesetId
+} from "../types/ruleCards";
+import { createClientId } from "../utils/createId";
+import {
+  getFormulaChoice,
+  getScaleBounds,
+  resolveRuleFormula,
+  resolveRuleTable,
+  resolveTableResult
+} from "../utils/ruleCardFormula";
+import { rollDiceFormula } from "../utils/rollDice";
+
+type RuleCardStateProps = {
+  card: RuleCard;
+  onRoll: (entry: RuleRollHistoryEntry) => void;
+};
+
+const getRulesets = (card: RuleCard): RulesetId[] =>
+  Object.keys(card.variants) as RulesetId[];
+
+export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
+  const rulesets = useMemo(() => getRulesets(card), [card]);
+  const [ruleset, setRuleset] = useState<RulesetId>(rulesets[0]);
+  const initialVariant = card.variants[rulesets[0]]!;
+  const [modeId, setModeId] = useState(initialVariant.modes[0].id);
+  const [choiceId, setChoiceId] = useState(initialVariant.modes[0].choices?.[0]?.id);
+  const [slotLevel, setSlotLevel] = useState(1);
+  const [characterLevel, setCharacterLevel] = useState(1);
+  const [modifier, setModifier] = useState(
+    initialVariant.modes[0].modifierControl?.defaultValue ?? 0
+  );
+  const [advantageMode, setAdvantageMode] = useState<AdvantageMode>("normal");
+  const [result, setResult] = useState<RuleRollResult>();
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const variant = card.variants[ruleset]!;
+  const mode = variant.modes.find((candidate) => candidate.id === modeId) ?? variant.modes[0];
+  const formula = resolveRuleFormula(
+    mode,
+    slotLevel,
+    characterLevel,
+    modifier,
+    choiceId
+  );
+  const selectedChoice = getFormulaChoice(mode, choiceId);
+  const scaleBounds = getScaleBounds(mode);
+
+  const configureMode = (nextMode: RuleRollMode) => {
+    setModeId(nextMode.id);
+    setChoiceId(nextMode.choices?.[0]?.id);
+    setModifier(nextMode.modifierControl?.defaultValue ?? 0);
+    setSlotLevel(nextMode.scaling?.kind === "slot-dice" ? nextMode.scaling.baseLevel : 1);
+    setCharacterLevel(1);
+    setAdvantageMode("normal");
+    setResult(undefined);
+    setIsFlipped(false);
+  };
+
+  const changeRuleset = (nextRuleset: RulesetId) => {
+    try {
+      const nextVariant = card.variants[nextRuleset];
+
+      if (!nextVariant) {
+        throw new Error(`Card ${card.id} has no ${nextRuleset} variant.`);
+      }
+
+      setRuleset(nextRuleset);
+      configureMode(nextVariant.modes[0]);
+    } catch (error) {
+      console.error("Changing a card ruleset failed", { cardId: card.id, nextRuleset, error });
+    }
+  };
+
+  const changeMode = (nextModeId: string) => {
+    const nextMode = variant.modes.find((candidate) => candidate.id === nextModeId);
+
+    if (nextMode) {
+      configureMode(nextMode);
+    }
+  };
+
+  const roll = () => {
+    try {
+      const table = resolveRuleTable(mode, choiceId);
+      const baseResult = rollDiceFormula(formula, {
+        advantageMode: mode.allowsAdvantage ? advantageMode : "normal",
+        naturalRollRule: mode.naturalRollRule ?? "none"
+      });
+      const nextResult: RuleRollResult = {
+        ...baseResult,
+        tableResult: resolveTableResult(table, baseResult.total)
+      };
+
+      setResult(nextResult);
+      setIsFlipped(true);
+      onRoll({
+        id: createClientId("rule-roll"),
+        cardId: card.id,
+        cardName: card.name,
+        ruleset,
+        modeLabel: mode.label,
+        result: nextResult,
+        rolledAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Rolling an interactive rule card failed", {
+        cardId: card.id,
+        ruleset,
+        modeId: mode.id,
+        formula,
+        error
+      });
+    }
+  };
+
+  return {
+    rulesets,
+    ruleset,
+    variant,
+    mode,
+    choiceId,
+    selectedChoice,
+    slotLevel,
+    characterLevel,
+    modifier,
+    advantageMode,
+    result,
+    isFlipped,
+    formula,
+    scaleBounds,
+    changeRuleset,
+    changeMode,
+    setChoiceId,
+    setSlotLevel,
+    setCharacterLevel,
+    setModifier,
+    setAdvantageMode,
+    setIsFlipped,
+    roll
+  };
+};

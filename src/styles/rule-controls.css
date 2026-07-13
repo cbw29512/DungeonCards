@@ -1,0 +1,152 @@
+.rule-toggle {
+  display: grid;
+  gap: 0.3rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.rule-toggle button,
+.rule-card__roll,
+.rule-card__back-actions button,
+.rule-stepper button,
+.rule-history button {
+  border: 1px solid rgb(255 255 255 / 16%);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.rule-toggle button {
+  padding: 0.28rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 7%);
+  font-size: 0.64rem;
+}
+
+.rule-toggle button[aria-pressed="true"] {
+  color: #160d07;
+  border-color: #ffd36f;
+  background: linear-gradient(135deg, #ffd36f, #f08a4b);
+}
+
+.rule-field,
+.rule-stepper {
+  display: grid;
+  align-items: center;
+  gap: 0.35rem;
+  grid-template-columns: 58px minmax(0, 1fr);
+}
+
+.rule-field > span,
+.rule-stepper > span {
+  color: #d9c9b8;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.rule-field select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.3rem 0.35rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.42rem;
+  background: #251633;
+  font-size: 0.64rem;
+}
+
+.rule-stepper > div {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+}
+
+.rule-stepper button {
+  min-height: 25px;
+  padding: 0;
+  color: #f8efe0;
+  background: rgb(255 255 255 / 8%);
+}
+
+.rule-stepper button:first-child {
+  border-radius: 0.42rem 0 0 0.42rem;
+}
+
+.rule-stepper button:last-child {
+  border-radius: 0 0.42rem 0.42rem 0;
+}
+
+.rule-stepper button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.rule-stepper output {
+  display: grid;
+  min-width: 0;
+  color: #fff0c2;
+  border-block: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(0 0 0 / 18%);
+  font-size: 0.68rem;
+  font-weight: 900;
+  place-items: center;
+}
+
+.rule-card__roll {
+  padding: 0.42rem 0.68rem;
+  color: #160d07;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd36f, #f08a4b);
+  font-size: 0.68rem;
+}
+
+.rule-result {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.4rem;
+  justify-content: center;
+  overflow: auto;
+  text-align: center;
+}
+
+.rule-result strong {
+  color: #fff;
+  font-size: 3.5rem;
+  line-height: 0.9;
+}
+
+.rule-result > span {
+  color: #fff0c2;
+  font-weight: 900;
+}
+
+.rule-result p {
+  margin: 0;
+  color: #f8efe0;
+  font-size: 0.75rem;
+}
+
+.rule-result blockquote {
+  margin: 0;
+  padding: 0.55rem;
+  color: #fff5df;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.7rem;
+  background: rgb(0 0 0 / 20%);
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.rule-card__back-actions {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: 1fr 1.4fr;
+}
+
+.rule-card__back-actions button {
+  padding: 0.42rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 9%);
+  font-size: 0.66rem;
+}
