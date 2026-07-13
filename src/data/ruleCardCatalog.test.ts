@@ -67,14 +67,26 @@ describe("rules card catalog", () => {
     expect(weapons.find((card) => card.id === "pistol")?.variants["srd-5.1-2014"]).toBeUndefined();
   });
 
-  it("contains 17 audited spell families in both rulesets", () => {
+  it("contains 22 audited spell families in both rulesets", () => {
     const spells = ruleCardCatalog.filter((card) => card.kind === "spell");
 
-    expect(spells).toHaveLength(17);
+    expect(spells).toHaveLength(22);
     spells.forEach((spell) => {
       expect(spell.variants["srd-5.1-2014"]).toBeDefined();
       expect(spell.variants["srd-5.2.1-2024"]).toBeDefined();
     });
+  });
+
+  it("keeps changed cantrip attack rules edition-specific", () => {
+    const poison = ruleCardCatalog.find((card) => card.id === "poison-spray");
+    const chill = ruleCardCatalog.find((card) => card.id === "chill-touch");
+    const oldPoisonModes = poison?.variants["srd-5.1-2014"]?.modes ?? [];
+    const newPoisonModes = poison?.variants["srd-5.2.1-2024"]?.modes ?? [];
+
+    expect(oldPoisonModes.some((mode) => mode.kind === "attack")).toBe(false);
+    expect(newPoisonModes.some((mode) => mode.kind === "attack")).toBe(true);
+    expect(chill?.variants["srd-5.1-2014"]?.summary).toContain("120 ft.");
+    expect(chill?.variants["srd-5.2.1-2024"]?.summary).toContain("Touch");
   });
 
   it("keeps the random resistance table identical across both SRDs", () => {
@@ -96,10 +108,7 @@ describe("rules card catalog", () => {
         const newText = card.variants["srd-5.2.1-2024"]?.summary;
 
         masteryNames.forEach((mastery) => expect(oldText).not.toContain(mastery));
-
-        if (newText) {
-          expect(masteryNames.some((mastery) => newText.includes(mastery))).toBe(true);
-        }
+        if (newText) expect(masteryNames.some((mastery) => newText.includes(mastery))).toBe(true);
       });
   });
 });
