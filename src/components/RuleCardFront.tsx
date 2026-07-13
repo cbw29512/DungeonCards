@@ -2,15 +2,24 @@ import type { RuleCard } from "../types/ruleCards";
 import { RULESET_LABELS } from "../types/ruleCards";
 import type { useRuleCardState } from "../hooks/useRuleCardState";
 import { RuleCardStepper } from "./RuleCardStepper";
+import {
+  RuleCardWorkspaceActions,
+  type WorkspaceCardControls
+} from "./RuleCardWorkspaceActions";
 
 type RuleCardController = ReturnType<typeof useRuleCardState>;
 
 type RuleCardFrontProps = {
   card: RuleCard;
   controller: RuleCardController;
+  workspaceControls?: WorkspaceCardControls;
 };
 
-export const RuleCardFront = ({ card, controller }: RuleCardFrontProps) => {
+export const RuleCardFront = ({
+  card,
+  controller,
+  workspaceControls
+}: RuleCardFrontProps) => {
   const {
     rulesets,
     ruleset,
@@ -43,6 +52,10 @@ export const RuleCardFront = ({ card, controller }: RuleCardFrontProps) => {
         </div>
         <span className={`source-badge source-badge--${variant.source}`}>{variant.source}</span>
       </header>
+
+      {workspaceControls && (
+        <RuleCardWorkspaceActions cardName={card.name} controls={workspaceControls} />
+      )}
 
       {rulesets.length > 1 && (
         <div className="rule-toggle" aria-label={`${card.name} ruleset`} role="group">
