@@ -67,6 +67,16 @@ describe("rules card catalog", () => {
     expect(weapons.find((card) => card.id === "pistol")?.variants["srd-5.1-2014"]).toBeUndefined();
   });
 
+  it("contains 17 audited spell families in both rulesets", () => {
+    const spells = ruleCardCatalog.filter((card) => card.kind === "spell");
+
+    expect(spells).toHaveLength(17);
+    spells.forEach((spell) => {
+      expect(spell.variants["srd-5.1-2014"]).toBeDefined();
+      expect(spell.variants["srd-5.2.1-2024"]).toBeDefined();
+    });
+  });
+
   it("keeps every 2024 mastery out of 2014 variants", () => {
     ruleCardCatalog
       .filter((card) => card.kind === "weapon")
