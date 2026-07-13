@@ -41,6 +41,8 @@ A user can:
 - Wand recharge and last-charge destruction checks.
 - SRD 5.2.1 Wand of Wonder d100 effect table.
 - Armor of Resistance random damage type for both SRDs.
+- Bag of Tricks with selectable Gray, Rust, and Tan d8 creature tables.
+- Bag of Beans with separate 2014 and 2024 d100 effects and dump-damage modes.
 
 Weapon coverage is complete for both selected SRDs. The spell and DM sets are audited expansion batches, not a claim that every SRD spell, trap, or magic item has already been imported.
 
