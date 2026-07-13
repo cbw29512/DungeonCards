@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { ruleCardCatalog } from "./ruleCardCatalog";
 import type { RulesetId } from "../types/ruleCards";
 import { validateDiceFormula } from "../utils/rollDice";
+import { ruleCardCatalog } from "./ruleCardCatalog";
 
 const rulesets: RulesetId[] = ["srd-5.1-2014", "srd-5.2.1-2024"];
+const masteryNames = ["Cleave", "Graze", "Nick", "Push", "Sap", "Slow", "Topple", "Vex"];
 
 describe("rules card catalog", () => {
   it("uses unique family IDs and source references", () => {
@@ -54,17 +55,30 @@ describe("rules card catalog", () => {
     });
   });
 
-  it("keeps 2024 weapon mastery text out of 2014 variants", () => {
-    const masteryNames = ["Cleave", "Nick", "Sap", "Slow"];
+  it("contains the complete SRD weapon tables for both rulesets", () => {
+    const weapons = ruleCardCatalog.filter((card) => card.kind === "weapon");
+    const oldWeapons = weapons.filter((card) => card.variants["srd-5.1-2014"]);
+    const newWeapons = weapons.filter((card) => card.variants["srd-5.2.1-2024"]);
 
+    expect(oldWeapons).toHaveLength(37);
+    expect(newWeapons).toHaveLength(38);
+    expect(weapons.find((card) => card.id === "net")?.variants["srd-5.2.1-2024"]).toBeUndefined();
+    expect(weapons.find((card) => card.id === "musket")?.variants["srd-5.1-2014"]).toBeUndefined();
+    expect(weapons.find((card) => card.id === "pistol")?.variants["srd-5.1-2014"]).toBeUndefined();
+  });
+
+  it("keeps every 2024 mastery out of 2014 variants", () => {
     ruleCardCatalog
       .filter((card) => card.kind === "weapon")
       .forEach((card) => {
         const oldText = card.variants["srd-5.1-2014"]?.summary ?? "";
-        const newText = card.variants["srd-5.2.1-2024"]?.summary ?? "";
+        const newText = card.variants["srd-5.2.1-2024"]?.summary;
 
         masteryNames.forEach((mastery) => expect(oldText).not.toContain(mastery));
-        expect(masteryNames.some((mastery) => newText.includes(mastery))).toBe(true);
+
+        if (newText) {
+          expect(masteryNames.some((mastery) => newText.includes(mastery))).toBe(true);
+        }
       });
   });
 });
