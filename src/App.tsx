@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { DeckGrid } from "./components/DeckGrid";
 import { HomebrewBuilder } from "./components/HomebrewBuilder";
-import { dmCards } from "./data/dmCards";
-import { sampleCards } from "./data/sampleCards";
+import { RulesDeck } from "./components/RulesDeck";
+import { dmRuleCards, playerRuleCards } from "./data/ruleCardCatalog";
 import { useHomebrewCards } from "./hooks/useHomebrewCards";
 import "./styles/base.css";
 import "./styles/cards.css";
 import "./styles/history.css";
 import "./styles/homebrew.css";
+import "./styles/rule-cards.css";
+import "./styles/rule-controls.css";
+import "./styles/rule-history.css";
 import "./styles/accessibility.css";
 
 type AppPage = "home" | "player" | "dm" | "homebrew";
@@ -38,26 +41,26 @@ export const App = () => {
       {activePage === "home" && (
         <section className="hero compact-hero">
           <div className="hero__content">
-            <p className="hero__eyebrow">Dungeon Cards MVP</p>
-            <h1>Flip a card. Get the roll. Keep playing.</h1>
+            <p className="hero__eyebrow">Dungeon Cards Rules Engine</p>
+            <h1>Choose the rule. Roll the card. Keep playing.</h1>
             <p>
-              Pick your table role or build the exact action card your character needs.
+              Poker-size cards keep 2014 and 2024 SRD rules separate while putting every useful control directly on the card.
             </p>
             <div className="role-card-grid">
               <button className="role-card" type="button" onClick={() => setActivePage("player")}>
                 <span>🧙</span>
                 <strong>Player Deck</strong>
-                <small>Attacks, spells, saves, skills, and frequently used actions.</small>
+                <small>Weapons, attacks, critical damage, scalable spells, and advantage controls.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("dm")}>
                 <span>🎲</span>
                 <strong>DM Deck</strong>
-                <small>Traps, treasure, ambushes, prompts, and encounter tools.</small>
+                <small>Scaled traps, magic-item generators, charge checks, and official random tables.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
                 <span>🛠️</span>
                 <strong>Homebrew</strong>
-                <small>Create, save, roll, and remove custom cards in this browser.</small>
+                <small>Create custom formulas without changing or relabeling SRD content.</small>
               </button>
             </div>
           </div>
@@ -65,20 +68,20 @@ export const App = () => {
       )}
 
       {activePage === "player" && (
-        <DeckGrid
-          cards={sampleCards}
-          eyebrow="Player Deck"
-          title="Your most-used actions, ready immediately."
-          description="Flip attacks, damage, spells, initiative, and favorite actions without searching a character sheet."
+        <RulesDeck
+          cards={playerRuleCards}
+          eyebrow="player"
+          title="Weapons and spells that scale on the card."
+          description="Select 2014 or 2024 rules, roll mode, advantage, slot level, character level, and modifiers without leaving the card."
         />
       )}
 
       {activePage === "dm" && (
-        <DeckGrid
-          cards={dmCards}
-          eyebrow="DM Deck"
-          title="Fast encounter tools for the table."
-          description="Configurable prototype prompts for traps, chests, ambushes, and treasure."
+        <RulesDeck
+          cards={dmRuleCards}
+          eyebrow="dm"
+          title="Rules-driven tools for the other side of the screen."
+          description="Run scaled traps, generate sentient items, check crafting materials, recharge wands, and resolve random tables."
         />
       )}
 
@@ -90,7 +93,7 @@ export const App = () => {
               cards={homebrewCards}
               eyebrow="Homebrew Deck"
               title="Your custom cards are ready to roll."
-              description="These cards are stored locally in this browser and survive a page refresh."
+              description="These cards are stored locally in this browser and remain separate from SRD cards."
               onDeleteCard={deleteCard}
             />
           ) : (
