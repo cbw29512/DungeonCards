@@ -1,6 +1,7 @@
 import type { RuleCard } from "../types/ruleCards";
 import { RULESET_LABELS } from "../types/ruleCards";
 import type { useRuleCardState } from "../hooks/useRuleCardState";
+import { RuleCardSecondaryControls } from "./RuleCardSecondaryControls";
 import { RuleCardStepper } from "./RuleCardStepper";
 import {
   RuleCardWorkspaceActions,
@@ -21,33 +22,20 @@ export const RuleCardFront = ({
   workspaceControls
 }: RuleCardFrontProps) => {
   const {
-    rulesets,
-    ruleset,
-    variant,
-    mode,
-    choiceId,
-    slotLevel,
-    characterLevel,
-    modifier,
-    advantageMode,
-    formula,
-    scaleBounds,
-    changeRuleset,
-    changeMode,
-    setChoiceId,
-    setSlotLevel,
-    setCharacterLevel,
-    setModifier,
-    setAdvantageMode,
-    roll
+    rulesets, ruleset, variant, mode, choiceId, secondaryChoiceId,
+    slotLevel, characterLevel, modifier, secondaryModifier, advantageMode,
+    formula, secondaryFormula, scaleBounds, changeRuleset, changeMode,
+    setChoiceId, setSecondaryChoiceId, setSlotLevel, setCharacterLevel,
+    setModifier, setSecondaryModifier, setAdvantageMode, roll
   } = controller;
+  const scaling = mode.scaling ?? mode.secondaryRoll?.scaling;
 
   return (
     <section className="rule-card__face rule-card__front" aria-hidden={controller.isFlipped}>
       <header className="rule-card__header">
         <span className="rule-card__emoji" aria-hidden="true">{card.imageEmoji}</span>
         <div>
-          <small>{card.kind.replace("-", " ")}</small>
+          <small>{card.kind.replaceAll("-", " ")}</small>
           <h3>{card.name}</h3>
         </div>
         <span className={`source-badge source-badge--${variant.source}`}>{variant.source}</span>
@@ -74,14 +62,16 @@ export const RuleCardFront = ({
 
       <p className="rule-card__summary" title={variant.detail}>{variant.summary}</p>
 
-      <label className="rule-field">
-        <span>Roll</span>
-        <select value={mode.id} onChange={(event) => changeMode(event.target.value)}>
-          {variant.modes.map((candidate) => (
-            <option key={candidate.id} value={candidate.id}>{candidate.label}</option>
-          ))}
-        </select>
-      </label>
+      {variant.modes.length > 1 && (
+        <label className="rule-field">
+          <span>Roll</span>
+          <select value={mode.id} onChange={(event) => changeMode(event.target.value)}>
+            {variant.modes.map((candidate) => (
+              <option key={candidate.id} value={candidate.id}>{candidate.label}</option>
+            ))}
+          </select>
+        </label>
+      )}
 
       {mode.choices && mode.choices.length > 1 && (
         <label className="rule-field">
@@ -94,7 +84,7 @@ export const RuleCardFront = ({
         </label>
       )}
 
-      {mode.scaling?.kind === "slot-dice" && (
+      {scaling?.kind === "slot-dice" && (
         <RuleCardStepper
           label="Slot"
           maximum={scaleBounds[1]}
@@ -104,7 +94,7 @@ export const RuleCardFront = ({
         />
       )}
 
-      {mode.scaling?.kind === "character-formula" && (
+      {scaling?.kind === "character-formula" && (
         <RuleCardStepper
           label="Level"
           maximum={scaleBounds[1]}
@@ -138,9 +128,21 @@ export const RuleCardFront = ({
         </label>
       )}
 
+      {mode.secondaryRoll && (
+        <RuleCardSecondaryControls
+          choiceId={secondaryChoiceId}
+          modifier={secondaryModifier}
+          onChoiceChange={setSecondaryChoiceId}
+          onModifierChange={setSecondaryModifier}
+          part={mode.secondaryRoll}
+        />
+      )}
+
       <div className="rule-card__formula">
-        <span>{formula}</span>
-        <button className="rule-card__roll" onClick={roll} type="button">Roll</button>
+        <span>{secondaryFormula ? `${formula} → ${secondaryFormula}` : formula}</span>
+        <button className="rule-card__roll" onClick={roll} type="button">
+          {secondaryFormula ? "Quick Roll" : "Roll"}
+        </button>
       </div>
 
       <footer title={variant.sourceReference}>
