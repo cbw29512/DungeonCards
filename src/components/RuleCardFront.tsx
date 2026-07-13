@@ -1,0 +1,138 @@
+import type { RuleCard } from "../types/ruleCards";
+import { RULESET_LABELS } from "../types/ruleCards";
+import type { useRuleCardState } from "../hooks/useRuleCardState";
+import { RuleCardStepper } from "./RuleCardStepper";
+
+type RuleCardController = ReturnType<typeof useRuleCardState>;
+
+type RuleCardFrontProps = {
+  card: RuleCard;
+  controller: RuleCardController;
+};
+
+export const RuleCardFront = ({ card, controller }: RuleCardFrontProps) => {
+  const {
+    rulesets,
+    ruleset,
+    variant,
+    mode,
+    choiceId,
+    slotLevel,
+    characterLevel,
+    modifier,
+    advantageMode,
+    formula,
+    scaleBounds,
+    changeRuleset,
+    changeMode,
+    setChoiceId,
+    setSlotLevel,
+    setCharacterLevel,
+    setModifier,
+    setAdvantageMode,
+    roll
+  } = controller;
+
+  return (
+    <section className="rule-card__face rule-card__front" aria-hidden={controller.isFlipped}>
+      <header className="rule-card__header">
+        <span className="rule-card__emoji" aria-hidden="true">{card.imageEmoji}</span>
+        <div>
+          <small>{card.kind.replace("-", " ")}</small>
+          <h3>{card.name}</h3>
+        </div>
+        <span className={`source-badge source-badge--${variant.source}`}>{variant.source}</span>
+      </header>
+
+      {rulesets.length > 1 && (
+        <div className="rule-toggle" aria-label={`${card.name} ruleset`} role="group">
+          {rulesets.map((option) => (
+            <button
+              aria-pressed={ruleset === option}
+              key={option}
+              onClick={() => changeRuleset(option)}
+              type="button"
+            >
+              {RULESET_LABELS[option]}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <p className="rule-card__summary" title={variant.detail}>{variant.summary}</p>
+
+      <label className="rule-field">
+        <span>Roll</span>
+        <select value={mode.id} onChange={(event) => changeMode(event.target.value)}>
+          {variant.modes.map((candidate) => (
+            <option key={candidate.id} value={candidate.id}>{candidate.label}</option>
+          ))}
+        </select>
+      </label>
+
+      {mode.choices && mode.choices.length > 1 && (
+        <label className="rule-field">
+          <span>Option</span>
+          <select value={choiceId} onChange={(event) => setChoiceId(event.target.value)}>
+            {mode.choices.map((choice) => (
+              <option key={choice.id} value={choice.id}>{choice.label}</option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      {mode.scaling?.kind === "slot-dice" && (
+        <RuleCardStepper
+          label="Slot"
+          maximum={scaleBounds[1]}
+          minimum={scaleBounds[0]}
+          onChange={setSlotLevel}
+          value={slotLevel}
+        />
+      )}
+
+      {mode.scaling?.kind === "character-formula" && (
+        <RuleCardStepper
+          label="Level"
+          maximum={scaleBounds[1]}
+          minimum={scaleBounds[0]}
+          onChange={setCharacterLevel}
+          value={characterLevel}
+        />
+      )}
+
+      {mode.modifierControl && (
+        <RuleCardStepper
+          label={mode.modifierControl.label}
+          maximum={mode.modifierControl.maximum}
+          minimum={mode.modifierControl.minimum}
+          onChange={setModifier}
+          value={modifier}
+        />
+      )}
+
+      {mode.allowsAdvantage && (
+        <label className="rule-field">
+          <span>d20</span>
+          <select
+            value={advantageMode}
+            onChange={(event) => setAdvantageMode(event.target.value as typeof advantageMode)}
+          >
+            <option value="normal">Normal</option>
+            <option value="advantage">Advantage</option>
+            <option value="disadvantage">Disadvantage</option>
+          </select>
+        </label>
+      )}
+
+      <div className="rule-card__formula">
+        <span>{formula}</span>
+        <button className="rule-card__roll" onClick={roll} type="button">Roll</button>
+      </div>
+
+      <footer title={variant.sourceReference}>
+        {RULESET_LABELS[ruleset]} • {variant.source === "srd" ? "SRD" : "Homebrew"}
+      </footer>
+    </section>
+  );
+};
