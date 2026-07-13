@@ -1,0 +1,85 @@
+@page {
+  size: letter;
+  margin: 0.25in;
+}
+
+@media print {
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .monster-reference--printing,
+  .monster-reference--printing *,
+  .monster-builder--printing .monster-builder__preview,
+  .monster-builder--printing .monster-builder__preview * {
+    visibility: visible !important;
+  }
+
+  .monster-reference--printing,
+  .monster-builder--printing .monster-builder__preview {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 8in;
+    margin: 0 auto;
+    padding: 0;
+    background: #fff;
+  }
+
+  .monster-reference--printing > .monster-card,
+  .monster-reference--printing > .rule-card__workspace-actions,
+  .monster-reference--printing > .monster-reference__actions,
+  .monster-builder--printing .monster-builder__warnings {
+    display: none !important;
+  }
+
+  .monster-folio {
+    display: grid;
+    width: 7.5in;
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    gap: 0;
+    grid-template-columns: repeat(3, 2.5in);
+    grid-template-rows: repeat(2, 3.5in);
+  }
+
+  .monster-folio__panel {
+    width: 2.5in;
+    height: 3.5in;
+    min-height: 3.5in;
+    aspect-ratio: auto;
+    padding: 0.12in;
+    color: #000;
+    border: 1px dashed #555;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+    font-size: 7pt;
+    overflow: hidden;
+    break-inside: avoid;
+  }
+
+  .monster-folio__cover {
+    padding: 0;
+  }
+
+  .monster-folio__cover .monster-card {
+    width: 2.5in;
+    height: 3.5in;
+    min-height: 3.5in;
+    border-radius: 0;
+  }
+
+  .monster-card {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
