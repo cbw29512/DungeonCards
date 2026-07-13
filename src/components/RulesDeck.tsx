@@ -76,6 +76,10 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
                 const tableIndex = workspace.activeCards.findIndex((item) => item.id === card.id);
                 const previous = workspace.activeCards[tableIndex - 1];
                 const next = workspace.activeCards[tableIndex + 1];
+                const previousMatchesGroup = previous !== undefined
+                  && workspace.workspace.pinnedCardIds.includes(previous.id) === isPinned;
+                const nextMatchesGroup = next !== undefined
+                  && workspace.workspace.pinnedCardIds.includes(next.id) === isPinned;
 
                 return (
                   <RuleCard
@@ -86,10 +90,8 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
                       view,
                       isActive,
                       isPinned,
-                      canMoveEarlier: view === "table" && Boolean(previous)
-                        && workspace.workspace.pinnedCardIds.includes(previous.id) === isPinned,
-                      canMoveLater: view === "table" && Boolean(next)
-                        && workspace.workspace.pinnedCardIds.includes(next.id) === isPinned,
+                      canMoveEarlier: view === "table" && previousMatchesGroup,
+                      canMoveLater: view === "table" && nextMatchesGroup,
                       onToggleActive: () => isActive
                         ? workspace.removeCard(card.id)
                         : workspace.addCard(card.id),
