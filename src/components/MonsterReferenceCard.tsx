@@ -38,7 +38,11 @@ export const MonsterReferenceCard = ({
       className={`monster-reference monster-reference--${layout}${isPrinting ? " monster-reference--printing" : ""}`}
     >
       <MonsterCardFace monster={monster} />
-      <RuleCardWorkspaceActions cardName={monster.name} controls={workspaceControls} />
+      <RuleCardWorkspaceActions
+        cardName={monster.name}
+        collectionLabel="My Encounter"
+        controls={workspaceControls}
+      />
       <div className="monster-reference__actions">
         <button onClick={() => setIsExpanded((current) => !current)} type="button">
           {isExpanded ? "Close full folio" : layout === "accordion" ? "Open boss folio" : "Open full card"}
