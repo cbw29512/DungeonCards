@@ -25,9 +25,12 @@ A user can:
 - Complete SRD 5.2.1 weapon table: 38 weapons.
 - 2014-only Net and 2024-only Musket and Pistol remain ruleset-specific.
 - Attack, damage, critical, versatile, and fixed-damage weapon behavior is modeled explicitly.
-- Seventeen audited spell families: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, Scorching Ray, Burning Hands, Thunderwave, Shatter, Lightning Bolt, Cone of Cold, Call Lightning, Moonbeam, Blight, Guiding Bolt, Hellish Rebuke, and Blink.
+- Twenty-two audited spell families: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, Scorching Ray, Burning Hands, Thunderwave, Shatter, Lightning Bolt, Cone of Cold, Call Lightning, Moonbeam, Blight, Guiding Bolt, Hellish Rebuke, Blink, Chill Touch, Poison Spray, Ray of Frost, Sacred Flame, and Eldritch Blast.
 - Spell slots, character level, attack bonus, and relevant alternate modes are selected on the card.
 - Blink preserves its edition-specific random check: 2014 uses 1d20 and 2024 uses 1d6.
+- Chill Touch preserves its 2014 ranged d8 version and 2024 Touch d10 version.
+- Poison Spray preserves its 2014 Constitution-save version and 2024 ranged-attack version.
+- Eldritch Blast provides separate attack and per-beam damage controls plus a convenience total when all beams hit.
 
 ### DM cards
 
@@ -130,7 +133,7 @@ GitHub Actions runs dependency installation, a high-severity audit, unit and cat
 
 ## Next Audited Expansion
 
-1. Add more cantrips, multi-target spells, and spells whose scaling changes target count instead of dice.
+1. Add multi-target spells and spells whose scaling changes target count instead of dice.
 2. Add more SRD random magic items, recharge tables, traps, and encounter-facing tools.
 3. Migrate Homebrew to the multi-mode schema with explicit ruleset and source badges.
 4. Add component-level interaction and visual-regression tests.
