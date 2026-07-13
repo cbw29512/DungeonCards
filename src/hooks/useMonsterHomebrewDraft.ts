@@ -5,6 +5,17 @@ import type { MonsterCardData, MonsterItem } from "../types/monsters";
 const STORAGE_KEY = "dungeon-cards-monster-homebrew-v1";
 const cloneExample = (): MonsterCardData => JSON.parse(JSON.stringify(monsterHomebrewExample));
 
+type MonsterTextField =
+  | "name"
+  | "cr"
+  | "type"
+  | "size"
+  | "ac"
+  | "hp"
+  | "speed"
+  | "senses"
+  | "languages";
+
 const loadDraft = (): MonsterCardData => {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -31,7 +42,7 @@ export const useMonsterHomebrewDraft = () => {
     }
   }, [monster]);
 
-  const updateField = (field: keyof MonsterCardData, value: string) => {
+  const updateField = (field: MonsterTextField, value: string) => {
     setMonster((current) => ({ ...current, [field]: value }));
   };
 
