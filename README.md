@@ -2,20 +2,22 @@
 
 Dungeon Cards is a React and TypeScript tabletop card engine. Player and DM cards use a uniform 5:7 poker-card shape, place their controls directly on the card, and keep SRD 5.1 (2014) and SRD 5.2.1 (2024) mechanics separate.
 
-## Rules-First Definition of Done
+## Current Play Experience
 
-A user can:
+A Player or DM can:
 
-1. Open responsive Player, DM, and Homebrew decks.
-2. Use compact cards with the same 5:7 aspect ratio.
-3. Select 2014 or 2024 on a card when both variants exist.
-4. Select attack, damage, critical, spell, trap, or table modes on the card.
-5. Adjust attack bonuses, damage modifiers, spell slots, and character level on the card.
-6. Roll normally, with Advantage, or with Disadvantage when a d20 mode permits it.
-7. Scale spells from their documented base level through level 9.
-8. Resolve random tables and see the matching result on the flipped card.
-9. Review recent results in a shared table log.
-10. Create separately labeled Homebrew cards without modifying SRD data.
+1. Open a separate Player or DM workspace.
+2. Use **My Table** to see only the cards selected for current play.
+3. Open **Library** to search every available card for that role.
+4. Add or remove cards without deleting or changing official card data.
+5. Pin important cards to the front of My Table.
+6. Move cards earlier or later within their pinned or unpinned group.
+7. Reload the browser and restore the Player and DM tables independently.
+8. Reset either workspace to its starter six-card table.
+9. Select 2014 or 2024, roll modes, modifiers, spell slots, character levels, and Advantage directly on a card.
+10. Resolve random tables and review recent results in the shared roll log.
+
+The current workspace owner is an anonymous local profile. Workspace persistence is behind a `WorkspaceRepository` interface so authenticated cloud persistence can replace local storage without rewriting the card UI.
 
 ## Current Audited Catalog
 
@@ -56,24 +58,33 @@ type RuleCard = {
   imageEmoji: string;
   variants: Partial<Record<RulesetId, RuleCardVariant>>;
 };
-
-type RuleCardVariant = {
-  ruleset: "srd-5.1-2014" | "srd-5.2.1-2024";
-  source: "srd" | "homebrew";
-  sourceReference: string;
-  summary: string;
-  detail: string;
-  tags: string[];
-  modes: RuleRollMode[];
-};
 ```
 
 Each card family can contain independent 2014 and 2024 variants. Selecting a ruleset loads that variant rather than mutating or blending SRD content.
 
+## Workspace Schema
+
+```ts
+type CardWorkspace = {
+  schemaVersion: 1;
+  id: string;
+  ownerKey: string;
+  name: string;
+  role: "player" | "dm";
+  activeCardIds: string[];
+  pinnedCardIds: string[];
+  cardOrder: string[];
+  updatedAt: string;
+};
+```
+
+Workspaces store card IDs rather than copies of official cards. Removing a card from My Table changes only workspace visibility.
+
 ## Rules Guardrails
 
 - SRD variants are source-referenced, read-only application data.
-- Homebrew cards are stored separately in browser localStorage.
+- Player and DM workspace selections are stored independently.
+- Homebrew cards remain separate from SRD cards.
 - Natural 20 and natural 1 outcomes are limited to valid attack-roll formulas.
 - Initiative, checks, damage, healing, and random tables do not gain attack-roll outcomes.
 - Critical-damage modes double damage dice, not static modifiers.
@@ -95,14 +106,13 @@ Supported examples include:
 
 Production rolls use `crypto.getRandomValues` with rejection sampling. Tests inject deterministic integer sources so mechanics can be verified without weakening production randomness.
 
-The parser rejects unsupported text, unsafe integers, more than 100 total dice, more than 100 dice in one term, dice larger than d1000, invalid keep rules, and formulas longer than 60 characters.
-
 ## State Ownership
 
-- `App` owns navigation.
-- `RulesDeck` owns search and shared rules-card history.
+- `App` owns top-level navigation.
+- `RulesDeck` owns My Table/Library view, search, and shared roll history.
+- `useCardWorkspace` owns active cards, pins, ordering, reset, and repository persistence.
+- `WorkspaceRepository` is the boundary between the UI and local or future cloud storage.
 - `useRuleCardState` owns each card's ruleset, mode, choice, scaling, modifiers, Advantage state, and latest result.
-- `ruleCardFormula.ts` owns spell scaling, formula choices, and table-range resolution.
 - `rollDice.ts` owns validated rolling, kept dice, fixed results, and attack-roll outcomes.
 - `useHomebrewCards` owns separately persisted custom cards.
 
@@ -127,18 +137,20 @@ GitHub Actions runs dependency installation, a high-severity audit, unit and cat
 
 ## Current Limitations
 
+- There is no production login or cloud synchronization yet.
+- Only one local Player workspace and one local DM workspace exist; multiple named characters, campaigns, and encounters are still pending.
+- Card-specific selected modes and modifiers are not yet restored across sessions.
 - Non-weapon SRD content is expanded in audited batches rather than bulk-imported without verification.
-- Homebrew still uses the original single-formula builder and has not adopted every multi-mode control.
-- Homebrew remains local to the current browser and device.
-- There is no account, cloud synchronization, deck import/export, or print-sheet generator yet.
-- The table log resets when its page unmounts or the browser reloads.
+- Homebrew still uses the original single-formula builder.
+- There is no deck import/export or print-sheet generator yet.
+- The roll log resets when its page unmounts or the browser reloads.
 
-## Next Audited Expansion
+## Next Expansion
 
-1. Add multi-target spells and spells whose scaling changes target count instead of dice.
-2. Add more SRD random magic items, recharge tables, traps, and encounter-facing tools.
-3. Migrate Homebrew to the multi-mode schema with explicit ruleset and source badges.
-4. Add component-level interaction and visual-regression tests.
+1. Add multiple named Player and DM workspaces.
+2. Select a production authentication and cloud-storage provider.
+3. Persist each card's selected ruleset, mode, slot, level, and modifiers per workspace.
+4. Add more spells, random magic items, traps, and encounter-facing tools.
 5. Add print sheets sized for 2.5 × 3.5 inch poker cards.
 
 ## Attribution
