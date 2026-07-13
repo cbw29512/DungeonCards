@@ -109,3 +109,19 @@ export const parseDiceFormula = (formula: string): ParsedFormula => {
 
   return { diceTerms, modifier };
 };
+
+export const isSinglePositiveD20Formula = (formula: string): boolean => {
+  try {
+    const parsed = parseDiceFormula(formula);
+    const term = parsed.diceTerms[0];
+
+    return parsed.diceTerms.length === 1
+      && term.count === 1
+      && term.sides === 20
+      && term.sign === 1
+      && term.keep === undefined;
+  } catch (error) {
+    console.error("Checking an attack formula failed", { formula, error });
+    return false;
+  }
+};
