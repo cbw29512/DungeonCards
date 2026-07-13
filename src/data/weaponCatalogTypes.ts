@@ -7,4 +7,5 @@ export type WeaponDefinition = {
   versatileDamage?: string;
   mastery?: "Cleave" | "Graze" | "Nick" | "Push" | "Sap" | "Slow" | "Topple" | "Vex";
   icon?: string;
+  note?: string;
 };
