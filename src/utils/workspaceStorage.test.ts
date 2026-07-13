@@ -21,19 +21,23 @@ class MemoryStorage implements Storage {
 }
 
 describe("workspace storage", () => {
-  it("keeps Player and DM workspaces isolated", () => {
+  it("keeps Player, DM, and Monster workspaces isolated", () => {
     const storage = new MemoryStorage();
     const repository = createLocalWorkspaceRepository(storage);
     const player = addWorkspaceCard(createDefaultWorkspace("player", ["sword"]), "fireball");
     const dm = addWorkspaceCard(createDefaultWorkspace("dm", ["pit"]), "wand");
+    const monster = addWorkspaceCard(createDefaultWorkspace("monster", ["goblin"]), "lich");
 
     repository.save(player);
     repository.save(dm);
+    repository.save(monster);
 
     expect(repository.load({ role: "player", allowedCardIds: ["sword", "fireball"], defaultCardIds: [] }).activeCardIds)
       .toEqual(["sword", "fireball"]);
     expect(repository.load({ role: "dm", allowedCardIds: ["pit", "wand"], defaultCardIds: [] }).activeCardIds)
       .toEqual(["pit", "wand"]);
+    expect(repository.load({ role: "monster", allowedCardIds: ["goblin", "lich"], defaultCardIds: [] }).activeCardIds)
+      .toEqual(["goblin", "lich"]);
   });
 
   it("adds and removes cards without changing the catalog", () => {
