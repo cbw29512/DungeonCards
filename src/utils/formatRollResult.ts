@@ -29,6 +29,10 @@ export const formatRollBreakdown = (result?: RollResult): string => {
 
     const diceText = result.dice.map(formatDie).join(" + ");
 
+    if (result.dice.length === 0) {
+      return `${result.modifier}`;
+    }
+
     if (result.modifier === 0) {
       return diceText;
     }
