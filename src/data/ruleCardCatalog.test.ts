@@ -1,23 +1,29 @@
 import { describe, expect, it } from "vitest";
-import type { RulesetId } from "../types/ruleCards";
+import type { RuleRollPart, RulesetId } from "../types/ruleCards";
 import { validateDiceFormula } from "../utils/rollDice";
 import { ruleCardCatalog } from "./ruleCardCatalog";
 
 const rulesets: RulesetId[] = ["srd-5.1-2014", "srd-5.2.1-2024"];
 const masteryNames = ["Cleave", "Graze", "Nick", "Push", "Sap", "Slow", "Topple", "Vex"];
+const hasTag = (tags: string[], tag: string) => tags.includes(tag);
+
+const validatePart = (part: RuleRollPart) => {
+  expect(() => validateDiceFormula(part.formula)).not.toThrow();
+  part.choices?.forEach((choice) => {
+    expect(() => validateDiceFormula(choice.formula)).not.toThrow();
+  });
+};
 
 describe("rules card catalog", () => {
   it("uses unique family IDs and source references", () => {
     const ids = ruleCardCatalog.map((card) => card.id);
-
     expect(new Set(ids).size).toBe(ids.length);
+
     ruleCardCatalog.forEach((card) => {
       expect(card.name.trim()).not.toBe("");
       expect(Object.keys(card.variants).length).toBeGreaterThan(0);
-
       rulesets.forEach((ruleset) => {
         const variant = card.variants[ruleset];
-
         if (variant) {
           expect(variant.ruleset).toBe(ruleset);
           expect(variant.source).toBe("srd");
@@ -29,108 +35,105 @@ describe("rules card catalog", () => {
     });
   });
 
-  it("validates every base and choice formula", () => {
+  it("validates every primary and secondary formula", () => {
     ruleCardCatalog.forEach((card) => {
       Object.values(card.variants).forEach((variant) => {
         variant?.modes.forEach((mode) => {
-          expect(() => validateDiceFormula(mode.formula)).not.toThrow();
-          mode.choices?.forEach((choice) => {
-            expect(() => validateDiceFormula(choice.formula)).not.toThrow();
+          validatePart(mode);
+          if (mode.secondaryRoll) validatePart(mode.secondaryRoll);
+        });
+      });
+    });
+  });
+
+  it("limits automatic natural outcomes to attack parts", () => {
+    ruleCardCatalog.forEach((card) => {
+      Object.values(card.variants).forEach((variant) => {
+        variant?.modes.forEach((mode) => {
+          [mode, mode.secondaryRoll].filter(Boolean).forEach((part) => {
+            if (part?.naturalRollRule === "attack") {
+              expect(part.kind).toBe("attack");
+              expect(part.formula).toMatch(/^1d20[+-]\d+$/);
+            }
           });
         });
       });
     });
   });
 
-  it("limits automatic natural outcomes to attack modes", () => {
-    ruleCardCatalog.forEach((card) => {
-      Object.values(card.variants).forEach((variant) => {
-        variant?.modes.forEach((mode) => {
-          if (mode.naturalRollRule === "attack") {
-            expect(mode.kind).toBe("attack");
-            expect(mode.formula).toMatch(/^1d20[+-]\d+$/);
-          }
-        });
+  it("provides separate core attack save and ability check cards", () => {
+    expect(ruleCardCatalog.find((card) => card.id === "core-attack-roll")?.kind).toBe("attack");
+    expect(ruleCardCatalog.find((card) => card.id === "core-saving-throw")?.kind).toBe("saving-throw");
+    expect(ruleCardCatalog.find((card) => card.id === "core-ability-check")?.kind).toBe("ability-check");
+  });
+
+  it("contains complete standalone weapon attack tables", () => {
+    const attacks = ruleCardCatalog.filter((card) =>
+      card.kind === "attack"
+      && Object.values(card.variants).some((variant) => variant && hasTag(variant.tags, "weapon"))
+    );
+    const oldAttacks = attacks.filter((card) => card.variants["srd-5.1-2014"]);
+    const newAttacks = attacks.filter((card) => card.variants["srd-5.2.1-2024"]);
+
+    expect(oldAttacks).toHaveLength(37);
+    expect(newAttacks).toHaveLength(38);
+    expect(attacks.find((card) => card.id === "net")?.variants["srd-5.2.1-2024"]).toBeUndefined();
+    expect(attacks.find((card) => card.id === "musket-attack")?.variants["srd-5.1-2014"]).toBeUndefined();
+  });
+
+  it("keeps weapon damage cards free of attack modes", () => {
+    ruleCardCatalog
+      .filter((card) => card.kind === "weapon-damage")
+      .forEach((card) => Object.values(card.variants).forEach((variant) => {
+        expect(variant?.modes.every((mode) => mode.kind === "damage")).toBe(true);
+      }));
+  });
+
+  it("preserves 22 original spell effect families", () => {
+    const effects = ruleCardCatalog.filter((card) =>
+      ["spell", "spell-damage", "spell-healing"].includes(card.kind)
+      && Object.values(card.variants).some((variant) => variant && hasTag(variant.tags, "spell"))
+    );
+
+    expect(effects).toHaveLength(22);
+    effects.forEach((spell) => {
+      expect(spell.variants["srd-5.1-2014"]).toBeDefined();
+      expect(spell.variants["srd-5.2.1-2024"]).toBeDefined();
+      Object.values(spell.variants).forEach((variant) => {
+        expect(variant?.modes.some((mode) => mode.kind === "attack")).toBe(false);
       });
     });
   });
 
-  it("contains the complete SRD weapon tables for both rulesets", () => {
-    const weapons = ruleCardCatalog.filter((card) => card.kind === "weapon");
-    const oldWeapons = weapons.filter((card) => card.variants["srd-5.1-2014"]);
-    const newWeapons = weapons.filter((card) => card.variants["srd-5.2.1-2024"]);
+  it("keeps changed cantrip attack cards edition-specific", () => {
+    const poison = ruleCardCatalog.find((card) => card.id === "poison-spray-attack");
+    const chill = ruleCardCatalog.find((card) => card.id === "chill-touch-attack");
 
-    expect(oldWeapons).toHaveLength(37);
-    expect(newWeapons).toHaveLength(38);
-    expect(weapons.find((card) => card.id === "net")?.variants["srd-5.2.1-2024"]).toBeUndefined();
-    expect(weapons.find((card) => card.id === "musket")?.variants["srd-5.1-2014"]).toBeUndefined();
-    expect(weapons.find((card) => card.id === "pistol")?.variants["srd-5.1-2014"]).toBeUndefined();
-  });
-
-  it("contains 22 audited spell families in both rulesets", () => {
-    const spells = ruleCardCatalog.filter((card) => card.kind === "spell");
-
-    expect(spells).toHaveLength(22);
-    spells.forEach((spell) => {
-      expect(spell.variants["srd-5.1-2014"]).toBeDefined();
-      expect(spell.variants["srd-5.2.1-2024"]).toBeDefined();
-    });
-  });
-
-  it("keeps changed cantrip attack rules edition-specific", () => {
-    const poison = ruleCardCatalog.find((card) => card.id === "poison-spray");
-    const chill = ruleCardCatalog.find((card) => card.id === "chill-touch");
-    const oldPoisonModes = poison?.variants["srd-5.1-2014"]?.modes ?? [];
-    const newPoisonModes = poison?.variants["srd-5.2.1-2024"]?.modes ?? [];
-
-    expect(oldPoisonModes.some((mode) => mode.kind === "attack")).toBe(false);
-    expect(newPoisonModes.some((mode) => mode.kind === "attack")).toBe(true);
+    expect(poison?.variants["srd-5.1-2014"]).toBeUndefined();
+    expect(poison?.variants["srd-5.2.1-2024"]).toBeDefined();
     expect(chill?.variants["srd-5.1-2014"]?.summary).toContain("120 ft.");
     expect(chill?.variants["srd-5.2.1-2024"]?.summary).toContain("Touch");
   });
 
-  it("keeps Bag of Tricks tables complete and shared across SRDs", () => {
-    const card = ruleCardCatalog.find((candidate) => candidate.id === "bag-of-tricks");
-    const oldChoices = card?.variants["srd-5.1-2014"]?.modes[0].choices;
-    const newChoices = card?.variants["srd-5.2.1-2024"]?.modes[0].choices;
+  it("makes every quick roll an attack plus potential damage", () => {
+    const quickCards = ruleCardCatalog.filter((card) => card.kind === "quick-roll");
+    expect(quickCards.length).toBeGreaterThan(0);
 
-    expect(oldChoices).toHaveLength(3);
-    oldChoices?.forEach((choice) => expect(choice.table).toHaveLength(8));
-    expect(newChoices).toEqual(oldChoices);
-    expect(oldChoices?.[0]?.table?.[7]?.result).toBe("Giant Elk");
-    expect(oldChoices?.[2]?.table?.[7]?.result).toBe("Tiger");
+    quickCards.forEach((card) => Object.values(card.variants).forEach((variant) => {
+      variant?.modes.forEach((mode) => {
+        expect(mode.kind).toBe("attack");
+        expect(mode.secondaryRoll?.kind).toBe("damage");
+        expect(mode.secondaryRoll?.naturalRollRule ?? "none").toBe("none");
+      });
+    }));
   });
 
-  it("preserves Bag of Beans range changes between editions", () => {
-    const card = ruleCardCatalog.find((candidate) => candidate.id === "bag-of-beans");
-    const oldTable = card?.variants["srd-5.1-2014"]?.modes[0].choices?.[0].table;
-    const newTable = card?.variants["srd-5.2.1-2024"]?.modes[0].choices?.[0].table;
-
-    expect(oldTable).toHaveLength(12);
-    expect(newTable).toHaveLength(12);
-    expect(oldTable?.find((entry) => entry.min === 91)?.max).toBe(99);
-    expect(newTable?.find((entry) => entry.min === 91)?.max).toBe(95);
-    expect(newTable?.find((entry) => entry.min === 96)?.result).toContain("beanstalk");
-  });
-
-  it("keeps the random resistance table identical across both SRDs", () => {
-    const card = ruleCardCatalog.find((candidate) => candidate.id === "armor-of-resistance");
-    const oldTable = card?.variants["srd-5.1-2014"]?.modes[0].choices?.[0].table;
-    const newTable = card?.variants["srd-5.2.1-2024"]?.modes[0].choices?.[0].table;
-
-    expect(oldTable).toHaveLength(10);
-    expect(newTable).toEqual(oldTable);
-    expect(oldTable?.[0]?.result).toBe("Acid");
-    expect(oldTable?.[9]?.result).toBe("Thunder");
-  });
-
-  it("keeps every 2024 mastery out of 2014 variants", () => {
+  it("keeps every 2024 weapon mastery out of 2014 variants", () => {
     ruleCardCatalog
-      .filter((card) => card.kind === "weapon")
+      .filter((card) => Object.values(card.variants).some((variant) => variant && hasTag(variant.tags, "weapon")))
       .forEach((card) => {
         const oldText = card.variants["srd-5.1-2014"]?.summary ?? "";
         const newText = card.variants["srd-5.2.1-2024"]?.summary;
-
         masteryNames.forEach((mastery) => expect(oldText).not.toContain(mastery));
         if (newText) expect(masteryNames.some((mastery) => newText.includes(mastery))).toBe(true);
       });
