@@ -89,6 +89,18 @@ describe("rules card catalog", () => {
     expect(chill?.variants["srd-5.2.1-2024"]?.summary).toContain("Touch");
   });
 
+  it("keeps Bag of Tricks tables complete and shared across SRDs", () => {
+    const card = ruleCardCatalog.find((candidate) => candidate.id === "bag-of-tricks");
+    const oldChoices = card?.variants["srd-5.1-2014"]?.modes[0].choices;
+    const newChoices = card?.variants["srd-5.2.1-2024"]?.modes[0].choices;
+
+    expect(oldChoices).toHaveLength(3);
+    oldChoices?.forEach((choice) => expect(choice.table).toHaveLength(8));
+    expect(newChoices).toEqual(oldChoices);
+    expect(oldChoices?.[0]?.table?.[7]?.result).toBe("Giant Elk");
+    expect(oldChoices?.[2]?.table?.[7]?.result).toBe("Tiger");
+  });
+
   it("keeps the random resistance table identical across both SRDs", () => {
     const card = ruleCardCatalog.find((candidate) => candidate.id === "armor-of-resistance");
     const oldTable = card?.variants["srd-5.1-2014"]?.modes[0].choices?.[0].table;
