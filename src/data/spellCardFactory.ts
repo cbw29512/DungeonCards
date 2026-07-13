@@ -33,14 +33,34 @@ export const sameSpell = (
   "srd-5.2.1-2024": spellVariant("srd-5.2.1-2024", spell, summary, detail, modes)
 });
 
-export const spellAttack = (): RuleRollMode => ({
+export const spellAttack = (label = "Attack"): RuleRollMode => ({
   id: "attack",
-  label: "Attack",
+  label,
   kind: "attack",
   formula: "1d20+5",
   allowsAdvantage: true,
   naturalRollRule: "attack",
   modifierControl: { label: "Spell attack", defaultValue: 5, minimum: -5, maximum: 20 }
+});
+
+export const cantripDamage = (
+  dieSides: number,
+  id = "effect",
+  label = "Damage"
+): RuleRollMode => ({
+  id,
+  label,
+  kind: "damage",
+  formula: `1d${dieSides}`,
+  scaling: {
+    kind: "character-formula",
+    tiers: [
+      { level: 1, formula: `1d${dieSides}` },
+      { level: 5, formula: `2d${dieSides}` },
+      { level: 11, formula: `3d${dieSides}` },
+      { level: 17, formula: `4d${dieSides}` }
+    ]
+  }
 });
 
 export const slotDamage = (
