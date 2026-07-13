@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import type { HomebrewCardDraft } from "../types/cards";
+import { isSinglePositiveD20Formula } from "../utils/diceParser";
 import { validateDiceFormula } from "../utils/rollDice";
 
 type HomebrewBuilderProps = {
@@ -47,6 +48,10 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
 
       validateDiceFormula(trimmedFormula);
 
+      if (usesAttackOutcomes && !isSinglePositiveD20Formula(trimmedFormula)) {
+        throw new Error("D&D attack outcomes require exactly one positive d20 plus an optional modifier.");
+      }
+
       const saved = onCreate({
         name: trimmedName,
         formula: trimmedFormula,
@@ -91,19 +96,19 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
         <label>
           Dice formula
           <input
-            maxLength={30}
+            maxLength={60}
             onChange={(event) => setFormula(event.target.value)}
             placeholder="1d12+7"
             required
             value={formula}
           />
-          <small>Examples: 1d20+8, 2d6+4, 10d6</small>
+          <small>Examples: 1d20+8, 2d6+4, 10d6, 4d6kh3</small>
         </label>
 
         <label>
           Card icon
           <input
-            maxLength={8}
+            maxLength={16}
             onChange={(event) => setImageEmoji(event.target.value)}
             placeholder="⚔️"
             value={imageEmoji}
@@ -128,7 +133,7 @@ export const HomebrewBuilder = ({ onCreate, storageError }: HomebrewBuilderProps
             onChange={(event) => setUsesAttackOutcomes(event.target.checked)}
             type="checkbox"
           />
-          Treat a single d20 as an attack roll with natural 20 and natural 1 markers
+          Apply D&D attack-roll natural 20 and natural 1 outcomes
         </label>
 
         {(formError || storageError) && (
