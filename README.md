@@ -28,9 +28,10 @@ A user can:
 - Versatile weapons select one-handed or two-handed damage directly on the card.
 - 2024 weapon variants display one of the eight SRD mastery properties; 2014 variants do not.
 - Blowgun uses fixed damage plus the selected modifier instead of fake dice.
-- Spells: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, and Scorching Ray.
+- Seventeen audited spell families: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, Scorching Ray, Burning Hands, Thunderwave, Shatter, Lightning Bolt, Cone of Cold, Call Lightning, Moonbeam, Blight, Guiding Bolt, Hellish Rebuke, and Blink.
 - Slot-scaled spells calculate their formula from the selected spell-slot level.
 - Cantrips calculate their formula from the selected character level.
+- Blink preserves its edition-specific random check: 2014 uses 1d20 and 2024 uses 1d6.
 
 ### DM cards
 
@@ -40,6 +41,7 @@ A user can:
 - Magic-item raw-material availability.
 - Wand recharge and last-charge destruction checks.
 - The SRD 5.2.1 Wand of Wonder d100 effect table.
+- Armor of Resistance random damage type for both SRDs.
 
 Weapon coverage is complete for both selected SRDs. Spells, traps, and magic items are still being expanded in audited batches so rule differences are verified rather than bulk-imported blindly.
 
@@ -132,7 +134,7 @@ GitHub Actions runs dependency installation, a high-severity audit, unit and cat
 
 ## Next Audited Expansion
 
-1. Expand scalable spells by spell level, including save, attack, healing, and multi-projectile behaviors.
+1. Add more scalable spells, including cantrips, multi-target spells, and spells whose scaling changes target count rather than dice.
 2. Add more SRD random magic items, recharge tables, traps, and encounter-facing tools.
 3. Migrate Homebrew to the multi-mode card schema with explicit ruleset and source badges.
 4. Add component-level interaction and visual-regression tests.
