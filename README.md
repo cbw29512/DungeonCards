@@ -1,67 +1,101 @@
 # Dungeon Cards
 
-Dungeon Cards is a React and TypeScript MVP for fast tabletop action cards. A user can flip a card, receive a validated randomized dice result, review recent rolls, and create reusable homebrew cards that are saved in the browser.
+Dungeon Cards is a React and TypeScript tabletop card engine. Player and DM cards use a uniform 5:7 poker-card shape, place their controls directly on the card, and keep SRD 5.1 (2014) and SRD 5.2.1 (2024) mechanics separate.
 
-## Current MVP Definition of Done
+## Rules-First Definition of Done
 
-A player can:
+A user can:
 
-1. Open the responsive React website.
-2. Choose a Player, DM, or Homebrew deck.
-3. Flip a card and receive a randomized result.
-4. See the individual dice, modifier, and final total.
-5. Review the latest 25 rolls in the session log.
-6. Create a custom card with a name, formula, icon, and description.
-7. Receive a clear validation error for unsupported formulas.
-8. Save custom cards in browser localStorage.
-9. Refresh the page without losing saved custom cards.
-10. Delete a saved custom card.
+1. Open responsive Player, DM, and Homebrew decks.
+2. Use compact cards with the same 5:7 aspect ratio.
+3. Select 2014 or 2024 on a card when both variants exist.
+4. Select attack, damage, critical, spell, trap, or table modes on the card.
+5. Adjust attack bonuses, damage modifiers, spell slots, and character level on the card.
+6. Roll normally, with Advantage, or with Disadvantage when a d20 mode permits it.
+7. Scale spells from their documented base level through level 9.
+8. Resolve random tables and see the matching result on the flipped card.
+9. Review recent results in a shared table log.
+10. Create separately labeled Homebrew cards without modifying SRD data.
 
-## Card Data Schema
+## Current Audited Starter Catalog
+
+### Player cards
+
+- Weapons: Greataxe, Longsword, Dagger, and Longbow.
+- Spells: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, and Scorching Ray.
+- Weapon cards include attack, damage, and critical-damage modes.
+- 2024 weapon variants display their SRD mastery property; 2014 variants do not.
+- Slot-scaled spells calculate their formula from the selected spell-slot level.
+- Cantrips calculate their formula from the selected character level.
+
+### DM cards
+
+- 2014 trap damage severity by party tier and severity.
+- 2024 Hidden Pit and Poisoned Darts scaling.
+- Sentient-item ability scores, alignment, communication, senses, and purpose.
+- Magic-item raw-material availability.
+- Wand recharge and last-charge destruction checks.
+- The SRD 5.2.1 Wand of Wonder d100 effect table.
+
+This is an audited starter library, not a claim that every SRD weapon, spell, trap, or item has already been imported. The schema and test framework are designed for systematic expansion without mixing rulesets.
+
+## Rules Card Schema
 
 ```ts
-type DiceCard = {
+type RuleCard = {
   id: string;
   name: string;
-  category: CardCategory;
-  formula: string;
-  description: string;
+  kind: "weapon" | "spell" | "trap" | "magic-item" | "dm-table";
   imageEmoji: string;
-  critOn?: number;
-  failOn?: number;
-  isFavorite: boolean;
+  variants: Partial<Record<RulesetId, RuleCardVariant>>;
+};
+
+type RuleCardVariant = {
+  ruleset: "srd-5.1-2014" | "srd-5.2.1-2024";
+  source: "srd" | "homebrew";
+  sourceReference: string;
+  summary: string;
+  detail: string;
+  tags: string[];
+  modes: RuleRollMode[];
 };
 ```
 
-`HomebrewCardDraft` is the same structure without `id` or `category`. The application adds those values only after validation.
+Each card family can contain independent 2014 and 2024 variants. Selecting a ruleset loads that variant rather than mutating or blending SRD content.
 
-## State Ownership
+## Rules Guardrails
 
-- `App` owns the active page.
-- `useHomebrewCards` owns custom-card state and localStorage persistence.
-- `DeckGrid` owns active-card state, roll results, reset timing, and the session roll history.
-- `rollDice.ts` owns formula parsing, limits, random rolling, and natural-roll evaluation.
-- `homebrewStorage.ts` owns persisted-data validation and serialization.
+- SRD variants are stored as source-referenced, read-only application data.
+- Homebrew cards are stored separately in browser localStorage.
+- Natural 20 and natural 1 outcomes are available only for a formula containing exactly one positive d20 plus an optional static modifier.
+- Initiative, ability checks, damage, healing, and random tables do not automatically gain attack-roll outcomes.
+- Critical-damage modes double weapon damage dice rather than doubling static modifiers.
+- Advantage and Disadvantage roll two d20s and keep the appropriate die.
+- 2014 and 2024 variants are regression-tested for separation.
 
 ## Dice Engine
 
 Supported examples include:
 
 - `1d20+8`
-- `1d12+5`
 - `10d6`
 - `2d8+4`
 - `2d6-1`
+- `4d6kh3` — roll four d6 and keep the highest three
+- `2d20kl1` — roll two d20 and keep the lowest one
 
-The parser rejects unsupported text, unsafe integers, more than 100 total dice, more than 100 dice in one term, dice larger than d1000, and formulas longer than 60 characters.
+Production rolls use `crypto.getRandomValues` with rejection sampling. Tests inject deterministic integer sources so mechanics can be verified without weakening production randomness.
 
-Natural 20 and natural 1 markers are opt-in card rules. They are enabled on attack cards and are not automatically applied to initiative, damage rolls, or arbitrary d20 checks.
+The parser rejects unsupported text, unsafe integers, more than 100 total dice, more than 100 dice in one term, dice larger than d1000, invalid keep rules, and formulas longer than 60 characters.
 
-## Rules Accuracy Guardrails
+## State Ownership
 
-Starter player cards are examples and state their assumptions. DM cards are labeled as configurable prompts instead of official encounter, CR, monster, trap, or treasure rules.
-
-Before adding a production library of official game actions, the schema must add an explicit ruleset field so 2014 and 2024 material cannot be mixed accidentally. Content should also record its source or be clearly labeled as homebrew.
+- `App` owns navigation.
+- `RulesDeck` owns search and the shared rules-card history.
+- `useRuleCardState` owns one card's selected ruleset, mode, option, scaling, modifiers, Advantage state, and latest result.
+- `ruleCardFormula.ts` owns spell scaling, formula choices, and table-range resolution.
+- `rollDice.ts` owns validated rolling, kept dice, and attack-roll outcomes.
+- `useHomebrewCards` owns separately persisted custom cards.
 
 ## Local Setup
 
@@ -80,25 +114,29 @@ npm run build
 npm run check
 ```
 
-GitHub Actions runs the tests and production build for feature branches, pull requests, and `main`.
+GitHub Actions runs dependency installation, a high-severity audit, unit and catalog regression tests, strict TypeScript compilation, and the Vite production build.
 
 ## Current Limitations
 
-- Homebrew cards are stored only in the current browser and device.
-- There is no account, backend, cloud synchronization, or import/export yet.
-- Advantage, disadvantage, spell upcasting controls, favorites, and deck folders are not implemented yet.
-- The session roll history resets when its deck page unmounts or the browser reloads.
+- The SRD catalog is intentionally being expanded in audited batches rather than bulk-imported without verification.
+- Homebrew cards use the original single-formula builder and have not yet adopted every multi-mode rules-card control.
+- Homebrew remains local to the current browser and device.
+- There is no account, cloud synchronization, deck import/export, or print-sheet generator yet.
+- The table log resets when its page unmounts or the browser reloads.
 
-## Next Build Steps
+## Next Audited Expansion
 
-1. Add explicit 2014 and 2024 ruleset metadata.
-2. Add deck folders: Player Deck, DM Deck, Monster Deck, and Favorites.
-3. Add advantage and disadvantage rules.
-4. Add spell upcast controls.
-5. Add deck import and export.
-6. Add component-level interaction tests.
-7. Add backend authentication and database storage only after the browser MVP is validated.
+1. Import the remaining SRD weapons and verify every 2014/2024 property difference.
+2. Expand scalable spells by spell level, including save, attack, healing, and multi-projectile behaviors.
+3. Add more SRD random magic items, recharge tables, traps, and encounter-facing tools.
+4. Migrate Homebrew to the multi-mode card schema with explicit ruleset and source badges.
+5. Add component-level interaction and visual-regression tests.
+6. Add print sheets sized for 2.5 × 3.5 inch poker cards.
+
+## Attribution
+
+See [ATTRIBUTION.md](ATTRIBUTION.md) for the required SRD 5.1 and SRD 5.2.1 Creative Commons attribution statements.
 
 ## Architecture Rule
 
-Keep source files under 150 lines where practical. Split components, data, styling, persistence, and rules logic before files become difficult to review.
+Keep handwritten source files under 150 lines where practical. Split components, data, styling, persistence, and rules logic before they become difficult to audit.
