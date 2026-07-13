@@ -1,5 +1,6 @@
 const DICE_FORMULA_PATTERN = /([+-]?\d*d\d+(?:k[hl]\d+)?)|([+-]\d+)/gi;
 const DICE_TOKEN_PATTERN = /^(\d*)d(\d+)(?:k([hl])(\d+))?$/i;
+const FIXED_FORMULA_PATTERN = /^[+-]?\d+(?:[+-]\d+)*$/;
 const MAX_DICE_PER_TERM = 100;
 const MAX_TOTAL_DICE = 100;
 const MAX_DIE_SIDES = 1000;
@@ -30,6 +31,21 @@ const parseSafeInteger = (value: string): number => {
   }
 
   return parsed;
+};
+
+const parseFixedFormula = (formula: string): ParsedFormula | undefined => {
+  if (!FIXED_FORMULA_PATTERN.test(formula)) {
+    return undefined;
+  }
+
+  const modifier = (formula.match(/[+-]?\d+/g) ?? [])
+    .reduce((sum, token) => sum + parseSafeInteger(token), 0);
+
+  if (!Number.isSafeInteger(modifier)) {
+    throw new Error("The combined modifier is outside the supported range.");
+  }
+
+  return { diceTerms: [], modifier };
 };
 
 const parseDiceToken = (token: string): ParsedDiceTerm => {
@@ -78,6 +94,12 @@ export const parseDiceFormula = (formula: string): ParsedFormula => {
     throw new Error(`Dice formula cannot exceed ${MAX_FORMULA_LENGTH} characters.`);
   }
 
+  const fixedFormula = parseFixedFormula(cleanedFormula);
+
+  if (fixedFormula) {
+    return fixedFormula;
+  }
+
   const matches = cleanedFormula.match(DICE_FORMULA_PATTERN);
 
   if (!matches || matches.join("") !== cleanedFormula) {
@@ -96,7 +118,7 @@ export const parseDiceFormula = (formula: string): ParsedFormula => {
   });
 
   if (diceTerms.length === 0) {
-    throw new Error("A dice formula must contain at least one die.");
+    throw new Error("A dice formula must contain a die or fixed numeric result.");
   }
 
   if (diceTerms.reduce((sum, term) => sum + term.count, 0) > MAX_TOTAL_DICE) {
