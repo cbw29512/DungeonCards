@@ -9,6 +9,8 @@ import type {
 const STORAGE_PREFIX = "dungeon-cards-workspace-v1";
 const unique = (values: string[]): string[] => [...new Set(values)];
 const now = (): string => new Date().toISOString();
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === "string");
 
 export const createDefaultWorkspace = (
   role: WorkspaceRole,
@@ -82,9 +84,21 @@ export const moveWorkspaceCard = (
 ): CardWorkspace => {
   const order = [...workspace.cardOrder];
   const index = order.indexOf(cardId);
-  const target = direction === "earlier" ? index - 1 : index + 1;
+  if (index < 0) return workspace;
 
-  if (index < 0 || target < 0 || target >= order.length) return workspace;
+  const pinned = workspace.pinnedCardIds.includes(cardId);
+  const step = direction === "earlier" ? -1 : 1;
+  let target = index + step;
+
+  while (
+    target >= 0
+    && target < order.length
+    && workspace.pinnedCardIds.includes(order[target]) !== pinned
+  ) {
+    target += step;
+  }
+
+  if (target < 0 || target >= order.length) return workspace;
   [order[index], order[target]] = [order[target], order[index]];
   return { ...workspace, cardOrder: order, updatedAt: now() };
 };
@@ -109,10 +123,14 @@ const isWorkspace = (value: unknown): value is CardWorkspace => {
   if (!value || typeof value !== "object") return false;
   const item = value as Partial<CardWorkspace>;
   return item.schemaVersion === 1
+    && typeof item.id === "string"
+    && typeof item.ownerKey === "string"
+    && typeof item.name === "string"
+    && typeof item.updatedAt === "string"
     && (item.role === "player" || item.role === "dm")
-    && Array.isArray(item.activeCardIds)
-    && Array.isArray(item.pinnedCardIds)
-    && Array.isArray(item.cardOrder);
+    && isStringArray(item.activeCardIds)
+    && isStringArray(item.pinnedCardIds)
+    && isStringArray(item.cardOrder);
 };
 
 export const createLocalWorkspaceRepository = (storage: Storage): WorkspaceRepository => ({
