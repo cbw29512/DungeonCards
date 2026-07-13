@@ -1,4 +1,5 @@
 import type { RuleCard } from "../types/ruleCards";
+import { bagOfTricksRuleCards } from "./bagOfTricksRuleCards";
 import { magicItemRuleCards } from "./magicItemRuleCards";
 import { resistanceItemRuleCards } from "./resistanceItemRuleCards";
 import { spellAreaRuleCards } from "./spellAreaRuleCards";
@@ -19,7 +20,8 @@ export const playerRuleCards: RuleCard[] = [
 export const dmRuleCards: RuleCard[] = [
   ...trapRuleCards,
   ...magicItemRuleCards,
-  ...resistanceItemRuleCards
+  ...resistanceItemRuleCards,
+  ...bagOfTricksRuleCards
 ];
 
 export const ruleCardCatalog: RuleCard[] = [
