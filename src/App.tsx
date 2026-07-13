@@ -11,6 +11,7 @@ import "./styles/homebrew.css";
 import "./styles/rule-cards.css";
 import "./styles/rule-controls.css";
 import "./styles/rule-history.css";
+import "./styles/workspaces.css";
 import "./styles/accessibility.css";
 
 type AppPage = "home" | "player" | "dm" | "homebrew";
@@ -49,13 +50,13 @@ export const App = () => {
             <div className="role-card-grid">
               <button className="role-card" type="button" onClick={() => setActivePage("player")}>
                 <span>🧙</span>
-                <strong>Player Deck</strong>
-                <small>Weapons, attacks, critical damage, scalable spells, and advantage controls.</small>
+                <strong>Player Workspace</strong>
+                <small>Keep only your character's weapons, attacks, spells, and favorite actions on My Table.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("dm")}>
                 <span>🎲</span>
-                <strong>DM Deck</strong>
-                <small>Scaled traps, magic-item generators, charge checks, and official random tables.</small>
+                <strong>DM Workspace</strong>
+                <small>Build a table for the current encounter while keeping the full DM Library one click away.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
                 <span>🛠️</span>
@@ -70,18 +71,20 @@ export const App = () => {
       {activePage === "player" && (
         <RulesDeck
           cards={playerRuleCards}
+          description="Keep the cards your character uses on My Table, then open the full Library whenever your loadout changes."
           eyebrow="player"
-          title="Weapons and spells that scale on the card."
-          description="Select 2014 or 2024 rules, roll mode, advantage, slot level, character level, and modifiers without leaving the card."
+          role="player"
+          title="Your personal cards, ready when initiative starts."
         />
       )}
 
       {activePage === "dm" && (
         <RulesDeck
           cards={dmRuleCards}
+          description="Prepare the current encounter on My Table and pull traps, items, generators, and random tables from the Library as needed."
           eyebrow="dm"
-          title="Rules-driven tools for the other side of the screen."
-          description="Run scaled traps, generate sentient items, check crafting materials, recharge wands, and resolve random tables."
+          role="dm"
+          title="A focused DM screen backed by the full rules library."
         />
       )}
 
