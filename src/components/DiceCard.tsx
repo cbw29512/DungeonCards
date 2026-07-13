@@ -1,20 +1,11 @@
 import type { DiceCard as DiceCardType, RollResult } from "../types/cards";
+import { formatRollBreakdown } from "../utils/formatRollResult";
 
 type DiceCardProps = {
   card: DiceCardType;
   isFlipped: boolean;
   result?: RollResult;
   onFlip: (card: DiceCardType) => void;
-};
-
-const formatRolls = (result?: RollResult): string => {
-  if (!result) {
-    return "Ready";
-  }
-
-  return result.dice
-    .flatMap((die) => die.results.map((roll) => `${Math.abs(roll)}`))
-    .join(" + ");
 };
 
 export const DiceCard = ({ card, isFlipped, result, onFlip }: DiceCardProps) => {
@@ -26,13 +17,14 @@ export const DiceCard = ({ card, isFlipped, result, onFlip }: DiceCardProps) => 
 
   return (
     <button
+      aria-label={isFlipped ? `Roll ${card.name} again` : `Roll ${card.name}`}
+      aria-pressed={isFlipped}
       className={`dice-card ${isFlipped ? "is-flipped" : ""}`}
       onClick={() => onFlip(card)}
       type="button"
-      aria-label={`Flip ${card.name}`}
     >
       <span className="dice-card__inner">
-        <span className="dice-card__face dice-card__front">
+        <span aria-hidden={isFlipped} className="dice-card__face dice-card__front">
           <span className="dice-card__emoji">{card.imageEmoji}</span>
           <span className="dice-card__eyebrow">{card.category}</span>
           <strong>{card.name}</strong>
@@ -40,11 +32,15 @@ export const DiceCard = ({ card, isFlipped, result, onFlip }: DiceCardProps) => 
           <small>{card.description}</small>
         </span>
 
-        <span className="dice-card__face dice-card__back">
+        <span
+          aria-hidden={!isFlipped}
+          aria-live="polite"
+          className="dice-card__face dice-card__back"
+        >
           <span className="dice-card__eyebrow">{resultLabel}</span>
           <strong className="dice-card__total">{result?.total ?? "—"}</strong>
-          <span className="dice-card__formula">{formatRolls(result)}</span>
-          <small>The card resets after a few seconds so it can be used again.</small>
+          <span className="dice-card__formula">{formatRollBreakdown(result)}</span>
+          <small>The card resets after a few seconds so it can be rolled again.</small>
         </span>
       </span>
     </button>

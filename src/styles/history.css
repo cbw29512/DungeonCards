@@ -1,0 +1,43 @@
+.roll-history {
+  align-self: start;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 1.25rem;
+  background: rgb(0 0 0 / 24%);
+}
+
+.roll-history__heading {
+  margin-bottom: 1rem;
+}
+
+.roll-history__empty {
+  color: #d9c9b8;
+}
+
+.roll-history__list {
+  display: grid;
+  max-height: 680px;
+  margin: 0;
+  padding: 0;
+  gap: 0.8rem;
+  list-style: none;
+  overflow: auto;
+}
+
+.roll-history__item {
+  padding: 0.85rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 7%);
+}
+
+.roll-history__item div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.roll-history__item span,
+.roll-history__item p {
+  color: #d9c9b8;
+}

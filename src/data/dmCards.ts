@@ -2,42 +2,38 @@ import type { DiceCard } from "../types/cards";
 
 export const dmCards: DiceCard[] = [
   {
-    id: "trap-cr-5",
-    name: "Trap CR 5",
+    id: "trap-damage-example",
+    name: "Trap Damage Example",
     category: "dm",
     formula: "6d6",
-    description: "A medium-danger trap result for a mid-level party.",
+    description: "Generic trap damage example. Replace the formula with the damage specified by the trap you are running.",
     imageEmoji: "🪤",
     isFavorite: true
   },
   {
-    id: "mimic-cr-5",
-    name: "Mimic Chest CR 5",
+    id: "chest-outcome-prompt",
+    name: "Chest Outcome Prompt",
     category: "dm",
     formula: "1d20",
-    description: "Random chest outcome placeholder: treasure, empty, trap, or mimic.",
+    description: "Homebrew d20 prompt for a custom chest table. This is not an official Mimic stat block or encounter rule.",
     imageEmoji: "📦",
-    critOn: 20,
-    failOn: 1,
     isFavorite: true
   },
   {
-    id: "ambush-cr-5",
-    name: "Ambush CR 5",
+    id: "ambush-check-example",
+    name: "Ambush Check Example",
     category: "dm",
     formula: "1d20+4",
-    description: "Quick ambush check placeholder for the DM deck.",
+    description: "Generic example check. Replace the modifier and interpretation with the creature or encounter rules in use.",
     imageEmoji: "👁️",
-    critOn: 20,
-    failOn: 1,
     isFavorite: true
   },
   {
-    id: "treasure-cr-5",
-    name: "Treasure CR 5",
+    id: "treasure-value-prompt",
+    name: "Treasure Value Prompt",
     category: "dm",
     formula: "4d6+20",
-    description: "Starter treasure value placeholder for future treasure tables.",
+    description: "Homebrew treasure prompt for quick inspiration. This is not an official 5e treasure table.",
     imageEmoji: "💎",
     isFavorite: true
   }

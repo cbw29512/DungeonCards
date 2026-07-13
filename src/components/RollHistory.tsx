@@ -9,8 +9,7 @@ const formatDiceBreakdown = (entry: RollHistoryEntry): string => {
     .map((die) => `${die.results.length}d${die.sides}: ${die.results.join(", ")}`)
     .join(" | ");
 
-  const modifierText = entry.result.modifier === 0 ? "" : ` | Bonus: ${entry.result.modifier}`;
-
+  const modifierText = entry.result.modifier === 0 ? "" : ` | Modifier: ${entry.result.modifier}`;
   return `${diceText}${modifierText}`;
 };
 

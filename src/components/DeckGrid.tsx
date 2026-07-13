@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DeckState, DiceCard as DiceCardType, RollHistoryEntry } from "../types/cards";
 import { rollDiceFormula } from "../utils/rollDice";
 import { DiceCard } from "./DiceCard";
@@ -18,23 +18,23 @@ type DeckGridProps = {
   eyebrow: string;
   title: string;
   description: string;
+  onDeleteCard?: (cardId: string) => boolean;
 };
 
-const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"]): RollHistoryEntry => {
-  return {
-    id: `${card.id}-${Date.now()}`,
-    cardId: card.id,
-    cardName: card.name,
-    category: card.category,
-    formula: card.formula,
-    result,
-    rolledAt: new Date().toISOString()
-  };
-};
+const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"]): RollHistoryEntry => ({
+  id: `${card.id}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  cardId: card.id,
+  cardName: card.name,
+  category: card.category,
+  formula: card.formula,
+  result,
+  rolledAt: new Date().toISOString()
+});
 
-export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) => {
+export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: DeckGridProps) => {
   const [deckState, setDeckState] = useState<DeckState>(initialDeckState);
   const resetTimerRef = useRef<number | null>(null);
+  const sectionTitleId = `${eyebrow.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`;
 
   const clearResetTimer = () => {
     if (resetTimerRef.current !== null) {
@@ -43,9 +43,12 @@ export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) 
     }
   };
 
+  useEffect(() => {
+    return () => clearResetTimer();
+  }, []);
+
   const scheduleCardReset = () => {
     clearResetTimer();
-
     resetTimerRef.current = window.setTimeout(() => {
       setDeckState((currentState) => ({
         ...currentState,
@@ -56,7 +59,10 @@ export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) 
 
   const handleFlip = (card: DiceCardType) => {
     try {
-      const result = rollDiceFormula(card.formula);
+      const result = rollDiceFormula(card.formula, {
+        critOn: card.critOn,
+        failOn: card.failOn
+      });
       const historyEntry = buildHistoryEntry(card, result);
 
       setDeckState((currentState) => ({
@@ -67,31 +73,52 @@ export const DeckGrid = ({ cards, eyebrow, title, description }: DeckGridProps) 
         },
         rollHistory: [historyEntry, ...currentState.rollHistory].slice(0, MAX_HISTORY_ITEMS)
       }));
-
       scheduleCardReset();
     } catch (error) {
       console.error("Card flip failed", { cardId: card.id, error });
     }
   };
 
+  const handleDelete = (cardId: string) => {
+    try {
+      const deleted = onDeleteCard?.(cardId);
+
+      if (deleted === false) {
+        console.error("Card deletion was not persisted", { cardId });
+      }
+    } catch (error) {
+      console.error("Card deletion failed", { cardId, error });
+    }
+  };
+
   return (
-    <section className="deck-section" aria-labelledby="deck-title">
+    <section className="deck-section" aria-labelledby={sectionTitleId}>
       <div className="section-heading">
         <p>{eyebrow}</p>
-        <h2 id="deck-title">{title}</h2>
+        <h2 id={sectionTitleId}>{title}</h2>
         <span>{description}</span>
       </div>
 
       <div className="deck-layout">
         <div className="deck-grid">
           {cards.map((card) => (
-            <DiceCard
-              card={card}
-              isFlipped={deckState.activeFlippedCardId === card.id}
-              key={card.id}
-              onFlip={handleFlip}
-              result={deckState.rollResults[card.id]}
-            />
+            <div className="deck-card-item" key={card.id}>
+              <DiceCard
+                card={card}
+                isFlipped={deckState.activeFlippedCardId === card.id}
+                onFlip={handleFlip}
+                result={deckState.rollResults[card.id]}
+              />
+              {onDeleteCard && (
+                <button
+                  className="delete-card-button"
+                  onClick={() => handleDelete(card.id)}
+                  type="button"
+                >
+                  Delete {card.name}
+                </button>
+              )}
+            </div>
           ))}
         </div>
 

@@ -1,24 +1,39 @@
 import { useState } from "react";
 import { DeckGrid } from "./components/DeckGrid";
+import { HomebrewBuilder } from "./components/HomebrewBuilder";
 import { dmCards } from "./data/dmCards";
 import { sampleCards } from "./data/sampleCards";
-import "./styles.css";
+import { useHomebrewCards } from "./hooks/useHomebrewCards";
+import "./styles/base.css";
+import "./styles/cards.css";
+import "./styles/history.css";
+import "./styles/homebrew.css";
+import "./styles/accessibility.css";
 
-type AppPage = "home" | "player" | "dm";
+type AppPage = "home" | "player" | "dm" | "homebrew";
 
 export const App = () => {
   const [activePage, setActivePage] = useState<AppPage>("home");
+  const {
+    cards: homebrewCards,
+    storageError,
+    createCard,
+    deleteCard
+  } = useHomebrewCards();
 
   return (
     <main>
       <nav className="top-nav" aria-label="Primary navigation">
         <strong>Dungeon Cards</strong>
         <div>
-          <button type="button" onClick={() => setActivePage("home")}>Home</button>
-          <button type="button" onClick={() => setActivePage("player")}>Player Deck</button>
-          <button type="button" onClick={() => setActivePage("dm")}>DM Deck</button>
+          <button aria-pressed={activePage === "home"} type="button" onClick={() => setActivePage("home")}>Home</button>
+          <button aria-pressed={activePage === "player"} type="button" onClick={() => setActivePage("player")}>Player Deck</button>
+          <button aria-pressed={activePage === "dm"} type="button" onClick={() => setActivePage("dm")}>DM Deck</button>
+          <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => setActivePage("homebrew")}>Homebrew</button>
         </div>
       </nav>
+
+      {activePage !== "home" && <h1 className="sr-only">Dungeon Cards</h1>}
 
       {activePage === "home" && (
         <section className="hero compact-hero">
@@ -26,18 +41,23 @@ export const App = () => {
             <p className="hero__eyebrow">Dungeon Cards MVP</p>
             <h1>Flip a card. Get the roll. Keep playing.</h1>
             <p>
-              Pick your table role and jump straight into the cards. The first screen is built for fast use at the table.
+              Pick your table role or build the exact action card your character needs.
             </p>
             <div className="role-card-grid">
               <button className="role-card" type="button" onClick={() => setActivePage("player")}>
                 <span>🧙</span>
                 <strong>Player Deck</strong>
-                <small>Attacks, spells, saves, skills, favorites, and future homebrew actions.</small>
+                <small>Attacks, spells, saves, skills, and frequently used actions.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("dm")}>
                 <span>🎲</span>
                 <strong>DM Deck</strong>
-                <small>Traps, mimics, treasure, ambushes, puzzles, and encounter tools.</small>
+                <small>Traps, treasure, ambushes, prompts, and encounter tools.</small>
+              </button>
+              <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
+                <span>🛠️</span>
+                <strong>Homebrew</strong>
+                <small>Create, save, roll, and remove custom cards in this browser.</small>
               </button>
             </div>
           </div>
@@ -49,7 +69,7 @@ export const App = () => {
           cards={sampleCards}
           eyebrow="Player Deck"
           title="Your most-used actions, ready immediately."
-          description="Flip attacks, damage, saves, spells, and favorite homebrew cards without scrolling through a character sheet."
+          description="Flip attacks, damage, spells, initiative, and favorite actions without searching a character sheet."
         />
       )}
 
@@ -58,8 +78,27 @@ export const App = () => {
           cards={dmCards}
           eyebrow="DM Deck"
           title="Fast encounter tools for the table."
-          description="Prototype DM cards for traps, mimic chests, ambushes, and treasure. These become CR-based pages next."
+          description="Configurable prototype prompts for traps, chests, ambushes, and treasure."
         />
+      )}
+
+      {activePage === "homebrew" && (
+        <>
+          <HomebrewBuilder onCreate={createCard} storageError={storageError} />
+          {homebrewCards.length > 0 ? (
+            <DeckGrid
+              cards={homebrewCards}
+              eyebrow="Homebrew Deck"
+              title="Your custom cards are ready to roll."
+              description="These cards are stored locally in this browser and survive a page refresh."
+              onDeleteCard={deleteCard}
+            />
+          ) : (
+            <p className="homebrew-empty">
+              No homebrew cards yet. Build your first card above and it will appear here.
+            </p>
+          )}
+        </>
       )}
     </main>
   );
