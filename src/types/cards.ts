@@ -24,6 +24,7 @@ export type HomebrewCardDraft = Omit<DiceCard, "id" | "category">;
 export type DieRoll = {
   sides: number;
   results: number[];
+  keptResults?: number[];
 };
 
 export type RollResult = {
