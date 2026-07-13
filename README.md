@@ -10,14 +10,27 @@ A Player or DM can:
 2. Use **My Table** to see only the cards selected for current play.
 3. Open **Library** to search every available card for that role.
 4. Add or remove cards without deleting or changing official card data.
-5. Pin important cards to the front of My Table.
-6. Move cards earlier or later within their pinned or unpinned group.
-7. Reload the browser and restore the Player and DM tables independently.
-8. Reset either workspace to its starter six-card table.
-9. Select 2014 or 2024, roll modes, modifiers, spell slots, character levels, and Advantage directly on a card.
+5. Pin and reorder cards within the active table.
+6. Restore Player and DM selections independently after refreshing.
+7. Use separate Attack Roll, Saving Throw, Ability Check, Weapon Damage, Spell Damage, and Spell Healing cards.
+8. Add optional Quick Roll cards that show an attack and its potential damage as two separate results.
+9. Select 2014 or 2024 rules, modifiers, spell slots, character levels, and Advantage directly on a card.
 10. Resolve random tables and review recent results in the shared roll log.
 
 The current workspace owner is an anonymous local profile. Workspace persistence is behind a `WorkspaceRepository` interface so authenticated cloud persistence can replace local storage without rewriting the card UI.
+
+## Split Roll Card Model
+
+Dungeon Cards deliberately separates different D&D roll types:
+
+- **Attack Roll:** rolls the d20 attack only and applies attack-only natural 20 and natural 1 behavior.
+- **Saving Throw:** chooses one of the six abilities, supports Advantage or Disadvantage, and never treats a natural 20 or 1 as automatic unless another rule says so.
+- **Ability Check:** chooses one of the six abilities and accepts the full check modifier, including proficiency or Expertise.
+- **Weapon Damage:** contains normal and critical damage without a hidden attack roll.
+- **Spell Damage or Healing:** contains the scalable effect without a hidden attack roll.
+- **Quick Roll:** rolls an attack and potential damage together but displays two independent results. Potential damage applies only if the attack hits.
+
+Multi-attack spells such as Scorching Ray and Eldritch Blast remain split because one attack roll must not be presented as resolving every ray or beam.
 
 ## Current Audited Catalog
 
@@ -26,16 +39,18 @@ The current workspace owner is an anonymous local profile. Workspace persistence
 - Complete SRD 5.1 weapon table: 37 weapons.
 - Complete SRD 5.2.1 weapon table: 38 weapons.
 - 2014-only Net and 2024-only Musket and Pistol remain ruleset-specific.
-- Attack, damage, critical, versatile, and fixed-damage weapon behavior is modeled explicitly.
+- Damaging weapons provide separate Attack, Damage, and Quick Roll cards.
+- Existing saved weapon IDs continue to point to Quick Roll cards so local tables remain usable.
 - Twenty-two audited spell families: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, Scorching Ray, Burning Hands, Thunderwave, Shatter, Lightning Bolt, Cone of Cold, Call Lightning, Moonbeam, Blight, Guiding Bolt, Hellish Rebuke, Blink, Chill Touch, Poison Spray, Ray of Frost, Sacred Flame, and Eldritch Blast.
-- Spell slots, character level, attack bonus, and relevant alternate modes are selected on the card.
+- Spell attacks and spell effects are separate cards.
+- Eligible single-attack spells also provide an optional Quick Roll card.
 - Blink preserves its edition-specific random check: 2014 uses 1d20 and 2024 uses 1d6.
 - Chill Touch preserves its 2014 ranged d8 version and 2024 Touch d10 version.
 - Poison Spray preserves its 2014 Constitution-save version and 2024 ranged-attack version.
-- Eldritch Blast provides separate attack and per-beam damage controls plus a convenience total when all beams hit.
 
 ### DM cards
 
+- Standalone Saving Throw and Ability Check cards.
 - 2014 trap damage severity by party tier and severity.
 - 2024 Hidden Pit and Poisoned Darts scaling.
 - Sentient-item ability scores, alignment, communication, senses, and purpose.
@@ -54,13 +69,24 @@ Weapon coverage is complete for both selected SRDs. The spell and DM sets are au
 type RuleCard = {
   id: string;
   name: string;
-  kind: "weapon" | "spell" | "trap" | "magic-item" | "dm-table";
+  kind:
+    | "attack"
+    | "saving-throw"
+    | "ability-check"
+    | "weapon-damage"
+    | "spell-damage"
+    | "spell-healing"
+    | "quick-roll"
+    | "spell"
+    | "trap"
+    | "magic-item"
+    | "dm-table";
   imageEmoji: string;
   variants: Partial<Record<RulesetId, RuleCardVariant>>;
 };
 ```
 
-Each card family can contain independent 2014 and 2024 variants. Selecting a ruleset loads that variant rather than mutating or blending SRD content.
+A Quick Roll mode can contain a secondary roll definition. The engine resolves and records the primary attack and secondary potential damage independently.
 
 ## Workspace Schema
 
@@ -86,7 +112,9 @@ Workspaces store card IDs rather than copies of official cards. Removing a card 
 - Player and DM workspace selections are stored independently.
 - Homebrew cards remain separate from SRD cards.
 - Natural 20 and natural 1 outcomes are limited to valid attack-roll formulas.
-- Initiative, checks, damage, healing, and random tables do not gain attack-roll outcomes.
+- Saving throws, checks, damage, healing, and random tables do not gain attack-roll outcomes.
+- Damage cards contain no hidden attack mode.
+- Quick Roll damage is labeled as potential and remains separate from the attack total.
 - Critical-damage modes double damage dice, not static modifiers.
 - Fixed weapon damage stays fixed on a critical hit because there are no damage dice to double.
 - Advantage and Disadvantage roll two d20s and keep the appropriate die.
@@ -112,7 +140,7 @@ Production rolls use `crypto.getRandomValues` with rejection sampling. Tests inj
 - `RulesDeck` owns My Table/Library view, search, and shared roll history.
 - `useCardWorkspace` owns active cards, pins, ordering, reset, and repository persistence.
 - `WorkspaceRepository` is the boundary between the UI and local or future cloud storage.
-- `useRuleCardState` owns each card's ruleset, mode, choice, scaling, modifiers, Advantage state, and latest result.
+- `useRuleCardState` owns each card's ruleset, mode, choices, scaling, primary and secondary modifiers, Advantage state, and latest result.
 - `rollDice.ts` owns validated rolling, kept dice, fixed results, and attack-roll outcomes.
 - `useHomebrewCards` owns separately persisted custom cards.
 
@@ -138,7 +166,7 @@ GitHub Actions runs dependency installation, a high-severity audit, unit and cat
 ## Current Limitations
 
 - There is no production login or cloud synchronization yet.
-- Only one local Player workspace and one local DM workspace exist; multiple named characters, campaigns, and encounters are still pending.
+- Only one local Player workspace and one local DM workspace exist.
 - Card-specific selected modes and modifiers are not yet restored across sessions.
 - Non-weapon SRD content is expanded in audited batches rather than bulk-imported without verification.
 - Homebrew still uses the original single-formula builder.
