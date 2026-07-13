@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DeckState, DiceCard as DiceCardType, RollHistoryEntry } from "../types/cards";
+import { createClientId } from "../utils/createId";
 import { rollDiceFormula } from "../utils/rollDice";
 import { DiceCard } from "./DiceCard";
 import { RollHistory } from "./RollHistory";
@@ -21,8 +22,11 @@ type DeckGridProps = {
   onDeleteCard?: (cardId: string) => boolean;
 };
 
-const buildHistoryEntry = (card: DiceCardType, result: RollHistoryEntry["result"]): RollHistoryEntry => ({
-  id: `${card.id}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+const buildHistoryEntry = (
+  card: DiceCardType,
+  result: RollHistoryEntry["result"]
+): RollHistoryEntry => ({
+  id: createClientId("roll"),
   cardId: card.id,
   cardName: card.name,
   category: card.category,
