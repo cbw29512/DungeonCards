@@ -15,17 +15,19 @@ export type WorkspaceCardControls = {
 type RuleCardWorkspaceActionsProps = {
   cardName: string;
   controls: WorkspaceCardControls;
+  collectionLabel?: string;
 };
 
 export const RuleCardWorkspaceActions = ({
   cardName,
-  controls
+  controls,
+  collectionLabel = "My Table"
 }: RuleCardWorkspaceActionsProps) => {
   if (controls.view === "library") {
     return (
       <div className="rule-card__workspace-actions">
         <button onClick={controls.onToggleActive} type="button">
-          {controls.isActive ? "Remove from My Table" : "Add to My Table"}
+          {controls.isActive ? `Remove from ${collectionLabel}` : `Add to ${collectionLabel}`}
         </button>
       </div>
     );
