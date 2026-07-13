@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { DeckGrid } from "./components/DeckGrid";
 import { HomebrewBuilder } from "./components/HomebrewBuilder";
+import { MonsterDeck } from "./components/MonsterDeck";
+import { MonsterHomebrewBuilder } from "./components/MonsterHomebrewBuilder";
 import { RulesDeck } from "./components/RulesDeck";
 import { dmRuleCards, playerRuleCards } from "./data/ruleCardCatalog";
 import { useHomebrewCards } from "./hooks/useHomebrewCards";
@@ -12,9 +14,11 @@ import "./styles/rule-cards.css";
 import "./styles/rule-controls.css";
 import "./styles/rule-history.css";
 import "./styles/workspaces.css";
+import "./styles/monsters.css";
+import "./styles/monster-print.css";
 import "./styles/accessibility.css";
 
-type AppPage = "home" | "player" | "dm" | "homebrew";
+type AppPage = "home" | "player" | "dm" | "monster" | "homebrew" | "monster-homebrew";
 
 export const App = () => {
   const [activePage, setActivePage] = useState<AppPage>("home");
@@ -31,9 +35,11 @@ export const App = () => {
         <strong>Dungeon Cards</strong>
         <div>
           <button aria-pressed={activePage === "home"} type="button" onClick={() => setActivePage("home")}>Home</button>
-          <button aria-pressed={activePage === "player"} type="button" onClick={() => setActivePage("player")}>Player Deck</button>
-          <button aria-pressed={activePage === "dm"} type="button" onClick={() => setActivePage("dm")}>DM Deck</button>
-          <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => setActivePage("homebrew")}>Homebrew</button>
+          <button aria-pressed={activePage === "player"} type="button" onClick={() => setActivePage("player")}>Player</button>
+          <button aria-pressed={activePage === "dm"} type="button" onClick={() => setActivePage("dm")}>DM</button>
+          <button aria-pressed={activePage === "monster"} type="button" onClick={() => setActivePage("monster")}>Monsters</button>
+          <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => setActivePage("homebrew")}>Card Builder</button>
+          <button aria-pressed={activePage === "monster-homebrew"} type="button" onClick={() => setActivePage("monster-homebrew")}>Monster Builder</button>
         </div>
       </nav>
 
@@ -42,26 +48,36 @@ export const App = () => {
       {activePage === "home" && (
         <section className="hero compact-hero">
           <div className="hero__content">
-            <p className="hero__eyebrow">Dungeon Cards Rules Engine</p>
-            <h1>Choose the rule. Roll the card. Keep playing.</h1>
+            <p className="hero__eyebrow">Dungeon Cards Tabletop Toolkit</p>
+            <h1>Choose the card. Run the encounter. Keep playing.</h1>
             <p>
-              Poker-size cards keep 2014 and 2024 SRD rules separate while putting every useful control directly on the card.
+              Player rules, DM tables, printable monster references, and guided homebrew now live in one ruleset-safe workspace.
             </p>
             <div className="role-card-grid">
               <button className="role-card" type="button" onClick={() => setActivePage("player")}>
                 <span>🧙</span>
                 <strong>Player Workspace</strong>
-                <small>Keep only your character's weapons, attacks, spells, and favorite actions on My Table.</small>
+                <small>Keep only your character's attacks, damage, spells, checks, and saves on My Table.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("dm")}>
                 <span>🎲</span>
                 <strong>DM Workspace</strong>
-                <small>Build a table for the current encounter while keeping the full DM Library one click away.</small>
+                <small>Prepare traps, magic items, generators, and random tables for the current session.</small>
+              </button>
+              <button className="role-card" type="button" onClick={() => setActivePage("monster")}>
+                <span>🐉</span>
+                <strong>Monster Encounter</strong>
+                <small>Choose monsters, pin tonight's creatures, open boss folios, and print poker-size references.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
                 <span>🛠️</span>
-                <strong>Homebrew</strong>
-                <small>Create custom formulas without changing or relabeling SRD content.</small>
+                <strong>Card Builder</strong>
+                <small>Create custom dice and rules cards without changing SRD content.</small>
+              </button>
+              <button className="role-card" type="button" onClick={() => setActivePage("monster-homebrew")}>
+                <span>🧌</span>
+                <strong>Monster Builder</strong>
+                <small>Edit a complete example monster with helper text and a live printable folio.</small>
               </button>
             </div>
           </div>
@@ -88,6 +104,8 @@ export const App = () => {
         />
       )}
 
+      {activePage === "monster" && <MonsterDeck />}
+
       {activePage === "homebrew" && (
         <>
           <HomebrewBuilder onCreate={createCard} storageError={storageError} />
@@ -106,6 +124,8 @@ export const App = () => {
           )}
         </>
       )}
+
+      {activePage === "monster-homebrew" && <MonsterHomebrewBuilder />}
     </main>
   );
 };
