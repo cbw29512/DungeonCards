@@ -8,6 +8,7 @@ export type RuleCardKind =
   | "ability-check"
   | "weapon-damage"
   | "spell-damage"
+  | "spell-healing"
   | "quick-roll"
   | "spell"
   | "trap"
