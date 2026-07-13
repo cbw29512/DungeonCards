@@ -89,6 +89,21 @@
   place-items: center;
 }
 
+.secondary-roll-controls {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.38rem;
+  border: 1px solid rgb(255 211 111 / 28%);
+  border-radius: 0.62rem;
+  background: rgb(255 211 111 / 7%);
+}
+
+.secondary-roll-controls > strong {
+  color: #ffd36f;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
 .rule-card__roll {
   padding: 0.42rem 0.68rem;
   color: #160d07;
@@ -136,6 +151,22 @@
   background: rgb(0 0 0 / 20%);
   font-size: 0.68rem;
   line-height: 1.25;
+}
+
+.rule-result--secondary {
+  flex: 0 1 auto;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(255 211 111 / 25%);
+}
+
+.rule-result--secondary strong {
+  font-size: 2.3rem;
+}
+
+.rule-result--secondary small,
+.rule-result--secondary em {
+  color: #ffdca0;
+  font-size: 0.62rem;
 }
 
 .rule-card__back-actions {
