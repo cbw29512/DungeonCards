@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import type { DiceCard, HomebrewCardDraft } from "../types/cards";
+import { createClientId } from "../utils/createId";
 import { loadHomebrewCards, saveHomebrewCards } from "../utils/homebrewStorage";
 import { validateDiceFormula } from "../utils/rollDice";
 
@@ -10,19 +11,6 @@ type InitialHomebrewState = {
 
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : "An unexpected homebrew card error occurred.";
-
-const createCardId = (): string => {
-  try {
-    if (typeof globalThis.crypto?.randomUUID === "function") {
-      return globalThis.crypto.randomUUID();
-    }
-
-    return `homebrew-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  } catch (error) {
-    console.error("Generating a homebrew card ID failed", { error });
-    return `homebrew-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  }
-};
 
 const loadInitialState = (): InitialHomebrewState => {
   if (typeof window === "undefined") {
@@ -68,7 +56,7 @@ export const useHomebrewCards = () => {
       validateDiceFormula(draft.formula);
       const card: DiceCard = {
         ...draft,
-        id: createCardId(),
+        id: createClientId("homebrew"),
         category: "homebrew"
       };
 
