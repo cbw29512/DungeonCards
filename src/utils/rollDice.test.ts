@@ -10,10 +10,11 @@ const sequence = (...values: number[]): RandomIntegerSource => {
 };
 
 describe("validateDiceFormula", () => {
-  it("accepts combat, spell, and keep-highest formulas", () => {
+  it("accepts combat, fixed, and keep-highest formulas", () => {
     expect(() => validateDiceFormula("1d20+8")).not.toThrow();
     expect(() => validateDiceFormula("10d6")).not.toThrow();
     expect(() => validateDiceFormula("4d6kh3")).not.toThrow();
+    expect(() => validateDiceFormula("1+3")).not.toThrow();
   });
 
   it("rejects unsupported text and unsafe roll sizes", () => {
@@ -32,6 +33,14 @@ describe("rollDiceFormula", () => {
     expect(result.modifier).toBe(5);
     expect(result.total).toBe(12);
     expect(result.dice[0].results).toEqual([7]);
+  });
+
+  it("resolves fixed Blowgun damage without inventing dice", () => {
+    const result = rollDiceFormula("1+3");
+
+    expect(result.dice).toEqual([]);
+    expect(result.modifier).toBe(4);
+    expect(result.total).toBe(4);
   });
 
   it("rolls upcast damage without inventing a natural failure", () => {
