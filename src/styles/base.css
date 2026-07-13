@@ -15,6 +15,7 @@ body {
 button,
 a,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -38,6 +39,7 @@ button {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .top-nav button {
   padding: 0.65rem 0.9rem;
@@ -62,7 +64,7 @@ button {
   padding-top: 2rem;
 }
 .hero__content {
-  width: min(100%, 1080px);
+  width: min(100%, 1180px);
 }
 .hero__eyebrow,
 .section-heading p,
@@ -72,13 +74,13 @@ button {
   text-transform: uppercase;
 }
 .hero h1 {
-  max-width: 850px;
+  max-width: 900px;
   margin: 0 auto;
   font-size: clamp(2.2rem, 7vw, 5.4rem);
   line-height: 0.95;
 }
 .hero p:not(.hero__eyebrow) {
-  max-width: 760px;
+  max-width: 780px;
   margin: 1rem auto;
   color: #d9c9b8;
   font-size: 1.1rem;
@@ -88,11 +90,11 @@ button {
   display: grid;
   margin-top: 1.5rem;
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 .role-card {
   display: flex;
-  min-height: 230px;
+  min-height: 210px;
   padding: 1.4rem;
   border: 1px solid rgb(255 255 255 / 16%);
   border-radius: 1.5rem;
@@ -112,7 +114,7 @@ button {
   font-size: 3.5rem;
 }
 .role-card strong {
-  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
 }
 .role-card small,
 .section-heading span {
@@ -124,10 +126,10 @@ button {
     align-items: flex-start;
     flex-direction: column;
   }
+  .top-nav div {
+    justify-content: flex-start;
+  }
   .hero {
     min-height: auto;
-  }
-  .role-card-grid {
-    grid-template-columns: 1fr;
   }
 }
