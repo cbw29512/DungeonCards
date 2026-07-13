@@ -67,12 +67,20 @@ describe("rule card formula scaling", () => {
   });
 
   it("scales cantrips by character level rather than slot level", () => {
-    const mode = getMode("fire-bolt", "srd-5.2.1-2024", "effect");
+    expect(formula("fire-bolt", "srd-5.2.1-2024", 1, 1)).toBe("1d10");
+    expect(formula("ray-of-frost", "srd-5.1-2014", 9, 5)).toBe("2d8");
+    expect(formula("sacred-flame", "srd-5.2.1-2024", 1, 11)).toBe("3d8");
+    expect(formula("poison-spray", "srd-5.2.1-2024", 1, 17)).toBe("4d12");
+  });
 
-    expect(resolveRuleFormula(mode, 1, 1, 0)).toBe("1d10");
-    expect(resolveRuleFormula(mode, 1, 5, 0)).toBe("2d10");
-    expect(resolveRuleFormula(mode, 1, 11, 0)).toBe("3d10");
-    expect(resolveRuleFormula(mode, 1, 17, 0)).toBe("4d10");
+  it("keeps Chill Touch damage dice edition-specific", () => {
+    expect(formula("chill-touch", "srd-5.1-2014", 1, 11)).toBe("3d8");
+    expect(formula("chill-touch", "srd-5.2.1-2024", 1, 11)).toBe("3d10");
+  });
+
+  it("scales Eldritch Blast beams while retaining one-beam damage", () => {
+    expect(formula("eldritch-blast", "srd-5.1-2014", 1, 17, 0, "all-beams")).toBe("4d10");
+    expect(formula("eldritch-blast", "srd-5.2.1-2024", 1, 17, 0, "per-beam")).toBe("1d10");
   });
 
   it("keeps Blink's random check edition-specific", () => {
