@@ -43,7 +43,7 @@ A user can:
 - The SRD 5.2.1 Wand of Wonder d100 effect table.
 - Armor of Resistance random damage type for both SRDs.
 
-Weapon coverage is complete for both selected SRDs. Spells, traps, and magic items are still being expanded in audited batches so rule differences are verified rather than bulk-imported blindly.
+Weapon coverage is complete for both selected SRDs. The 17-spell set and DM tools are audited expansion batches, not a claim that every SRD spell, trap, or magic item has already been imported.
 
 ## Rules Card Schema
 
