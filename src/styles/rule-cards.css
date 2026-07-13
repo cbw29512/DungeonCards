@@ -1,0 +1,158 @@
+.rules-deck {
+  padding: 2rem 1.5rem 5rem;
+}
+
+.rules-deck__heading {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.rules-deck__search input {
+  width: min(100%, 420px);
+  padding: 0.75rem 1rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 8%);
+}
+
+.rules-deck__layout {
+  display: grid;
+  max-width: 1320px;
+  margin: 0 auto;
+  align-items: start;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+.rules-card-grid {
+  display: grid;
+  justify-content: center;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 230px));
+}
+
+.rule-card {
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  perspective: 1200px;
+}
+
+.rule-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 420ms ease;
+}
+
+.rule-card.is-flipped .rule-card__inner {
+  transform: rotateY(180deg);
+}
+
+.rule-card__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  min-width: 0;
+  padding: 0.72rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 1rem;
+  background: linear-gradient(155deg, #2a193e, #140d21 65%, #090610);
+  backface-visibility: hidden;
+  box-shadow: 0 16px 38px rgb(0 0 0 / 38%);
+  flex-direction: column;
+  gap: 0.42rem;
+  overflow: hidden;
+}
+
+.rule-card__back {
+  background: linear-gradient(155deg, #4b205f, #7e361d 72%, #1c0b13);
+  transform: rotateY(180deg);
+}
+
+.rule-card__header,
+.rule-card__back header {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.rule-card__header div,
+.rule-card__back header div {
+  min-width: 0;
+  flex: 1;
+}
+
+.rule-card__header h3,
+.rule-card__back h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.rule-card__header small,
+.rule-card__back small,
+.rule-card footer {
+  color: #f7c76b;
+  font-size: 0.61rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rule-card__emoji {
+  font-size: 1.55rem;
+}
+
+.source-badge {
+  padding: 0.2rem 0.34rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+}
+
+.source-badge--homebrew {
+  color: #ffd6ae;
+  border-color: #f08a4b;
+}
+
+.rule-card__summary {
+  min-height: 2.3em;
+  margin: 0;
+  color: #d9c9b8;
+  font-size: 0.68rem;
+  line-height: 1.18;
+}
+
+.rule-card__formula {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.rule-card__formula span {
+  color: #fff0c2;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.rule-card footer {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .rules-deck__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rules-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(178px, 210px));
+  }
+}
