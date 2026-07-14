@@ -6,6 +6,7 @@ import {
 } from "../data/cocPreviewCatalog";
 import { cocQuickReferenceCards } from "../data/cocRuleSources";
 import { CocCreatureDossier } from "./CocCreatureDossier";
+import { CocFirearmProcedureCard } from "./CocFirearmProcedureCard";
 import { CocInjuryCard } from "./CocInjuryCard";
 import { CocOpposedCard } from "./CocOpposedCard";
 import { CocPercentileCard } from "./CocPercentileCard";
@@ -119,7 +120,7 @@ export const CocPreview = ({ onChangeSystem }: CocPreviewProps) => {
             <div className="coc-index-grid">
               <button type="button" onClick={() => setActivePage("investigator")}><small>Source-backed procedures</small><strong>Investigator File</strong><span>Percentile checks, Sanity loss, temporary insanity prompts, damage, and Major Wounds.</span></button>
               <button type="button" onClick={() => setActivePage("keeper")}><small>Source-backed resolution</small><strong>Keeper File</strong><span>Generic opposed rolls, Dodge, Fight Back, ties, and encounter references.</span></button>
-              <button type="button" onClick={() => setActivePage("creatures")}><small>Original prototype</small><strong>The Lantern Maw</strong><span>HP, MP, attacks, Dodge, Sanity loss, armor, and traits.</span></button>
+              <button type="button" onClick={() => setActivePage("weapons")}><small>Source-backed firearms</small><strong>Weapons File</strong><span>Readied initiative, point blank, multiple shots, cover, Extreme damage, and prototype equipment.</span></button>
             </div>
           </section>
         </>
@@ -159,20 +160,23 @@ export const CocPreview = ({ onChangeSystem }: CocPreviewProps) => {
           <header className="coc-section__heading">
             <small>Combat-ready Keeper folio</small>
             <h1>Every number needed when it reaches the light.</h1>
-            <p>The sample below is original prototype content. Special damage remains gated until the complete damage model passes independent review.</p>
+            <p>The sample below is original prototype content. Special creature damage remains gated until its attack schema supports the reviewed damage model.</p>
           </header>
           <CocCreatureDossier creature={cocPreviewCreature} />
         </section>
       )}
 
       {activePage === "weapons" && (
-        <section className="coc-section coc-section--page coc-section--narrow">
+        <section className="coc-section coc-section--page">
           <header className="coc-section__heading">
-            <small>Interactive weapon cards</small>
+            <small>Firearm procedures and weapon cards</small>
             <h1>Evidence that fires back.</h1>
-            <p>The prototype demonstrates attack rolls, net Bonus/Penalty dice, ammunition, and malfunctions. Special damage remains gated.</p>
+            <p>The first card derives official-wiki firearm conditions. The second uses original equipment data to demonstrate attacks, ammunition, malfunctions, and structured Extreme damage.</p>
           </header>
-          <CocWeaponCard weapon={cocPreviewWeapon} />
+          <div className="coc-procedure-grid">
+            <CocFirearmProcedureCard />
+            <CocWeaponCard weapon={cocPreviewWeapon} />
+          </div>
         </section>
       )}
 
