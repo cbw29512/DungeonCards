@@ -1,6 +1,6 @@
 import type {
   FormulaChoice,
-  RuleRollMode,
+  RuleRollPart,
   RuleTableEntry
 } from "../types/ruleCards";
 
@@ -23,38 +23,33 @@ const scaleFirstMatchingDie = (
   const pattern = new RegExp(`(\\d*)d${sides}(?!\\d)`, "i");
 
   return formula.replace(pattern, (token, countText: string) => {
-    if (replaced) {
-      return token;
-    }
-
+    if (replaced) return token;
     replaced = true;
     const count = countText === "" ? 1 : Number.parseInt(countText, 10);
     return `${count + addedDice}d${sides}`;
   });
 };
 
-const scaleSlotFormula = (mode: RuleRollMode, slotLevel: number): string => {
-  if (mode.scaling?.kind !== "slot-dice") {
-    return mode.formula;
-  }
+const scaleSlotFormula = (part: RuleRollPart, slotLevel: number): string => {
+  if (part.scaling?.kind !== "slot-dice") return part.formula;
 
   const level = Math.min(
-    mode.scaling.maxLevel,
-    Math.max(mode.scaling.baseLevel, slotLevel)
+    part.scaling.maxLevel,
+    Math.max(part.scaling.baseLevel, slotLevel)
   );
-  const extraLevels = level - mode.scaling.baseLevel;
-  const addedDice = extraLevels * mode.scaling.dicePerLevel;
+  const extraLevels = level - part.scaling.baseLevel;
+  const addedDice = extraLevels * part.scaling.dicePerLevel;
   let formula = scaleFirstMatchingDie(
-    mode.formula,
-    mode.scaling.dieSides,
+    part.formula,
+    part.scaling.dieSides,
     addedDice
   );
 
-  if (mode.scaling.modifierPerLevel) {
+  if (part.scaling.modifierPerLevel) {
     const currentModifier = Number.parseInt(formula.match(/[+-]\d+$/)?.[0] ?? "0", 10);
     formula = replaceFinalModifier(
       formula,
-      currentModifier + extraLevels * mode.scaling.modifierPerLevel
+      currentModifier + extraLevels * part.scaling.modifierPerLevel
     );
   }
 
@@ -62,61 +57,56 @@ const scaleSlotFormula = (mode: RuleRollMode, slotLevel: number): string => {
 };
 
 const scaleCharacterFormula = (
-  mode: RuleRollMode,
+  part: RuleRollPart,
   characterLevel: number
 ): string => {
-  if (mode.scaling?.kind !== "character-formula") {
-    return mode.formula;
-  }
+  if (part.scaling?.kind !== "character-formula") return part.formula;
 
-  const sortedTiers = [...mode.scaling.tiers].sort((a, b) => a.level - b.level);
+  const sortedTiers = [...part.scaling.tiers].sort((a, b) => a.level - b.level);
   return sortedTiers.reduce(
     (formula, tier) => characterLevel >= tier.level ? tier.formula : formula,
-    sortedTiers[0]?.formula ?? mode.formula
+    sortedTiers[0]?.formula ?? part.formula
   );
 };
 
 export const getFormulaChoice = (
-  mode: RuleRollMode,
+  part: RuleRollPart,
   choiceId?: string
 ): FormulaChoice | undefined => {
-  if (!mode.choices?.length) {
-    return undefined;
-  }
-
-  return mode.choices.find((choice) => choice.id === choiceId) ?? mode.choices[0];
+  if (!part.choices?.length) return undefined;
+  return part.choices.find((choice) => choice.id === choiceId) ?? part.choices[0];
 };
 
 export const resolveRuleFormula = (
-  mode: RuleRollMode,
+  part: RuleRollPart,
   slotLevel: number,
   characterLevel: number,
   modifier: number,
   choiceId?: string
 ): string => {
-  const choice = getFormulaChoice(mode, choiceId);
-  const chosenMode = choice ? { ...mode, formula: choice.formula, scaling: undefined } : mode;
-  let formula = scaleSlotFormula(chosenMode, slotLevel);
-  formula = scaleCharacterFormula({ ...chosenMode, formula }, characterLevel);
+  const choice = getFormulaChoice(part, choiceId);
+  const chosenPart = choice ? { ...part, formula: choice.formula, scaling: undefined } : part;
+  let formula = scaleSlotFormula(chosenPart, slotLevel);
+  formula = scaleCharacterFormula({ ...chosenPart, formula }, characterLevel);
 
-  return mode.modifierControl
+  return part.modifierControl
     ? replaceFinalModifier(formula, modifier)
     : formula;
 };
 
 export const resolveRuleTable = (
-  mode: RuleRollMode,
+  part: RuleRollPart,
   choiceId?: string
-): RuleTableEntry[] | undefined => getFormulaChoice(mode, choiceId)?.table;
+): RuleTableEntry[] | undefined => getFormulaChoice(part, choiceId)?.table;
 
 export const resolveTableResult = (
   table: RuleTableEntry[] | undefined,
   total: number
 ): string | undefined => table?.find((entry) => total >= entry.min && total <= entry.max)?.result;
 
-export const getScaleBounds = (mode: RuleRollMode): [number, number] => {
-  if (mode.scaling?.kind === "slot-dice") {
-    return [mode.scaling.baseLevel, mode.scaling.maxLevel];
+export const getScaleBounds = (part: RuleRollPart): [number, number] => {
+  if (part.scaling?.kind === "slot-dice") {
+    return [part.scaling.baseLevel, part.scaling.maxLevel];
   }
 
   return [1, 20];

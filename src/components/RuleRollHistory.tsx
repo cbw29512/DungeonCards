@@ -21,9 +21,15 @@ export const RuleRollHistory = ({ entries, onClear }: RuleRollHistoryProps) => (
           <li key={entry.id}>
             <div>
               <strong>{entry.cardName}</strong>
-              <span>{entry.result.total}</span>
+              <span>
+                {entry.result.total}
+                {entry.result.secondary && ` / ${entry.result.secondary.result.total}`}
+              </span>
             </div>
-            <small>{RULESET_LABELS[entry.ruleset]} • {entry.modeLabel}</small>
+            <small>
+              {RULESET_LABELS[entry.ruleset]} • {entry.modeLabel}
+              {entry.result.secondary && " • attack / potential damage"}
+            </small>
             {entry.result.tableResult && <p>{entry.result.tableResult}</p>}
           </li>
         ))}

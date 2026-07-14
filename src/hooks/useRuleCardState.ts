@@ -29,12 +29,19 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
   const rulesets = useMemo(() => getRulesets(card), [card]);
   const [ruleset, setRuleset] = useState<RulesetId>(rulesets[0]);
   const initialVariant = card.variants[rulesets[0]]!;
-  const [modeId, setModeId] = useState(initialVariant.modes[0].id);
-  const [choiceId, setChoiceId] = useState(initialVariant.modes[0].choices?.[0]?.id);
+  const initialMode = initialVariant.modes[0];
+  const [modeId, setModeId] = useState(initialMode.id);
+  const [choiceId, setChoiceId] = useState(initialMode.choices?.[0]?.id);
+  const [secondaryChoiceId, setSecondaryChoiceId] = useState(
+    initialMode.secondaryRoll?.choices?.[0]?.id
+  );
   const [slotLevel, setSlotLevel] = useState(1);
   const [characterLevel, setCharacterLevel] = useState(1);
   const [modifier, setModifier] = useState(
-    initialVariant.modes[0].modifierControl?.defaultValue ?? 0
+    initialMode.modifierControl?.defaultValue ?? 0
+  );
+  const [secondaryModifier, setSecondaryModifier] = useState(
+    initialMode.secondaryRoll?.modifierControl?.defaultValue ?? 0
   );
   const [advantageMode, setAdvantageMode] = useState<AdvantageMode>("normal");
   const [result, setResult] = useState<RuleRollResult>();
@@ -49,14 +56,30 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
     modifier,
     choiceId
   );
+  const secondaryFormula = mode.secondaryRoll
+    ? resolveRuleFormula(
+      mode.secondaryRoll,
+      slotLevel,
+      characterLevel,
+      secondaryModifier,
+      secondaryChoiceId
+    )
+    : undefined;
   const selectedChoice = getFormulaChoice(mode, choiceId);
-  const scaleBounds = getScaleBounds(mode);
+  const selectedSecondaryChoice = mode.secondaryRoll
+    ? getFormulaChoice(mode.secondaryRoll, secondaryChoiceId)
+    : undefined;
+  const scalePart = mode.scaling ? mode : mode.secondaryRoll ?? mode;
+  const scaleBounds = getScaleBounds(scalePart);
 
   const configureMode = (nextMode: RuleRollMode) => {
     setModeId(nextMode.id);
     setChoiceId(nextMode.choices?.[0]?.id);
+    setSecondaryChoiceId(nextMode.secondaryRoll?.choices?.[0]?.id);
     setModifier(nextMode.modifierControl?.defaultValue ?? 0);
-    setSlotLevel(nextMode.scaling?.kind === "slot-dice" ? nextMode.scaling.baseLevel : 1);
+    setSecondaryModifier(nextMode.secondaryRoll?.modifierControl?.defaultValue ?? 0);
+    const scaling = nextMode.scaling ?? nextMode.secondaryRoll?.scaling;
+    setSlotLevel(scaling?.kind === "slot-dice" ? scaling.baseLevel : 1);
     setCharacterLevel(1);
     setAdvantageMode("normal");
     setResult(undefined);
@@ -66,11 +89,7 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
   const changeRuleset = (nextRuleset: RulesetId) => {
     try {
       const nextVariant = card.variants[nextRuleset];
-
-      if (!nextVariant) {
-        throw new Error(`Card ${card.id} has no ${nextRuleset} variant.`);
-      }
-
+      if (!nextVariant) throw new Error(`Card ${card.id} has no ${nextRuleset} variant.`);
       setRuleset(nextRuleset);
       configureMode(nextVariant.modes[0]);
     } catch (error) {
@@ -80,10 +99,7 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
 
   const changeMode = (nextModeId: string) => {
     const nextMode = variant.modes.find((candidate) => candidate.id === nextModeId);
-
-    if (nextMode) {
-      configureMode(nextMode);
-    }
+    if (nextMode) configureMode(nextMode);
   };
 
   const roll = () => {
@@ -97,6 +113,20 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
         ...baseResult,
         tableResult: resolveTableResult(table, baseResult.total)
       };
+
+      if (mode.secondaryRoll && secondaryFormula) {
+        const secondaryTable = resolveRuleTable(mode.secondaryRoll, secondaryChoiceId);
+        const secondary = rollDiceFormula(secondaryFormula, {
+          advantageMode: mode.secondaryRoll.allowsAdvantage ? advantageMode : "normal",
+          naturalRollRule: mode.secondaryRoll.naturalRollRule ?? "none"
+        });
+        nextResult.secondary = {
+          label: mode.secondaryRoll.label,
+          formula: secondaryFormula,
+          result: secondary,
+          tableResult: resolveTableResult(secondaryTable, secondary.total)
+        };
+      }
 
       setResult(nextResult);
       setIsFlipped(true);
@@ -115,6 +145,7 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
         ruleset,
         modeId: mode.id,
         formula,
+        secondaryFormula,
         error
       });
     }
@@ -126,21 +157,27 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
     variant,
     mode,
     choiceId,
+    secondaryChoiceId,
     selectedChoice,
+    selectedSecondaryChoice,
     slotLevel,
     characterLevel,
     modifier,
+    secondaryModifier,
     advantageMode,
     result,
     isFlipped,
     formula,
+    secondaryFormula,
     scaleBounds,
     changeRuleset,
     changeMode,
     setChoiceId,
+    setSecondaryChoiceId,
     setSlotLevel,
     setCharacterLevel,
     setModifier,
+    setSecondaryModifier,
     setAdvantageMode,
     setIsFlipped,
     roll

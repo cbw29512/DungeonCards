@@ -3,6 +3,7 @@ import type {
   RuleCard,
   RuleCardVariant,
   RuleRollMode,
+  RuleRollPart,
   RulesetId
 } from "../types/ruleCards";
 import { weaponCatalog2014 } from "./weaponCatalog2014";
@@ -27,7 +28,7 @@ const attackMode: RuleRollMode = {
   formula: "1d20+5",
   allowsAdvantage: true,
   naturalRollRule: "attack",
-  modifierControl: { label: "Attack bonus", defaultValue: 5, minimum: -5, maximum: 20 }
+  modifierControl: { label: "Attack bonus", defaultValue: 5, minimum: -5, maximum: 30 }
 };
 
 const doubleDamageDice = (formula: string): string =>
@@ -36,14 +37,8 @@ const doubleDamageDice = (formula: string): string =>
     return `${count * 2}d${sides}`;
   });
 
-const buildChoices = (
-  weapon: WeaponDefinition,
-  critical: boolean
-): FormulaChoice[] | undefined => {
-  if (!weapon.damage || !weapon.versatileDamage) {
-    return undefined;
-  }
-
+const buildChoices = (weapon: WeaponDefinition, critical: boolean): FormulaChoice[] | undefined => {
+  if (!weapon.damage || !weapon.versatileDamage) return undefined;
   const oneHand = critical ? doubleDamageDice(weapon.damage) : weapon.damage;
   const twoHands = critical ? doubleDamageDice(weapon.versatileDamage) : weapon.versatileDamage;
   return [
@@ -53,9 +48,7 @@ const buildChoices = (
 };
 
 const buildDamageModes = (weapon: WeaponDefinition): RuleRollMode[] => {
-  if (!weapon.damage) {
-    return [];
-  }
+  if (!weapon.damage) return [];
 
   return [
     {
@@ -63,44 +56,67 @@ const buildDamageModes = (weapon: WeaponDefinition): RuleRollMode[] => {
       label: "Damage",
       kind: "damage",
       formula: `${weapon.damage}+3`,
-      modifierControl: { label: "Damage bonus", defaultValue: 3, minimum: -5, maximum: 20 },
+      modifierControl: { label: "Damage bonus", defaultValue: 3, minimum: -5, maximum: 30 },
       choices: buildChoices(weapon, false)
     },
     {
       id: "critical",
-      label: "Critical",
+      label: "Critical Damage",
       kind: "damage",
       formula: `${doubleDamageDice(weapon.damage)}+3`,
-      modifierControl: { label: "Damage bonus", defaultValue: 3, minimum: -5, maximum: 20 },
+      modifierControl: { label: "Damage bonus", defaultValue: 3, minimum: -5, maximum: 30 },
       choices: buildChoices(weapon, true)
     }
   ];
 };
 
-const buildVariant = (
-  weapon: WeaponDefinition,
-  ruleset: RulesetId
-): RuleCardVariant => {
+const withoutId = ({ id: _id, ...part }: RuleRollMode): RuleRollPart => part;
+
+const buildQuickModes = (weapon: WeaponDefinition): RuleRollMode[] =>
+  buildDamageModes(weapon).map((damageMode) => ({
+    ...attackMode,
+    id: `quick-${damageMode.id}`,
+    label: damageMode.id === "critical" ? "Attack + Potential Critical" : "Attack + Potential Damage",
+    secondaryRoll: withoutId(damageMode)
+  }));
+
+const weaponText = (weapon: WeaponDefinition) => {
   const damage = weapon.damage && weapon.damageType
     ? `${weapon.damage} ${weapon.damageType}`
     : "Special attack";
   const mastery = weapon.mastery ? ` • ${weapon.mastery}` : "";
   const details = [
     weapon.note,
-    weapon.mastery ? masteryNotes[weapon.mastery] : undefined,
-    weapon.damage ? "Critical mode doubles damage dice and adds the modifier once." : undefined
+    weapon.mastery ? masteryNotes[weapon.mastery] : undefined
   ].filter(Boolean).join(" ");
+  return { summary: `${damage} • ${weapon.properties}${mastery}`, details };
+};
+
+const buildVariant = (
+  weapon: WeaponDefinition,
+  ruleset: RulesetId,
+  family: "attack" | "damage" | "quick"
+): RuleCardVariant => {
+  const text = weaponText(weapon);
+  const sourceReference = ruleset === "srd-5.1-2014"
+    ? "SRD 5.1 • Equipment: Weapons"
+    : "SRD 5.2.1 • Equipment: Weapons";
+  const modes = family === "attack"
+    ? [attackMode]
+    : family === "damage"
+      ? buildDamageModes(weapon)
+      : buildQuickModes(weapon);
 
   return {
     ruleset,
     source: "srd",
-    sourceReference: ruleset === "srd-5.1-2014"
-      ? "SRD 5.1 • Equipment: Weapons"
-      : "SRD 5.2.1 • Equipment: Weapons",
-    summary: `${damage} • ${weapon.properties}${mastery}`,
-    detail: details || "Use the weapon's listed properties when resolving the attack.",
-    tags: ["weapon"],
-    modes: [attackMode, ...buildDamageModes(weapon)]
+    sourceReference,
+    summary: text.summary,
+    detail: family === "quick"
+      ? `${text.details} Quick Roll shows attack and potential damage separately; apply damage only on a hit.`.trim()
+      : text.details || "Use the weapon's listed properties when resolving this roll.",
+    tags: ["weapon", family],
+    modes
   };
 };
 
@@ -108,19 +124,54 @@ const oldById = new Map(weaponCatalog2014.map((weapon) => [weapon.id, weapon]));
 const newById = new Map(weaponCatalog2024.map((weapon) => [weapon.id, weapon]));
 const allIds = [...new Set([...oldById.keys(), ...newById.keys()])];
 
-export const weaponRuleCards: RuleCard[] = allIds.map((id) => {
+const variantsFor = (id: string, family: "attack" | "damage" | "quick") => {
   const oldWeapon = oldById.get(id);
   const newWeapon = newById.get(id);
-  const display = newWeapon ?? oldWeapon!;
-
   return {
-    id,
-    name: display.name,
-    kind: "weapon",
-    imageEmoji: display.icon ?? "⚔️",
-    variants: {
-      ...(oldWeapon ? { "srd-5.1-2014": buildVariant(oldWeapon, "srd-5.1-2014") } : {}),
-      ...(newWeapon ? { "srd-5.2.1-2024": buildVariant(newWeapon, "srd-5.2.1-2024") } : {})
-    }
+    ...(oldWeapon && (family === "attack" || oldWeapon.damage)
+      ? { "srd-5.1-2014": buildVariant(oldWeapon, "srd-5.1-2014", family) }
+      : {}),
+    ...(newWeapon && (family === "attack" || newWeapon.damage)
+      ? { "srd-5.2.1-2024": buildVariant(newWeapon, "srd-5.2.1-2024", family) }
+      : {})
   };
+};
+
+export const weaponRuleCards: RuleCard[] = allIds.flatMap((id) => {
+  const display = newById.get(id) ?? oldById.get(id)!;
+  const hasDamage = Boolean(oldById.get(id)?.damage || newById.get(id)?.damage);
+
+  if (!hasDamage) {
+    return [{
+      id,
+      name: `${display.name} Attack`,
+      kind: "attack",
+      imageEmoji: display.icon ?? "⚔️",
+      variants: variantsFor(id, "attack")
+    }];
+  }
+
+  return [
+    {
+      id,
+      name: `${display.name} Quick Roll`,
+      kind: "quick-roll",
+      imageEmoji: display.icon ?? "⚔️",
+      variants: variantsFor(id, "quick")
+    },
+    {
+      id: `${id}-attack`,
+      name: `${display.name} Attack`,
+      kind: "attack",
+      imageEmoji: "🎯",
+      variants: variantsFor(id, "attack")
+    },
+    {
+      id: `${id}-damage`,
+      name: `${display.name} Damage`,
+      kind: "weapon-damage",
+      imageEmoji: display.icon ?? "⚔️",
+      variants: variantsFor(id, "damage")
+    }
+  ];
 });

@@ -34,6 +34,17 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
         {result?.tableResult && <blockquote>{result.tableResult}</blockquote>}
       </div>
 
+      {result?.secondary && (
+        <div className="rule-result rule-result--secondary">
+          <small>Potential {result.secondary.label}</small>
+          <strong>{result.secondary.result.total}</strong>
+          <span>{result.secondary.formula}</span>
+          <p>{formatRollBreakdown(result.secondary.result)}</p>
+          <em>Apply this damage only if the attack hits.</em>
+          {result.secondary.tableResult && <blockquote>{result.secondary.tableResult}</blockquote>}
+        </div>
+      )}
+
       <div className="rule-card__back-actions">
         <button onClick={() => setIsFlipped(false)} type="button">Change</button>
         <button className="rule-card__roll" onClick={roll} type="button">Roll again</button>

@@ -2,8 +2,19 @@ import type { RollResult } from "./cards";
 
 export type RulesetId = "srd-5.1-2014" | "srd-5.2.1-2024";
 export type RuleSource = "srd" | "homebrew";
-export type RuleCardKind = "weapon" | "spell" | "trap" | "magic-item" | "dm-table";
-export type RuleRollKind = "attack" | "damage" | "healing" | "check" | "table";
+export type RuleCardKind =
+  | "attack"
+  | "saving-throw"
+  | "ability-check"
+  | "weapon-damage"
+  | "spell-damage"
+  | "spell-healing"
+  | "quick-roll"
+  | "spell"
+  | "trap"
+  | "magic-item"
+  | "dm-table";
+export type RuleRollKind = "attack" | "damage" | "healing" | "save" | "check" | "table";
 export type AdvantageMode = "normal" | "advantage" | "disadvantage";
 export type NaturalRollRule = "attack" | "none";
 
@@ -49,8 +60,7 @@ export type ModifierControl = {
   maximum: number;
 };
 
-export type RuleRollMode = {
-  id: string;
+export type RuleRollPart = {
   label: string;
   kind: RuleRollKind;
   formula: string;
@@ -59,6 +69,11 @@ export type RuleRollMode = {
   modifierControl?: ModifierControl;
   scaling?: RuleScaling;
   choices?: FormulaChoice[];
+};
+
+export type RuleRollMode = RuleRollPart & {
+  id: string;
+  secondaryRoll?: RuleRollPart;
 };
 
 export type RuleCardVariant = {
@@ -91,8 +106,16 @@ export type RuleRollRequest = {
   table?: RuleTableEntry[];
 };
 
+export type SecondaryRuleRollResult = {
+  label: string;
+  formula: string;
+  result: RollResult;
+  tableResult?: string;
+};
+
 export type RuleRollResult = RollResult & {
   tableResult?: string;
+  secondary?: SecondaryRuleRollResult;
 };
 
 export type RuleRollHistoryEntry = {
