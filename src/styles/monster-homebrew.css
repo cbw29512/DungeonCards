@@ -1,0 +1,30 @@
+.monster-reference__delete {
+  grid-column: 1 / -1;
+  border-color: rgb(224 112 112 / 55%) !important;
+}
+
+.monster-builder__actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.monster-builder__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.monster-builder__status {
+  margin: 0;
+  padding: 0.75rem;
+  color: #f8efe0;
+  border: 1px solid rgb(125 170 97 / 60%);
+  border-radius: 0.75rem;
+  background: rgb(125 170 97 / 14%);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  .monster-builder__actions {
+    grid-template-columns: 1fr;
+  }
+}
