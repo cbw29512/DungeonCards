@@ -20,22 +20,29 @@ type VisibleAttackRollImpact = AttackRollImpact & {
   id: number;
 };
 
+const IMPACT_DURATION_MS = 1800;
+
 export const RuleCard = ({ card, onRoll, workspaceControls }: RuleCardProps) => {
   const controller = useRuleCardState({ card, onRoll });
   const impactId = useRef(0);
   const [impact, setImpact] = useState<VisibleAttackRollImpact>();
 
   useEffect(() => {
+    let clearImpactTimer: number | undefined;
+
     try {
       const nextImpact = getAttackRollImpact(controller.result);
 
       if (!nextImpact) {
         setImpact(undefined);
-        return;
+        return undefined;
       }
 
       impactId.current += 1;
       setImpact({ ...nextImpact, id: impactId.current });
+      clearImpactTimer = window.setTimeout(() => {
+        setImpact(undefined);
+      }, IMPACT_DURATION_MS);
     } catch (error) {
       console.error("Updating the rule card roll impact failed", {
         cardId: card.id,
@@ -44,6 +51,12 @@ export const RuleCard = ({ card, onRoll, workspaceControls }: RuleCardProps) => 
       });
       setImpact(undefined);
     }
+
+    return () => {
+      if (clearImpactTimer !== undefined) {
+        window.clearTimeout(clearImpactTimer);
+      }
+    };
   }, [card.id, controller.result]);
 
   return (
