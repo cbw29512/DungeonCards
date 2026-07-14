@@ -130,12 +130,30 @@ export const cocRuleSources: CocRuleSourceRecord[] = [
     sourceTitle: "The Call of Cthulhu RPG Wiki — Combat",
     sourceUrl: WIKI_COMBAT,
     chapterOrSection: "Extreme Damage",
-    implementationSummary: "Extreme blunt attacks use maximum weapon damage plus maximum damage bonus. Extreme impaling attacks use maximum weapon damage plus damage bonus plus an additional weapon-damage roll.",
+    implementationSummary: "Extreme blunt attacks use maximum weapon damage plus maximum damage bonus. Extreme impaling attacks use maximum weapon damage plus maximum damage bonus plus an additional weapon-damage roll.",
     status: "needs-review",
     primaryReviewer: PRIMARY_REVIEW,
     notes: [
-      "Current prototype cards deliberately block this automation until the damage formula model distinguishes weapon type and damage bonus.",
-      "Critical damage remains outside this source-backed slice.",
+      "The structured damage engine supports ordinary, Extreme blunt, and Extreme impaling outcomes.",
+      "The original handgun prototype now uses the source-backed Extreme impaling procedure.",
+      "Critical damage and complex creature attacks remain outside this reviewed slice.",
+      "Independent second review remains required."
+    ]
+  },
+  {
+    id: "coc-firearm-procedure",
+    system: "call-of-cthulhu",
+    edition: "7e",
+    ruleName: "Readied firearms, handgun shots, point blank, and dive for cover",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — Combat",
+    sourceUrl: WIKI_COMBAT,
+    chapterOrSection: "Firearms Rules",
+    implementationSummary: "A readied firearm acts at DEX plus 50. Firing two or three handgun shots applies one Penalty die to each shot. Point blank is within one-fifth DEX in feet and grants one Bonus die. A successful dive for cover applies one Penalty die and costs the target's next attack.",
+    status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
+    notes: [
+      "The procedure derives and cancels the listed modifiers before rolling each selected shot.",
+      "Range bands beyond point blank, reloading, and full malfunction procedures still require core-rulebook review.",
       "Independent second review remains required."
     ]
   },
