@@ -48,9 +48,9 @@ Base: `main`
 
 Branch: `feature/integrate-monster-card-forge`
 
-Latest fully passing automated verification: commit `8725c14`, workflow run `29339941945`.
+Latest fully passing automated verification: commit `f73c375`, workflow run `29342152233`.
 
-The current head adds dramatic natural 20 and natural 1 attack-roll effects. Automated verification for that new visual layer is pending.
+The current implementation includes the Monster Card Forge integration, persistent homebrew monsters, corrected compact-versus-folio printing, and dramatic attack-only Natural 20 and Natural 1 effects.
 
 Completed in this branch:
 
@@ -69,7 +69,7 @@ Completed in this branch:
 - persistent saved homebrew-monster collection with unique IDs;
 - Save to Monster Library and homebrew-only deletion controls;
 - Homebrew ruleset filtering inside the Monster Library;
-- attack-only natural 20 and natural 1 visual impact system;
+- attack-only Natural 20 and Natural 1 visual impact system;
 - full-screen Natural 20 critical-hit burst with gold card lighting;
 - full-screen Natural 1 automatic-miss impact with red card lighting;
 - persistent card-back outcome styling after the transient flash;
@@ -80,10 +80,10 @@ Completed in this branch:
 
 Work must be completed in this order unless this file is updated with a reason for changing priorities.
 
-1. Confirm the current branch passes GitHub Actions after the natural-roll visual changes.
-2. Pull PR #6 locally and run the application in a real browser.
-3. Verify Natural 20 and Natural 1 effects on normal, Advantage, Disadvantage, and Quick Roll attacks.
-4. Verify saves, ability checks, initiative-style rolls, damage, and healing never trigger the effects.
+1. Pull PR #6 locally and run the application in a real browser.
+2. Verify Natural 20 and Natural 1 effects on normal, Advantage, Disadvantage, and Quick Roll attacks.
+3. Verify saves, ability checks, initiative-style rolls, damage, and healing never trigger the effects.
+4. Decide whether the duration, brightness, wording, and card lighting feel exciting enough at an actual table.
 5. Audit desktop and narrow viewport layout, including the full-screen impact text.
 6. Verify Monster workspace persistence, filtering, pinning, ordering, homebrew save, and homebrew deletion.
 7. Verify print preview for a compact monster and a six-panel boss folio.
@@ -109,6 +109,8 @@ Work must be completed in this order unless this file is updated with a reason f
 - [x] The full-screen flash is portaled to `document.body` so card perspective cannot trap it.
 - [x] The rolled card keeps an illuminated result theme after the transient flash ends.
 - [x] Existing dice-engine tests prove non-attack d20 rolls do not receive critical or failure flags.
+- [x] Natural-roll impact tests pass in GitHub Actions.
+- [x] Strict TypeScript and the production build pass with the portal and timed cleanup.
 - [ ] Natural 20 full-screen burst and card glow pass browser acceptance.
 - [ ] Natural 1 full-screen impact and card lighting pass browser acceptance.
 - [ ] Consecutive Natural 20s and consecutive Natural 1s replay the animation correctly.
@@ -169,17 +171,16 @@ Work must be completed in this order unless this file is updated with a reason f
 - [x] Workflow run `29339941945` passed locked installation, dependency audit, all tests, strict TypeScript compilation, and the production Vite build at commit `8725c14`.
 - [x] Natural-roll impact state has dedicated regression tests.
 - [x] Existing dice-engine regression tests keep attack outcomes off checks and other ordinary d20 rolls.
-- [ ] Current branch head passes the full GitHub Actions workflow after the visual effects.
+- [x] Workflow run `29342152233` passed locked installation, dependency audit, all tests, strict TypeScript compilation, and the production Vite build at commit `f73c375`.
 - [ ] Manual browser acceptance passes.
 - [ ] Manual print-preview acceptance passes.
-- [ ] Documentation reflects the final behavior.
+- [ ] Documentation reflects the final behavior after manual acceptance.
 
 ## Change Log
 
 ### 2026-07-14
 
 - Established this project-status document as the repository tracking source.
-- Confirmed PR #6 is the active Monster Card Forge integration branch.
 - Added the manual browser, print, accessibility, persistence, and homebrew acceptance checklist.
 - Corrected monster printing so simple monsters use one poker card and complex monsters use six-panel folios.
 - Added strict Monster Builder draft validation and saved homebrew-monster library validation.
@@ -196,7 +197,7 @@ Work must be completed in this order unless this file is updated with a reason f
 - Used a React portal so the full-screen effect is not constrained by the card-flip perspective container.
 - Added unique effect instances and timed cleanup so consecutive identical outcomes replay correctly without leaving invisible overlays mounted.
 - Added roll-impact regression tests and retained the attack-only dice-engine guardrails.
-- Automated verification for the new visual effects is pending.
+- Workflow run `29342152233` passed installation, dependency audit, all tests, strict TypeScript compilation, and the production build for the new visual effects at commit `f73c375`.
 
 ## Required Update Format
 
