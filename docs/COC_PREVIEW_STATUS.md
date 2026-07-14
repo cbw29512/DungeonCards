@@ -30,6 +30,7 @@ The complete verification process is maintained in [`docs/COC_RULES_ACCURACY.md`
 - First audit report: `docs/COC_RULE_AUDIT_01.md`
 - Official wiki audit: `docs/COC_RULE_AUDIT_02.md`
 - Firearm and Extreme damage audit: `docs/COC_RULE_AUDIT_03.md`
+- Source recheck corrections: `docs/COC_RULE_AUDIT_04.md`
 
 This preview should not merge to `main` before the Monster Card Forge integration is completed, all included rules pass independent review, and the licensing route is resolved.
 
@@ -64,9 +65,11 @@ Critical and Fumble boundaries remain pending direct Quick-Start PDF or Keeper R
 - [x] Basic Sanity check with success/failure loss formulas.
 - [x] Sanity supports a current value of 0.
 - [x] Sanity cannot fall below zero.
-- [x] Any positive loss prompts a Keeper-determined involuntary action.
+- [x] A failed Sanity roll prompts the Keeper-controlled involuntary action.
+- [x] A positive loss after a successful Sanity roll does not incorrectly trigger that action.
 - [x] Losing 5 or more from one check prompts an INT roll.
-- [x] Successful INT roll generates the 1D10-hour temporary-insanity duration and a 1D10-round bout duration.
+- [x] Successful INT roll generates the 1D10-hour temporary-insanity duration.
+- [x] Successful INT roll generates a 1D10 bout-table result, not an invented fixed round duration.
 - [x] Official bout table is not copied into the app.
 - [x] Damage is applied one blow at a time.
 - [x] Major Wound threshold uses at least half maximum HP from one blow.
@@ -94,8 +97,9 @@ Critical and Fumble boundaries remain pending direct Quick-Start PDF or Keeper R
 - [x] Point-blank range is calculated as one-fifth DEX in feet.
 - [x] Point blank grants one Bonus die.
 - [x] Two or three handgun shots apply one Penalty die to every shot.
-- [x] A successful dive for cover applies one Penalty die.
-- [x] A successful dive for cover costs the target its next attack.
+- [x] A successful dive-for-cover Dodge applies one Penalty die.
+- [x] A failed dive-for-cover Dodge does not incorrectly apply that Penalty die.
+- [x] Choosing to dive for cover costs the target its next attack whether the Dodge succeeds or fails.
 - [x] Firearm Bonus and Penalty dice cancel before rolling.
 - [x] Every selected handgun shot rolls independently.
 - [x] Ammunition is consumed for the selected number of shots.
@@ -125,11 +129,11 @@ Primary official-wiki review completed; independent review remains pending:
 - Bonus/Penalty procedure and cancellation: `needs-review`.
 - Pushed-roll basics and combat exclusion: `needs-review`.
 - Generic opposed rolls: `needs-review`.
-- Sanity check and temporary-insanity trigger: `needs-review`.
+- Sanity check, failed-roll involuntary action, and temporary-insanity trigger: `needs-review`.
 - Fight Back/Dodge tie rules: `needs-review`.
 - Major Wounds, dying, and instant death: `needs-review`.
 - Ordinary and Extreme blunt/impaling damage: `needs-review`.
-- Readied initiative, point blank, multiple handgun shots, and successful dive for cover: `needs-review`.
+- Readied initiative, point blank, multiple handgun shots, and dive for cover: `needs-review`.
 - Sample weapon, spell, and creature entries: `prototype`.
 
 ## Rules-certification checklist
@@ -144,10 +148,12 @@ Primary official-wiki review completed; independent review remains pending:
 - [x] Complete primary official-wiki review for pushed-roll basics and combat exclusion.
 - [x] Complete primary official-wiki review for generic opposed ties.
 - [x] Complete primary official-wiki review for Dodge and Fight Back tie rules.
-- [x] Complete primary official-wiki review for basic Sanity and temporary-insanity trigger.
+- [x] Complete primary official-wiki review for Sanity loss, failed-roll action control, and temporary-insanity trigger.
+- [x] Correct the unsupported fixed bout-duration interpretation.
 - [x] Complete primary official-wiki review for Major Wounds, dying, and instant death.
 - [x] Build and complete primary review of the structured ordinary/Extreme blunt/Extreme impaling damage engine.
-- [x] Complete primary official-wiki review for readied initiative, point blank, multiple handgun shots, and successful dive for cover.
+- [x] Complete primary official-wiki review for readied initiative, point blank, multiple handgun shots, and dive for cover.
+- [x] Correct the action cost so an attempted cover dive forfeits the next attack regardless of success.
 - [ ] Verify complete firearm range bands, reload timing, weapon-specific attacks per round, malfunction consequences, cover, and automatic fire.
 - [ ] Verify Critical damage.
 - [ ] Verify indefinite insanity, treatment, and recovery.
@@ -168,14 +174,17 @@ Primary official-wiki review completed; independent review remains pending:
 - [ ] Dodge tie favors defender.
 - [ ] Fight Back tie favors initiating attacker.
 - [ ] Sanity 0 always fails the check without validation errors.
-- [ ] Success/failure SAN formulas and current SAN update correctly.
+- [ ] A failed Sanity roll shows the involuntary-action prompt.
+- [ ] A successful Sanity roll with positive loss does not show that prompt.
 - [ ] 5+ SAN loss reveals the INT follow-up.
+- [ ] Successful INT shows temporary-insanity hours and a bout-table roll, not a fabricated round duration.
 - [ ] Major Wound threshold works for even and odd maximum HP.
 - [ ] Major Wound CON prompt does not imply automatic unconsciousness.
 - [ ] Zero-HP dying distinction is clear.
 - [ ] Firearm card calculates readied initiative and point-blank range correctly.
 - [ ] Two and three handgun shots apply the correct Penalty die to every shot.
-- [ ] Successful dive for cover applies its Penalty die and next-attack reminder.
+- [ ] A failed cover dive costs the next attack without adding the cover Penalty die.
+- [ ] A successful cover dive costs the next attack and adds the cover Penalty die.
 - [ ] Point-blank Bonus cancels the expected Penalty sources.
 - [ ] Firearm card rolls and consumes the selected number of rounds.
 - [ ] Ordinary and Extreme impaling weapon damage show a readable breakdown.
@@ -205,7 +214,7 @@ Official references reviewed:
 1. Perform independent review of the source-backed cards and engines.
 2. Obtain the exact Quick-Start PDF revision for Critical, Fumble, and maximum Bonus/Penalty confirmation.
 3. Audit full firearm range bands, reload, weapon-specific attacks per round, malfunction consequences, cover, and automatic fire.
-4. Add structured creature attack metadata so the verified damage engine can be safely reused by combat-ready creature cards.
-5. Complete browser acceptance for the new Investigator, Keeper, firearm, damage, and Rules Audit cards.
+4. Add structured creature attack metadata so the reviewed damage engine can be safely reused by combat-ready creature cards.
+5. Complete browser acceptance for the corrected Sanity and cover-dive procedures.
 6. Add persistence namespaces only after the game-system boundary is accepted.
 7. Resolve the licensing route before public release.
