@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { CocPreview } from "./components/CocPreview";
 import { DeckGrid } from "./components/DeckGrid";
+import { GameSystemGateway, type GameSystemId } from "./components/GameSystemGateway";
 import { HomebrewBuilder } from "./components/HomebrewBuilder";
 import { MonsterDeck } from "./components/MonsterDeck";
 import { MonsterHomebrewBuilder } from "./components/MonsterHomebrewBuilder";
@@ -18,11 +20,16 @@ import "./styles/workspaces.css";
 import "./styles/monsters.css";
 import "./styles/monster-homebrew.css";
 import "./styles/monster-print.css";
+import "./styles/coc-preview.css";
 import "./styles/accessibility.css";
 
 type AppPage = "home" | "player" | "dm" | "monster" | "homebrew" | "monster-homebrew";
 
-export const App = () => {
+type DndAppProps = {
+  onChangeSystem: () => void;
+};
+
+const DndApp = ({ onChangeSystem }: DndAppProps) => {
   const [activePage, setActivePage] = useState<AppPage>("home");
   const {
     cards: homebrewCards,
@@ -48,6 +55,7 @@ export const App = () => {
           <button aria-pressed={activePage === "monster"} type="button" onClick={() => setActivePage("monster")}>Monsters</button>
           <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => setActivePage("homebrew")}>Card Builder</button>
           <button aria-pressed={activePage === "monster-homebrew"} type="button" onClick={() => setActivePage("monster-homebrew")}>Monster Builder</button>
+          <button type="button" onClick={onChangeSystem}>Switch System</button>
         </div>
       </nav>
 
@@ -147,4 +155,18 @@ export const App = () => {
       )}
     </main>
   );
+};
+
+export const App = () => {
+  const [gameSystem, setGameSystem] = useState<GameSystemId>();
+
+  if (!gameSystem) {
+    return <GameSystemGateway onSelect={setGameSystem} />;
+  }
+
+  if (gameSystem === "coc-7e") {
+    return <CocPreview onChangeSystem={() => setGameSystem(undefined)} />;
+  }
+
+  return <DndApp onChangeSystem={() => setGameSystem(undefined)} />;
 };
