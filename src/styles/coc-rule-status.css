@@ -78,3 +78,26 @@
   display: flex;
   flex-direction: column;
 }
+
+.coc-rule-audit-list {
+  display: grid;
+  margin-top: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.coc-rule-audit-list .coc-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+}
+
+.coc-rule-audit-list .coc-rule-status {
+  margin-top: auto;
+}
+
+@media (max-width: 760px) {
+  .coc-rule-audit-list {
+    grid-template-columns: 1fr;
+  }
+}
