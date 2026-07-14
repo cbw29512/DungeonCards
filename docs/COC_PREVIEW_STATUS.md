@@ -12,7 +12,7 @@ The preview uses original demonstration content only for weapon, spell, and crea
 
 The D&D and Call of Cthulhu sides should feel like one Dungeon Cards product. They share navigation structure, card-library patterns, personal workspaces, search and filters, pinning and favorites, builders, history, printing, responsive behavior, accessibility, and interaction quality.
 
-They do not share rules assumptions. Call of Cthulhu has its own percentile, success-level, Bonus/Penalty, Sanity, combat, wound, weapon, spell, creature, and encounter engines.
+They do not share rules assumptions. Call of Cthulhu has its own percentile, success-level, Bonus/Penalty, Sanity, combat, wound, firearm, damage, weapon, spell, creature, and encounter engines.
 
 ## Primary quality gate
 
@@ -29,6 +29,7 @@ The complete verification process is maintained in [`docs/COC_RULES_ACCURACY.md`
 - Accuracy gate: `docs/COC_RULES_ACCURACY.md`
 - First audit report: `docs/COC_RULE_AUDIT_01.md`
 - Official wiki audit: `docs/COC_RULE_AUDIT_02.md`
+- Firearm and Extreme damage audit: `docs/COC_RULE_AUDIT_03.md`
 
 This preview should not merge to `main` before the Monster Card Forge integration is completed, all included rules pass independent review, and the licensing route is resolved.
 
@@ -40,6 +41,7 @@ This preview should not merge to `main` before the Monster Card Forge integratio
 - [x] Separate CoC runtime and dark themed shell.
 - [x] Investigator, Keeper, Creatures, Weapons, Spells, and Rules Audit areas.
 - [x] Source status displayed directly on executable and reference cards.
+- [x] Source records link directly to the reviewed official page or the prototype project record.
 - [x] Machine-readable source registry with `prototype`, `needs-review`, `verified`, and `disputed` states.
 - [x] Registry tests block future verified records without two reviewers and a verification date.
 
@@ -86,12 +88,34 @@ Critical and Fumble boundaries remain pending direct Quick-Start PDF or Keeper R
 - [x] Successful higher-level Fight Back is identified separately.
 - [x] Two failed close-combat rolls inflict no damage.
 
-### Prototype content
+### Source-backed firearm procedures
 
-- [x] Original weapon card with ammunition, reload, malfunction, attacks, and gated listed base damage.
+- [x] Readied firearm initiative uses DEX + 50.
+- [x] Point-blank range is calculated as one-fifth DEX in feet.
+- [x] Point blank grants one Bonus die.
+- [x] Two or three handgun shots apply one Penalty die to every shot.
+- [x] A successful dive for cover applies one Penalty die.
+- [x] A successful dive for cover costs the target its next attack.
+- [x] Firearm Bonus and Penalty dice cancel before rolling.
+- [x] Every selected handgun shot rolls independently.
+- [x] Ammunition is consumed for the selected number of shots.
+
+### Structured damage engine
+
+- [x] Ordinary weapon damage rolls weapon damage and Damage Bonus normally.
+- [x] Extreme blunt damage uses maximum weapon damage plus maximum Damage Bonus.
+- [x] Extreme impaling damage uses maximum weapon damage plus maximum Damage Bonus plus another weapon-damage roll.
+- [x] Maximum-damage calculations support compound formulas and fixed modifiers.
+- [x] The original handgun prototype uses the source-backed Extreme impaling resolver.
+- [x] Critical damage remains blocked pending direct and independent rule review.
+- [x] Creature special damage remains blocked until creature attacks carry structured blunt/impaling metadata.
+
+### Prototype catalog content
+
+- [x] Original weapon card with ammunition, reload, malfunction, attacks, ordinary damage, and source-backed Extreme impaling behavior.
 - [x] Original spell card with casting, MP, SAN cost, duration, and reset.
 - [x] Original creature dossier with attacks, HP, MP, armor, Dodge, prototype SAN loss, and Keeper cues.
-- [x] Extreme and Critical prototype damage remains blocked until the structured damage model is complete.
+- [x] Prototype warnings remain visible and distinguish catalog demonstrations from source-backed procedures.
 
 ## Current audit status
 
@@ -104,7 +128,8 @@ Primary official-wiki review completed; independent review remains pending:
 - Sanity check and temporary-insanity trigger: `needs-review`.
 - Fight Back/Dodge tie rules: `needs-review`.
 - Major Wounds, dying, and instant death: `needs-review`.
-- Extreme damage formulas: `needs-review`, deliberately not automated yet.
+- Ordinary and Extreme blunt/impaling damage: `needs-review`.
+- Readied initiative, point blank, multiple handgun shots, and successful dive for cover: `needs-review`.
 - Sample weapon, spell, and creature entries: `prototype`.
 
 ## Rules-certification checklist
@@ -121,8 +146,10 @@ Primary official-wiki review completed; independent review remains pending:
 - [x] Complete primary official-wiki review for Dodge and Fight Back tie rules.
 - [x] Complete primary official-wiki review for basic Sanity and temporary-insanity trigger.
 - [x] Complete primary official-wiki review for Major Wounds, dying, and instant death.
-- [ ] Verify complete firearm range, rates of fire, reload, point-blank, malfunction, and cover procedures.
-- [ ] Build and review the structured Extreme/impaling damage engine.
+- [x] Build and complete primary review of the structured ordinary/Extreme blunt/Extreme impaling damage engine.
+- [x] Complete primary official-wiki review for readied initiative, point blank, multiple handgun shots, and successful dive for cover.
+- [ ] Verify complete firearm range bands, reload timing, weapon-specific attacks per round, malfunction consequences, cover, and automatic fire.
+- [ ] Verify Critical damage.
 - [ ] Verify indefinite insanity, treatment, and recovery.
 - [ ] Verify complete healing and dying-round workflow.
 - [ ] Verify spell and ritual procedures.
@@ -135,6 +162,7 @@ Primary official-wiki review completed; independent review remains pending:
 - [ ] System gateway works at desktop and narrow widths.
 - [ ] Switching between D&D and CoC works.
 - [ ] CoC navigation and Rules Audit work.
+- [ ] Source links open the intended official page.
 - [ ] Percentile and one/two Bonus/Penalty controls remain readable.
 - [ ] Generic opposed roll winner, higher-skill tie, and separate tie-break work.
 - [ ] Dodge tie favors defender.
@@ -145,6 +173,13 @@ Primary official-wiki review completed; independent review remains pending:
 - [ ] Major Wound threshold works for even and odd maximum HP.
 - [ ] Major Wound CON prompt does not imply automatic unconsciousness.
 - [ ] Zero-HP dying distinction is clear.
+- [ ] Firearm card calculates readied initiative and point-blank range correctly.
+- [ ] Two and three handgun shots apply the correct Penalty die to every shot.
+- [ ] Successful dive for cover applies its Penalty die and next-attack reminder.
+- [ ] Point-blank Bonus cancels the expected Penalty sources.
+- [ ] Firearm card rolls and consumes the selected number of rounds.
+- [ ] Ordinary and Extreme impaling weapon damage show a readable breakdown.
+- [ ] Critical damage remains visibly blocked.
 - [ ] Weapon, spell, and creature prototype warnings remain visible.
 - [ ] Keyboard focus remains visible.
 - [ ] Reduced-motion mode remains usable.
@@ -167,10 +202,10 @@ Official references reviewed:
 
 ## Next actions
 
-1. Perform independent review of the source-backed cards.
+1. Perform independent review of the source-backed cards and engines.
 2. Obtain the exact Quick-Start PDF revision for Critical, Fumble, and maximum Bonus/Penalty confirmation.
-3. Build a structured weapon damage model for ordinary, Extreme blunt, and Extreme impaling outcomes.
-4. Audit firearm timing, point-blank, multiple shots, dive for cover, range, reload, and malfunction.
-5. Complete browser acceptance for the new procedure cards.
+3. Audit full firearm range bands, reload, weapon-specific attacks per round, malfunction consequences, cover, and automatic fire.
+4. Add structured creature attack metadata so the verified damage engine can be safely reused by combat-ready creature cards.
+5. Complete browser acceptance for the new Investigator, Keeper, firearm, damage, and Rules Audit cards.
 6. Add persistence namespaces only after the game-system boundary is accepted.
 7. Resolve the licensing route before public release.
