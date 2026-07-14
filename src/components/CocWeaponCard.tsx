@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { CocPercentileResult, CocRollMode, CocSuccessLevel, CocWeaponPreview } from "../types/coc";
+import { resolveCocDamage, type CocDamageResolution } from "../utils/cocDamage";
 import { rollCocPercentile } from "../utils/cocPercentile";
-import { rollDiceFormula } from "../utils/rollDice";
 import { CocRuleStatus } from "./CocRuleStatus";
 
 const outcomeLabels: Record<CocSuccessLevel, string> = {
@@ -22,7 +22,7 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
   const [mode, setMode] = useState<CocRollMode>("normal");
   const [ammunition, setAmmunition] = useState(weapon.capacity);
   const [attackResult, setAttackResult] = useState<CocPercentileResult>();
-  const [damage, setDamage] = useState<number>();
+  const [damage, setDamage] = useState<CocDamageResolution>();
   const [error, setError] = useState<string>();
 
   const attack = () => {
@@ -41,20 +41,28 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
 
   const rollDamage = () => {
     try {
-      setDamage(rollDiceFormula(weapon.damageFormula).total);
+      if (!attackResult?.meetsDifficulty) throw new Error("A missed attack does not roll damage.");
+      if (attackResult.successLevel === "critical") {
+        throw new Error("Critical damage remains blocked until its exact rule passes source review.");
+      }
+
+      const kind = attackResult.successLevel === "extreme"
+        ? weapon.impaling ? "extreme-impaling" : "extreme-blunt"
+        : "ordinary";
+      setDamage(resolveCocDamage(weapon.damageFormula, "0", kind));
       setError(undefined);
     } catch (caught) {
-      console.error("CoC weapon damage failed", { weaponId: weapon.id, caught });
+      console.error("CoC weapon damage failed", { weaponId: weapon.id, attackResult, caught });
       setError(caught instanceof Error ? caught.message : "The damage roll failed.");
     }
   };
 
   const malfunctioned = attackResult !== undefined && attackResult.roll >= weapon.malfunction;
-  const specialDamagePending = attackResult?.successLevel === "extreme" || attackResult?.successLevel === "critical";
+  const criticalDamagePending = attackResult?.successLevel === "critical";
   const canDamage = attackResult !== undefined
     && attackResult.meetsDifficulty
     && !malfunctioned
-    && !specialDamagePending;
+    && !criticalDamagePending;
 
   return (
     <article className={`coc-card coc-card--weapon${malfunctioned ? " coc-outcome--fumble" : ""}`}>
@@ -118,15 +126,29 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
         <section className="coc-compact-result" aria-live="polite">
           <strong>{attackResult.roll}</strong>
           <span>{malfunctioned ? "Weapon Malfunction" : outcomeLabels[attackResult.successLevel]}</span>
-          {canDamage && <button type="button" onClick={rollDamage}>Roll listed base damage</button>}
-          {specialDamagePending && !malfunctioned && (
-            <p>Extreme and Critical weapon damage is not automated until the weapon damage audit is certified.</p>
+          {canDamage && (
+            <button type="button" onClick={rollDamage}>
+              {attackResult.successLevel === "extreme" ? "Resolve Extreme damage" : "Roll damage"}
+            </button>
           )}
-          {damage !== undefined && <em>{damage} listed base damage</em>}
+          {criticalDamagePending && !malfunctioned && (
+            <p>Critical damage remains blocked until its exact rule receives direct and independent source review.</p>
+          )}
+          {damage && (
+            <div className="coc-damage-breakdown">
+              <em>{damage.total} total damage</em>
+              <small>
+                Weapon: {damage.weaponDamage}
+                {damage.damageBonus > 0 ? ` · Damage Bonus: ${damage.damageBonus}` : ""}
+                {damage.additionalWeaponRoll > 0 ? ` · Additional weapon roll: ${damage.additionalWeaponRoll}` : ""}
+              </small>
+            </div>
+          )}
         </section>
       )}
 
       <p className="coc-card__note">{weapon.notes}</p>
+      {attackResult?.successLevel === "extreme" && <CocRuleStatus sourceId="coc-extreme-damage" />}
       <CocRuleStatus sourceId="coc-original-weapon-preview" />
       {error && <p className="coc-error" role="alert">{error}</p>}
     </article>
