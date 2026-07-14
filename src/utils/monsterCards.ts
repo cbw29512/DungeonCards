@@ -1,6 +1,7 @@
 import type { MonsterCardData } from "../types/monsters";
 
 export type MonsterLayout = "standard" | "accordion";
+export type MonsterPrintLayout = "card" | "folio";
 
 export const abilityModifier = (score: number): string => {
   const modifier = Math.floor((score - 10) / 2);
@@ -29,6 +30,9 @@ export const estimateMonsterLayout = (monster: MonsterCardData): MonsterLayout =
 
   return sectionCount + Math.ceil(spellCount / 3) > 8 ? "accordion" : "standard";
 };
+
+export const getMonsterPrintLayout = (monster: MonsterCardData): MonsterPrintLayout =>
+  estimateMonsterLayout(monster) === "standard" ? "card" : "folio";
 
 export const monsterRulesetLabel = (monster: MonsterCardData): string => {
   if (monster.ruleset === "srd-5.1-2014") return "2014 SRD";
