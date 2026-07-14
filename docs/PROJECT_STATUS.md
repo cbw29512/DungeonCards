@@ -44,7 +44,9 @@ Status: Open draft
 
 Branch: `feature/integrate-monster-card-forge`
 
-Current automated verification: Passing at commit `73b2483`.
+Last fully passing automated verification: code commit `73b2483`.
+
+Current head includes the project tracker and compact-versus-folio print correction. GitHub Actions must pass again before merge.
 
 Completed in this branch:
 
@@ -55,7 +57,7 @@ Completed in this branch:
 - local persistence for monster selection, pinning, and order;
 - Goblin, Adult Black Dragon, and Lich sample data;
 - compact monster cards and six-panel boss folios;
-- selected-monster printing;
+- distinct compact-card and boss-folio print modes;
 - guided Frost Troll homebrew draft with live preview;
 - monster utility and workspace regression tests.
 
@@ -63,16 +65,17 @@ Completed in this branch:
 
 Work must be completed in this order unless this file is updated with a reason for changing priorities.
 
-1. Audit PR #6 in a real browser at desktop and narrow viewport sizes.
-2. Verify navigation, workspace persistence, filtering, pinning, ordering, expansion, and empty states.
-3. Verify print preview for both a compact monster and a six-panel boss folio.
-4. Record and fix visual, accessibility, and usability defects found during manual testing.
-5. Confirm whether a completed homebrew monster can be saved into a reusable personal Monster Library; the current implementation saves the draft but does not yet document a completed-library workflow.
-6. Finish and merge PR #5.
-7. Rebase or retarget PR #6 onto the updated `main` branch.
-8. Run the full CI suite again.
-9. Complete final browser and print acceptance.
-10. Mark PR #6 ready for review and merge it.
+1. Harden Monster Builder draft validation, numeric input handling, and storage error handling.
+2. Audit PR #6 in a real browser at desktop and narrow viewport sizes.
+3. Verify navigation, workspace persistence, filtering, pinning, ordering, expansion, and empty states.
+4. Verify print preview for both a compact monster and a six-panel boss folio.
+5. Record and fix visual, accessibility, and usability defects found during manual testing.
+6. Confirm whether a completed homebrew monster can be saved into a reusable personal Monster Library; the current implementation saves the draft but does not yet document a completed-library workflow.
+7. Finish and merge PR #5.
+8. Rebase or retarget PR #6 onto the updated `main` branch.
+9. Run the full CI suite again.
+10. Complete final browser and print acceptance.
+11. Mark PR #6 ready for review and merge it.
 
 ## PR #6 Acceptance Checklist
 
@@ -99,12 +102,14 @@ Work must be completed in this order unless this file is updated with a reason f
 
 - [ ] Compact cards remain readable without clipped text.
 - [ ] Boss and spellcaster folios include all required sections.
-- [ ] Open and close controls communicate their current state.
+- [x] Open and close controls expose their expanded state to assistive technology.
 - [ ] Long names and long action text do not break the layout.
 - [ ] Source and ruleset labels remain visible.
 
 ### Printing
 
+- [x] Print-mode logic selects one compact card for simple monsters and a folio for complex monsters.
+- [x] Print-mode selection has regression coverage.
 - [ ] Printing a compact monster hides unrelated application content.
 - [ ] Compact card output is 2.5 × 3.5 inches.
 - [ ] Boss folio prints as six 2.5 × 3.5 inch panels in a 3 × 2 layout.
@@ -124,11 +129,12 @@ Work must be completed in this order unless this file is updated with a reason f
 
 ### Quality Gate
 
-- [x] Dependency installation passes.
-- [x] High-severity dependency audit passes for commit `73b2483`.
-- [x] Unit and catalog tests pass for commit `73b2483`.
-- [x] Strict TypeScript compilation passes for commit `73b2483`.
-- [x] Production build passes for commit `73b2483`.
+- [x] Dependency installation passes at code commit `73b2483`.
+- [x] High-severity dependency audit passes at code commit `73b2483`.
+- [x] Unit and catalog tests pass at code commit `73b2483`.
+- [x] Strict TypeScript compilation passes at code commit `73b2483`.
+- [x] Production build passes at code commit `73b2483`.
+- [ ] Current branch head passes the full GitHub Actions workflow.
 - [ ] Manual browser acceptance passes.
 - [ ] Manual print-preview acceptance passes.
 - [ ] Documentation reflects the final behavior.
@@ -142,6 +148,12 @@ Work must be completed in this order unless this file is updated with a reason f
 - Confirmed PR #6 CI passed at commit `73b2483`.
 - Recorded the dependency relationship between PR #5 and PR #6.
 - Added the manual browser, print, accessibility, persistence, and homebrew acceptance checklist.
+- Audited monster printing and found that every monster was forced into the six-panel folio.
+- Added explicit `card` versus `folio` print selection based on the existing monster layout decision.
+- Updated print CSS so simple monsters target one 2.5 × 3.5-inch card while complex monsters retain the six-panel layout.
+- Added `aria-expanded` to the folio toggle and changed print labels to `Print card` or `Print folio`.
+- Added regression assertions for Goblin compact printing and Adult Black Dragon/Lich folio printing.
+- Automated verification for the new print changes is pending on the current branch head.
 
 ## Required Update Format
 
