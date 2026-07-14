@@ -6,9 +6,12 @@ import {
 } from "../data/cocPreviewCatalog";
 import { cocQuickReferenceCards } from "../data/cocRuleSources";
 import { CocCreatureDossier } from "./CocCreatureDossier";
+import { CocInjuryCard } from "./CocInjuryCard";
+import { CocOpposedCard } from "./CocOpposedCard";
 import { CocPercentileCard } from "./CocPercentileCard";
 import { CocRuleStatus } from "./CocRuleStatus";
 import { CocRulesAudit } from "./CocRulesAudit";
+import { CocSanityCard } from "./CocSanityCard";
 import { CocSpellCard } from "./CocSpellCard";
 import { CocWeaponCard } from "./CocWeaponCard";
 
@@ -103,20 +106,20 @@ export const CocPreview = ({ onChangeSystem }: CocPreviewProps) => {
             <header className="coc-section__heading">
               <small>Card taxonomy preview</small>
               <h2>Rules that belong at the table</h2>
-              <p>These summaries remain marked needs-review until page-level and independent verification are complete.</p>
+              <p>These summaries have received a direct official-wiki review and remain marked pending until independent verification is complete.</p>
             </header>
             <QuickReferenceGrid />
           </section>
 
           <section className="coc-section coc-section--index">
             <header className="coc-section__heading">
-              <small>Prototype records</small>
-              <h2>Open a working card family</h2>
+              <small>Working records</small>
+              <h2>Open a card family</h2>
             </header>
             <div className="coc-index-grid">
-              <button type="button" onClick={() => setActivePage("creatures")}><small>Keeper dossier</small><strong>The Lantern Maw</strong><span>Original prototype: HP, MP, attacks, Dodge, Sanity loss, armor, and traits.</span></button>
-              <button type="button" onClick={() => setActivePage("weapons")}><small>Evidence locker</small><strong>Service Revolver</strong><span>Original prototype: skill, net dice, ammunition, malfunction, and base damage.</span></button>
-              <button type="button" onClick={() => setActivePage("spells")}><small>Occult memorandum</small><strong>Veil of the Hollow Star</strong><span>Original prototype: casting, MP cost, SAN cost, duration, and failure consequence.</span></button>
+              <button type="button" onClick={() => setActivePage("investigator")}><small>Source-backed procedures</small><strong>Investigator File</strong><span>Percentile checks, Sanity loss, temporary insanity prompts, damage, and Major Wounds.</span></button>
+              <button type="button" onClick={() => setActivePage("keeper")}><small>Source-backed resolution</small><strong>Keeper File</strong><span>Generic opposed rolls, Dodge, Fight Back, ties, and encounter references.</span></button>
+              <button type="button" onClick={() => setActivePage("creatures")}><small>Original prototype</small><strong>The Lantern Maw</strong><span>HP, MP, attacks, Dodge, Sanity loss, armor, and traits.</span></button>
             </div>
           </section>
         </>
@@ -127,9 +130,13 @@ export const CocPreview = ({ onChangeSystem }: CocPreviewProps) => {
           <header className="coc-section__heading">
             <small>Investigator workspace</small>
             <h1>Keep the procedures you use under pressure.</h1>
-            <p>This preview starts with the percentile resolver. No rule is presented as certified until its source record passes both reviews.</p>
+            <p>These cards are grounded in the official Chaosium rules wiki and remain pending independent review before verified status.</p>
           </header>
-          <CocPercentileCard eyebrow="Investigator skill file" title="Active Skill Check" />
+          <div className="coc-procedure-grid">
+            <CocPercentileCard eyebrow="Investigator skill file" title="Active Skill Check" />
+            <CocSanityCard />
+            <CocInjuryCard />
+          </div>
           <QuickReferenceGrid limit={3} />
         </section>
       )}
@@ -139,8 +146,9 @@ export const CocPreview = ({ onChangeSystem }: CocPreviewProps) => {
           <header className="coc-section__heading">
             <small>Keeper workspace</small>
             <h1>Run the scene without breaking the dread—or the rules.</h1>
-            <p>Encounter state, private notes, combat procedures, Sanity effects, and hidden information remain on the Keeper side.</p>
+            <p>Generic opposed rolls and close combat use different tie rules, so their resolver remains separate from the creature prototype.</p>
           </header>
+          <CocOpposedCard />
           <QuickReferenceGrid />
           <CocCreatureDossier creature={cocPreviewCreature} />
         </section>
@@ -151,7 +159,7 @@ export const CocPreview = ({ onChangeSystem }: CocPreviewProps) => {
           <header className="coc-section__heading">
             <small>Combat-ready Keeper folio</small>
             <h1>Every number needed when it reaches the light.</h1>
-            <p>The sample below is original prototype content. Uncertified special-damage and opposed-combat procedures are deliberately not automated.</p>
+            <p>The sample below is original prototype content. Special damage remains gated until the complete damage model passes independent review.</p>
           </header>
           <CocCreatureDossier creature={cocPreviewCreature} />
         </section>
