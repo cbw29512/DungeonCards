@@ -1,8 +1,13 @@
 import { useState } from "react";
 import type { CocPercentileResult } from "../types/coc";
 import { rollCocPercentile } from "../utils/cocPercentile";
-import { applyCocSanityLoss } from "../utils/cocSanity";
+import {
+  applyCocSanityLoss,
+  isCocSanityRollSuccessful,
+  type CocSanityLossState
+} from "../utils/cocSanity";
 import { rollDiceFormula } from "../utils/rollDice";
+import { secureRandomInteger } from "../utils/randomInteger";
 import { CocRuleStatus } from "./CocRuleStatus";
 
 export const CocSanityCard = () => {
@@ -10,8 +15,9 @@ export const CocSanityCard = () => {
   const [intelligence, setIntelligence] = useState(70);
   const [successLossFormula, setSuccessLossFormula] = useState("0");
   const [failureLossFormula, setFailureLossFormula] = useState("1d6");
-  const [sanityResult, setSanityResult] = useState<CocPercentileResult>();
-  const [sanityLost, setSanityLost] = useState<number>();
+  const [sanityRoll, setSanityRoll] = useState<number>();
+  const [sanitySucceeded, setSanitySucceeded] = useState<boolean>();
+  const [lossState, setLossState] = useState<CocSanityLossState>();
   const [intResult, setIntResult] = useState<CocPercentileResult>();
   const [insanityHours, setInsanityHours] = useState<number>();
   const [boutRounds, setBoutRounds] = useState<number>();
@@ -23,17 +29,26 @@ export const CocSanityCard = () => {
     setBoutRounds(undefined);
   };
 
+  const clearCheck = () => {
+    setSanityRoll(undefined);
+    setSanitySucceeded(undefined);
+    setLossState(undefined);
+    resetFollowUp();
+  };
+
   const makeSanityCheck = () => {
     try {
-      const result = rollCocPercentile(Math.max(1, sanity));
-      const formula = result.meetsDifficulty ? successLossFormula : failureLossFormula;
+      const roll = secureRandomInteger(1, 100);
+      const succeeded = isCocSanityRollSuccessful(roll, sanity);
+      const formula = succeeded ? successLossFormula : failureLossFormula;
       const loss = rollDiceFormula(formula).total;
       if (loss < 0) throw new Error("Sanity loss cannot be negative.");
-      const lossState = applyCocSanityLoss(sanity, loss);
+      const nextLossState = applyCocSanityLoss(sanity, loss);
 
-      setSanityResult(result);
-      setSanityLost(loss);
-      setSanity(lossState.currentSanity);
+      setSanityRoll(roll);
+      setSanitySucceeded(succeeded);
+      setLossState(nextLossState);
+      setSanity(nextLossState.currentSanity);
       resetFollowUp();
       setError(undefined);
     } catch (caught) {
@@ -44,7 +59,7 @@ export const CocSanityCard = () => {
 
   const makeIntelligenceCheck = () => {
     try {
-      if (sanityLost === undefined || sanityLost < 5) {
+      if (!lossState?.temporaryInsanityCheckRequired) {
         throw new Error("An Intelligence check is only required after losing 5 or more Sanity from one check.");
       }
       const result = rollCocPercentile(intelligence);
@@ -58,15 +73,10 @@ export const CocSanityCard = () => {
       }
       setError(undefined);
     } catch (caught) {
-      console.error("CoC temporary insanity INT check failed", { intelligence, sanityLost, caught });
+      console.error("CoC temporary insanity INT check failed", { intelligence, lossState, caught });
       setError(caught instanceof Error ? caught.message : "The Intelligence check failed.");
     }
   };
-
-  const lossState = sanityLost === undefined ? undefined : applyCocSanityLoss(
-    sanityResult ? sanity + sanityLost : sanity,
-    sanityLost
-  );
 
   return (
     <article className="coc-card coc-card--interactive">
@@ -85,11 +95,9 @@ export const CocSanityCard = () => {
       <div className="coc-control-grid coc-control-grid--two">
         <label>
           Current Sanity
-          <input min="1" max="100" type="number" value={sanity} onChange={(event) => {
-            setSanity(Math.max(1, Math.min(100, Math.trunc(Number(event.target.value) || 1))));
-            setSanityResult(undefined);
-            setSanityLost(undefined);
-            resetFollowUp();
+          <input min="0" max="100" type="number" value={sanity} onChange={(event) => {
+            setSanity(Math.max(0, Math.min(100, Math.trunc(Number(event.target.value) || 0))));
+            clearCheck();
           }} />
         </label>
         <label>
@@ -101,21 +109,27 @@ export const CocSanityCard = () => {
         </label>
         <label>
           Loss on success
-          <input type="text" value={successLossFormula} onChange={(event) => setSuccessLossFormula(event.target.value)} />
+          <input type="text" value={successLossFormula} onChange={(event) => {
+            setSuccessLossFormula(event.target.value);
+            clearCheck();
+          }} />
         </label>
         <label>
           Loss on failure
-          <input type="text" value={failureLossFormula} onChange={(event) => setFailureLossFormula(event.target.value)} />
+          <input type="text" value={failureLossFormula} onChange={(event) => {
+            setFailureLossFormula(event.target.value);
+            clearCheck();
+          }} />
         </label>
       </div>
 
       <button className="coc-roll-button" type="button" onClick={makeSanityCheck}>Make Sanity check</button>
 
-      {sanityResult && sanityLost !== undefined && lossState && (
+      {sanityRoll !== undefined && sanitySucceeded !== undefined && lossState && (
         <section className="coc-roll-result" aria-live="polite">
-          <strong className="coc-roll-result__total">{sanityResult.roll}</strong>
-          <h3>{sanityResult.meetsDifficulty ? "Sanity roll succeeds" : "Sanity roll fails"}</h3>
-          <p>{sanityLost} Sanity lost. Current Sanity: {sanity}.</p>
+          <strong className="coc-roll-result__total">{sanityRoll}</strong>
+          <h3>{sanitySucceeded ? "Sanity roll succeeds" : "Sanity roll fails"}</h3>
+          <p>{lossState.sanityLost} Sanity lost. Current Sanity: {lossState.currentSanity}.</p>
           {lossState.involuntaryActionRequired && (
             <p>The Keeper determines a momentary involuntary action.</p>
           )}
