@@ -6,19 +6,19 @@ Last updated: 2026-07-14
 
 This branch contains a playable, unofficial private-development preview of a Call of Cthulhu 7th Edition card experience inside Dungeon Cards.
 
-The preview uses original demonstration content only. It does not include official logos, artwork, scenarios, spells, tables, or creature statistics.
+The preview uses original demonstration content only for weapon, spell, and creature catalog entries. It does not include official logos, artwork, scenarios, spell text, copied tables, or official creature statistics.
 
 ## Product rule: same UI, different system logic
 
-The D&D and Call of Cthulhu sides should feel like one Dungeon Cards product. They should share the same navigation structure, card-library patterns, personal workspaces, search and filters, pinning and favorites, builders, history, printing, responsive behavior, accessibility, and interaction quality.
+The D&D and Call of Cthulhu sides should feel like one Dungeon Cards product. They share navigation structure, card-library patterns, personal workspaces, search and filters, pinning and favorites, builders, history, printing, responsive behavior, accessibility, and interaction quality.
 
-They must not share rules assumptions. Call of Cthulhu requires its own percentile engine, success levels, Bonus/Penalty dice, Sanity procedures, weapons, spells, creatures, and encounter state. D&D logic must not be reused where the rules differ.
+They do not share rules assumptions. Call of Cthulhu has its own percentile, success-level, Bonus/Penalty, Sanity, combat, wound, weapon, spell, creature, and encounter engines.
 
 ## Primary quality gate
 
 Rules accuracy is the highest priority. Visual polish cannot compensate for an incorrect rule.
 
-The complete verification process is maintained in [`docs/COC_RULES_ACCURACY.md`](./COC_RULES_ACCURACY.md). The current preview is playable but is not yet rules-certified.
+The complete verification process is maintained in [`docs/COC_RULES_ACCURACY.md`](./COC_RULES_ACCURACY.md). The current preview has received a primary source review for the included official-wiki mechanics, but it is not rules-certified until an independent second review is complete.
 
 ## Branch and dependency
 
@@ -28,104 +28,149 @@ The complete verification process is maintained in [`docs/COC_RULES_ACCURACY.md`
 - Design specification: draft PR #8
 - Accuracy gate: `docs/COC_RULES_ACCURACY.md`
 - First audit report: `docs/COC_RULE_AUDIT_01.md`
+- Official wiki audit: `docs/COC_RULE_AUDIT_02.md`
 
-This preview should not merge to `main` before the Monster Card Forge integration branch is completed, the rules audit is complete for included content, and the licensing path is resolved.
+This preview should not merge to `main` before the Monster Card Forge integration is completed, all included rules pass independent review, and the licensing route is resolved.
 
 ## Implemented
 
-- [x] Top-level D&D 5e / Call of Cthulhu 7e system gateway.
-- [x] Separate dark CoC application shell and navigation.
+### Shared product foundation
+
+- [x] Top-level D&D 5e / Call of Cthulhu 7e gateway.
+- [x] Separate CoC runtime and dark themed shell.
 - [x] Investigator, Keeper, Creatures, Weapons, Spells, and Rules Audit areas.
-- [x] Independent percentile engine.
-- [x] Critical, Extreme, Hard, Regular, Failure, and Fumble outcomes.
-- [x] Skill-derived half and fifth thresholds.
-- [x] Regular, Hard, and Extreme difficulty comparison.
-- [x] Zero, one, or two net Bonus or Penalty dice using one shared units die and alternative tens dice.
-- [x] Bonus/Penalty cancellation helper and boundary tests.
-- [x] Interactive original weapon card with skill, ammunition, reload, malfunction, attack, and gated base damage.
-- [x] Interactive original spell card with casting roll, Magic Point cost, Sanity cost, duration, and resource reset.
-- [x] Combat-ready original creature dossier with characteristics, HP, MP, armor, Dodge, attacks, gated base damage, Sanity loss, traits, and Keeper cues.
-- [x] Neutral HP state labels that do not falsely automate Major Wounds.
-- [x] Extreme and Critical weapon/creature damage blocked until the damage audit is certified.
-- [x] Original quick-reference cards for pushed rolls, Bonus/Penalty dice, Sanity checks, and close combat responses.
+- [x] Source status displayed directly on executable and reference cards.
 - [x] Machine-readable source registry with `prototype`, `needs-review`, `verified`, and `disputed` states.
-- [x] Expandable source status shown directly on rules, weapon, spell, and creature cards.
-- [x] Visible Rules Audit workspace summarizing every current source record.
-- [x] Dark dossier, evidence-locker, occult-memorandum, ink, brass, blood, and sickly-green visual language.
-- [x] Responsive layouts and compatibility with the existing reduced-motion stylesheet.
-- [x] Unit tests for percentile boundaries, Fumble thresholds, one/two Bonus and Penalty dice, cancellation, double-zero handling, and difficulty comparison.
-- [x] Registry tests requiring unique IDs, required metadata, valid quick-reference links, and two-review metadata for any future verified record.
-- [x] Formal accuracy gate requiring source records, two-review verification, and boundary tests.
+- [x] Registry tests block future verified records without two reviewers and a verification date.
+
+### Percentile engine
+
+- [x] Independent D100 engine.
+- [x] Regular, Hard, and Extreme thresholds.
+- [x] Critical, Extreme, Hard, Regular, Failure, and Fumble result states.
+- [x] Half and fifth values use floor rounding.
+- [x] Double-zero handling.
+- [x] Zero, one, or two net Bonus or Penalty dice.
+- [x] Shared units die and multiple tens dice.
+- [x] Bonus/Penalty cancellation helper.
+- [x] Boundary tests around odd skill values and the skill 49/50 Fumble boundary.
+
+Critical and Fumble boundaries remain pending direct Quick-Start PDF or Keeper Rulebook comparison.
+
+### Source-backed Investigator procedures
+
+- [x] Basic Sanity check with success/failure loss formulas.
+- [x] Sanity supports a current value of 0.
+- [x] Sanity cannot fall below zero.
+- [x] Any positive loss prompts a Keeper-determined involuntary action.
+- [x] Losing 5 or more from one check prompts an INT roll.
+- [x] Successful INT roll generates the 1D10-hour temporary-insanity duration and a 1D10-round bout duration.
+- [x] Official bout table is not copied into the app.
+- [x] Damage is applied one blow at a time.
+- [x] Major Wound threshold uses at least half maximum HP from one blow.
+- [x] Odd maximum-HP thresholds round upward.
+- [x] Major Wound prompts a CON roll rather than automatic unconsciousness.
+- [x] One blow equal to or above maximum HP triggers instant death.
+- [x] Zero HP with a Major Wound means dying.
+- [x] Zero HP without a Major Wound means unconscious but not dying.
+
+### Source-backed Keeper procedures
+
+- [x] Generic opposed resolver compares success levels.
+- [x] Equal generic success levels use the higher skill value.
+- [x] Equal skills require separate D100 tie-break rolls, with lower winning.
+- [x] Equal tie-break dice request another tie-break.
+- [x] Generic opposed rolls remain separate from combat response rules.
+- [x] Dodge wins equal success levels.
+- [x] Initiating attacker wins equal success levels against Fight Back.
+- [x] Successful higher-level Fight Back is identified separately.
+- [x] Two failed close-combat rolls inflict no damage.
+
+### Prototype content
+
+- [x] Original weapon card with ammunition, reload, malfunction, attacks, and gated listed base damage.
+- [x] Original spell card with casting, MP, SAN cost, duration, and reset.
+- [x] Original creature dossier with attacks, HP, MP, armor, Dodge, prototype SAN loss, and Keeper cues.
+- [x] Extreme and Critical prototype damage remains blocked until the structured damage model is complete.
 
 ## Current audit status
 
-The current rules records are intentionally not marked verified.
+Primary official-wiki review completed; independent review remains pending:
 
-- Percentile checks: `needs-review`.
-- Bonus/Penalty dice: `needs-review`.
-- Pushed rolls: `needs-review`.
-- Sanity checks: `needs-review`.
-- Fight Back/Dodge: `needs-review`.
-- Sample weapon, spell, and creature: `prototype`.
-
-The official Quick-Start source has been located. Page-level review and independent second review remain required before any rule moves to `verified`.
+- D100 reading and Regular/Hard/Extreme difficulty: `needs-review`.
+- Bonus/Penalty procedure and cancellation: `needs-review`.
+- Pushed-roll basics and combat exclusion: `needs-review`.
+- Generic opposed rolls: `needs-review`.
+- Sanity check and temporary-insanity trigger: `needs-review`.
+- Fight Back/Dodge tie rules: `needs-review`.
+- Major Wounds, dying, and instant death: `needs-review`.
+- Extreme damage formulas: `needs-review`, deliberately not automated yet.
+- Sample weapon, spell, and creature entries: `prototype`.
 
 ## Rules-certification checklist
 
-- [ ] Obtain and record the exact Quick-Start Rules revision used for Phase 1.
+- [ ] Obtain and record the exact Quick-Start PDF revision.
 - [ ] Record the exact Keeper Rulebook printing or PDF revision used for the complete audit.
-- [x] Create a source record for every currently implemented procedure and executable card.
-- [ ] Verify percentile success levels and Fumble boundaries directly against the official source.
-- [ ] Verify Bonus and Penalty dice directly against the official source.
-- [ ] Verify pushed-roll eligibility and consequence procedure.
-- [ ] Verify opposed-roll and tie handling.
-- [ ] Verify combat responses, damage, impaling, armor, wounds, dying, and healing.
-- [ ] Verify firearm range, rate of fire, ammunition, reload, point-blank, and malfunction procedures.
-- [ ] Verify Sanity loss, temporary insanity, indefinite insanity, bouts, treatment, and recovery.
-- [ ] Verify spell and ritual costs, casting, opposed rolls, duration, maintenance, and failure behavior.
+- [x] Create source records for every implemented procedure and executable card.
+- [x] Complete primary official-wiki review for D100 reading and Regular/Hard/Extreme thresholds.
+- [ ] Verify Critical and Fumble boundaries against the PDF or Keeper Rulebook.
+- [x] Complete primary official-wiki review for Bonus/Penalty selection and cancellation.
+- [ ] Confirm the maximum number of net Bonus/Penalty dice against the PDF or Keeper Rulebook.
+- [x] Complete primary official-wiki review for pushed-roll basics and combat exclusion.
+- [x] Complete primary official-wiki review for generic opposed ties.
+- [x] Complete primary official-wiki review for Dodge and Fight Back tie rules.
+- [x] Complete primary official-wiki review for basic Sanity and temporary-insanity trigger.
+- [x] Complete primary official-wiki review for Major Wounds, dying, and instant death.
+- [ ] Verify complete firearm range, rates of fire, reload, point-blank, malfunction, and cover procedures.
+- [ ] Build and review the structured Extreme/impaling damage engine.
+- [ ] Verify indefinite insanity, treatment, and recovery.
+- [ ] Verify complete healing and dying-round workflow.
+- [ ] Verify spell and ritual procedures.
 - [ ] Verify chase procedures.
 - [ ] Add independent second-review signoff to every included rule.
 - [ ] Run a complete session with a reviewer checking card rulings against the books.
 
 ## Manual acceptance checklist
 
-- [ ] System gateway works at desktop width.
-- [ ] System gateway works at narrow/mobile width.
-- [ ] Switching from D&D to CoC and back works.
-- [ ] CoC archive navigation works.
-- [ ] Rules Audit navigation and expandable records work.
-- [ ] Percentile results and threshold labels are readable.
-- [ ] One and two Bonus dice show all candidates and select the lowest result.
-- [ ] One and two Penalty dice show all candidates and select the highest result.
-- [ ] Investigator page works.
-- [ ] Keeper page works.
-- [ ] Weapon ammunition, empty-state error, reload, malfunction, base damage gate, and special-damage warning work.
-- [ ] Spell MP, Sanity, casting, duration, reset, and prototype warning work.
-- [ ] Creature attack, base-damage gate, Dodge, Sanity loss, HP, MP, neutral HP state, defeated state, reset, and prototype warning work.
+- [ ] System gateway works at desktop and narrow widths.
+- [ ] Switching between D&D and CoC works.
+- [ ] CoC navigation and Rules Audit work.
+- [ ] Percentile and one/two Bonus/Penalty controls remain readable.
+- [ ] Generic opposed roll winner, higher-skill tie, and separate tie-break work.
+- [ ] Dodge tie favors defender.
+- [ ] Fight Back tie favors initiating attacker.
+- [ ] Sanity 0 always fails the check without validation errors.
+- [ ] Success/failure SAN formulas and current SAN update correctly.
+- [ ] 5+ SAN loss reveals the INT follow-up.
+- [ ] Major Wound threshold works for even and odd maximum HP.
+- [ ] Major Wound CON prompt does not imply automatic unconsciousness.
+- [ ] Zero-HP dying distinction is clear.
+- [ ] Weapon, spell, and creature prototype warnings remain visible.
 - [ ] Keyboard focus remains visible.
 - [ ] Reduced-motion mode remains usable.
-- [ ] No D&D cards or persistence appear inside the CoC workspace.
-- [ ] No CoC runtime state leaks into D&D workspaces.
-- [ ] Shared UI patterns remain consistent between D&D and CoC without sharing incompatible rules logic.
+- [ ] D&D and CoC state remain isolated.
 
 ## Licensing gate
 
-Chaosium's current Fan Material Policy explicitly excludes apps, downloadable software, and virtual tabletops. The public product therefore requires a licensing decision before release. Development may continue using original placeholder content while the project avoids publishing protected rules text, official stat blocks, official spells, artwork, logos, scenarios, or copied tables.
+Chaosium's current Fan Material Policy excludes apps, downloadable software, and virtual tabletops. Public software release requires a licensing decision. Development may continue with original catalog content and concise source-linked rule implementations while protected prose, official stat blocks, official spells, artwork, logos, scenarios, and copied tables remain out of the repository.
 
 Official references reviewed:
 
+- https://www.chaosium.com/call-of-cthulhu-getting-started/
+- https://cthulhuwiki.chaosium.com/rules/game-system.html
+- https://cthulhuwiki.chaosium.com/rules/sanity.html
+- https://cthulhuwiki.chaosium.com/rules/combat.html
+- https://cthulhuwiki.chaosium.com/rules/hit-points-wounds-and-healing.html
 - https://www.chaosium.com/cthulhu-quickstart/
-- https://www.chaosium.com/call-of-cthulhu-keeper-rulebook-hardcover/
 - https://www.chaosium.com/fan-use-and-licensing/
 - https://www.chaosium.com/fan-material-policy/
 
 ## Next actions
 
-1. Complete page-level review of percentile checks and Bonus/Penalty dice against the exact Quick-Start revision.
-2. Add reviewer identities and verification dates only after direct and independent review.
-3. Build a verified opposed-roll resolver before automating Fight Back/Dodge outcomes.
-4. Build a verified damage resolver before enabling Extreme, Critical, impaling, or Major Wound automation.
-5. Perform desktop and narrow-browser acceptance of the Rules Audit and updated dice controls.
+1. Perform independent review of the source-backed cards.
+2. Obtain the exact Quick-Start PDF revision for Critical, Fumble, and maximum Bonus/Penalty confirmation.
+3. Build a structured weapon damage model for ordinary, Extreme blunt, and Extreme impaling outcomes.
+4. Audit firearm timing, point-blank, multiple shots, dive for cover, range, reload, and malfunction.
+5. Complete browser acceptance for the new procedure cards.
 6. Add persistence namespaces only after the game-system boundary is accepted.
-7. Expand creatures, weapons, spells, Sanity, and combat only after each rule family passes its accuracy gate.
-8. Resolve the licensing route before replacing original prototype content with any licensed catalog.
+7. Resolve the licensing route before public release.
