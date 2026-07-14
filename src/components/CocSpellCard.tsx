@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CocPercentileResult, CocSpellPreview } from "../types/coc";
 import { rollCocPercentile } from "../utils/cocPercentile";
 import { rollDiceFormula } from "../utils/rollDice";
+import { CocRuleStatus } from "./CocRuleStatus";
 
 type CocSpellCardProps = {
   spell: CocSpellPreview;
@@ -110,7 +111,7 @@ export const CocSpellCard = ({ spell }: CocSpellCardProps) => {
         <section className="coc-compact-result" aria-live="polite">
           <strong>{castResult.roll}</strong>
           <span>{castSucceeded ? "The veil answers" : "The ritual fails"}</span>
-          <p>{castSucceeded ? "The casting roll succeeded. Resolve costs and duration." : spell.failure}</p>
+          <p>{castSucceeded ? "The prototype casting roll succeeded. Resolve its invented costs and duration." : spell.failure}</p>
           <div className="coc-button-row coc-button-row--compact">
             <button type="button" onClick={paySanityCost}>Pay {spell.sanityCostFormula} SAN</button>
             {castSucceeded && <button type="button" onClick={rollDuration}>Roll duration</button>}
@@ -120,6 +121,7 @@ export const CocSpellCard = ({ spell }: CocSpellCardProps) => {
         </section>
       )}
 
+      <CocRuleStatus sourceId="coc-original-spell-preview" />
       {error && <p className="coc-error" role="alert">{error}</p>}
     </article>
   );
