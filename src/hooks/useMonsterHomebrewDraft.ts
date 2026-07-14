@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
-import { monsterHomebrewExample } from "../data/monsterCatalog";
+import { useEffect, useRef, useState } from "react";
 import type { MonsterCardData, MonsterItem } from "../types/monsters";
+import {
+  cloneMonsterHomebrewExample,
+  loadMonsterHomebrewDraft,
+  saveMonsterHomebrewDraft
+} from "../utils/monsterHomebrewStorage";
 
-const STORAGE_KEY = "dungeon-cards-monster-homebrew-v1";
-const cloneExample = (): MonsterCardData => JSON.parse(JSON.stringify(monsterHomebrewExample));
+const ABILITY_MIN = 1;
+const ABILITY_MAX = 30;
 
 type MonsterTextField =
   | "name"
@@ -16,56 +20,110 @@ type MonsterTextField =
   | "senses"
   | "languages";
 
-const loadDraft = (): MonsterCardData => {
+type InitialMonsterDraftState = {
+  monster: MonsterCardData;
+  error: string | null;
+};
+
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : "An unexpected monster draft error occurred.";
+
+const loadInitialState = (): InitialMonsterDraftState => {
+  if (typeof window === "undefined") {
+    return { monster: cloneMonsterHomebrewExample(), error: null };
+  }
+
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return cloneExample();
-    const parsed = JSON.parse(raw) as Partial<MonsterCardData>;
-    return typeof parsed.name === "string" && parsed.abilities && Array.isArray(parsed.actions)
-      ? { ...cloneExample(), ...parsed, ruleset: "homebrew", source: "Local homebrew draft" }
-      : cloneExample();
-  } catch {
-    return cloneExample();
+    return {
+      monster: loadMonsterHomebrewDraft(window.localStorage),
+      error: null
+    };
+  } catch (error) {
+    console.error("Initializing monster homebrew draft failed", { error });
+    return {
+      monster: cloneMonsterHomebrewExample(),
+      error: getErrorMessage(error)
+    };
   }
 };
 
 export const useMonsterHomebrewDraft = () => {
-  const [monster, setMonster] = useState<MonsterCardData>(loadDraft);
-  const [storageError, setStorageError] = useState<string>();
+  const [initialState] = useState<InitialMonsterDraftState>(loadInitialState);
+  const [monster, setMonster] = useState<MonsterCardData>(initialState.monster);
+  const [storageError, setStorageError] = useState<string | null>(initialState.error);
+  const isInitialRender = useRef(true);
 
   useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(monster));
-      setStorageError(undefined);
-    } catch {
-      setStorageError("This monster draft could not be saved in the current browser.");
+      saveMonsterHomebrewDraft(window.localStorage, monster);
+      setStorageError(null);
+    } catch (error) {
+      console.error("Persisting monster homebrew draft failed", { error });
+      setStorageError(getErrorMessage(error));
     }
   }, [monster]);
 
   const updateField = (field: MonsterTextField, value: string) => {
-    setMonster((current) => ({ ...current, [field]: value }));
+    try {
+      setMonster((current) => ({ ...current, [field]: value }));
+    } catch (error) {
+      console.error("Updating monster text field failed", { field, error });
+      setStorageError("The monster field could not be updated.");
+    }
   };
 
   const updateAbility = (ability: keyof MonsterCardData["abilities"], value: number) => {
-    setMonster((current) => ({
-      ...current,
-      abilities: { ...current.abilities, [ability]: value }
-    }));
+    try {
+      if (!Number.isSafeInteger(value) || value < ABILITY_MIN || value > ABILITY_MAX) {
+        setStorageError(`Ability scores must be whole numbers from ${ABILITY_MIN} to ${ABILITY_MAX}.`);
+        return;
+      }
+
+      setMonster((current) => ({
+        ...current,
+        abilities: { ...current.abilities, [ability]: value }
+      }));
+    } catch (error) {
+      console.error("Updating monster ability score failed", { ability, value, error });
+      setStorageError("The ability score could not be updated.");
+    }
   };
 
   const updatePrimaryAction = (field: keyof MonsterItem, value: string) => {
-    setMonster((current) => {
-      const actions = [...current.actions];
-      const index = actions.length > 1 ? 1 : 0;
-      actions[index] = { ...(actions[index] ?? { name: "Primary Attack" }), [field]: value };
-      return { ...current, actions };
-    });
+    try {
+      setMonster((current) => {
+        const actions = [...current.actions];
+        const index = actions.length > 1 ? 1 : 0;
+        actions[index] = { ...(actions[index] ?? { name: "Primary Attack" }), [field]: value };
+        return { ...current, actions };
+      });
+    } catch (error) {
+      console.error("Updating monster primary action failed", { field, error });
+      setStorageError("The primary action could not be updated.");
+    }
   };
 
   const reset = () => {
-    window.localStorage.removeItem(STORAGE_KEY);
-    setMonster(cloneExample());
+    try {
+      setMonster(cloneMonsterHomebrewExample());
+      setStorageError(null);
+    } catch (error) {
+      console.error("Resetting monster homebrew draft failed", { error });
+      setStorageError("The Frost Troll example could not be restored.");
+    }
   };
 
-  return { monster, storageError, updateField, updateAbility, updatePrimaryAction, reset };
+  return {
+    monster,
+    storageError,
+    updateField,
+    updateAbility,
+    updatePrimaryAction,
+    reset
+  };
 };
