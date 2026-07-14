@@ -6,6 +6,7 @@ import { MonsterHomebrewBuilder } from "./components/MonsterHomebrewBuilder";
 import { RulesDeck } from "./components/RulesDeck";
 import { dmRuleCards, playerRuleCards } from "./data/ruleCardCatalog";
 import { useHomebrewCards } from "./hooks/useHomebrewCards";
+import { useHomebrewMonsters } from "./hooks/useHomebrewMonsters";
 import "./styles/base.css";
 import "./styles/cards.css";
 import "./styles/history.css";
@@ -28,6 +29,12 @@ export const App = () => {
     createCard,
     deleteCard
   } = useHomebrewCards();
+  const {
+    monsters: homebrewMonsters,
+    storageError: homebrewMonsterError,
+    createMonster,
+    deleteMonster
+  } = useHomebrewMonsters();
 
   return (
     <main>
@@ -77,7 +84,7 @@ export const App = () => {
               <button className="role-card" type="button" onClick={() => setActivePage("monster-homebrew")}>
                 <span>🧌</span>
                 <strong>Monster Builder</strong>
-                <small>Edit a complete example monster with helper text and a live printable folio.</small>
+                <small>Edit a complete example monster, save it to your library, and print a live folio.</small>
               </button>
             </div>
           </div>
@@ -104,7 +111,12 @@ export const App = () => {
         />
       )}
 
-      {activePage === "monster" && <MonsterDeck />}
+      {activePage === "monster" && (
+        <MonsterDeck
+          homebrewMonsters={homebrewMonsters}
+          onDeleteHomebrewMonster={deleteMonster}
+        />
+      )}
 
       {activePage === "homebrew" && (
         <>
@@ -125,7 +137,12 @@ export const App = () => {
         </>
       )}
 
-      {activePage === "monster-homebrew" && <MonsterHomebrewBuilder />}
+      {activePage === "monster-homebrew" && (
+        <MonsterHomebrewBuilder
+          libraryError={homebrewMonsterError}
+          onSave={createMonster}
+        />
+      )}
     </main>
   );
 };
