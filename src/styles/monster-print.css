@@ -25,17 +25,38 @@
     position: absolute;
     inset: 0;
     display: block;
-    width: 8in;
     margin: 0 auto;
     padding: 0;
     background: #fff;
   }
 
-  .monster-reference--printing > .monster-card,
+  .monster-reference--printing.monster-reference--print-card {
+    width: 2.5in;
+  }
+
+  .monster-reference--printing.monster-reference--print-folio,
+  .monster-builder--printing .monster-builder__preview {
+    width: 8in;
+  }
+
   .monster-reference--printing > .rule-card__workspace-actions,
   .monster-reference--printing > .monster-reference__actions,
   .monster-builder--printing .monster-builder__warnings {
     display: none !important;
+  }
+
+  .monster-reference--print-folio > .monster-card,
+  .monster-reference--print-card > .monster-folio {
+    display: none !important;
+  }
+
+  .monster-reference--print-card > .monster-card {
+    width: 2.5in;
+    height: 3.5in;
+    min-height: 3.5in;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
   }
 
   .monster-folio {
