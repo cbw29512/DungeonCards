@@ -13,11 +13,13 @@ import { MonsterFolio } from "./MonsterFolio";
 
 type MonsterReferenceCardProps = {
   monster: MonsterCardData;
+  onDelete?: () => boolean;
   workspaceControls: WorkspaceCardControls;
 };
 
 export const MonsterReferenceCard = ({
   monster,
+  onDelete,
   workspaceControls
 }: MonsterReferenceCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -45,6 +47,23 @@ export const MonsterReferenceCard = ({
     });
   };
 
+  const deleteMonster = () => {
+    try {
+      const confirmed = window.confirm(
+        `Delete ${monster.name} from your personal Monster Library?`
+      );
+
+      if (confirmed) {
+        onDelete?.();
+      }
+    } catch (error) {
+      console.error("Confirming homebrew monster deletion failed", {
+        monsterId: monster.id,
+        error
+      });
+    }
+  };
+
   return (
     <article
       className={`monster-reference monster-reference--${layout} monster-reference--print-${printLayout}${isPrinting ? " monster-reference--printing" : ""}`}
@@ -66,6 +85,15 @@ export const MonsterReferenceCard = ({
         <button onClick={printMonster} type="button">
           {printLayout === "card" ? "Print card" : "Print folio"}
         </button>
+        {onDelete && (
+          <button
+            className="monster-reference__delete"
+            onClick={deleteMonster}
+            type="button"
+          >
+            Delete homebrew monster
+          </button>
+        )}
       </div>
       {isExpanded && <MonsterFolio monster={monster} />}
     </article>
