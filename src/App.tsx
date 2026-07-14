@@ -16,6 +16,7 @@ import "./styles/rule-controls.css";
 import "./styles/rule-history.css";
 import "./styles/workspaces.css";
 import "./styles/monsters.css";
+import "./styles/monster-homebrew.css";
 import "./styles/monster-print.css";
 import "./styles/accessibility.css";
 
