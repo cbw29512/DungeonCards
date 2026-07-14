@@ -7,31 +7,38 @@ const identityFields: Array<{
   key: keyof Pick<MonsterCardData, "name" | "cr" | "type" | "size">;
   label: string;
   example: string;
+  maxLength: number;
 }> = [
-  { key: "name", label: "Monster name", example: "Frost Troll" },
-  { key: "cr", label: "Challenge rating", example: "8" },
-  { key: "type", label: "Creature type", example: "Giant" },
-  { key: "size", label: "Size", example: "Large" }
+  { key: "name", label: "Monster name", example: "Frost Troll", maxLength: 100 },
+  { key: "cr", label: "Challenge rating", example: "8", maxLength: 30 },
+  { key: "type", label: "Creature type", example: "Giant", maxLength: 80 },
+  { key: "size", label: "Size", example: "Large", maxLength: 40 }
 ];
 
 const combatFields: Array<{
   key: keyof Pick<MonsterCardData, "ac" | "hp" | "speed" | "senses" | "languages">;
   label: string;
   example: string;
+  maxLength: number;
 }> = [
-  { key: "ac", label: "Armor class", example: "15 or 18 (natural armor)" },
-  { key: "hp", label: "Hit points", example: "136 (16d10+48)" },
-  { key: "speed", label: "Speed", example: "30 ft., fly 60 ft." },
-  { key: "senses", label: "Senses", example: "Darkvision 60 ft., Passive Perception 13" },
-  { key: "languages", label: "Languages", example: "Common, Giant" }
+  { key: "ac", label: "Armor class", example: "15 or 18 (natural armor)", maxLength: 120 },
+  { key: "hp", label: "Hit points", example: "136 (16d10+48)", maxLength: 120 },
+  { key: "speed", label: "Speed", example: "30 ft., fly 60 ft.", maxLength: 200 },
+  { key: "senses", label: "Senses", example: "Darkvision 60 ft., Passive Perception 13", maxLength: 500 },
+  { key: "languages", label: "Languages", example: "Common, Giant", maxLength: 500 }
 ];
 
-const actionFields: Array<{ key: keyof MonsterItem; label: string; example: string }> = [
-  { key: "name", label: "Attack name", example: "Claw" },
-  { key: "hit", label: "Attack bonus", example: "+8" },
-  { key: "reach", label: "Reach or range", example: "5 ft." },
-  { key: "damage", label: "Damage", example: "12 (2d6+5) Slashing" },
-  { key: "text", label: "Rules text", example: "Melee weapon attack." }
+const actionFields: Array<{
+  key: keyof MonsterItem;
+  label: string;
+  example: string;
+  maxLength: number;
+}> = [
+  { key: "name", label: "Attack name", example: "Claw", maxLength: 120 },
+  { key: "hit", label: "Attack bonus", example: "+8", maxLength: 1000 },
+  { key: "reach", label: "Reach or range", example: "5 ft.", maxLength: 1000 },
+  { key: "damage", label: "Damage", example: "12 (2d6+5) Slashing", maxLength: 1000 },
+  { key: "text", label: "Rules text", example: "Melee weapon attack.", maxLength: 1000 }
 ];
 
 export const MonsterHomebrewBuilder = () => {
@@ -39,11 +46,14 @@ export const MonsterHomebrewBuilder = () => {
   const [isPrinting, setIsPrinting] = useState(false);
   const primaryAction = draft.monster.actions[1] ?? draft.monster.actions[0] ?? {};
   const warnings = [
-    !draft.monster.name && "Add a monster name.",
-    !draft.monster.cr && "Add a challenge rating.",
-    !draft.monster.ac && "Add armor class.",
-    !draft.monster.hp && "Add hit points.",
-    draft.monster.actions.length === 0 && "Add at least one action."
+    !draft.monster.name.trim() && "Add a monster name.",
+    !draft.monster.cr.trim() && "Add a challenge rating.",
+    !draft.monster.type.trim() && "Add a creature type.",
+    !draft.monster.size.trim() && "Add a creature size.",
+    !draft.monster.ac.trim() && "Add armor class.",
+    !draft.monster.hp.trim() && "Add hit points.",
+    !draft.monster.speed.trim() && "Add movement speed.",
+    !draft.monster.actions.some((action) => action.name.trim()) && "Add at least one named action."
   ].filter(Boolean) as string[];
 
   useEffect(() => {
@@ -54,7 +64,11 @@ export const MonsterHomebrewBuilder = () => {
 
   const printDraft = () => {
     setIsPrinting(true);
-    window.requestAnimationFrame(() => window.print());
+
+    // Wait for the print-only class to reach the DOM before opening preview.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => window.print());
+    });
   };
 
   return (
@@ -73,7 +87,11 @@ export const MonsterHomebrewBuilder = () => {
             {identityFields.map((field) => (
               <label key={field.key}>
                 <span>{field.label}</span>
-                <input value={draft.monster[field.key]} onChange={(event) => draft.updateField(field.key, event.target.value)} />
+                <input
+                  maxLength={field.maxLength}
+                  value={draft.monster[field.key]}
+                  onChange={(event) => draft.updateField(field.key, event.target.value)}
+                />
                 <small>Example: {field.example}</small>
               </label>
             ))}
@@ -85,7 +103,11 @@ export const MonsterHomebrewBuilder = () => {
             {combatFields.map((field) => (
               <label key={field.key}>
                 <span>{field.label}</span>
-                <input value={draft.monster[field.key]} onChange={(event) => draft.updateField(field.key, event.target.value)} />
+                <input
+                  maxLength={field.maxLength}
+                  value={draft.monster[field.key]}
+                  onChange={(event) => draft.updateField(field.key, event.target.value)}
+                />
                 <small>Example: {field.example}</small>
               </label>
             ))}
@@ -97,7 +119,17 @@ export const MonsterHomebrewBuilder = () => {
               {Object.entries(draft.monster.abilities).map(([ability, score]) => (
                 <label key={ability}>
                   <span>{ability.toUpperCase()}</span>
-                  <input min="1" max="30" type="number" value={score} onChange={(event) => draft.updateAbility(ability as keyof MonsterCardData["abilities"], Number(event.target.value))} />
+                  <input
+                    min="1"
+                    max="30"
+                    step="1"
+                    type="number"
+                    value={score}
+                    onChange={(event) => draft.updateAbility(
+                      ability as keyof MonsterCardData["abilities"],
+                      Number(event.target.value)
+                    )}
+                  />
                 </label>
               ))}
             </div>
@@ -109,7 +141,11 @@ export const MonsterHomebrewBuilder = () => {
             {actionFields.map((field) => (
               <label key={field.key}>
                 <span>{field.label}</span>
-                <input value={String(primaryAction[field.key] ?? "")} onChange={(event) => draft.updatePrimaryAction(field.key, event.target.value)} />
+                <input
+                  maxLength={field.maxLength}
+                  value={String(primaryAction[field.key] ?? "")}
+                  onChange={(event) => draft.updatePrimaryAction(field.key, event.target.value)}
+                />
                 <small>Example: {field.example}</small>
               </label>
             ))}
@@ -123,7 +159,12 @@ export const MonsterHomebrewBuilder = () => {
         </form>
 
         <div className="monster-builder__preview">
-          {warnings.length > 0 && <div className="monster-builder__warnings"><b>Completeness warnings</b><ul>{warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></div>}
+          {warnings.length > 0 && (
+            <div className="monster-builder__warnings">
+              <b>Completeness warnings</b>
+              <ul>{warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+            </div>
+          )}
           <MonsterFolio monster={draft.monster} />
         </div>
       </div>
