@@ -1,0 +1,73 @@
+# Call of Cthulhu 7e Preview Status
+
+Last updated: 2026-07-14
+
+## Purpose
+
+This branch contains a playable, unofficial private-development preview of a Call of Cthulhu 7th Edition card experience inside Dungeon Cards.
+
+The preview uses original demonstration content only. It does not include official logos, artwork, scenarios, spells, tables, or creature statistics.
+
+## Branch and dependency
+
+- Branch: `feature/call-of-cthulhu-7e-preview`
+- Based on: `feature/integrate-monster-card-forge`
+- Design epic: GitHub issue #7
+- Design specification: draft PR #8
+
+This preview should not merge to `main` before the Monster Card Forge integration branch is completed and the licensing path is resolved.
+
+## Implemented
+
+- [x] Top-level D&D 5e / Call of Cthulhu 7e system gateway.
+- [x] Separate dark CoC application shell and navigation.
+- [x] Investigator, Keeper, Creatures, Weapons, and Spells areas.
+- [x] Independent percentile engine.
+- [x] Critical, Extreme, Hard, Regular, Failure, and Fumble outcomes.
+- [x] Skill-derived half and fifth thresholds.
+- [x] Regular, Hard, and Extreme difficulty comparison.
+- [x] Bonus and Penalty dice using shared units and alternative tens dice.
+- [x] Interactive original weapon card with skill, ammunition, reload, malfunction, attack, and damage.
+- [x] Interactive original spell card with casting roll, Magic Point cost, Sanity cost, duration, and resource reset.
+- [x] Combat-ready original creature dossier with characteristics, HP, MP, armor, Dodge, attacks, damage, Sanity loss, traits, and Keeper cues.
+- [x] Encounter controls for wounds, Magic Points, defeated state, and reset.
+- [x] Original quick-reference cards for pushed rolls, Bonus/Penalty dice, Sanity checks, and close combat responses.
+- [x] Dark dossier, evidence-locker, occult-memorandum, ink, brass, blood, and sickly-green visual language.
+- [x] Responsive layouts and compatibility with the existing reduced-motion stylesheet.
+- [x] Unit tests for percentile boundaries, fumble thresholds, Bonus/Penalty dice, double-zero handling, and difficulty comparison.
+
+## Manual acceptance checklist
+
+- [ ] System gateway works at desktop width.
+- [ ] System gateway works at narrow/mobile width.
+- [ ] Switching from D&D to CoC and back works.
+- [ ] CoC archive navigation works.
+- [ ] Percentile results and threshold labels are readable.
+- [ ] Bonus and Penalty dice show both candidates and select the correct result.
+- [ ] Investigator page works.
+- [ ] Keeper page works.
+- [ ] Weapon ammunition, empty-state error, reload, malfunction, and damage work.
+- [ ] Spell MP, Sanity, casting, duration, and reset controls work.
+- [ ] Creature attack, damage, Dodge, Sanity loss, HP, MP, wound state, defeated state, and reset work.
+- [ ] Keyboard focus remains visible.
+- [ ] Reduced-motion mode remains usable.
+- [ ] No D&D cards or persistence appear inside the CoC workspace.
+- [ ] No CoC runtime state leaks into D&D workspaces.
+
+## Licensing gate
+
+Chaosium's current Fan Material Policy explicitly excludes apps, downloadable software, and virtual tabletops. The public product therefore requires a licensing decision before release. Development may continue using original placeholder content while the project avoids publishing protected rules text, official stat blocks, official spells, artwork, logos, scenarios, or copied tables.
+
+Official references reviewed:
+
+- https://www.chaosium.com/cthulhu-quickstart/
+- https://www.chaosium.com/fan-use-and-licensing/
+- https://www.chaosium.com/fan-material-policy/
+
+## Next actions
+
+1. Pass the complete GitHub Actions gate.
+2. Perform desktop and narrow-browser acceptance.
+3. Adjust visual intensity, density, and interaction timing from playtest feedback.
+4. Add persistence namespaces only after the game-system boundary is accepted.
+5. Resolve the licensing route before replacing original prototype content with any licensed catalog.
