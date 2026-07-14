@@ -4,7 +4,7 @@ export type CocInjuryOutcome = {
   damage: number;
   majorWoundInflicted: boolean;
   instantDeath: boolean;
-  unconscious: boolean;
+  unconsciousAtZeroHitPoints: boolean;
   dying: boolean;
   requiresConsciousnessRoll: boolean;
   majorWoundThreshold: number;
@@ -35,8 +35,8 @@ export const resolveCocInjury = (
   const majorWoundInflicted = damage >= majorWoundThreshold;
   const currentAfterDamage = instantDeath ? 0 : Math.max(0, currentHitPoints - damage);
   const hasMajorWound = alreadyHasMajorWound || majorWoundInflicted;
-  const unconscious = currentAfterDamage === 0 || majorWoundInflicted;
-  const dying = currentAfterDamage === 0 && hasMajorWound && !instantDeath;
+  const unconsciousAtZeroHitPoints = currentAfterDamage === 0 && !instantDeath;
+  const dying = unconsciousAtZeroHitPoints && hasMajorWound;
 
   return {
     previousHitPoints: currentHitPoints,
@@ -44,7 +44,7 @@ export const resolveCocInjury = (
     damage,
     majorWoundInflicted,
     instantDeath,
-    unconscious,
+    unconsciousAtZeroHitPoints,
     dying,
     requiresConsciousnessRoll: majorWoundInflicted && !instantDeath,
     majorWoundThreshold
