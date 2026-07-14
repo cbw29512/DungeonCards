@@ -4,12 +4,16 @@ import type {
   CocRuleVerificationStatus
 } from "../types/coc";
 
-const QUICKSTART_URL = "https://www.chaosium.com/cthulhu-quickstart/";
+const WIKI_GAME_SYSTEM = "https://cthulhuwiki.chaosium.com/rules/game-system.html";
+const WIKI_SANITY = "https://cthulhuwiki.chaosium.com/rules/sanity.html";
+const WIKI_COMBAT = "https://cthulhuwiki.chaosium.com/rules/combat.html";
+const WIKI_WOUNDS = "https://cthulhuwiki.chaosium.com/rules/hit-points-wounds-and-healing.html";
 const PROJECT_URL = "https://github.com/cbw29512/DungeonCards/issues/7";
+const PRIMARY_REVIEW = "OpenAI implementation review · 2026-07-14";
 
 export const cocRuleVerificationLabels: Record<CocRuleVerificationStatus, string> = {
   prototype: "Prototype content",
-  "needs-review": "Needs source review",
+  "needs-review": "Primary source reviewed · independent review pending",
   verified: "Rules verified",
   disputed: "Rule disputed"
 };
@@ -19,16 +23,17 @@ export const cocRuleSources: CocRuleSourceRecord[] = [
     id: "coc-percentile-core",
     system: "call-of-cthulhu",
     edition: "7e",
-    ruleName: "Percentile checks, difficulty, and success levels",
-    sourceTitle: "Call of Cthulhu 7th Edition Quick-Start Rules",
-    sourceUrl: QUICKSTART_URL,
-    chapterOrSection: "Game System / Skill Rolls",
-    implementationSummary: "Roll percentile dice against a skill value and classify the result as Critical, Extreme, Hard, Regular, Failure, or Fumble. Hard uses one-half and Extreme uses one-fifth of the skill value.",
+    ruleName: "Percentile checks and difficulty levels",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — The Game System",
+    sourceUrl: WIKI_GAME_SYSTEM,
+    chapterOrSection: "Reading D100 / Skill Rolls and Difficulty Levels",
+    implementationSummary: "Read 00 and 0 as 100, otherwise combine the tens and units dice. Regular succeeds at or below the full value, Hard at or below one-half, and Extreme at or below one-fifth.",
     status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
     notes: [
-      "The official Quick-Start landing page and PDF source have been located.",
-      "Page-level comparison and an independent second review are still required before this record can be marked verified.",
-      "Current automated tests cover threshold boundaries, 01, 100, and the skill-50 Fumble boundary."
+      "The official Chaosium wiki directly supports D100 reading and the Regular, Hard, and Extreme thresholds.",
+      "Critical and Fumble boundaries remain pending direct Keeper Rulebook or Quick-Start PDF review.",
+      "Independent second review is required before verified status."
     ]
   },
   {
@@ -36,15 +41,16 @@ export const cocRuleSources: CocRuleSourceRecord[] = [
     system: "call-of-cthulhu",
     edition: "7e",
     ruleName: "Bonus and Penalty dice",
-    sourceTitle: "Call of Cthulhu 7th Edition Quick-Start Rules",
-    sourceUrl: QUICKSTART_URL,
-    chapterOrSection: "Game System / Bonus and Penalty Dice",
-    implementationSummary: "Use one shared units die and additional tens dice. Keep the lowest candidate for net Bonus dice and the highest candidate for net Penalty dice. Opposing Bonus and Penalty dice cancel before rolling, with no more than two net dice applied.",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — The Game System",
+    sourceUrl: WIKI_GAME_SYSTEM,
+    chapterOrSection: "Bonus and Penalty Dice",
+    implementationSummary: "One Bonus and one Penalty die cancel. Roll one shared units die with additional tens dice, keeping the lower candidate for Bonus dice or the higher candidate for Penalty dice.",
     status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
     notes: [
-      "The engine supports zero, one, or two net Bonus or Penalty dice.",
-      "Cancellation and double-zero interpretation have automated boundary tests.",
-      "Page-level source review remains required."
+      "The official wiki directly supports cancellation, the shared units die, and lower/higher candidate selection.",
+      "The engine supports up to two net dice; the maximum requires Keeper Rulebook or Quick-Start PDF confirmation.",
+      "Independent second review remains required."
     ]
   },
   {
@@ -52,29 +58,51 @@ export const cocRuleSources: CocRuleSourceRecord[] = [
     system: "call-of-cthulhu",
     edition: "7e",
     ruleName: "Pushed rolls",
-    sourceTitle: "Call of Cthulhu 7th Edition Quick-Start Rules",
-    sourceUrl: QUICKSTART_URL,
-    chapterOrSection: "Game System / Pushing a Roll",
-    implementationSummary: "After an eligible failed roll, the player explains a different or riskier renewed attempt and the Keeper states the consequence of failure before the pushed roll is made.",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — The Game System",
+    sourceUrl: WIKI_GAME_SYSTEM,
+    chapterOrSection: "Skill Rolls and Difficulty Levels",
+    implementationSummary: "A player may justify a renewed attempt after an eligible failed skill roll. The stakes rise, and the Keeper may foreshadow the dire consequence before the player chooses whether to make the second roll.",
     status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
     notes: [
-      "The preview currently presents this as reference text only.",
-      "Eligibility exclusions and exact consequence procedure require direct page review before automation."
+      "The official combat page separately confirms that combat rolls cannot be pushed.",
+      "A complete eligibility matrix still requires the core rulebook review.",
+      "Independent second review remains required."
+    ]
+  },
+  {
+    id: "coc-opposed-rolls",
+    system: "call-of-cthulhu",
+    edition: "7e",
+    ruleName: "Generic opposed rolls",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — The Game System",
+    sourceUrl: WIKI_GAME_SYSTEM,
+    chapterOrSection: "Opposed Skill Rolls",
+    implementationSummary: "Compare success levels. The higher level wins. If levels match, the higher skill value wins. If both skills match, roll a separate D100 for each side and the lower result wins.",
+    status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
+    notes: [
+      "The implementation treats two failed rolls as no winner rather than inventing a successful outcome.",
+      "Equal tie-break rolls request another tie-break rather than inventing a winner.",
+      "Independent second review remains required."
     ]
   },
   {
     id: "coc-sanity-check",
     system: "call-of-cthulhu",
     edition: "7e",
-    ruleName: "Sanity checks and listed loss",
-    sourceTitle: "Call of Cthulhu 7th Edition Quick-Start Rules",
-    sourceUrl: QUICKSTART_URL,
-    chapterOrSection: "Sanity",
-    implementationSummary: "Roll against current Sanity and apply the scenario or creature's listed loss according to whether the check succeeds or fails.",
+    ruleName: "Sanity checks and temporary insanity trigger",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — Sanity",
+    sourceUrl: WIKI_SANITY,
+    chapterOrSection: "Sanity / Insanity Summary",
+    implementationSummary: "Roll at or below current Sanity for the listed success loss; otherwise apply the listed failure loss. Any positive loss prompts a momentary involuntary action. Losing 5 or more from one roll requires an INT roll; success triggers temporary insanity for 1D10 hours and a bout of madness.",
     status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
     notes: [
-      "The preview demonstrates a failed-loss formula but does not yet implement the complete insanity procedure.",
-      "Temporary and indefinite insanity rules remain outside this certified slice."
+      "The card supports Sanity 0 without clamping it to an ordinary skill minimum.",
+      "The official bout table is not reproduced; the Keeper chooses or rolls using an authorized source.",
+      "Indefinite insanity is not included in this starter-rule slice.",
+      "Independent second review remains required."
     ]
   },
   {
@@ -82,14 +110,50 @@ export const cocRuleSources: CocRuleSourceRecord[] = [
     system: "call-of-cthulhu",
     edition: "7e",
     ruleName: "Fighting Back and Dodge",
-    sourceTitle: "Call of Cthulhu 7th Edition Quick-Start Rules",
-    sourceUrl: QUICKSTART_URL,
-    chapterOrSection: "Combat / Close Combat",
-    implementationSummary: "A defender in close combat may Fight Back or Dodge; the opposed result and tie handling depend on which response is chosen.",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — Combat",
+    sourceUrl: WIKI_COMBAT,
+    chapterOrSection: "Close Combat",
+    implementationSummary: "The attacker must achieve a higher success level than Dodge, so Dodge wins equal levels. A defender Fighting Back must achieve a higher level than the attacker, so the initiating attacker wins equal levels.",
     status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
     notes: [
-      "The preview text intentionally avoids encoding tie resolution until direct source review is completed.",
-      "A dedicated opposed-combat resolver is still required."
+      "The resolver keeps generic opposed-roll ties separate from close-combat ties.",
+      "A successful Fight Back is capped at regular damage; complete damage automation is tracked separately.",
+      "Independent second review remains required."
+    ]
+  },
+  {
+    id: "coc-extreme-damage",
+    system: "call-of-cthulhu",
+    edition: "7e",
+    ruleName: "Extreme damage",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — Combat",
+    sourceUrl: WIKI_COMBAT,
+    chapterOrSection: "Extreme Damage",
+    implementationSummary: "Extreme blunt attacks use maximum weapon damage plus maximum damage bonus. Extreme impaling attacks use maximum weapon damage plus damage bonus plus an additional weapon-damage roll.",
+    status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
+    notes: [
+      "Current prototype cards deliberately block this automation until the damage formula model distinguishes weapon type and damage bonus.",
+      "Critical damage remains outside this source-backed slice.",
+      "Independent second review remains required."
+    ]
+  },
+  {
+    id: "coc-hit-points-wounds",
+    system: "call-of-cthulhu",
+    edition: "7e",
+    ruleName: "Hit Points, Major Wounds, dying, and instant death",
+    sourceTitle: "The Call of Cthulhu RPG Wiki — Hit Points, Wounds, and Healing",
+    sourceUrl: WIKI_WOUNDS,
+    chapterOrSection: "Hit Points / Major Wound",
+    implementationSummary: "Damage never reduces HP below zero. One blow dealing at least half maximum HP causes a Major Wound and requires a CON roll to remain conscious. One blow equal to or above maximum HP causes instant death. Zero HP with a Major Wound means dying; zero HP without one means unconscious but not dying.",
+    status: "needs-review",
+    primaryReviewer: PRIMARY_REVIEW,
+    notes: [
+      "The Major Wound threshold rounds up for odd maximum HP because damage is a whole number.",
+      "The card stops at the first CON roll and identifies later dying checks and First Aid without automating round timing.",
+      "Independent second review remains required."
     ]
   },
   {
@@ -144,7 +208,7 @@ export const cocQuickReferenceCards: CocQuickReferenceCard[] = [
     id: "coc-reference-pushed-roll",
     stamp: "PUSH",
     title: "Pushed Roll",
-    text: "After an eligible failed roll, describe a different or riskier renewed attempt. The Keeper states what failure will mean before the pushed roll is made.",
+    text: "After an eligible failed roll, justify a renewed attempt. The Keeper may foreshadow the dire consequence before you choose whether to make the second roll. Combat rolls cannot be pushed.",
     sourceId: "coc-pushed-roll"
   },
   {
@@ -158,14 +222,14 @@ export const cocQuickReferenceCards: CocQuickReferenceCard[] = [
     id: "coc-reference-sanity",
     stamp: "SAN",
     title: "Sanity Check",
-    text: "Roll against current Sanity and apply the encounter's listed success or failure loss. Additional insanity procedures require their own verified sequence.",
+    text: "Roll at or below current Sanity for the listed success loss; otherwise apply the failure loss. Any loss prompts an involuntary action, and 5 or more from one check triggers an INT roll.",
     sourceId: "coc-sanity-check"
   },
   {
     id: "coc-reference-close-combat",
     stamp: "FIGHT",
     title: "Fight Back or Dodge",
-    text: "When attacked in close combat, choose to Fight Back or Dodge. Resolve the opposed success levels using the response-specific tie rule.",
+    text: "Dodge wins equal success levels because the attacker must do better. The initiating attacker wins an equal result against Fight Back.",
     sourceId: "coc-close-combat-responses"
   }
 ];
