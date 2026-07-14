@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { monsterCatalog, monsterHomebrewExample } from "../data/monsterCatalog";
-import { abilityModifier, estimateMonsterLayout, monsterRulesetLabel } from "./monsterCards";
+import {
+  abilityModifier,
+  estimateMonsterLayout,
+  getMonsterPrintLayout,
+  monsterRulesetLabel
+} from "./monsterCards";
 
 describe("monster cards", () => {
   it("calculates ability modifiers correctly", () => {
@@ -37,5 +42,8 @@ describe("monster cards", () => {
     expect(estimateMonsterLayout(goblin)).toBe("standard");
     expect(estimateMonsterLayout(dragon)).toBe("accordion");
     expect(estimateMonsterLayout(lich)).toBe("accordion");
+    expect(getMonsterPrintLayout(goblin)).toBe("card");
+    expect(getMonsterPrintLayout(dragon)).toBe("folio");
+    expect(getMonsterPrintLayout(lich)).toBe("folio");
   });
 });
