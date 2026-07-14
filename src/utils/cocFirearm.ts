@@ -1,11 +1,13 @@
 import type { CocRollMode } from "../types/coc";
 import { resolveCocRollMode } from "./cocPercentile";
 
+export type CocCoverDiveResult = "none" | "failed" | "successful";
+
 export type CocHandgunConditions = {
   dexterity: number;
   distanceFeet: number;
   shotsThisRound: 1 | 2 | 3;
-  targetDivedForCoverSuccessfully: boolean;
+  coverDiveResult: CocCoverDiveResult;
 };
 
 export type CocHandgunProcedure = {
@@ -40,13 +42,17 @@ export const resolveCocHandgunProcedure = (
   const pointBlank = conditions.distanceFeet <= pointBlankRangeFeet;
   const bonusDice = pointBlank ? 1 : 0;
   const penaltyDice = (conditions.shotsThisRound >= 2 ? 1 : 0)
-    + (conditions.targetDivedForCoverSuccessfully ? 1 : 0);
+    + (conditions.coverDiveResult === "successful" ? 1 : 0);
+  const targetForfeitsNextAttack = conditions.coverDiveResult !== "none";
   const reasons: string[] = [];
 
   if (pointBlank) reasons.push("Point-blank range grants one Bonus die.");
   if (conditions.shotsThisRound >= 2) reasons.push("Firing two or three handgun shots applies one Penalty die to each shot.");
-  if (conditions.targetDivedForCoverSuccessfully) {
-    reasons.push("Successful dive for cover applies one Penalty die and costs the target's next attack.");
+  if (conditions.coverDiveResult === "successful") {
+    reasons.push("A successful dive for cover applies one Penalty die to the attacker's rolls.");
+  }
+  if (targetForfeitsNextAttack) {
+    reasons.push("Choosing to dive for cover costs the target's next attack whether the Dodge roll succeeds or fails.");
   }
   if (reasons.length === 0) reasons.push("No listed firearm condition changes the roll.");
 
@@ -57,7 +63,7 @@ export const resolveCocHandgunProcedure = (
     bonusDice,
     penaltyDice,
     rollMode: resolveCocRollMode(bonusDice, penaltyDice),
-    targetForfeitsNextAttack: conditions.targetDivedForCoverSuccessfully,
+    targetForfeitsNextAttack,
     reasons
   };
 };
