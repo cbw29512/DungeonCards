@@ -21,6 +21,7 @@ import "./styles/monsters.css";
 import "./styles/monster-homebrew.css";
 import "./styles/monster-print.css";
 import "./styles/coc-preview.css";
+import "./styles/coc-rule-status.css";
 import "./styles/accessibility.css";
 
 type AppPage = "home" | "player" | "dm" | "monster" | "homebrew" | "monster-homebrew";
