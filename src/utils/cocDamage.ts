@@ -1,4 +1,5 @@
 import { parseDiceFormula } from "./diceParser";
+import { secureRandomInteger, type RandomIntegerSource } from "./randomInteger";
 import { rollDiceFormula } from "./rollDice";
 
 export type CocDamageKind = "ordinary" | "extreme-blunt" | "extreme-impaling";
@@ -32,12 +33,13 @@ export const maximumDiceFormula = (formula: string): number => {
 export const resolveCocDamage = (
   weaponFormula: string,
   damageBonusFormula = "0",
-  kind: CocDamageKind = "ordinary"
+  kind: CocDamageKind = "ordinary",
+  randomInteger: RandomIntegerSource = secureRandomInteger
 ): CocDamageResolution => {
   try {
     if (kind === "ordinary") {
-      const weaponDamage = rollDiceFormula(weaponFormula).total;
-      const damageBonus = rollDiceFormula(damageBonusFormula).total;
+      const weaponDamage = rollDiceFormula(weaponFormula, { randomInteger }).total;
+      const damageBonus = rollDiceFormula(damageBonusFormula, { randomInteger }).total;
       return {
         kind,
         weaponFormula,
@@ -52,7 +54,7 @@ export const resolveCocDamage = (
     const weaponDamage = maximumDiceFormula(weaponFormula);
     const damageBonus = maximumDiceFormula(damageBonusFormula);
     const additionalWeaponRoll = kind === "extreme-impaling"
-      ? rollDiceFormula(weaponFormula).total
+      ? rollDiceFormula(weaponFormula, { randomInteger }).total
       : 0;
 
     return {
