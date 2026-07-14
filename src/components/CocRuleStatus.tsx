@@ -16,8 +16,10 @@ export const CocRuleStatus = ({ sourceId }: CocRuleStatusProps) => {
       <div>
         <strong>{source.ruleName}</strong>
         <span>{source.sourceTitle}</span>
-        <small>{source.chapterOrSection}{source.page ? ` · p. ${source.page}` : " · page review pending"}</small>
+        <small>{source.chapterOrSection}{source.page ? ` · p. ${source.page}` : " · web section or page review pending"}</small>
         <p>{source.implementationSummary}</p>
+        {source.primaryReviewer && <small>Primary review: {source.primaryReviewer}</small>}
+        <a href={source.sourceUrl} target="_blank" rel="noreferrer">Open source record</a>
         {source.notes.length > 0 && (
           <ul>{source.notes.map((note) => <li key={note}>{note}</li>)}</ul>
         )}
