@@ -13,8 +13,34 @@ const difficultyRank: Record<CocDifficulty | "critical", number> = {
   critical: 4
 };
 
+const tensDiceByMode: Record<CocRollMode, number> = {
+  normal: 1,
+  bonus: 2,
+  "double-bonus": 3,
+  penalty: 2,
+  "double-penalty": 3
+};
+
 const toPercentileValue = (tens: number, unit: number): number =>
   tens === 0 && unit === 0 ? 100 : (tens * 10) + unit;
+
+const validateDiceCount = (label: string, value: number): void => {
+  if (!Number.isSafeInteger(value) || value < 0 || value > 2) {
+    throw new Error(`${label} dice must be a whole number from 0 to 2.`);
+  }
+};
+
+export const resolveCocRollMode = (bonusDice: number, penaltyDice: number): CocRollMode => {
+  validateDiceCount("Bonus", bonusDice);
+  validateDiceCount("Penalty", penaltyDice);
+
+  const netModifier = bonusDice - penaltyDice;
+  if (netModifier >= 2) return "double-bonus";
+  if (netModifier === 1) return "bonus";
+  if (netModifier === -1) return "penalty";
+  if (netModifier <= -2) return "double-penalty";
+  return "normal";
+};
 
 export const validateCocSkillValue = (value: number): void => {
   if (!Number.isSafeInteger(value) || value < 1 || value > 100) {
@@ -57,12 +83,12 @@ export const rollCocPercentile = (
     validateCocSkillValue(skillValue);
 
     const unitDie = randomInteger(0, 9);
-    const tensCount = mode === "normal" ? 1 : 2;
+    const tensCount = tensDiceByMode[mode];
     const tensDice = Array.from({ length: tensCount }, () => randomInteger(0, 9));
     const candidates = tensDice.map((tens) => toPercentileValue(tens, unitDie));
-    const roll = mode === "bonus"
+    const roll = mode.includes("bonus")
       ? Math.min(...candidates)
-      : mode === "penalty"
+      : mode.includes("penalty")
         ? Math.max(...candidates)
         : candidates[0];
     const successLevel = getCocSuccessLevel(roll, skillValue);
@@ -74,6 +100,7 @@ export const rollCocPercentile = (
       candidates,
       skillValue,
       difficulty,
+      mode,
       successLevel,
       meetsDifficulty: meetsCocDifficulty(successLevel, difficulty)
     };
