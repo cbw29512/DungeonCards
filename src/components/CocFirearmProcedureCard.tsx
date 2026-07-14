@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { CocPercentileResult } from "../types/coc";
-import { resolveCocHandgunProcedure } from "../utils/cocFirearm";
+import {
+  resolveCocHandgunProcedure,
+  type CocCoverDiveResult
+} from "../utils/cocFirearm";
 import { rollCocPercentile } from "../utils/cocPercentile";
 import { CocRuleStatus } from "./CocRuleStatus";
 
@@ -17,7 +20,7 @@ export const CocFirearmProcedureCard = () => {
   const [dexterity, setDexterity] = useState(60);
   const [distanceFeet, setDistanceFeet] = useState(15);
   const [shotsThisRound, setShotsThisRound] = useState<1 | 2 | 3>(1);
-  const [targetDivedForCover, setTargetDivedForCover] = useState(false);
+  const [coverDiveResult, setCoverDiveResult] = useState<CocCoverDiveResult>("none");
   const [ammunition, setAmmunition] = useState(6);
   const [results, setResults] = useState<CocPercentileResult[]>([]);
   const [error, setError] = useState<string>();
@@ -26,7 +29,7 @@ export const CocFirearmProcedureCard = () => {
     dexterity,
     distanceFeet,
     shotsThisRound,
-    targetDivedForCoverSuccessfully: targetDivedForCover
+    coverDiveResult
   });
 
   const fire = () => {
@@ -46,7 +49,7 @@ export const CocFirearmProcedureCard = () => {
         dexterity,
         distanceFeet,
         shotsThisRound,
-        targetDivedForCover,
+        coverDiveResult,
         caught
       });
       setError(caught instanceof Error ? caught.message : "The handgun procedure failed.");
@@ -102,15 +105,18 @@ export const CocFirearmProcedureCard = () => {
             <option value="3">3 shots</option>
           </select>
         </label>
+        <label>
+          Target's dive for cover
+          <select value={coverDiveResult} onChange={(event) => {
+            setCoverDiveResult(event.target.value as CocCoverDiveResult);
+            clearResults();
+          }}>
+            <option value="none">Did not dive</option>
+            <option value="failed">Dived, Dodge failed</option>
+            <option value="successful">Dived, Dodge succeeded</option>
+          </select>
+        </label>
       </div>
-
-      <label className="coc-check-control">
-        <input type="checkbox" checked={targetDivedForCover} onChange={(event) => {
-          setTargetDivedForCover(event.target.checked);
-          clearResults();
-        }} />
-        Target successfully dived for cover
-      </label>
 
       <div className="coc-record-grid">
         <span><small>Readied initiative</small><strong>DEX {procedure.readiedInitiativeDex}</strong></span>
@@ -152,7 +158,7 @@ export const CocFirearmProcedureCard = () => {
             ))}
           </div>
           {procedure.targetForfeitsNextAttack && (
-            <p>The target forfeits its next attack because it chose to dive for cover.</p>
+            <p>The target forfeits its next attack because it chose to dive for cover, whether the Dodge roll succeeded or failed.</p>
           )}
         </section>
       )}
