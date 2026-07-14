@@ -50,7 +50,11 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
   };
 
   const malfunctioned = attackResult !== undefined && attackResult.roll >= weapon.malfunction;
-  const canDamage = attackResult !== undefined && attackResult.meetsDifficulty && !malfunctioned;
+  const specialDamagePending = attackResult?.successLevel === "extreme" || attackResult?.successLevel === "critical";
+  const canDamage = attackResult !== undefined
+    && attackResult.meetsDifficulty
+    && !malfunctioned
+    && !specialDamagePending;
 
   return (
     <article className={`coc-card coc-card--weapon${malfunctioned ? " coc-outcome--fumble" : ""}`}>
@@ -114,8 +118,11 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
         <section className="coc-compact-result" aria-live="polite">
           <strong>{attackResult.roll}</strong>
           <span>{malfunctioned ? "Weapon Malfunction" : outcomeLabels[attackResult.successLevel]}</span>
-          {canDamage && <button type="button" onClick={rollDamage}>Roll {weapon.damageFormula} damage</button>}
-          {damage !== undefined && <em>{damage} damage</em>}
+          {canDamage && <button type="button" onClick={rollDamage}>Roll listed base damage</button>}
+          {specialDamagePending && !malfunctioned && (
+            <p>Extreme and Critical weapon damage is not automated until the weapon damage audit is certified.</p>
+          )}
+          {damage !== undefined && <em>{damage} listed base damage</em>}
         </section>
       )}
 
