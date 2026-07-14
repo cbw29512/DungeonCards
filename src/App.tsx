@@ -114,6 +114,7 @@ export const App = () => {
       {activePage === "monster" && (
         <MonsterDeck
           homebrewMonsters={homebrewMonsters}
+          libraryError={homebrewMonsterError}
           onDeleteHomebrewMonster={deleteMonster}
         />
       )}
