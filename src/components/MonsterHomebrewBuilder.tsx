@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMonsterHomebrewDraft } from "../hooks/useMonsterHomebrewDraft";
 import type { MonsterCardData, MonsterItem } from "../types/monsters";
+import { getMonsterCompletenessWarnings } from "../utils/monsterCards";
 import { MonsterFolio } from "./MonsterFolio";
 
 const identityFields: Array<{
@@ -41,20 +42,20 @@ const actionFields: Array<{
   { key: "text", label: "Rules text", example: "Melee weapon attack.", maxLength: 1000 }
 ];
 
-export const MonsterHomebrewBuilder = () => {
+type MonsterHomebrewBuilderProps = {
+  libraryError: string | null;
+  onSave: (monster: MonsterCardData) => boolean;
+};
+
+export const MonsterHomebrewBuilder = ({
+  libraryError,
+  onSave
+}: MonsterHomebrewBuilderProps) => {
   const draft = useMonsterHomebrewDraft();
   const [isPrinting, setIsPrinting] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string>();
   const primaryAction = draft.monster.actions[1] ?? draft.monster.actions[0] ?? {};
-  const warnings = [
-    !draft.monster.name.trim() && "Add a monster name.",
-    !draft.monster.cr.trim() && "Add a challenge rating.",
-    !draft.monster.type.trim() && "Add a creature type.",
-    !draft.monster.size.trim() && "Add a creature size.",
-    !draft.monster.ac.trim() && "Add armor class.",
-    !draft.monster.hp.trim() && "Add hit points.",
-    !draft.monster.speed.trim() && "Add movement speed.",
-    !draft.monster.actions.some((action) => action.name.trim()) && "Add at least one named action."
-  ].filter(Boolean) as string[];
+  const warnings = getMonsterCompletenessWarnings(draft.monster);
 
   useEffect(() => {
     const finishPrint = () => setIsPrinting(false);
@@ -69,6 +70,29 @@ export const MonsterHomebrewBuilder = () => {
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => window.print());
     });
+  };
+
+  const saveToLibrary = () => {
+    try {
+      setSaveMessage(undefined);
+
+      if (warnings.length > 0) {
+        setSaveMessage("Complete the required monster fields before saving.");
+        return;
+      }
+
+      if (onSave(draft.monster)) {
+        setSaveMessage(`${draft.monster.name} was added to your Monster Library.`);
+      }
+    } catch (error) {
+      console.error("Saving the current monster draft to the library failed", { error });
+      setSaveMessage("The monster could not be added to your library.");
+    }
+  };
+
+  const resetDraft = () => {
+    setSaveMessage(undefined);
+    draft.reset();
   };
 
   return (
@@ -152,8 +176,11 @@ export const MonsterHomebrewBuilder = () => {
           </fieldset>
 
           {draft.storageError && <p className="workspace-error" role="alert">{draft.storageError}</p>}
+          {libraryError && <p className="workspace-error" role="alert">{libraryError}</p>}
+          {saveMessage && <p className="monster-builder__status" role="status">{saveMessage}</p>}
           <div className="monster-builder__actions">
-            <button onClick={draft.reset} type="button">Reload Frost Troll example</button>
+            <button onClick={resetDraft} type="button">Reload Frost Troll example</button>
+            <button disabled={warnings.length > 0} onClick={saveToLibrary} type="button">Save to Monster Library</button>
             <button onClick={printDraft} type="button">Print draft folio</button>
           </div>
         </form>
