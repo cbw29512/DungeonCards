@@ -6,6 +6,7 @@ import type {
   CocSuccessLevel
 } from "../types/coc";
 import { rollCocPercentile } from "../utils/cocPercentile";
+import { CocRuleStatus } from "./CocRuleStatus";
 
 const successLabels: Record<CocSuccessLevel, string> = {
   critical: "Critical Success",
@@ -14,6 +15,14 @@ const successLabels: Record<CocSuccessLevel, string> = {
   regular: "Regular Success",
   failure: "Failure",
   fumble: "Fumble"
+};
+
+const rollModeLabels: Record<CocRollMode, string> = {
+  normal: "normal",
+  bonus: "one Bonus die",
+  "double-bonus": "two Bonus dice",
+  penalty: "one Penalty die",
+  "double-penalty": "two Penalty dice"
 };
 
 type CocPercentileCardProps = {
@@ -56,7 +65,7 @@ export const CocPercentileCard = ({
       </header>
 
       <p className="coc-card__summary">
-        Enter the relevant skill, choose the required difficulty, then add a Bonus or Penalty die when the Keeper calls for one.
+        Enter the relevant skill and required difficulty. Apply the net Bonus or Penalty dice after opposing dice cancel.
       </p>
 
       <div className="coc-control-grid">
@@ -89,14 +98,16 @@ export const CocPercentileCard = ({
         </label>
 
         <label>
-          Dice condition
+          Net dice modifier
           <select value={mode} onChange={(event) => {
             setMode(event.target.value as CocRollMode);
             setResult(undefined);
           }}>
+            <option value="double-penalty">Two Penalty dice</option>
+            <option value="penalty">One Penalty die</option>
             <option value="normal">Normal</option>
-            <option value="bonus">Bonus die</option>
-            <option value="penalty">Penalty die</option>
+            <option value="bonus">One Bonus die</option>
+            <option value="double-bonus">Two Bonus dice</option>
           </select>
         </label>
       </div>
@@ -133,11 +144,15 @@ export const CocPercentileCard = ({
               : `The roll does not meet the selected ${difficulty} difficulty.`}
           </p>
           {result.candidates.length > 1 && (
-            <small>Candidate results: {result.candidates.join(" and ")}. The {mode} result was selected.</small>
+            <small>
+              Candidate results: {result.candidates.join(", ")}. The result for {rollModeLabels[result.mode]} was selected.
+            </small>
           )}
         </section>
       )}
 
+      <CocRuleStatus sourceId="coc-percentile-core" />
+      <CocRuleStatus sourceId="coc-bonus-penalty-dice" />
       {error && <p className="coc-error" role="alert">{error}</p>}
     </article>
   );
