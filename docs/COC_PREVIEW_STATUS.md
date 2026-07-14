@@ -27,6 +27,7 @@ The complete verification process is maintained in [`docs/COC_RULES_ACCURACY.md`
 - Design epic: GitHub issue #7
 - Design specification: draft PR #8
 - Accuracy gate: `docs/COC_RULES_ACCURACY.md`
+- First audit report: `docs/COC_RULE_AUDIT_01.md`
 
 This preview should not merge to `main` before the Monster Card Forge integration branch is completed, the rules audit is complete for included content, and the licensing path is resolved.
 
@@ -34,27 +35,46 @@ This preview should not merge to `main` before the Monster Card Forge integratio
 
 - [x] Top-level D&D 5e / Call of Cthulhu 7e system gateway.
 - [x] Separate dark CoC application shell and navigation.
-- [x] Investigator, Keeper, Creatures, Weapons, and Spells areas.
+- [x] Investigator, Keeper, Creatures, Weapons, Spells, and Rules Audit areas.
 - [x] Independent percentile engine.
 - [x] Critical, Extreme, Hard, Regular, Failure, and Fumble outcomes.
 - [x] Skill-derived half and fifth thresholds.
 - [x] Regular, Hard, and Extreme difficulty comparison.
-- [x] Bonus and Penalty dice using shared units and alternative tens dice.
-- [x] Interactive original weapon card with skill, ammunition, reload, malfunction, attack, and damage.
+- [x] Zero, one, or two net Bonus or Penalty dice using one shared units die and alternative tens dice.
+- [x] Bonus/Penalty cancellation helper and boundary tests.
+- [x] Interactive original weapon card with skill, ammunition, reload, malfunction, attack, and gated base damage.
 - [x] Interactive original spell card with casting roll, Magic Point cost, Sanity cost, duration, and resource reset.
-- [x] Combat-ready original creature dossier with characteristics, HP, MP, armor, Dodge, attacks, damage, Sanity loss, traits, and Keeper cues.
-- [x] Encounter controls for wounds, Magic Points, defeated state, and reset.
+- [x] Combat-ready original creature dossier with characteristics, HP, MP, armor, Dodge, attacks, gated base damage, Sanity loss, traits, and Keeper cues.
+- [x] Neutral HP state labels that do not falsely automate Major Wounds.
+- [x] Extreme and Critical weapon/creature damage blocked until the damage audit is certified.
 - [x] Original quick-reference cards for pushed rolls, Bonus/Penalty dice, Sanity checks, and close combat responses.
+- [x] Machine-readable source registry with `prototype`, `needs-review`, `verified`, and `disputed` states.
+- [x] Expandable source status shown directly on rules, weapon, spell, and creature cards.
+- [x] Visible Rules Audit workspace summarizing every current source record.
 - [x] Dark dossier, evidence-locker, occult-memorandum, ink, brass, blood, and sickly-green visual language.
 - [x] Responsive layouts and compatibility with the existing reduced-motion stylesheet.
-- [x] Unit tests for percentile boundaries, fumble thresholds, Bonus/Penalty dice, double-zero handling, and difficulty comparison.
+- [x] Unit tests for percentile boundaries, Fumble thresholds, one/two Bonus and Penalty dice, cancellation, double-zero handling, and difficulty comparison.
+- [x] Registry tests requiring unique IDs, required metadata, valid quick-reference links, and two-review metadata for any future verified record.
 - [x] Formal accuracy gate requiring source records, two-review verification, and boundary tests.
+
+## Current audit status
+
+The current rules records are intentionally not marked verified.
+
+- Percentile checks: `needs-review`.
+- Bonus/Penalty dice: `needs-review`.
+- Pushed rolls: `needs-review`.
+- Sanity checks: `needs-review`.
+- Fight Back/Dodge: `needs-review`.
+- Sample weapon, spell, and creature: `prototype`.
+
+The official Quick-Start source has been located. Page-level review and independent second review remain required before any rule moves to `verified`.
 
 ## Rules-certification checklist
 
 - [ ] Obtain and record the exact Quick-Start Rules revision used for Phase 1.
 - [ ] Record the exact Keeper Rulebook printing or PDF revision used for the complete audit.
-- [ ] Create a source record for every implemented procedure and executable card.
+- [x] Create a source record for every currently implemented procedure and executable card.
 - [ ] Verify percentile success levels and Fumble boundaries directly against the official source.
 - [ ] Verify Bonus and Penalty dice directly against the official source.
 - [ ] Verify pushed-roll eligibility and consequence procedure.
@@ -73,13 +93,15 @@ This preview should not merge to `main` before the Monster Card Forge integratio
 - [ ] System gateway works at narrow/mobile width.
 - [ ] Switching from D&D to CoC and back works.
 - [ ] CoC archive navigation works.
+- [ ] Rules Audit navigation and expandable records work.
 - [ ] Percentile results and threshold labels are readable.
-- [ ] Bonus and Penalty dice show both candidates and select the correct result.
+- [ ] One and two Bonus dice show all candidates and select the lowest result.
+- [ ] One and two Penalty dice show all candidates and select the highest result.
 - [ ] Investigator page works.
 - [ ] Keeper page works.
-- [ ] Weapon ammunition, empty-state error, reload, malfunction, and damage work.
-- [ ] Spell MP, Sanity, casting, duration, and reset controls work.
-- [ ] Creature attack, damage, Dodge, Sanity loss, HP, MP, wound state, defeated state, and reset work.
+- [ ] Weapon ammunition, empty-state error, reload, malfunction, base damage gate, and special-damage warning work.
+- [ ] Spell MP, Sanity, casting, duration, reset, and prototype warning work.
+- [ ] Creature attack, base-damage gate, Dodge, Sanity loss, HP, MP, neutral HP state, defeated state, reset, and prototype warning work.
 - [ ] Keyboard focus remains visible.
 - [ ] Reduced-motion mode remains usable.
 - [ ] No D&D cards or persistence appear inside the CoC workspace.
@@ -99,10 +121,11 @@ Official references reviewed:
 
 ## Next actions
 
-1. Keep the shared Dungeon Cards UI patterns consistent across both systems.
-2. Complete the official Quick-Start rules audit before adding more rules cards.
-3. Create the source-record schema and first verified rule inventory.
-4. Perform desktop and narrow-browser acceptance.
-5. Add persistence namespaces only after the game-system boundary is accepted.
-6. Expand creatures, weapons, spells, Sanity, and combat only after each rule family passes its accuracy gate.
-7. Resolve the licensing route before replacing original prototype content with any licensed catalog.
+1. Complete page-level review of percentile checks and Bonus/Penalty dice against the exact Quick-Start revision.
+2. Add reviewer identities and verification dates only after direct and independent review.
+3. Build a verified opposed-roll resolver before automating Fight Back/Dodge outcomes.
+4. Build a verified damage resolver before enabling Extreme, Critical, impaling, or Major Wound automation.
+5. Perform desktop and narrow-browser acceptance of the Rules Audit and updated dice controls.
+6. Add persistence namespaces only after the game-system boundary is accepted.
+7. Expand creatures, weapons, spells, Sanity, and combat only after each rule family passes its accuracy gate.
+8. Resolve the licensing route before replacing original prototype content with any licensed catalog.
