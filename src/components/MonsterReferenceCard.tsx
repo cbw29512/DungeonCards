@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { MonsterCardData } from "../types/monsters";
-import { estimateMonsterLayout } from "../utils/monsterCards";
+import {
+  estimateMonsterLayout,
+  getMonsterPrintLayout
+} from "../utils/monsterCards";
 import {
   RuleCardWorkspaceActions,
   type WorkspaceCardControls
@@ -20,6 +23,7 @@ export const MonsterReferenceCard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const layout = estimateMonsterLayout(monster);
+  const printLayout = getMonsterPrintLayout(monster);
 
   useEffect(() => {
     const finishPrint = () => setIsPrinting(false);
@@ -28,14 +32,22 @@ export const MonsterReferenceCard = ({
   }, []);
 
   const printMonster = () => {
-    setIsExpanded(true);
+    if (printLayout === "folio") {
+      setIsExpanded(true);
+    }
+
     setIsPrinting(true);
-    window.requestAnimationFrame(() => window.print());
+
+    // Two animation frames give React time to commit the print-only classes and,
+    // for complex monsters, mount the folio before the browser opens print preview.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => window.print());
+    });
   };
 
   return (
     <article
-      className={`monster-reference monster-reference--${layout}${isPrinting ? " monster-reference--printing" : ""}`}
+      className={`monster-reference monster-reference--${layout} monster-reference--print-${printLayout}${isPrinting ? " monster-reference--printing" : ""}`}
     >
       <MonsterCardFace monster={monster} />
       <RuleCardWorkspaceActions
@@ -44,10 +56,16 @@ export const MonsterReferenceCard = ({
         controls={workspaceControls}
       />
       <div className="monster-reference__actions">
-        <button onClick={() => setIsExpanded((current) => !current)} type="button">
+        <button
+          aria-expanded={isExpanded}
+          onClick={() => setIsExpanded((current) => !current)}
+          type="button"
+        >
           {isExpanded ? "Close full folio" : layout === "accordion" ? "Open boss folio" : "Open full card"}
         </button>
-        <button onClick={printMonster} type="button">Print monster</button>
+        <button onClick={printMonster} type="button">
+          {printLayout === "card" ? "Print card" : "Print folio"}
+        </button>
       </div>
       {isExpanded && <MonsterFolio monster={monster} />}
     </article>
