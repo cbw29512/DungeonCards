@@ -44,9 +44,9 @@ Status: Open draft
 
 Branch: `feature/integrate-monster-card-forge`
 
-Last fully passing automated verification: code commit `73b2483`.
+Latest fully passing automated verification: commit `8725c14`, workflow run `29339941945`.
 
-Current head includes project tracking, compact-versus-folio print correction, strict Monster Builder draft validation, and a persistent personal Homebrew Monster Library. A replacement GitHub Actions run must pass before merge.
+The current implementation includes project tracking, compact-versus-folio print correction, strict Monster Builder draft validation, and a persistent personal Homebrew Monster Library.
 
 Completed in this branch:
 
@@ -71,16 +71,15 @@ Completed in this branch:
 
 Work must be completed in this order unless this file is updated with a reason for changing priorities.
 
-1. Confirm the current branch passes GitHub Actions after the TypeScript assertion fix.
-2. Audit PR #6 in a real browser at desktop and narrow viewport sizes.
-3. Verify navigation, workspace persistence, filtering, pinning, ordering, expansion, empty states, homebrew save, and homebrew deletion.
-4. Verify print preview for both a compact monster and a six-panel boss folio.
-5. Record and fix visual, accessibility, and usability defects found during manual testing.
-6. Finish and merge PR #5.
-7. Rebase or retarget PR #6 onto the updated `main` branch.
-8. Run the full CI suite again.
-9. Complete final browser and print acceptance.
-10. Mark PR #6 ready for review and merge it.
+1. Audit PR #6 in a real browser at desktop and narrow viewport sizes.
+2. Verify navigation, workspace persistence, filtering, pinning, ordering, expansion, empty states, homebrew save, and homebrew deletion.
+3. Verify print preview for both a compact monster and a six-panel boss folio.
+4. Record and fix visual, accessibility, and usability defects found during manual testing.
+5. Finish and merge PR #5.
+6. Rebase or retarget PR #6 onto the updated `main` branch.
+7. Run the full CI suite again.
+8. Complete final browser and print acceptance.
+9. Mark PR #6 ready for review and merge it.
 
 ## PR #6 Acceptance Checklist
 
@@ -148,7 +147,7 @@ Work must be completed in this order unless this file is updated with a reason f
 - [x] Unit tests passed in workflow run `29339703179` after the new homebrew library work.
 - [x] Workflow run `29339703179` identified TypeScript assertion errors in `homebrewMonsterStorage.ts` instead of hiding the failure.
 - [x] The TypeScript 7 assertion function now has the required explicit function-type annotation.
-- [ ] Current branch head passes the full GitHub Actions workflow.
+- [x] Workflow run `29339941945` passes locked installation, dependency audit, all tests, strict TypeScript compilation, and the production Vite build at commit `8725c14`.
 - [ ] Manual browser acceptance passes.
 - [ ] Manual print-preview acceptance passes.
 - [ ] Documentation reflects the final behavior.
@@ -179,7 +178,7 @@ Work must be completed in this order unless this file is updated with a reason f
 - GitHub Actions run `29339703179` passed installation, audit, and all tests, then failed production compilation on TypeScript assertion-function rules.
 - Downloaded and inspected the uploaded build log rather than guessing from the workflow summary.
 - Added the explicit assertion-function type annotation required by TypeScript 7.
-- Automated verification for the corrected current branch head is pending.
+- GitHub Actions run `29339941945` then passed installation, dependency audit, all tests, strict compilation, and the production build at commit `8725c14`.
 
 ## Required Update Format
 
