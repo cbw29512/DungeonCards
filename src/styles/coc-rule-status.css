@@ -1,0 +1,80 @@
+.coc-rule-status {
+  margin-top: 1rem;
+  border: 1px solid rgb(184 164 111 / 24%);
+  background: rgb(0 0 0 / 22%);
+}
+
+.coc-rule-status summary {
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.8rem;
+  color: #b9b19e;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  list-style: none;
+  text-transform: uppercase;
+  gap: 0.5rem;
+}
+
+.coc-rule-status summary::-webkit-details-marker {
+  display: none;
+}
+
+.coc-rule-status summary span {
+  color: #bd9d5d;
+  font-size: 0.65rem;
+}
+
+.coc-rule-status--verified summary span {
+  color: #88af83;
+}
+
+.coc-rule-status--disputed summary span {
+  color: #c65e54;
+}
+
+.coc-rule-status--prototype summary span {
+  color: #9984aa;
+}
+
+.coc-rule-status > div {
+  display: grid;
+  padding: 0 0.85rem 0.85rem;
+  color: #aaa18d;
+  line-height: 1.5;
+  gap: 0.3rem;
+}
+
+.coc-rule-status > div strong {
+  color: #e0d6be;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.coc-rule-status > div span,
+.coc-rule-status > div small {
+  display: block;
+}
+
+.coc-rule-status > div small {
+  color: #868b7c;
+}
+
+.coc-rule-status > div p {
+  margin: 0.35rem 0;
+}
+
+.coc-rule-status > div ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.coc-rule-note .coc-rule-status {
+  margin-top: auto;
+}
+
+.coc-rule-note {
+  display: flex;
+  flex-direction: column;
+}
