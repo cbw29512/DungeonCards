@@ -7,9 +7,9 @@ const MAX_STORED_MONSTERS = 200;
 
 export type HomebrewMonsterStorageAdapter = Pick<Storage, "getItem" | "setItem">;
 
-const validateMonsterCollection = (
+const validateMonsterCollection: (
   value: unknown
-): asserts value is MonsterCardData[] => {
+) => asserts value is MonsterCardData[] = (value) => {
   if (!Array.isArray(value) || value.length > MAX_STORED_MONSTERS) {
     throw new Error("Saved homebrew monster data has an invalid shape.");
   }
