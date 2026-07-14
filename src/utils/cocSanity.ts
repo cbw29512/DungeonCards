@@ -2,6 +2,7 @@ export type CocSanityLossState = {
   previousSanity: number;
   currentSanity: number;
   sanityLost: number;
+  sanityRollFailed: boolean;
   involuntaryActionRequired: boolean;
   temporaryInsanityCheckRequired: boolean;
 };
@@ -22,7 +23,8 @@ export const isCocSanityRollSuccessful = (roll: number, currentSanity: number): 
 
 export const applyCocSanityLoss = (
   currentSanity: number,
-  sanityLost: number
+  sanityLost: number,
+  sanityRollFailed: boolean
 ): CocSanityLossState => {
   validateSanity(currentSanity);
   if (!Number.isSafeInteger(sanityLost) || sanityLost < 0) {
@@ -35,7 +37,8 @@ export const applyCocSanityLoss = (
     previousSanity: currentSanity,
     currentSanity: currentAfterLoss,
     sanityLost,
-    involuntaryActionRequired: sanityLost > 0,
+    sanityRollFailed,
+    involuntaryActionRequired: sanityRollFailed,
     temporaryInsanityCheckRequired: sanityLost >= 5
   };
 };
