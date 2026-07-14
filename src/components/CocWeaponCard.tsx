@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CocPercentileResult, CocRollMode, CocSuccessLevel, CocWeaponPreview } from "../types/coc";
 import { rollCocPercentile } from "../utils/cocPercentile";
 import { rollDiceFormula } from "../utils/rollDice";
+import { CocRuleStatus } from "./CocRuleStatus";
 
 const outcomeLabels: Record<CocSuccessLevel, string> = {
   critical: "Critical Success",
@@ -89,11 +90,13 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
           />
         </label>
         <label>
-          Dice condition
+          Net dice modifier
           <select value={mode} onChange={(event) => setMode(event.target.value as CocRollMode)}>
+            <option value="double-penalty">Two Penalty dice</option>
+            <option value="penalty">One Penalty die</option>
             <option value="normal">Normal</option>
-            <option value="bonus">Bonus die</option>
-            <option value="penalty">Penalty die</option>
+            <option value="bonus">One Bonus die</option>
+            <option value="double-bonus">Two Bonus dice</option>
           </select>
         </label>
       </div>
@@ -117,6 +120,7 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
       )}
 
       <p className="coc-card__note">{weapon.notes}</p>
+      <CocRuleStatus sourceId="coc-original-weapon-preview" />
       {error && <p className="coc-error" role="alert">{error}</p>}
     </article>
   );
