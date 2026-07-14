@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { CocCreaturePreview, CocPercentileResult } from "../types/coc";
 import { rollCocPercentile } from "../utils/cocPercentile";
 import { rollDiceFormula } from "../utils/rollDice";
+import { CocRuleStatus } from "./CocRuleStatus";
 
 type CocCreatureDossierProps = {
   creature: CocCreaturePreview;
@@ -10,6 +11,7 @@ type CocCreatureDossierProps = {
 type AttackOutcome = {
   name: string;
   roll: CocPercentileResult;
+  damageFormula: string;
   damage?: number;
   notes: string;
 };
@@ -23,11 +25,11 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
   const [error, setError] = useState<string>();
 
   const defeated = currentHitPoints <= 0;
-  const woundState = useMemo(() => {
-    if (defeated) return "Defeated";
-    if (currentHitPoints <= Math.floor(creature.hitPoints / 2)) return "Severely wounded";
-    if (currentHitPoints < creature.hitPoints) return "Wounded";
-    return "Uninjured";
+  const healthState = useMemo(() => {
+    if (defeated) return "0 HP";
+    if (currentHitPoints <= Math.floor(creature.hitPoints / 2)) return "Half HP or less";
+    if (currentHitPoints < creature.hitPoints) return "HP reduced";
+    return "Full HP";
   }, [creature.hitPoints, currentHitPoints, defeated]);
 
   const rollAttack = (attackId: string) => {
@@ -36,13 +38,31 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
       if (!attack) throw new Error("The selected creature attack was not found.");
 
       const roll = rollCocPercentile(attack.skill);
-      const damage = roll.meetsDifficulty ? rollDiceFormula(attack.damageFormula).total : undefined;
-      setAttackOutcome({ name: attack.name, roll, damage, notes: attack.notes });
+      setAttackOutcome({
+        name: attack.name,
+        roll,
+        damageFormula: attack.damageFormula,
+        notes: attack.notes
+      });
       setDodgeResult(undefined);
       setError(undefined);
     } catch (caught) {
       console.error("CoC creature attack failed", { creatureId: creature.id, attackId, caught });
       setError(caught instanceof Error ? caught.message : "The creature attack failed.");
+    }
+  };
+
+  const rollAttackDamage = () => {
+    try {
+      if (!attackOutcome?.roll.meetsDifficulty) {
+        throw new Error("A failed attack does not roll damage.");
+      }
+      const damage = rollDiceFormula(attackOutcome.damageFormula).total;
+      setAttackOutcome((current) => current ? { ...current, damage } : current);
+      setError(undefined);
+    } catch (caught) {
+      console.error("CoC creature base damage failed", { creatureId: creature.id, caught });
+      setError(caught instanceof Error ? caught.message : "The damage roll failed.");
     }
   };
 
@@ -85,7 +105,7 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
           </div>
           <blockquote>{creature.description}</blockquote>
           <div className="coc-condition-strip">
-            <span className={defeated ? "is-danger" : ""}>{woundState}</span>
+            <span className={defeated ? "is-danger" : ""}>{healthState}</span>
             <span>Armor {creature.armor}</span>
             <span>Move {creature.move}</span>
             <span>Build {creature.build}</span>
@@ -125,6 +145,7 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
                 setSanityLoss(undefined);
               }}>Reset</button>
             </div>
+            <small>HP thresholds shown here are neutral trackers, not automated Major Wound rulings.</small>
           </div>
 
           <div>
@@ -141,7 +162,7 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
                 <em>Roll</em>
               </button>
               <button type="button" onClick={rollSanityLoss}>
-                <span><strong>Failed Sanity loss</strong><small>{creature.sanityLossFormula}</small></span>
+                <span><strong>Prototype failed SAN loss</strong><small>{creature.sanityLossFormula}</small></span>
                 <em>Roll</em>
               </button>
             </div>
@@ -155,7 +176,13 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
                 <small>{attackOutcome.name}</small>
                 <strong>{attackOutcome.roll.roll}</strong>
                 <span>{attackOutcome.roll.meetsDifficulty ? "Attack succeeds" : "Attack misses"}</span>
-                {attackOutcome.damage !== undefined && <em>{attackOutcome.damage} damage</em>}
+                {attackOutcome.roll.meetsDifficulty && attackOutcome.damage === undefined && (
+                  <button type="button" onClick={rollAttackDamage}>Roll listed base damage</button>
+                )}
+                {attackOutcome.damage !== undefined && <em>{attackOutcome.damage} listed base damage</em>}
+                {(attackOutcome.roll.successLevel === "extreme" || attackOutcome.roll.successLevel === "critical") && (
+                  <p>Special damage for this success level is not automated until the combat damage audit is certified.</p>
+                )}
                 <p>{attackOutcome.notes}</p>
               </>
             )}
@@ -163,12 +190,13 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
               <>
                 <small>Dodge</small>
                 <strong>{dodgeResult.roll}</strong>
-                <span>{dodgeResult.meetsDifficulty ? "Dodge succeeds" : "Dodge fails"}</span>
+                <span>{dodgeResult.meetsDifficulty ? "Dodge roll succeeds" : "Dodge roll fails"}</span>
+                <p>An opposed combat resolver must still compare this result with the attack and apply the correct tie rule.</p>
               </>
             )}
             {sanityLoss !== undefined && (
               <>
-                <small>Failed Sanity check</small>
+                <small>Prototype failed Sanity loss</small>
                 <strong>{sanityLoss}</strong>
                 <span>Sanity lost</span>
               </>
@@ -180,6 +208,8 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
           <h3>Observed traits and Keeper cues</h3>
           <ul>{creature.traits.map((trait) => <li key={trait}>{trait}</li>)}</ul>
         </section>
+
+        <CocRuleStatus sourceId="coc-original-creature-preview" />
       </div>
 
       {error && <p className="coc-error" role="alert">{error}</p>}
