@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { monsterCatalog } from "../data/monsterCatalog";
 import { useCardWorkspace } from "../hooks/useCardWorkspace";
-import type { MonsterRuleset } from "../types/monsters";
+import type { MonsterCardData, MonsterRuleset } from "../types/monsters";
 import type { WorkspaceView } from "../types/workspaces";
 import { MonsterReferenceCard } from "./MonsterReferenceCard";
 import { WorkspaceToolbar } from "./WorkspaceToolbar";
@@ -9,7 +9,8 @@ import { WorkspaceToolbar } from "./WorkspaceToolbar";
 const rulesetOptions: Array<MonsterRuleset | "all"> = [
   "all",
   "srd-5.1-2014",
-  "srd-5.2.1-2024"
+  "srd-5.2.1-2024",
+  "homebrew"
 ];
 
 const rulesetText = (ruleset: MonsterRuleset | "all"): string => {
@@ -19,16 +20,28 @@ const rulesetText = (ruleset: MonsterRuleset | "all"): string => {
   return "Homebrew";
 };
 
-export const MonsterDeck = () => {
+type MonsterDeckProps = {
+  homebrewMonsters: MonsterCardData[];
+  onDeleteHomebrewMonster: (monsterId: string) => boolean;
+};
+
+export const MonsterDeck = ({
+  homebrewMonsters,
+  onDeleteHomebrewMonster
+}: MonsterDeckProps) => {
   const [view, setView] = useState<WorkspaceView>("table");
   const [query, setQuery] = useState("");
   const [ruleset, setRuleset] = useState<MonsterRuleset | "all">("all");
   const [type, setType] = useState("all");
-  const workspace = useCardWorkspace("monster", monsterCatalog);
-  const visible = view === "table" ? workspace.activeCards : monsterCatalog;
+  const monsters = useMemo(
+    () => [...monsterCatalog, ...homebrewMonsters],
+    [homebrewMonsters]
+  );
+  const workspace = useCardWorkspace("monster", monsters);
+  const visible = view === "table" ? workspace.activeCards : monsters;
   const types = useMemo(
-    () => ["all", ...new Set(monsterCatalog.map((monster) => monster.type))],
-    []
+    () => ["all", ...new Set(monsters.map((monster) => monster.type))],
+    [monsters]
   );
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -55,7 +68,7 @@ export const MonsterDeck = () => {
           onReset={workspace.resetWorkspace}
           role="monster"
           storageError={workspace.storageError}
-          totalCount={monsterCatalog.length}
+          totalCount={monsters.length}
           view={view}
         />
         <div className="monster-deck__filters">
@@ -86,6 +99,12 @@ export const MonsterDeck = () => {
           <p>Open the Monster Library and add the creatures you need tonight.</p>
           <button onClick={() => setView("library")} type="button">Open Monster Library</button>
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="workspace-empty">
+          <span aria-hidden="true">🔎</span>
+          <h3>No monsters match these filters.</h3>
+          <p>Clear the search or choose a different ruleset or creature type.</p>
+        </div>
       ) : (
         <div className="monster-grid">
           {filtered.map((monster) => {
@@ -103,6 +122,9 @@ export const MonsterDeck = () => {
               <MonsterReferenceCard
                 key={monster.id}
                 monster={monster}
+                onDelete={view === "library" && monster.ruleset === "homebrew"
+                  ? () => onDeleteHomebrewMonster(monster.id)
+                  : undefined}
                 workspaceControls={{
                   view,
                   isActive,
