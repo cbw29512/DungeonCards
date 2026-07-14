@@ -34,6 +34,17 @@ export const estimateMonsterLayout = (monster: MonsterCardData): MonsterLayout =
 export const getMonsterPrintLayout = (monster: MonsterCardData): MonsterPrintLayout =>
   estimateMonsterLayout(monster) === "standard" ? "card" : "folio";
 
+export const getMonsterCompletenessWarnings = (monster: MonsterCardData): string[] => [
+  !monster.name.trim() && "Add a monster name.",
+  !monster.cr.trim() && "Add a challenge rating.",
+  !monster.type.trim() && "Add a creature type.",
+  !monster.size.trim() && "Add a creature size.",
+  !monster.ac.trim() && "Add armor class.",
+  !monster.hp.trim() && "Add hit points.",
+  !monster.speed.trim() && "Add movement speed.",
+  !monster.actions.some((action) => action.name.trim()) && "Add at least one named action."
+].filter(Boolean) as string[];
+
 export const monsterRulesetLabel = (monster: MonsterCardData): string => {
   if (monster.ruleset === "srd-5.1-2014") return "2014 SRD";
   if (monster.ruleset === "srd-5.2.1-2024") return "2024 SRD";
