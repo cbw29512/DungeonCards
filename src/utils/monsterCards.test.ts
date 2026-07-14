@@ -3,6 +3,7 @@ import { monsterCatalog, monsterHomebrewExample } from "../data/monsterCatalog";
 import {
   abilityModifier,
   estimateMonsterLayout,
+  getMonsterCompletenessWarnings,
   getMonsterPrintLayout,
   monsterRulesetLabel
 } from "./monsterCards";
@@ -25,7 +26,23 @@ describe("monster cards", () => {
       expect(monster.speed).not.toBe("");
       expect(monster.actions.length).toBeGreaterThan(0);
       expect(monster.source).toContain("Monster Card Forge");
+      expect(getMonsterCompletenessWarnings(monster)).toEqual([]);
     });
+  });
+
+  it("reports missing fields required by the Monster Library", () => {
+    const incomplete = {
+      ...monsterHomebrewExample,
+      name: "",
+      speed: "",
+      actions: [{ name: "" }]
+    };
+
+    expect(getMonsterCompletenessWarnings(incomplete)).toEqual([
+      "Add a monster name.",
+      "Add movement speed.",
+      "Add at least one named action."
+    ]);
   });
 
   it("preserves explicit ruleset labels", () => {
