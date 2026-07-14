@@ -22,11 +22,13 @@ const rulesetText = (ruleset: MonsterRuleset | "all"): string => {
 
 type MonsterDeckProps = {
   homebrewMonsters: MonsterCardData[];
+  libraryError: string | null;
   onDeleteHomebrewMonster: (monsterId: string) => boolean;
 };
 
 export const MonsterDeck = ({
   homebrewMonsters,
+  libraryError,
   onDeleteHomebrewMonster
 }: MonsterDeckProps) => {
   const [view, setView] = useState<WorkspaceView>("table");
@@ -71,6 +73,7 @@ export const MonsterDeck = ({
           totalCount={monsters.length}
           view={view}
         />
+        {libraryError && <p className="workspace-error" role="alert">{libraryError}</p>}
         <div className="monster-deck__filters">
           <input
             aria-label="Search monsters"
