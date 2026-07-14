@@ -46,7 +46,7 @@ Branch: `feature/integrate-monster-card-forge`
 
 Last fully passing automated verification: code commit `73b2483`.
 
-Current head includes the project tracker and compact-versus-folio print correction. GitHub Actions must pass again before merge.
+Current head includes project tracking, compact-versus-folio print correction, and strict Monster Builder draft validation. GitHub Actions must pass again before merge.
 
 Completed in this branch:
 
@@ -59,18 +59,20 @@ Completed in this branch:
 - compact monster cards and six-panel boss folios;
 - distinct compact-card and boss-folio print modes;
 - guided Frost Troll homebrew draft with live preview;
-- monster utility and workspace regression tests.
+- strict nested Monster Builder draft validation;
+- bounded Monster Builder text and ability-score inputs;
+- monster utility, workspace, print-selection, and storage regression tests.
 
 ## Immediate Work Queue
 
 Work must be completed in this order unless this file is updated with a reason for changing priorities.
 
-1. Harden Monster Builder draft validation, numeric input handling, and storage error handling.
+1. Confirm the current branch passes GitHub Actions after the print and storage changes.
 2. Audit PR #6 in a real browser at desktop and narrow viewport sizes.
 3. Verify navigation, workspace persistence, filtering, pinning, ordering, expansion, and empty states.
 4. Verify print preview for both a compact monster and a six-panel boss folio.
 5. Record and fix visual, accessibility, and usability defects found during manual testing.
-6. Confirm whether a completed homebrew monster can be saved into a reusable personal Monster Library; the current implementation saves the draft but does not yet document a completed-library workflow.
+6. Define and implement saving a completed homebrew monster into a reusable personal Monster Library; the current implementation saves only the active draft.
 7. Finish and merge PR #5.
 8. Rebase or retarget PR #6 onto the updated `main` branch.
 9. Run the full CI suite again.
@@ -93,7 +95,7 @@ Work must be completed in this order unless this file is updated with a reason f
 - [ ] Pinned monsters remain grouped predictably.
 - [ ] Reordering works only where allowed.
 - [ ] Workspace state survives a page refresh.
-- [ ] Corrupted local storage fails safely.
+- [x] Malformed nested Monster Builder local storage is rejected and falls back safely.
 - [ ] Search works by name, creature type, and challenge rating.
 - [ ] Ruleset and creature-type filters work together.
 - [ ] Empty and zero-result states are clear.
@@ -119,11 +121,12 @@ Work must be completed in this order unless this file is updated with a reason f
 
 ### Monster Builder
 
-- [ ] Frost Troll example loads correctly.
-- [ ] Ability modifiers update correctly.
-- [ ] Required-field warnings are understandable.
-- [ ] Draft state survives a refresh.
-- [ ] Reset restores the example safely.
+- [ ] Frost Troll example loads correctly in the browser.
+- [x] Ability-score state rejects non-integers and values outside 1–30.
+- [x] Required-field warnings cover identity, defenses, movement, and named actions.
+- [x] Valid drafts round-trip through the strict storage boundary.
+- [x] Invalid JSON, malformed arrays, and invalid ability scores are rejected by tests.
+- [ ] Reset restores the example safely in the browser.
 - [ ] Live preview matches the final monster card renderer.
 - [ ] Completed homebrew monster save workflow is defined and tested.
 
@@ -153,7 +156,12 @@ Work must be completed in this order unless this file is updated with a reason f
 - Updated print CSS so simple monsters target one 2.5 × 3.5-inch card while complex monsters retain the six-panel layout.
 - Added `aria-expanded` to the folio toggle and changed print labels to `Print card` or `Print folio`.
 - Added regression assertions for Goblin compact printing and Adult Black Dragon/Lich folio printing.
-- Automated verification for the new print changes is pending on the current branch head.
+- Audited Monster Builder persistence and found that only three top-level fields were checked before trusting saved nested data.
+- Added a dedicated `monsterHomebrewStorage` module with complete schema validation for text fields, ability scores, arrays, actions, spellcasting, layout, and ruleset.
+- Refactored the Monster Builder hook to use the storage boundary, preserve initialization errors, log failures, and reject invalid ability-score updates.
+- Added field-length limits, stronger completeness warnings, and a two-frame print-preview render guard.
+- Added regression tests for valid round trips, malformed JSON, malformed nested arrays, invalid ability scores, and invalid action data.
+- Automated verification for the new print and storage changes is pending on the current branch head.
 
 ## Required Update Format
 
