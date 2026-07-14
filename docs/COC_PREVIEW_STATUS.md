@@ -8,14 +8,27 @@ This branch contains a playable, unofficial private-development preview of a Cal
 
 The preview uses original demonstration content only. It does not include official logos, artwork, scenarios, spells, tables, or creature statistics.
 
+## Product rule: same UI, different system logic
+
+The D&D and Call of Cthulhu sides should feel like one Dungeon Cards product. They should share the same navigation structure, card-library patterns, personal workspaces, search and filters, pinning and favorites, builders, history, printing, responsive behavior, accessibility, and interaction quality.
+
+They must not share rules assumptions. Call of Cthulhu requires its own percentile engine, success levels, Bonus/Penalty dice, Sanity procedures, weapons, spells, creatures, and encounter state. D&D logic must not be reused where the rules differ.
+
+## Primary quality gate
+
+Rules accuracy is the highest priority. Visual polish cannot compensate for an incorrect rule.
+
+The complete verification process is maintained in [`docs/COC_RULES_ACCURACY.md`](./COC_RULES_ACCURACY.md). The current preview is playable but is not yet rules-certified.
+
 ## Branch and dependency
 
 - Branch: `feature/call-of-cthulhu-7e-preview`
 - Based on: `feature/integrate-monster-card-forge`
 - Design epic: GitHub issue #7
 - Design specification: draft PR #8
+- Accuracy gate: `docs/COC_RULES_ACCURACY.md`
 
-This preview should not merge to `main` before the Monster Card Forge integration branch is completed and the licensing path is resolved.
+This preview should not merge to `main` before the Monster Card Forge integration branch is completed, the rules audit is complete for included content, and the licensing path is resolved.
 
 ## Implemented
 
@@ -35,6 +48,24 @@ This preview should not merge to `main` before the Monster Card Forge integratio
 - [x] Dark dossier, evidence-locker, occult-memorandum, ink, brass, blood, and sickly-green visual language.
 - [x] Responsive layouts and compatibility with the existing reduced-motion stylesheet.
 - [x] Unit tests for percentile boundaries, fumble thresholds, Bonus/Penalty dice, double-zero handling, and difficulty comparison.
+- [x] Formal accuracy gate requiring source records, two-review verification, and boundary tests.
+
+## Rules-certification checklist
+
+- [ ] Obtain and record the exact Quick-Start Rules revision used for Phase 1.
+- [ ] Record the exact Keeper Rulebook printing or PDF revision used for the complete audit.
+- [ ] Create a source record for every implemented procedure and executable card.
+- [ ] Verify percentile success levels and Fumble boundaries directly against the official source.
+- [ ] Verify Bonus and Penalty dice directly against the official source.
+- [ ] Verify pushed-roll eligibility and consequence procedure.
+- [ ] Verify opposed-roll and tie handling.
+- [ ] Verify combat responses, damage, impaling, armor, wounds, dying, and healing.
+- [ ] Verify firearm range, rate of fire, ammunition, reload, point-blank, and malfunction procedures.
+- [ ] Verify Sanity loss, temporary insanity, indefinite insanity, bouts, treatment, and recovery.
+- [ ] Verify spell and ritual costs, casting, opposed rolls, duration, maintenance, and failure behavior.
+- [ ] Verify chase procedures.
+- [ ] Add independent second-review signoff to every included rule.
+- [ ] Run a complete session with a reviewer checking card rulings against the books.
 
 ## Manual acceptance checklist
 
@@ -53,6 +84,7 @@ This preview should not merge to `main` before the Monster Card Forge integratio
 - [ ] Reduced-motion mode remains usable.
 - [ ] No D&D cards or persistence appear inside the CoC workspace.
 - [ ] No CoC runtime state leaks into D&D workspaces.
+- [ ] Shared UI patterns remain consistent between D&D and CoC without sharing incompatible rules logic.
 
 ## Licensing gate
 
@@ -61,13 +93,16 @@ Chaosium's current Fan Material Policy explicitly excludes apps, downloadable so
 Official references reviewed:
 
 - https://www.chaosium.com/cthulhu-quickstart/
+- https://www.chaosium.com/call-of-cthulhu-keeper-rulebook-hardcover/
 - https://www.chaosium.com/fan-use-and-licensing/
 - https://www.chaosium.com/fan-material-policy/
 
 ## Next actions
 
-1. Pass the complete GitHub Actions gate.
-2. Perform desktop and narrow-browser acceptance.
-3. Adjust visual intensity, density, and interaction timing from playtest feedback.
-4. Add persistence namespaces only after the game-system boundary is accepted.
-5. Resolve the licensing route before replacing original prototype content with any licensed catalog.
+1. Keep the shared Dungeon Cards UI patterns consistent across both systems.
+2. Complete the official Quick-Start rules audit before adding more rules cards.
+3. Create the source-record schema and first verified rule inventory.
+4. Perform desktop and narrow-browser acceptance.
+5. Add persistence namespaces only after the game-system boundary is accepted.
+6. Expand creatures, weapons, spells, Sanity, and combat only after each rule family passes its accuracy gate.
+7. Resolve the licensing route before replacing original prototype content with any licensed catalog.
