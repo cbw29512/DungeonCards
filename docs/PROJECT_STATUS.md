@@ -10,6 +10,7 @@ Build a polished, rules-aware tabletop card application that lets players and Du
 
 - keep focused personal card workspaces;
 - roll accurate D&D 5e formulas;
+- make major combat moments feel exciting without changing the rules;
 - separate 2014 and 2024 rules content;
 - create homebrew cards and monsters without altering official catalog data;
 - prepare and print readable monster reference cards and boss folios.
@@ -26,15 +27,16 @@ The MVP combines the existing rules-card application with the Monster Card Forge
 
 **Split attack, save, check, and damage card families**
 
-Status: Open draft
+Status: Merged into `main` on 2026-07-14.
 
-Purpose:
+Merge commit: `5a9d4a9`.
+
+Delivered:
 
 - separate attack rolls, saving throws, ability checks, weapon damage, spell damage, and healing;
-- preserve optional Quick Roll cards;
-- prevent attack-only natural 20 and natural 1 behavior from leaking into checks, saves, or damage cards.
-
-Dependency note: Pull Request #6 is currently based on this branch. PR #5 must be completed before PR #6 can be cleanly merged into `main`.
+- optional Quick Roll cards;
+- attack-only natural 20 and natural 1 behavior;
+- regression coverage preventing attack outcomes from leaking into checks, saves, or damage.
 
 ### Pull Request #6
 
@@ -42,11 +44,13 @@ Dependency note: Pull Request #6 is currently based on this branch. PR #5 must b
 
 Status: Open draft
 
+Base: `main`
+
 Branch: `feature/integrate-monster-card-forge`
 
 Latest fully passing automated verification: commit `8725c14`, workflow run `29339941945`.
 
-The current implementation includes project tracking, compact-versus-folio print correction, strict Monster Builder draft validation, and a persistent personal Homebrew Monster Library.
+The current head adds dramatic natural 20 and natural 1 attack-roll effects. Automated verification for that new visual layer is pending.
 
 Completed in this branch:
 
@@ -65,21 +69,27 @@ Completed in this branch:
 - persistent saved homebrew-monster collection with unique IDs;
 - Save to Monster Library and homebrew-only deletion controls;
 - Homebrew ruleset filtering inside the Monster Library;
-- monster utility, workspace, print-selection, draft-storage, and library-storage regression tests.
+- attack-only natural 20 and natural 1 visual impact system;
+- full-screen Natural 20 critical-hit burst with gold card lighting;
+- full-screen Natural 1 automatic-miss impact with red card lighting;
+- persistent card-back outcome styling after the transient flash;
+- reduced-motion compatibility through the global accessibility rules;
+- monster, workspace, print, storage, completeness, and roll-impact regression tests.
 
 ## Immediate Work Queue
 
 Work must be completed in this order unless this file is updated with a reason for changing priorities.
 
-1. Audit PR #6 in a real browser at desktop and narrow viewport sizes.
-2. Verify navigation, workspace persistence, filtering, pinning, ordering, expansion, empty states, homebrew save, and homebrew deletion.
-3. Verify print preview for both a compact monster and a six-panel boss folio.
-4. Record and fix visual, accessibility, and usability defects found during manual testing.
-5. Finish and merge PR #5.
-6. Rebase or retarget PR #6 onto the updated `main` branch.
-7. Run the full CI suite again.
-8. Complete final browser and print acceptance.
-9. Mark PR #6 ready for review and merge it.
+1. Confirm the current branch passes GitHub Actions after the natural-roll visual changes.
+2. Pull PR #6 locally and run the application in a real browser.
+3. Verify Natural 20 and Natural 1 effects on normal, Advantage, Disadvantage, and Quick Roll attacks.
+4. Verify saves, ability checks, initiative-style rolls, damage, and healing never trigger the effects.
+5. Audit desktop and narrow viewport layout, including the full-screen impact text.
+6. Verify Monster workspace persistence, filtering, pinning, ordering, homebrew save, and homebrew deletion.
+7. Verify print preview for a compact monster and a six-panel boss folio.
+8. Record and fix visual, accessibility, and usability defects found during manual testing.
+9. Complete final browser and print acceptance.
+10. Mark PR #6 ready for review and merge it.
 
 ## PR #6 Acceptance Checklist
 
@@ -89,6 +99,22 @@ Work must be completed in this order unless this file is updated with a reason f
 - [ ] Player, DM, Monsters, Card Builder, and Monster Builder navigation works.
 - [ ] Navigation remains usable on a narrow viewport.
 - [ ] Page headings and landmarks are accessible.
+
+### Attack Roll Impact
+
+- [x] Natural 20 maps to `Critical Hit` visual impact state.
+- [x] Natural 1 maps to `Automatic Miss` visual impact state.
+- [x] Ordinary rolls map to no visual impact.
+- [x] Every new critical or miss receives a unique transient effect instance.
+- [x] The full-screen flash is portaled to `document.body` so card perspective cannot trap it.
+- [x] The rolled card keeps an illuminated result theme after the transient flash ends.
+- [x] Existing dice-engine tests prove non-attack d20 rolls do not receive critical or failure flags.
+- [ ] Natural 20 full-screen burst and card glow pass browser acceptance.
+- [ ] Natural 1 full-screen impact and card lighting pass browser acceptance.
+- [ ] Consecutive Natural 20s and consecutive Natural 1s replay the animation correctly.
+- [ ] Advantage and Disadvantage use only the kept d20 for the visual outcome.
+- [ ] Quick Roll celebrates the attack result without treating potential damage as a separate critical event.
+- [ ] Reduced-motion behavior remains understandable without prolonged animation.
 
 ### Monster Workspace
 
@@ -139,15 +165,11 @@ Work must be completed in this order unless this file is updated with a reason f
 
 ### Quality Gate
 
-- [x] Dependency installation passes at code commit `73b2483`.
-- [x] High-severity dependency audit passes at code commit `73b2483`.
-- [x] Unit and catalog tests pass at code commit `73b2483`.
-- [x] Strict TypeScript compilation passes at code commit `73b2483`.
-- [x] Production build passes at code commit `73b2483`.
-- [x] Unit tests passed in workflow run `29339703179` after the new homebrew library work.
-- [x] Workflow run `29339703179` identified TypeScript assertion errors in `homebrewMonsterStorage.ts` instead of hiding the failure.
-- [x] The TypeScript 7 assertion function now has the required explicit function-type annotation.
-- [x] Workflow run `29339941945` passes locked installation, dependency audit, all tests, strict TypeScript compilation, and the production Vite build at commit `8725c14`.
+- [x] PR #5 passed CI and was merged into `main`.
+- [x] Workflow run `29339941945` passed locked installation, dependency audit, all tests, strict TypeScript compilation, and the production Vite build at commit `8725c14`.
+- [x] Natural-roll impact state has dedicated regression tests.
+- [x] Existing dice-engine regression tests keep attack outcomes off checks and other ordinary d20 rolls.
+- [ ] Current branch head passes the full GitHub Actions workflow after the visual effects.
 - [ ] Manual browser acceptance passes.
 - [ ] Manual print-preview acceptance passes.
 - [ ] Documentation reflects the final behavior.
@@ -158,27 +180,23 @@ Work must be completed in this order unless this file is updated with a reason f
 
 - Established this project-status document as the repository tracking source.
 - Confirmed PR #6 is the active Monster Card Forge integration branch.
-- Confirmed PR #6 CI passed at commit `73b2483`.
-- Recorded the dependency relationship between PR #5 and PR #6.
 - Added the manual browser, print, accessibility, persistence, and homebrew acceptance checklist.
-- Audited monster printing and found that every monster was forced into the six-panel folio.
-- Added explicit `card` versus `folio` print selection based on the existing monster layout decision.
-- Updated print CSS so simple monsters target one 2.5 × 3.5-inch card while complex monsters retain the six-panel layout.
-- Added `aria-expanded` to the folio toggle and changed print labels to `Print card` or `Print folio`.
-- Added regression assertions for Goblin compact printing and Adult Black Dragon/Lich folio printing.
-- Audited Monster Builder persistence and found that only three top-level fields were checked before trusting saved nested data.
-- Added a dedicated `monsterHomebrewStorage` module with complete schema validation for text fields, ability scores, arrays, actions, spellcasting, layout, and ruleset.
-- Refactored the Monster Builder hook to use the storage boundary, preserve initialization errors, log failures, and reject invalid ability-score updates.
-- Added field-length limits, stronger completeness warnings, and a two-frame print-preview render guard.
-- Added regression tests for valid draft round trips, malformed JSON, malformed nested arrays, invalid ability scores, and invalid action data.
-- Centralized required monster fields in `getMonsterCompletenessWarnings` so the builder and saved library enforce the same rules.
-- Added `homebrewMonsterStorage` and `useHomebrewMonsters` for a separate validated personal monster collection.
-- Added unique client IDs, Save to Monster Library, Homebrew filtering, save status/error messaging, and homebrew-only deletion.
-- Added regression tests for saved collection round trips, empty storage, duplicate IDs, incomplete monsters, and completeness warnings.
-- GitHub Actions run `29339703179` passed installation, audit, and all tests, then failed production compilation on TypeScript assertion-function rules.
-- Downloaded and inspected the uploaded build log rather than guessing from the workflow summary.
-- Added the explicit assertion-function type annotation required by TypeScript 7.
-- GitHub Actions run `29339941945` then passed installation, dependency audit, all tests, strict compilation, and the production build at commit `8725c14`.
+- Corrected monster printing so simple monsters use one poker card and complex monsters use six-panel folios.
+- Added strict Monster Builder draft validation and saved homebrew-monster library validation.
+- Added unique client IDs, Save to Monster Library, Homebrew filtering, status/error messaging, and homebrew-only deletion.
+- Added regression tests for draft storage, saved collections, duplicate IDs, incomplete monsters, and print selection.
+- GitHub Actions exposed and then verified the TypeScript 7 assertion-function correction.
+- Workflow run `29339941945` passed installation, dependency audit, all tests, strict compilation, and production build at commit `8725c14`.
+- Updated PR #5 verification, marked it ready, and merged it into `main` as commit `5a9d4a9`.
+- Retargeted PR #6 from the stacked feature branch to `main`.
+- Added a typed `AttackRollImpact` state model with `critical-hit` and `automatic-miss` outcomes.
+- Added a full-screen Natural 20 gold burst with `Critical Hit` messaging and animated card glow.
+- Added a full-screen Natural 1 red impact with rules-accurate `Automatic Miss` messaging and animated card lighting.
+- Added persistent critical-hit and automatic-miss styling to the revealed card back.
+- Used a React portal so the full-screen effect is not constrained by the card-flip perspective container.
+- Added unique effect instances and timed cleanup so consecutive identical outcomes replay correctly without leaving invisible overlays mounted.
+- Added roll-impact regression tests and retained the attack-only dice-engine guardrails.
+- Automated verification for the new visual effects is pending.
 
 ## Required Update Format
 
