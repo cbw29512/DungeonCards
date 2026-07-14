@@ -1,4 +1,9 @@
-export type CocRollMode = "normal" | "bonus" | "penalty";
+export type CocRollMode =
+  | "normal"
+  | "bonus"
+  | "double-bonus"
+  | "penalty"
+  | "double-penalty";
 
 export type CocDifficulty = "regular" | "hard" | "extreme";
 
@@ -10,6 +15,38 @@ export type CocSuccessLevel =
   | "failure"
   | "fumble";
 
+export type CocRuleVerificationStatus =
+  | "prototype"
+  | "needs-review"
+  | "verified"
+  | "disputed";
+
+export type CocRuleSourceRecord = {
+  id: string;
+  system: "call-of-cthulhu";
+  edition: "7e";
+  ruleName: string;
+  sourceTitle: string;
+  sourceUrl: string;
+  chapterOrSection: string;
+  page?: number;
+  revisionNote?: string;
+  implementationSummary: string;
+  status: CocRuleVerificationStatus;
+  primaryReviewer?: string;
+  independentReviewer?: string;
+  verifiedAt?: string;
+  notes: string[];
+};
+
+export type CocQuickReferenceCard = {
+  id: string;
+  stamp: string;
+  title: string;
+  text: string;
+  sourceId: string;
+};
+
 export type CocPercentileResult = {
   roll: number;
   unitDie: number;
@@ -17,6 +54,7 @@ export type CocPercentileResult = {
   candidates: number[];
   skillValue: number;
   difficulty: CocDifficulty;
+  mode: CocRollMode;
   successLevel: CocSuccessLevel;
   meetsDifficulty: boolean;
 };
