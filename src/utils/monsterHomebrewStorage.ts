@@ -52,7 +52,10 @@ const isAbilityScores = (value: unknown): value is MonsterCardData["abilities"] 
 
   return abilityKeys.every((ability) => {
     const score = value[ability];
-    return Number.isSafeInteger(score) && Number(score) >= 1 && Number(score) <= 30;
+    return typeof score === "number"
+      && Number.isSafeInteger(score)
+      && score >= 1
+      && score <= 30;
   });
 };
 
