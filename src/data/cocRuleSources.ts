@@ -95,12 +95,13 @@ export const cocRuleSources: CocRuleSourceRecord[] = [
     sourceTitle: "The Call of Cthulhu RPG Wiki — Sanity",
     sourceUrl: WIKI_SANITY,
     chapterOrSection: "Sanity / Insanity Summary",
-    implementationSummary: "Roll at or below current Sanity for the listed success loss; otherwise apply the listed failure loss. Any positive loss prompts a momentary involuntary action. Losing 5 or more from one roll requires an INT roll; success triggers temporary insanity for 1D10 hours and a bout of madness.",
+    implementationSummary: "Roll at or below current Sanity for the listed success loss; otherwise apply the listed failure loss. A failed Sanity roll lets the Keeper momentarily control the investigator's next action. Losing 5 or more from one roll requires an INT roll; success triggers temporary insanity for 1D10 hours and a bout of madness.",
     status: "needs-review",
     primaryReviewer: PRIMARY_REVIEW,
     notes: [
       "The card supports Sanity 0 without clamping it to an ordinary skill minimum.",
-      "The official bout table is not reproduced; the Keeper chooses or rolls using an authorized source.",
+      "A positive loss after a successful Sanity roll does not by itself trigger the involuntary action.",
+      "The card rolls a 1D10 bout-table index but does not reproduce the official bout table or invent a fixed round duration.",
       "Indefinite insanity is not included in this starter-rule slice.",
       "Independent second review remains required."
     ]
@@ -148,11 +149,12 @@ export const cocRuleSources: CocRuleSourceRecord[] = [
     sourceTitle: "The Call of Cthulhu RPG Wiki — Combat",
     sourceUrl: WIKI_COMBAT,
     chapterOrSection: "Firearms Rules",
-    implementationSummary: "A readied firearm acts at DEX plus 50. Firing two or three handgun shots applies one Penalty die to each shot. Point blank is within one-fifth DEX in feet and grants one Bonus die. A successful dive for cover applies one Penalty die and costs the target's next attack.",
+    implementationSummary: "A readied firearm acts at DEX plus 50. Firing two or three handgun shots applies one Penalty die to each shot. Point blank is within one-fifth DEX in feet and grants one Bonus die. A successful dive for cover applies one Penalty die; choosing to dive costs the target's next attack whether the Dodge roll succeeds or fails.",
     status: "needs-review",
     primaryReviewer: PRIMARY_REVIEW,
     notes: [
-      "The procedure derives and cancels the listed modifiers before rolling each selected shot.",
+      "The procedure distinguishes no dive, a failed Dodge, and a successful Dodge.",
+      "Only a successful Dodge adds the attack Penalty die, while either attempted dive forfeits the target's next attack.",
       "Range bands beyond point blank, reloading, and full malfunction procedures still require core-rulebook review.",
       "Independent second review remains required."
     ]
@@ -240,7 +242,7 @@ export const cocQuickReferenceCards: CocQuickReferenceCard[] = [
     id: "coc-reference-sanity",
     stamp: "SAN",
     title: "Sanity Check",
-    text: "Roll at or below current Sanity for the listed success loss; otherwise apply the failure loss. Any loss prompts an involuntary action, and 5 or more from one check triggers an INT roll.",
+    text: "Roll at or below current Sanity for the listed success loss; otherwise apply the failure loss. A failed roll lets the Keeper momentarily control the next action, and 5 or more loss triggers an INT roll.",
     sourceId: "coc-sanity-check"
   },
   {
