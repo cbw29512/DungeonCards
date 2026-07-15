@@ -1,0 +1,224 @@
+.srd-compendium {
+  padding: 2rem 1.5rem 4rem;
+}
+
+.srd-compendium__heading,
+.srd-compendium__controls,
+.srd-compendium__status,
+.srd-compendium__result-line,
+.srd-compendium__pagination,
+.srd-reference-grid {
+  width: min(100%, 1280px);
+  margin-inline: auto;
+}
+
+.srd-compendium__status {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  gap: 0.65rem;
+}
+
+.srd-compendium__status span {
+  display: flex;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+  gap: 0.4rem;
+  font-size: 0.72rem;
+}
+
+.srd-compendium__controls {
+  display: grid;
+  margin-bottom: 0.8rem;
+  padding: 0.8rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 1rem;
+  background: rgb(10 6 18 / 72%);
+  gap: 0.7rem;
+  grid-template-columns: auto minmax(190px, 260px) minmax(220px, 1fr);
+}
+
+.srd-compendium__controls label {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.srd-compendium__controls label > span {
+  color: #d9c9b8;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.srd-compendium__controls select,
+.srd-compendium__controls input {
+  width: 100%;
+  padding: 0.58rem 0.65rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.65rem;
+  background: #251633;
+}
+
+.srd-compendium__result-line {
+  display: flex;
+  margin-bottom: 0.8rem;
+  color: #cdbfd9;
+  justify-content: space-between;
+}
+
+.srd-reference-grid {
+  display: grid;
+  align-items: start;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.srd-reference-card {
+  display: flex;
+  min-height: 420px;
+  padding: 0.9rem;
+  color: #f7f1e7;
+  border: 1px solid #8060a4;
+  border-radius: 1rem;
+  background: linear-gradient(165deg, #30203c, #100b17 72%);
+  box-shadow: 0 16px 45px rgb(0 0 0 / 35%);
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.srd-reference-card--monster {
+  border-color: #9b7040;
+  background: linear-gradient(165deg, #36243b, #140e16 72%);
+}
+
+.srd-reference-card > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.srd-reference-card h2,
+.srd-reference-card h3 {
+  margin: 0;
+  color: #fff0c2;
+  font-family: Georgia, serif;
+}
+
+.srd-reference-card header small,
+.srd-reference-card footer {
+  color: #cdbfd9;
+  font-size: 0.65rem;
+}
+
+.srd-reference-card header > span {
+  padding: 0.3rem 0.45rem;
+  color: #1a1022;
+  border-radius: 999px;
+  background: #f7c76b;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.srd-reference-card__facts {
+  display: grid;
+  margin: 0;
+  gap: 0.35rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.srd-reference-card__facts div {
+  padding: 0.4rem;
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 6%);
+}
+
+.srd-reference-card__facts dt {
+  color: #f7c76b;
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.srd-reference-card__facts dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+}
+
+.srd-reference-card__classes,
+.srd-reference-card__preview {
+  margin: 0;
+  color: #e5d9e8;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.srd-reference-card__preview {
+  display: -webkit-box;
+  max-height: 8.2rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+}
+
+.srd-reference-card details {
+  margin-top: auto;
+}
+
+.srd-reference-card summary {
+  padding: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.srd-reference-card__full-text {
+  max-height: 420px;
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+  background: rgb(0 0 0 / 24%);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  overflow: auto;
+}
+
+.srd-reference-card__higher-levels {
+  color: #ffe2a6;
+}
+
+.srd-compendium__pagination {
+  display: grid;
+  margin-top: 1.2rem;
+  align-items: center;
+  gap: 0.7rem;
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.srd-compendium__pagination button {
+  padding: 0.65rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.srd-compendium__pagination button:last-child {
+  justify-self: end;
+}
+
+.srd-compendium__pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+@media (max-width: 760px) {
+  .srd-compendium__controls {
+    grid-template-columns: 1fr;
+  }
+}
