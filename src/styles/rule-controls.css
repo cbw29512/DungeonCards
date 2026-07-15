@@ -113,6 +113,29 @@
   font-size: 0.68rem;
 }
 
+.rule-card__reroll-surface {
+  display: flex;
+  min-height: 0;
+  padding: 0.18rem;
+  border-radius: 0.78rem;
+  cursor: pointer;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.42rem;
+  outline: none;
+  transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.rule-card__reroll-surface:hover {
+  background: rgb(255 255 255 / 6%);
+  transform: translateY(-1px);
+}
+
+.rule-card__reroll-surface:focus-visible {
+  background: rgb(255 255 255 / 7%);
+  box-shadow: inset 0 0 0 2px #ffd36f;
+}
+
 .rule-result {
   display: flex;
   min-height: 0;
@@ -171,8 +194,9 @@
 
 .rule-card__back-actions {
   display: grid;
-  gap: 0.4rem;
-  grid-template-columns: 1fr 1.4fr;
+  align-items: center;
+  gap: 0.45rem;
+  grid-template-columns: minmax(72px, 0.75fr) minmax(0, 1.6fr);
 }
 
 .rule-card__back-actions button {
@@ -180,4 +204,12 @@
   border-radius: 999px;
   background: rgb(255 255 255 / 9%);
   font-size: 0.66rem;
+}
+
+.rule-card__reroll-hint {
+  color: #ffe2a6;
+  font-size: 0.61rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
 }
