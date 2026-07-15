@@ -67,6 +67,21 @@ describe("rules card catalog", () => {
     expect(ruleCardCatalog.find((card) => card.id === "core-ability-check")?.kind).toBe("ability-check");
   });
 
+  it("provides all individual skills and ability saving throws", () => {
+    const skills = ruleCardCatalog.filter((card) => card.id.startsWith("skill-"));
+    const saves = ruleCardCatalog.filter((card) => card.id.startsWith("save-"));
+
+    expect(skills).toHaveLength(18);
+    expect(saves).toHaveLength(6);
+    [...skills, ...saves].forEach((card) => {
+      Object.values(card.variants).forEach((variant) => {
+        expect(variant?.modes).toHaveLength(1);
+        expect(variant?.modes[0].allowsAdvantage).toBe(true);
+        expect(variant?.modes[0].naturalRollRule).toBe("none");
+      });
+    });
+  });
+
   it("contains complete standalone weapon attack tables", () => {
     const attacks = ruleCardCatalog.filter((card) =>
       card.kind === "attack"

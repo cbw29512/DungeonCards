@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CocPreview } from "./components/CocPreview";
 import { DeckGrid } from "./components/DeckGrid";
+import { DndRulesGuide } from "./components/DndRulesGuide";
 import { GameSystemGateway, type GameSystemId } from "./components/GameSystemGateway";
 import { HomebrewBuilder } from "./components/HomebrewBuilder";
 import { MonsterDeck } from "./components/MonsterDeck";
@@ -15,7 +16,9 @@ import "./styles/history.css";
 import "./styles/homebrew.css";
 import "./styles/rule-cards.css";
 import "./styles/rule-controls.css";
+import "./styles/rule-advantage.css";
 import "./styles/rule-history.css";
+import "./styles/rules-guide.css";
 import "./styles/workspaces.css";
 import "./styles/monsters.css";
 import "./styles/monster-homebrew.css";
@@ -24,20 +27,20 @@ import "./styles/coc-preview.css";
 import "./styles/coc-rule-status.css";
 import "./styles/accessibility.css";
 
-type AppPage = "home" | "player" | "dm" | "monster" | "homebrew" | "monster-homebrew";
+type AppPage =
+  | "home"
+  | "rules"
+  | "player"
+  | "dm"
+  | "monster"
+  | "homebrew"
+  | "monster-homebrew";
 
-type DndAppProps = {
-  onChangeSystem: () => void;
-};
+type DndAppProps = { onChangeSystem: () => void };
 
 const DndApp = ({ onChangeSystem }: DndAppProps) => {
   const [activePage, setActivePage] = useState<AppPage>("home");
-  const {
-    cards: homebrewCards,
-    storageError,
-    createCard,
-    deleteCard
-  } = useHomebrewCards();
+  const { cards: homebrewCards, storageError, createCard, deleteCard } = useHomebrewCards();
   const {
     monsters: homebrewMonsters,
     storageError: homebrewMonsterError,
@@ -51,6 +54,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         <strong>Dungeon Cards</strong>
         <div>
           <button aria-pressed={activePage === "home"} type="button" onClick={() => setActivePage("home")}>Home</button>
+          <button aria-pressed={activePage === "rules"} type="button" onClick={() => setActivePage("rules")}>Rules Guide</button>
           <button aria-pressed={activePage === "player"} type="button" onClick={() => setActivePage("player")}>Player</button>
           <button aria-pressed={activePage === "dm"} type="button" onClick={() => setActivePage("dm")}>DM</button>
           <button aria-pressed={activePage === "monster"} type="button" onClick={() => setActivePage("monster")}>Monsters</button>
@@ -67,44 +71,43 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <div className="hero__content">
             <p className="hero__eyebrow">Dungeon Cards Tabletop Toolkit</p>
             <h1>Choose the card. Run the encounter. Keep playing.</h1>
-            <p>
-              Player rules, DM tables, printable monster references, and guided homebrew now live in one ruleset-safe workspace.
-            </p>
+            <p>Rules guidance, Player and DM decks, monster references, and homebrew tools in one workspace.</p>
             <div className="role-card-grid">
+              <button className="role-card" type="button" onClick={() => setActivePage("rules")}>
+                <span>📖</span><strong>Rules Guide</strong>
+                <small>Learn the table procedure first, then open the matching card.</small>
+              </button>
               <button className="role-card" type="button" onClick={() => setActivePage("player")}>
-                <span>🧙</span>
-                <strong>Player Workspace</strong>
-                <small>Keep only your character's attacks, damage, spells, checks, and saves on My Table.</small>
+                <span>🧙</span><strong>Player Workspace</strong>
+                <small>Keep attacks, damage, spells, checks, and saves on My Table.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("dm")}>
-                <span>🎲</span>
-                <strong>DM Workspace</strong>
-                <small>Prepare traps, magic items, generators, and random tables for the current session.</small>
+                <span>🎲</span><strong>DM Workspace</strong>
+                <small>Prepare traps, magic items, generators, and random tables.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("monster")}>
-                <span>🐉</span>
-                <strong>Monster Encounter</strong>
-                <small>Choose monsters, pin tonight's creatures, open boss folios, and print poker-size references.</small>
+                <span>🐉</span><strong>Monster Encounter</strong>
+                <small>Choose creatures, open ordered folios, and print references.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
-                <span>🛠️</span>
-                <strong>Card Builder</strong>
+                <span>🛠️</span><strong>Card Builder</strong>
                 <small>Create custom dice and rules cards without changing SRD content.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("monster-homebrew")}>
-                <span>🧌</span>
-                <strong>Monster Builder</strong>
-                <small>Edit a complete example monster, save it to your library, and print a live folio.</small>
+                <span>🧌</span><strong>Monster Builder</strong>
+                <small>Create, save, and print custom monster folios.</small>
               </button>
             </div>
           </div>
         </section>
       )}
 
+      {activePage === "rules" && <DndRulesGuide />}
+
       {activePage === "player" && (
         <RulesDeck
           cards={playerRuleCards}
-          description="Keep the cards your character uses on My Table, then open the full Library whenever your loadout changes."
+          description="Add as many independent copies as you need, name each copy, and keep only the cards used by this character on My Table."
           eyebrow="player"
           role="player"
           title="Your personal cards, ready when initiative starts."
@@ -114,7 +117,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
       {activePage === "dm" && (
         <RulesDeck
           cards={dmRuleCards}
-          description="Prepare the current encounter on My Table and pull traps, items, generators, and random tables from the Library as needed."
+          description="Build a focused table with independent copies of checks, saves, traps, items, and generators."
           eyebrow="dm"
           role="dm"
           title="A focused DM screen backed by the full rules library."
@@ -140,19 +143,12 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
               description="These cards are stored locally in this browser and remain separate from SRD cards."
               onDeleteCard={deleteCard}
             />
-          ) : (
-            <p className="homebrew-empty">
-              No homebrew cards yet. Build your first card above and it will appear here.
-            </p>
-          )}
+          ) : <p className="homebrew-empty">No homebrew cards yet. Build your first card above.</p>}
         </>
       )}
 
       {activePage === "monster-homebrew" && (
-        <MonsterHomebrewBuilder
-          libraryError={homebrewMonsterError}
-          onSave={createMonster}
-        />
+        <MonsterHomebrewBuilder libraryError={homebrewMonsterError} onSave={createMonster} />
       )}
     </main>
   );
@@ -160,14 +156,9 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
 
 export const App = () => {
   const [gameSystem, setGameSystem] = useState<GameSystemId>();
-
-  if (!gameSystem) {
-    return <GameSystemGateway onSelect={setGameSystem} />;
-  }
-
+  if (!gameSystem) return <GameSystemGateway onSelect={setGameSystem} />;
   if (gameSystem === "coc-7e") {
     return <CocPreview onChangeSystem={() => setGameSystem(undefined)} />;
   }
-
   return <DndApp onChangeSystem={() => setGameSystem(undefined)} />;
 };

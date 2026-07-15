@@ -23,10 +23,10 @@ export const RuleCardFront = ({
 }: RuleCardFrontProps) => {
   const {
     rulesets, ruleset, variant, mode, choiceId, secondaryChoiceId,
-    slotLevel, characterLevel, modifier, secondaryModifier, advantageMode,
+    slotLevel, characterLevel, modifier, secondaryModifier,
     formula, secondaryFormula, scaleBounds, changeRuleset, changeMode,
     setChoiceId, setSecondaryChoiceId, setSlotLevel, setCharacterLevel,
-    setModifier, setSecondaryModifier, setAdvantageMode, roll
+    setModifier, setSecondaryModifier, roll
   } = controller;
   const scaling = mode.scaling ?? mode.secondaryRoll?.scaling;
 
@@ -112,20 +112,6 @@ export const RuleCardFront = ({
           onChange={setModifier}
           value={modifier}
         />
-      )}
-
-      {mode.allowsAdvantage && (
-        <label className="rule-field">
-          <span>d20</span>
-          <select
-            value={advantageMode}
-            onChange={(event) => setAdvantageMode(event.target.value as typeof advantageMode)}
-          >
-            <option value="normal">Normal</option>
-            <option value="advantage">Advantage</option>
-            <option value="disadvantage">Disadvantage</option>
-          </select>
-        </label>
       )}
 
       {mode.secondaryRoll && (

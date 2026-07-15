@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
-import { useCardWorkspace } from "../hooks/useCardWorkspace";
+import { useRuleCardWorkspace } from "../hooks/useRuleCardWorkspace";
 import type { RuleCard as RuleCardType, RuleRollHistoryEntry } from "../types/ruleCards";
-import type { WorkspaceRole, WorkspaceView } from "../types/workspaces";
+import type { RuleCardWorkspaceRole } from "../types/ruleCardWorkspaces";
+import type { WorkspaceView } from "../types/workspaces";
 import { RuleCard } from "./RuleCard";
 import { RuleRollHistory } from "./RuleRollHistory";
 import { WorkspaceToolbar } from "./WorkspaceToolbar";
 
 type RulesDeckProps = {
   cards: RuleCardType[];
-  role: WorkspaceRole;
+  role: RuleCardWorkspaceRole;
   eyebrow: string;
   title: string;
   description: string;
@@ -18,19 +19,29 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
   const [query, setQuery] = useState("");
   const [view, setView] = useState<WorkspaceView>("table");
   const [history, setHistory] = useState<RuleRollHistoryEntry[]>([]);
-  const workspace = useCardWorkspace(role, cards);
-  const visibleCards = view === "table" ? workspace.activeCards : cards;
-  const filteredCards = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
+  const workspace = useRuleCardWorkspace(role, cards);
+  const normalizedQuery = query.trim().toLowerCase();
 
-    if (!normalized) return visibleCards;
-    return visibleCards.filter((card) =>
-      `${card.name} ${card.kind}`.toLowerCase().includes(normalized)
-    );
-  }, [query, visibleCards]);
+  const tableCards = useMemo(() => workspace.activeCards.filter((entry) => {
+    const text = `${entry.label ?? ""} ${entry.card.name} ${entry.card.kind}`.toLowerCase();
+    return !normalizedQuery || text.includes(normalizedQuery);
+  }), [normalizedQuery, workspace.activeCards]);
+
+  const libraryCards = useMemo(() => cards.filter((card) =>
+    !normalizedQuery || `${card.name} ${card.kind}`.toLowerCase().includes(normalizedQuery)
+  ), [cards, normalizedQuery]);
 
   const addHistory = (entry: RuleRollHistoryEntry) => {
     setHistory((current) => [entry, ...current].slice(0, 30));
+  };
+
+  const renameCard = (instanceId: string, currentName: string) => {
+    try {
+      const label = window.prompt("Give this card copy its own name:", currentName);
+      if (label !== null) workspace.renameCard(instanceId, label);
+    } catch (error) {
+      console.error("Renaming an individual card instance failed", { instanceId, error });
+    }
   };
 
   return (
@@ -40,7 +51,7 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
         <h2 id={`${eyebrow}-rules-title`}>{title}</h2>
         <span>{description}</span>
         <WorkspaceToolbar
-          activeCount={workspace.workspace.activeCardIds.length}
+          activeCount={workspace.workspace.instances.length}
           onChangeView={setView}
           onReset={workspace.resetWorkspace}
           role={role}
@@ -70,38 +81,58 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
             </div>
           ) : (
             <div className="rules-card-grid">
-              {filteredCards.map((card) => {
-                const isActive = workspace.workspace.activeCardIds.includes(card.id);
-                const isPinned = workspace.workspace.pinnedCardIds.includes(card.id);
-                const tableIndex = workspace.activeCards.findIndex((item) => item.id === card.id);
-                const previous = workspace.activeCards[tableIndex - 1];
-                const next = workspace.activeCards[tableIndex + 1];
-                const previousMatchesGroup = previous !== undefined
-                  && workspace.workspace.pinnedCardIds.includes(previous.id) === isPinned;
-                const nextMatchesGroup = next !== undefined
-                  && workspace.workspace.pinnedCardIds.includes(next.id) === isPinned;
-
-                return (
-                  <RuleCard
-                    card={card}
-                    key={card.id}
-                    onRoll={addHistory}
-                    workspaceControls={{
-                      view,
-                      isActive,
-                      isPinned,
-                      canMoveEarlier: view === "table" && previousMatchesGroup,
-                      canMoveLater: view === "table" && nextMatchesGroup,
-                      onToggleActive: () => isActive
-                        ? workspace.removeCard(card.id)
-                        : workspace.addCard(card.id),
-                      onTogglePin: () => workspace.togglePin(card.id),
-                      onMoveEarlier: () => workspace.moveCard(card.id, "earlier"),
-                      onMoveLater: () => workspace.moveCard(card.id, "later")
-                    }}
-                  />
-                );
-              })}
+              {view === "table"
+                ? tableCards.map((entry) => {
+                    const displayName = entry.label || entry.card.name;
+                    const displayCard = entry.label ? { ...entry.card, name: entry.label } : entry.card;
+                    const activeIndex = workspace.activeCards.findIndex(
+                      (item) => item.instanceId === entry.instanceId
+                    );
+                    const previous = workspace.activeCards[activeIndex - 1];
+                    const next = workspace.activeCards[activeIndex + 1];
+                    return (
+                      <RuleCard
+                        card={displayCard}
+                        key={entry.instanceId}
+                        onRoll={addHistory}
+                        workspaceControls={{
+                          view,
+                          isActive: true,
+                          isPinned: entry.pinned,
+                          canMoveEarlier: Boolean(previous && previous.pinned === entry.pinned),
+                          canMoveLater: Boolean(next && next.pinned === entry.pinned),
+                          onRename: () => renameCard(entry.instanceId, displayName),
+                          onToggleActive: () => workspace.removeCard(entry.instanceId),
+                          onTogglePin: () => workspace.togglePin(entry.instanceId),
+                          onMoveEarlier: () => workspace.moveCard(entry.instanceId, "earlier"),
+                          onMoveLater: () => workspace.moveCard(entry.instanceId, "later")
+                        }}
+                      />
+                    );
+                  })
+                : libraryCards.map((card) => {
+                    const copyCount = workspace.countCopies(card.id);
+                    return (
+                      <RuleCard
+                        card={card}
+                        key={`library-${card.id}`}
+                        onRoll={addHistory}
+                        workspaceControls={{
+                          view,
+                          isActive: copyCount > 0,
+                          isPinned: false,
+                          canMoveEarlier: false,
+                          canMoveLater: false,
+                          allowDuplicates: true,
+                          copyCount,
+                          onToggleActive: () => workspace.addCard(card.id),
+                          onTogglePin: () => undefined,
+                          onMoveEarlier: () => undefined,
+                          onMoveLater: () => undefined
+                        }}
+                      />
+                    );
+                  })}
             </div>
           )}
         </div>

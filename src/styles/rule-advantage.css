@@ -1,0 +1,32 @@
+.rule-advantage-controls {
+  display: grid;
+  padding: 0.22rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.22rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.rule-advantage-controls button {
+  min-width: 0;
+  padding: 0.34rem 0.2rem;
+  color: #f8efe0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.58rem;
+  font-weight: 900;
+}
+
+.rule-advantage-controls button[aria-pressed="true"] {
+  color: #1a1022;
+  border-color: #ffe2a6;
+  background: linear-gradient(135deg, #ffd36f, #f08a4b);
+}
+
+.rule-advantage-controls button:focus-visible {
+  outline: 2px solid #fff0c2;
+  outline-offset: 1px;
+}
