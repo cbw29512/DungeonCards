@@ -19,20 +19,26 @@ export const SrdCompendium = () => {
 
   useEffect(() => setPage(1), [edition, kind, normalizedQuery]);
 
-  const records = useMemo(() => {
-    const source = kind === "spells" ? srdSpells : srdMonsters;
-    return source.filter((record) => {
-      const matchesEdition = edition === "all" || record.edition === edition;
-      const searchable = kind === "spells"
-        ? `${record.name} ${record.school} ${record.level} ${record.classes.join(" ")}`
-        : `${record.name} ${record.size} ${record.type} ${record.challenge}`;
-      return matchesEdition
-        && (!normalizedQuery || searchable.toLowerCase().includes(normalizedQuery));
-    });
-  }, [edition, kind, normalizedQuery]);
+  const filteredSpells = useMemo(() => srdSpells.filter((spell) => {
+    const matchesEdition = edition === "all" || spell.edition === edition;
+    const searchable = `${spell.name} ${spell.school} ${spell.level} ${spell.classes.join(" ")}`;
+    return matchesEdition
+      && (!normalizedQuery || searchable.toLowerCase().includes(normalizedQuery));
+  }), [edition, normalizedQuery]);
 
-  const pageCount = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
-  const visible = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const filteredMonsters = useMemo(() => srdMonsters.filter((monster) => {
+    const matchesEdition = edition === "all" || monster.edition === edition;
+    const searchable = `${monster.name} ${monster.size} ${monster.type} ${monster.challenge}`;
+    return matchesEdition
+      && (!normalizedQuery || searchable.toLowerCase().includes(normalizedQuery));
+  }), [edition, normalizedQuery]);
+
+  const recordCount = kind === "spells" ? filteredSpells.length : filteredMonsters.length;
+  const pageCount = Math.max(1, Math.ceil(recordCount / PAGE_SIZE));
+  const start = (page - 1) * PAGE_SIZE;
+  const visibleSpells = filteredSpells.slice(start, start + PAGE_SIZE);
+  const visibleMonsters = filteredMonsters.slice(start, start + PAGE_SIZE);
+  const visibleCount = kind === "spells" ? visibleSpells.length : visibleMonsters.length;
 
   return (
     <section className="srd-compendium" aria-labelledby="srd-compendium-title">
@@ -79,11 +85,11 @@ export const SrdCompendium = () => {
       </div>
 
       <div className="srd-compendium__result-line">
-        <strong>{records.length}</strong> matching {kind}
+        <strong>{recordCount}</strong> matching {kind}
         <span>Page {page} of {pageCount}</span>
       </div>
 
-      {visible.length === 0 ? (
+      {visibleCount === 0 ? (
         <div className="workspace-empty">
           <span aria-hidden="true">📚</span>
           <h2>The generated catalog is not available yet.</h2>
@@ -92,8 +98,8 @@ export const SrdCompendium = () => {
       ) : (
         <div className="srd-reference-grid">
           {kind === "spells"
-            ? visible.map((record) => <SrdSpellReferenceCard key={record.id} spell={record} />)
-            : visible.map((record) => <SrdMonsterReferenceCard key={record.id} monster={record} />)}
+            ? visibleSpells.map((record) => <SrdSpellReferenceCard key={record.id} spell={record} />)
+            : visibleMonsters.map((record) => <SrdMonsterReferenceCard key={record.id} monster={record} />)}
         </div>
       )}
 
