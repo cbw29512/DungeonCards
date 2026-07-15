@@ -7,6 +7,7 @@ import {
 } from "./text-utils.mjs";
 
 const descriptorPattern = /^(Tiny|Small|Medium|Large|Huge|Gargantuan)\s+(.+?),\s*(.+)$/i;
+const sectionHeadings = ["Traits", "Actions", "Bonus Actions", "Reactions", "Legendary Actions"];
 
 const isPlausibleTitle = (value) => (
   value.length >= 2
@@ -30,16 +31,20 @@ const findStarts = (lines) => lines.flatMap((line, index) => {
   }];
 });
 
-const matchValue = (text, pattern) => text.match(pattern)?.[1]?.trim() ?? "";
+const lineValue = (records, label) => {
+  const pattern = new RegExp(`^${label}\\s+(.+)$`, "i");
+  const line = records.find((record) => pattern.test(record.text));
+  return line?.text.match(pattern)?.[1]?.trim() ?? "";
+};
 
-const sectionText = (text, heading, nextHeadings) => {
-  const start = text.search(new RegExp(`(?:^|\\n)${heading}(?:\\n|$)`, "i"));
-  if (start < 0) return "";
-  const remainder = text.slice(start).replace(new RegExp(`^\\s*${heading}\\s*`, "i"), "");
-  if (!nextHeadings.length) return remainder.trim();
-  const nextPattern = new RegExp(`(?:^|\\n)(?:${nextHeadings.join("|")})(?:\\n|$)`, "i");
-  const end = remainder.search(nextPattern);
-  return (end >= 0 ? remainder.slice(0, end) : remainder).trim();
+const sectionRecords = (records, heading) => {
+  const start = records.findIndex((record) => record.text.toLowerCase() === heading.toLowerCase());
+  if (start < 0) return [];
+  const endOffset = records.slice(start + 1).findIndex((record) => (
+    sectionHeadings.some((candidate) => candidate.toLowerCase() === record.text.toLowerCase())
+  ));
+  const end = endOffset < 0 ? records.length : start + 1 + endOffset;
+  return records.slice(start + 1, end);
 };
 
 export const parseMonsters = ({ text, source }) => {
@@ -47,7 +52,8 @@ export const parseMonsters = ({ text, source }) => {
   const starts = findStarts(lines);
   const records = starts.map((start, index) => {
     const end = starts[index + 1]?.index ?? lines.length;
-    const rawText = joinBody(lines.slice(start.index + 2, end));
+    const block = lines.slice(start.index + 2, end);
+    const rawText = joinBody(block);
     return {
       id: `${source.edition}-monster-${slugify(start.name)}`,
       edition: source.edition,
@@ -56,15 +62,15 @@ export const parseMonsters = ({ text, source }) => {
       size: start.size,
       type: start.type,
       alignment: start.alignment,
-      armorClass: matchValue(rawText, /Armor Class\s+([^\n]+)/i),
-      hitPoints: matchValue(rawText, /Hit Points\s+([^\n]+)/i),
-      speed: matchValue(rawText, /Speed\s+([^\n]+)/i),
-      challenge: matchValue(rawText, /Challenge(?: Rating)?\s+([^\n]+)/i),
-      traits: sectionText(rawText, "Traits", ["Actions", "Bonus Actions", "Reactions", "Legendary Actions"]),
-      actions: sectionText(rawText, "Actions", ["Bonus Actions", "Reactions", "Legendary Actions"]),
-      bonusActions: sectionText(rawText, "Bonus Actions", ["Reactions", "Legendary Actions"]),
-      reactions: sectionText(rawText, "Reactions", ["Legendary Actions"]),
-      legendaryActions: sectionText(rawText, "Legendary Actions", []),
+      armorClass: lineValue(block, "Armor Class"),
+      hitPoints: lineValue(block, "Hit Points"),
+      speed: lineValue(block, "Speed"),
+      challenge: lineValue(block, "Challenge(?: Rating)?"),
+      traits: joinBody(sectionRecords(block, "Traits")),
+      actions: joinBody(sectionRecords(block, "Actions")),
+      bonusActions: joinBody(sectionRecords(block, "Bonus Actions")),
+      reactions: joinBody(sectionRecords(block, "Reactions")),
+      legendaryActions: joinBody(sectionRecords(block, "Legendary Actions")),
       rawText,
       sourcePage: start.page,
       sourceReference: `SRD ${source.version} p. ${start.page}`
