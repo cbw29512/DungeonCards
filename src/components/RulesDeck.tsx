@@ -82,11 +82,14 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
           ) : (
             <div className="rules-card-grid">
               {view === "table"
-                ? tableCards.map((entry, index) => {
+                ? tableCards.map((entry) => {
                     const displayName = entry.label || entry.card.name;
                     const displayCard = entry.label ? { ...entry.card, name: entry.label } : entry.card;
-                    const previous = workspace.activeCards[index - 1];
-                    const next = workspace.activeCards[index + 1];
+                    const activeIndex = workspace.activeCards.findIndex(
+                      (item) => item.instanceId === entry.instanceId
+                    );
+                    const previous = workspace.activeCards[activeIndex - 1];
+                    const next = workspace.activeCards[activeIndex + 1];
                     return (
                       <RuleCard
                         card={displayCard}
