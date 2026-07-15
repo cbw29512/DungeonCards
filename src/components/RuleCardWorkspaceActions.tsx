@@ -6,6 +6,9 @@ export type WorkspaceCardControls = {
   isPinned: boolean;
   canMoveEarlier: boolean;
   canMoveLater: boolean;
+  allowDuplicates?: boolean;
+  copyCount?: number;
+  onRename?: () => void;
   onToggleActive: () => void;
   onTogglePin: () => void;
   onMoveEarlier: () => void;
@@ -24,10 +27,18 @@ export const RuleCardWorkspaceActions = ({
   collectionLabel = "My Table"
 }: RuleCardWorkspaceActionsProps) => {
   if (controls.view === "library") {
+    const duplicateLabel = controls.copyCount
+      ? `Add another to ${collectionLabel} (${controls.copyCount} ready)`
+      : `Add to ${collectionLabel}`;
+
     return (
       <div className="rule-card__workspace-actions">
         <button onClick={controls.onToggleActive} type="button">
-          {controls.isActive ? `Remove from ${collectionLabel}` : `Add to ${collectionLabel}`}
+          {controls.allowDuplicates
+            ? duplicateLabel
+            : controls.isActive
+              ? `Remove from ${collectionLabel}`
+              : `Add to ${collectionLabel}`}
         </button>
       </div>
     );
@@ -43,6 +54,11 @@ export const RuleCardWorkspaceActions = ({
       >
         {controls.isPinned ? "Unpin" : "Pin"}
       </button>
+      {controls.onRename && (
+        <button onClick={controls.onRename} title={`Rename ${cardName}`} type="button">
+          Name
+        </button>
+      )}
       <button
         aria-label={`Move ${cardName} earlier`}
         disabled={!controls.canMoveEarlier}
