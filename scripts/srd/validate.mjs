@@ -22,6 +22,46 @@ const validateUnique = (records, label) => {
   assert(new Set(names).size === names.length, `${label} names must be unique per edition.`);
 };
 
+const hasBalancedParentheses = (value) => (
+  [...value].filter((character) => character === "(").length
+  === [...value].filter((character) => character === ")").length
+);
+
+const hasLineWrapArtifact = (value) => /\b[A-Za-z]+-\s+[a-z]/.test(value);
+
+const validateSpellQuality = (spells) => spells.forEach((spell) => {
+  assert(spell.castingTime, "Spell casting time is required.", { spell: spell.id });
+  assert(spell.range, "Spell range is required.", { spell: spell.id });
+  assert(spell.components, "Spell components are required.", { spell: spell.id });
+  assert(spell.duration, "Spell duration is required.", { spell: spell.id });
+  assert(spell.description.length > 20, "Spell description is too short.", { spell: spell.id });
+  assert(hasBalancedParentheses(spell.components), "Spell components are clipped.", {
+    spell: spell.id,
+    components: spell.components
+  });
+  assert(!hasLineWrapArtifact(`${spell.description} ${spell.higherLevels}`), "Spell text contains a PDF line-wrap artifact.", {
+    spell: spell.id
+  });
+  if (spell.edition === "srd-5.2.1-2024") {
+    assert(spell.classes.length > 0, "A 2024 spell is missing its class lists.", { spell: spell.id });
+  }
+});
+
+const validateMonsterQuality = (monsters) => monsters.forEach((monster) => {
+  ["armorClass", "hitPoints", "speed", "challenge"].forEach((field) => assert(
+    monster[field],
+    `Monster ${field} is required.`,
+    { monster: monster.id }
+  ));
+  assert(!hasLineWrapArtifact([
+    monster.traits,
+    monster.actions,
+    monster.bonusActions,
+    monster.reactions,
+    monster.legendaryActions
+  ].join(" ")), "Monster text contains a PDF line-wrap artifact.", { monster: monster.id });
+});
+
 const validateEdition = (spells, monsters, edition) => {
   const editionSpells = spells.filter((record) => record.edition === edition);
   const editionMonsters = monsters.filter((record) => record.edition === edition);
@@ -63,6 +103,8 @@ const validateEditionDifferences = (spells, monsters) => {
 export const validateCatalogs = ({ spells, monsters, manifest }) => {
   validateUnique(spells, "Spell");
   validateUnique(monsters, "Monster");
+  validateSpellQuality(spells);
+  validateMonsterQuality(monsters);
   Object.keys(requiredSentinels).forEach((edition) => validateEdition(spells, monsters, edition));
   validateEditionDifferences(spells, monsters);
   assert(manifest.length === 2, "Both official SRD source manifests are required.");
