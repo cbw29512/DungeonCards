@@ -1,6 +1,7 @@
 import type { RuleCard } from "../types/ruleCards";
 import type { useRuleCardState } from "../hooks/useRuleCardState";
 import { formatRollBreakdown } from "../utils/formatRollResult";
+import { getAttackRollImpact } from "../utils/ruleRollImpact";
 
 type RuleCardController = ReturnType<typeof useRuleCardState>;
 
@@ -11,14 +12,18 @@ type RuleCardBackProps = {
 
 export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
   const { result, formula, mode, roll, setIsFlipped } = controller;
-  const outcome = result?.isCritical
-    ? "Natural 20"
-    : result?.isFailure
-      ? "Natural 1"
-      : mode.label;
+  const impact = getAttackRollImpact(result);
+  const outcome = impact?.title
+    ?? mode.label;
+  const impactClass = impact
+    ? ` rule-card__back--${impact.kind}`
+    : "";
 
   return (
-    <section className="rule-card__face rule-card__back" aria-hidden={!controller.isFlipped}>
+    <section
+      className={`rule-card__face rule-card__back${impactClass}`}
+      aria-hidden={!controller.isFlipped}
+    >
       <header>
         <span aria-hidden="true">{card.imageEmoji}</span>
         <div>
@@ -31,6 +36,7 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
         <strong>{result?.total ?? "—"}</strong>
         <span>{formula}</span>
         <p>{formatRollBreakdown(result)}</p>
+        {impact && <em className="rule-result__impact-label">{impact.subtitle}</em>}
         {result?.tableResult && <blockquote>{result.tableResult}</blockquote>}
       </div>
 

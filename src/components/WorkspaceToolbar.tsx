@@ -1,5 +1,14 @@
 import type { WorkspaceRole, WorkspaceView } from "../types/workspaces";
 
+const roleLabel = (role: WorkspaceRole): string => {
+  if (role === "player") return "Player Workspace";
+  if (role === "dm") return "DM Workspace";
+  return "Monster Encounter";
+};
+
+const tableLabel = (role: WorkspaceRole): string =>
+  role === "monster" ? "My Encounter" : "My Table";
+
 type WorkspaceToolbarProps = {
   role: WorkspaceRole;
   view: WorkspaceView;
@@ -21,8 +30,8 @@ export const WorkspaceToolbar = ({
 }: WorkspaceToolbarProps) => (
   <div className="workspace-toolbar">
     <div>
-      <strong>{role === "player" ? "Player Workspace" : "DM Workspace"}</strong>
-      <span>Local profile • {activeCount} on My Table • {totalCount} in Library</span>
+      <strong>{roleLabel(role)}</strong>
+      <span>Local profile • {activeCount} selected • {totalCount} in Library</span>
     </div>
 
     <div className="workspace-toolbar__actions">
@@ -32,7 +41,7 @@ export const WorkspaceToolbar = ({
           onClick={() => onChangeView("table")}
           type="button"
         >
-          My Table
+          {tableLabel(role)}
         </button>
         <button
           aria-pressed={view === "library"}
@@ -43,7 +52,7 @@ export const WorkspaceToolbar = ({
         </button>
       </div>
       <button className="workspace-reset" onClick={onReset} type="button">
-        Reset starter table
+        Reset starter selection
       </button>
     </div>
 

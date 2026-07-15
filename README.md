@@ -1,94 +1,106 @@
 # Dungeon Cards
 
-Dungeon Cards is a React and TypeScript tabletop card engine. Player and DM cards use a uniform 5:7 poker-card shape, place their controls directly on the card, and keep SRD 5.1 (2014) and SRD 5.2.1 (2024) mechanics separate.
+Dungeon Cards is a React and TypeScript tabletop card engine that now combines the Player/DM rules-card system with the Monster Card Forge print-first monster system.
 
-## Current Play Experience
+The unified product keeps SRD 5.1 (2014), SRD 5.2.1 (2024), and Homebrew content explicit and separate. Rules cards use uniform 5:7 poker-card layouts. Monster cards use the same 2.5 × 3.5 inch target while allowing complex creatures to expand into readable six-panel folios.
 
-A Player or DM can:
+## Unified Play Experience
 
-1. Open a separate Player or DM workspace.
-2. Use **My Table** to see only the cards selected for current play.
-3. Open **Library** to search every available card for that role.
-4. Add or remove cards without deleting or changing official card data.
-5. Pin and reorder cards within the active table.
-6. Restore Player and DM selections independently after refreshing.
-7. Use separate Attack Roll, Saving Throw, Ability Check, Weapon Damage, Spell Damage, and Spell Healing cards.
-8. Add optional Quick Roll cards that show an attack and its potential damage as two separate results.
-9. Select 2014 or 2024 rules, modifiers, spell slots, character levels, and Advantage directly on a card.
-10. Resolve random tables and review recent results in the shared roll log.
+A user can:
 
-The current workspace owner is an anonymous local profile. Workspace persistence is behind a `WorkspaceRepository` interface so authenticated cloud persistence can replace local storage without rewriting the card UI.
+1. Open separate Player, DM, and Monster workspaces.
+2. Use **My Table** for Player/DM cards and **My Encounter** for selected monsters.
+3. Open the matching Library to add or remove cards without deleting source data.
+4. Pin and reorder active cards or monsters.
+5. Restore Player, DM, and Monster selections independently after refresh.
+6. Use separate Attack Roll, Saving Throw, Ability Check, Weapon Damage, Spell Damage, and Spell Healing cards.
+7. Add optional Quick Roll cards that show an attack and potential damage as separate results.
+8. Search monsters by name, CR, ruleset, and creature type.
+9. Open standard monster references or expanded boss folios.
+10. Print only the selected monster at exact card dimensions.
+11. Build a Homebrew monster from a guided example with a live printable preview.
+
+The current workspace owner is an anonymous local profile. Persistence is behind a `WorkspaceRepository` interface so authenticated cloud storage can replace local storage without rewriting the card UI.
 
 ## Split Roll Card Model
 
-Dungeon Cards deliberately separates different D&D roll types:
+Dungeon Cards deliberately separates different roll types:
 
-- **Attack Roll:** rolls the d20 attack only and applies attack-only natural 20 and natural 1 behavior.
-- **Saving Throw:** chooses one of the six abilities, supports Advantage or Disadvantage, and never treats a natural 20 or 1 as automatic unless another rule says so.
-- **Ability Check:** chooses one of the six abilities and accepts the full check modifier, including proficiency or Expertise.
-- **Weapon Damage:** contains normal and critical damage without a hidden attack roll.
-- **Spell Damage or Healing:** contains the scalable effect without a hidden attack roll.
-- **Quick Roll:** rolls an attack and potential damage together but displays two independent results. Potential damage applies only if the attack hits.
+- **Attack Roll:** d20 attack only, including attack-only natural 20 and natural 1 handling.
+- **Saving Throw:** one of six abilities, with optional Advantage or Disadvantage and no automatic natural outcome.
+- **Ability Check:** one of six abilities using the complete selected modifier.
+- **Weapon Damage:** normal and critical damage without a hidden attack roll.
+- **Spell Damage or Healing:** scalable effect without a hidden attack roll.
+- **Quick Roll:** attack and potential damage together as two independent results. Damage applies only when the attack hits.
 
 Multi-attack spells such as Scorching Ray and Eldritch Blast remain split because one attack roll must not be presented as resolving every ray or beam.
 
-## Current Audited Catalog
+## Current Rules Catalog
 
 ### Player cards
 
 - Complete SRD 5.1 weapon table: 37 weapons.
 - Complete SRD 5.2.1 weapon table: 38 weapons.
 - 2014-only Net and 2024-only Musket and Pistol remain ruleset-specific.
-- Damaging weapons provide separate Attack, Damage, and Quick Roll cards.
-- Existing saved weapon IDs continue to point to Quick Roll cards so local tables remain usable.
-- Twenty-two audited spell families: Fireball, Cure Wounds, Healing Word, Fire Bolt, Magic Missile, Scorching Ray, Burning Hands, Thunderwave, Shatter, Lightning Bolt, Cone of Cold, Call Lightning, Moonbeam, Blight, Guiding Bolt, Hellish Rebuke, Blink, Chill Touch, Poison Spray, Ray of Frost, Sacred Flame, and Eldritch Blast.
+- Damaging weapons provide separate Attack, Damage, and optional Quick Roll cards.
+- Twenty-two audited spell families.
 - Spell attacks and spell effects are separate cards.
-- Eligible single-attack spells also provide an optional Quick Roll card.
-- Blink preserves its edition-specific random check: 2014 uses 1d20 and 2024 uses 1d6.
-- Chill Touch preserves its 2014 ranged d8 version and 2024 Touch d10 version.
-- Poison Spray preserves its 2014 Constitution-save version and 2024 ranged-attack version.
+- Eligible single-attack spells also provide optional Quick Roll cards.
+- Blink, Chill Touch, Poison Spray, and other changed rules remain edition-specific.
 
 ### DM cards
 
 - Standalone Saving Throw and Ability Check cards.
-- 2014 trap damage severity by party tier and severity.
+- 2014 trap damage severity.
 - 2024 Hidden Pit and Poisoned Darts scaling.
-- Sentient-item ability scores, alignment, communication, senses, and purpose.
-- Magic-item raw-material availability.
-- Wand recharge and last-charge destruction checks.
-- SRD 5.2.1 Wand of Wonder d100 effect table.
-- Armor of Resistance random damage type for both SRDs.
-- Bag of Tricks with selectable Gray, Rust, and Tan d8 creature tables.
-- Bag of Beans with separate 2014 and 2024 d100 effects and dump-damage modes.
+- Sentient-item generators and crafting-material availability.
+- Wand of Wonder, wand recharge, and last-charge checks.
+- Armor of Resistance, Bag of Tricks, and Bag of Beans random tables.
 
-Weapon coverage is complete for both selected SRDs. The spell and DM sets are audited expansion batches, not a claim that every SRD spell, trap, or magic item has already been imported.
+Weapon coverage is complete for both selected SRDs. Spells and DM tools are expanded in audited batches rather than bulk-imported without verification.
 
-## Rules Card Schema
+## Monster Card Forge Integration
 
-```ts
-type RuleCard = {
-  id: string;
-  name: string;
-  kind:
-    | "attack"
-    | "saving-throw"
-    | "ability-check"
-    | "weapon-damage"
-    | "spell-damage"
-    | "spell-healing"
-    | "quick-roll"
-    | "spell"
-    | "trap"
-    | "magic-item"
-    | "dm-table";
-  imageEmoji: string;
-  variants: Partial<Record<RulesetId, RuleCardVariant>>;
-};
-```
+The private `cbw29512/monstercardforge` prototype remains intact as source history. Its reusable product ideas were ported into Dungeon Cards as native React/TypeScript features.
 
-A Quick Roll mode can contain a secondary roll definition. The engine resolves and records the primary attack and secondary potential damage independently.
+### Imported monster catalog
 
-## Workspace Schema
+- Goblin — standard card
+- Adult Black Dragon — boss folio
+- Lich — spellcasting boss folio
+
+All three imported catalog monsters are explicitly labeled as 2014 SRD samples. No 2024 monster stat blocks were invented merely to fill the filter.
+
+### Monster workspace
+
+- **My Encounter** contains only the monsters selected for current play.
+- **Monster Library** retains the full imported catalog.
+- Add/remove, pin, ordering, reset, and local persistence use the same workspace architecture as Player and DM cards.
+- Filters include search, ruleset, and creature type.
+
+### Monster layouts
+
+- Simple creatures use compact poker-size reference cards.
+- Complex, legendary, lair, and spellcasting creatures open into six-panel folios.
+- Folios preserve defenses, awareness, traits, actions, bonus actions, reactions, legendary actions, lair actions, spells, source, and ruleset.
+- Information expands into more panels instead of shrinking into unreadable text or being removed.
+
+### Monster printing
+
+- Printing a monster hides the rest of the application.
+- Each panel prints at exactly 2.5 × 3.5 inches.
+- Boss folios print as a 3 × 2 six-panel layout on letter-size paper.
+- Print colors are preserved where supported by the browser and printer.
+
+### Guided monster builder
+
+- Starts from the complete Frost Troll example.
+- Provides helper text and examples for identity, combat summary, ability scores, and primary attack fields.
+- Updates the printable folio preview live.
+- Saves the draft locally and restores it after refresh.
+- Shows completeness warnings and supports reset-to-example.
+
+## Core Schemas
 
 ```ts
 type CardWorkspace = {
@@ -96,7 +108,7 @@ type CardWorkspace = {
   id: string;
   ownerKey: string;
   name: string;
-  role: "player" | "dm";
+  role: "player" | "dm" | "monster";
   activeCardIds: string[];
   pinnedCardIds: string[];
   cardOrder: string[];
@@ -104,45 +116,39 @@ type CardWorkspace = {
 };
 ```
 
-Workspaces store card IDs rather than copies of official cards. Removing a card from My Table changes only workspace visibility.
+```ts
+type MonsterCardData = {
+  id: string;
+  ruleset: "srd-5.1-2014" | "srd-5.2.1-2024" | "homebrew";
+  source: string;
+  name: string;
+  cr: string;
+  type: string;
+  size: string;
+  ac: string;
+  hp: string;
+  speed: string;
+  abilities: Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>;
+  traits: MonsterItem[];
+  actions: MonsterItem[];
+  legendaryActions: MonsterItem[];
+  spellcasting: MonsterSpellcasting | null;
+};
+```
 
-## Rules Guardrails
+Workspaces store IDs rather than copies of official catalog data. Removing an item changes only workspace visibility.
+
+## Guardrails
 
 - SRD variants are source-referenced, read-only application data.
-- Player and DM workspace selections are stored independently.
-- Homebrew cards remain separate from SRD cards.
-- Natural 20 and natural 1 outcomes are limited to valid attack-roll formulas.
-- Saving throws, checks, damage, healing, and random tables do not gain attack-roll outcomes.
+- Player, DM, and Monster workspaces are stored independently.
+- Homebrew remains separate from SRD content.
+- Natural 20 and natural 1 handling remains attack-only.
 - Damage cards contain no hidden attack mode.
-- Quick Roll damage is labeled as potential and remains separate from the attack total.
-- Critical-damage modes double damage dice, not static modifiers.
-- Fixed weapon damage stays fixed on a critical hit because there are no damage dice to double.
-- Advantage and Disadvantage roll two d20s and keep the appropriate die.
-- 2014 and 2024 variants are regression-tested for separation.
-
-## Dice Engine
-
-Supported examples include:
-
-- `1d20+8`
-- `10d6`
-- `2d8+4`
-- `2d6-1`
-- `4d6kh3` — roll four d6 and keep the highest three
-- `2d20kl1` — roll two d20 and keep the lowest one
-- `1+3` — fixed damage plus a modifier
-
-Production rolls use `crypto.getRandomValues` with rejection sampling. Tests inject deterministic integer sources so mechanics can be verified without weakening production randomness.
-
-## State Ownership
-
-- `App` owns top-level navigation.
-- `RulesDeck` owns My Table/Library view, search, and shared roll history.
-- `useCardWorkspace` owns active cards, pins, ordering, reset, and repository persistence.
-- `WorkspaceRepository` is the boundary between the UI and local or future cloud storage.
-- `useRuleCardState` owns each card's ruleset, mode, choices, scaling, primary and secondary modifiers, Advantage state, and latest result.
-- `rollDice.ts` owns validated rolling, kept dice, fixed results, and attack-roll outcomes.
-- `useHomebrewCards` owns separately persisted custom cards.
+- Quick Roll damage remains labeled as potential and separate from the attack total.
+- Critical damage doubles dice, not static modifiers.
+- Complex monsters expand instead of dropping combat information.
+- 2014 and 2024 content must never silently mix.
 
 ## Local Setup
 
@@ -166,24 +172,25 @@ GitHub Actions runs dependency installation, a high-severity audit, unit and cat
 ## Current Limitations
 
 - There is no production login or cloud synchronization yet.
-- Only one local Player workspace and one local DM workspace exist.
+- Only one local Player, DM, and Monster workspace exists for each role.
 - Card-specific selected modes and modifiers are not yet restored across sessions.
-- Non-weapon SRD content is expanded in audited batches rather than bulk-imported without verification.
-- Homebrew still uses the original single-formula builder.
-- There is no deck import/export or print-sheet generator yet.
-- The roll log resets when its page unmounts or the browser reloads.
+- The imported monster catalog currently contains the three audited 2014 samples from Monster Card Forge.
+- The Monster Builder currently saves one active draft rather than a library of named Homebrew monsters.
+- There is no deck import/export yet.
+- The shared roll log resets when its page unmounts or the browser reloads.
 
 ## Next Expansion
 
-1. Add multiple named Player and DM workspaces.
-2. Select a production authentication and cloud-storage provider.
-3. Persist each card's selected ruleset, mode, slot, level, and modifiers per workspace.
-4. Add more spells, random magic items, traps, and encounter-facing tools.
-5. Add print sheets sized for 2.5 × 3.5 inch poker cards.
+1. Merge the split-card PR, then merge the Monster Card Forge integration PR.
+2. Add multiple named characters, campaigns, encounters, and one-shots.
+3. Select a production authentication and cloud-storage provider.
+4. Add audited 2024 monster samples and expand both monster rulesets in verified batches.
+5. Save multiple Homebrew monsters and move them into My Encounter.
+6. Persist card selections, spell slots, modifiers, and encounter state per workspace.
 
 ## Attribution
 
-See [ATTRIBUTION.md](ATTRIBUTION.md) for the required SRD 5.1 and SRD 5.2.1 Creative Commons attribution statements.
+See [ATTRIBUTION.md](ATTRIBUTION.md) for required SRD 5.1 and SRD 5.2.1 Creative Commons attribution statements.
 
 ## Architecture Rule
 

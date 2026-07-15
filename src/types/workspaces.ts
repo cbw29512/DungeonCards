@@ -1,4 +1,4 @@
-export type WorkspaceRole = "player" | "dm";
+export type WorkspaceRole = "player" | "dm" | "monster";
 export type WorkspaceView = "table" | "library";
 export type WorkspaceMoveDirection = "earlier" | "later";
 

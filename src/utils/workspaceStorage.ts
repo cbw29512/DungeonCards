@@ -12,6 +12,12 @@ const now = (): string => new Date().toISOString();
 const isStringArray = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === "string");
 
+const workspaceName = (role: WorkspaceRole): string => {
+  if (role === "player") return "Player Table";
+  if (role === "dm") return "DM Table";
+  return "Monster Encounter";
+};
+
 export const createDefaultWorkspace = (
   role: WorkspaceRole,
   defaultCardIds: string[]
@@ -19,7 +25,7 @@ export const createDefaultWorkspace = (
   schemaVersion: 1,
   id: `local-${role}`,
   ownerKey: "anonymous-local",
-  name: role === "player" ? "Player Table" : "DM Table",
+  name: workspaceName(role),
   role,
   activeCardIds: unique(defaultCardIds),
   pinnedCardIds: [],
@@ -127,7 +133,7 @@ const isWorkspace = (value: unknown): value is CardWorkspace => {
     && typeof item.ownerKey === "string"
     && typeof item.name === "string"
     && typeof item.updatedAt === "string"
-    && (item.role === "player" || item.role === "dm")
+    && (item.role === "player" || item.role === "dm" || item.role === "monster")
     && isStringArray(item.activeCardIds)
     && isStringArray(item.pinnedCardIds)
     && isStringArray(item.cardOrder);
