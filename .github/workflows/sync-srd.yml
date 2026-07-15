@@ -1,0 +1,58 @@
+name: Synchronize Official SRD Catalogs
+
+on:
+  push:
+    branches:
+      - agent/full-srd-catalog-foundation
+    paths:
+      - scripts/srd/**
+      - .github/workflows/sync-srd.yml
+      - package.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: synchronize-srd-catalogs
+  cancel-in-progress: true
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out catalog branch
+        uses: actions/checkout@v6
+        with:
+          ref: agent/full-srd-catalog-foundation
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install PDF extraction utility
+        run: sudo apt-get update && sudo apt-get install --yes poppler-utils
+
+      - name: Generate catalogs from official PDFs
+        run: npm run sync:srd
+
+      - name: Verify generated catalogs
+        run: npm run verify:srd
+
+      - name: Commit generated catalogs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/generated/srd-spells.json src/generated/srd-monsters.json src/generated/srd-manifest.json
+          if git diff --cached --quiet; then
+            echo "Generated catalogs are already current."
+            exit 0
+          fi
+          git commit -m "Generate complete official SRD reference catalogs"
+          git push origin HEAD:agent/full-srd-catalog-foundation
