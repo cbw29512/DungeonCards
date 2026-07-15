@@ -1,6 +1,7 @@
 export const cleanLine = (value = "") => value
   .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "")
-  .replace(/\u00ad/g, "")
+  .replace(/[\u00ad\u2010-\u2015\u2212]+/g, "-")
+  .replace(/-{2,}/g, "-")
   .replace(/\s+/g, " ")
   .trim();
 
