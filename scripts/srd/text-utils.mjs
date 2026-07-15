@@ -68,6 +68,7 @@ export const joinBody = (records) => {
     const line = cleanLine(record.raw);
     if (isPageNoise(line)) return;
     if (!line) {
+      if (current.at(-1)?.endsWith("-")) return;
       flush();
       return;
     }
