@@ -1,0 +1,109 @@
+.monster-folio {
+  display: grid;
+  width: min(100%, 320px);
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 1rem;
+  background: rgb(0 0 0 / 20%);
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.monster-reference .monster-folio {
+  grid-column: 1 / -1;
+}
+
+.monster-folio__viewer {
+  display: grid;
+  width: min(100%, 250px);
+  justify-items: stretch;
+}
+
+.monster-folio__panel {
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  padding: 0.6rem;
+  color: #21160e;
+  border: 1px solid #9b7040;
+  background: #f4ead7;
+  font-family: Georgia, serif;
+  font-size: 0.56rem;
+  line-height: 1.25;
+  overflow: auto;
+}
+
+.monster-folio__panel[hidden] {
+  display: none;
+}
+
+.monster-folio__cover {
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.monster-folio__cover .monster-card {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.monster-folio__card-kicker {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #7b542d;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monster-folio__navigation {
+  display: grid;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  grid-template-columns: 72px minmax(0, 1fr) 72px;
+}
+
+.monster-folio__navigation button {
+  min-height: 34px;
+  padding: 0.4rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 9%);
+  cursor: pointer;
+  font-size: 0.66rem;
+  font-weight: 900;
+}
+
+.monster-folio__navigation button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.monster-folio__navigation button:focus-visible {
+  outline: 3px solid #f7c76b;
+  outline-offset: 2px;
+}
+
+.monster-folio__navigation output {
+  color: #f7c76b;
+  font-size: 0.65rem;
+  font-weight: 900;
+  line-height: 1.25;
+  text-align: center;
+}
+
+@media (max-width: 360px) {
+  .monster-folio {
+    padding: 0.65rem;
+  }
+
+  .monster-folio__navigation {
+    grid-template-columns: 64px minmax(0, 1fr) 64px;
+  }
+}
