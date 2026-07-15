@@ -36,6 +36,7 @@ const sectionText = (text, heading, nextHeadings) => {
   const start = text.search(new RegExp(`(?:^|\\n)${heading}(?:\\n|$)`, "i"));
   if (start < 0) return "";
   const remainder = text.slice(start).replace(new RegExp(`^\\s*${heading}\\s*`, "i"), "");
+  if (!nextHeadings.length) return remainder.trim();
   const nextPattern = new RegExp(`(?:^|\\n)(?:${nextHeadings.join("|")})(?:\\n|$)`, "i");
   const end = remainder.search(nextPattern);
   return (end >= 0 ? remainder.slice(0, end) : remainder).trim();
