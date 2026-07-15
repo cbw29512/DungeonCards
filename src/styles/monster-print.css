@@ -1,3 +1,5 @@
+@import "./monster-folio.css";
+
 @page {
   size: letter;
   margin: 0.25in;
@@ -41,7 +43,8 @@
 
   .monster-reference--printing > .rule-card__workspace-actions,
   .monster-reference--printing > .monster-reference__actions,
-  .monster-builder--printing .monster-builder__warnings {
+  .monster-builder--printing .monster-builder__warnings,
+  .monster-folio__navigation {
     display: none !important;
   }
 
@@ -60,19 +63,27 @@
   }
 
   .monster-folio {
-    display: grid;
+    display: block;
     width: 7.5in;
     margin: 0 auto;
     padding: 0;
     border: 0;
     border-radius: 0;
     background: #fff;
+  }
+
+  .monster-folio__viewer {
+    display: grid;
+    width: 7.5in;
+    margin: 0 auto;
     gap: 0;
     grid-template-columns: repeat(3, 2.5in);
     grid-template-rows: repeat(2, 3.5in);
   }
 
-  .monster-folio__panel {
+  .monster-folio__panel,
+  .monster-folio__panel[hidden] {
+    display: block !important;
     width: 2.5in;
     height: 3.5in;
     min-height: 3.5in;
