@@ -7,18 +7,26 @@ import {
   uniqueByName
 } from "./text-utils.mjs";
 
+const parseClasses = (value = "") => value
+  .replace(/[()]/g, "")
+  .split(",")
+  .map((item) => item.trim())
+  .filter(Boolean);
+
 const parseDescriptor = (line) => {
-  const modern = line.match(/^Level (\d) ([A-Za-z]+)(?: \(([^)]+)\))?$/);
+  const modern = line.match(/^Level (\d) ([A-Za-z]+)(?: \((.*))?$/);
   if (modern) {
     return {
       level: Number(modern[1]),
       school: modern[2],
-      classes: modern[3]?.split(",").map((item) => item.trim()) ?? []
+      classes: parseClasses(modern[3])
     };
   }
 
-  const cantrip = line.match(/^([A-Za-z]+) cantrip(?: \((ritual)\))?$/i);
-  if (cantrip) return { level: 0, school: cantrip[1], classes: [] };
+  const cantrip = line.match(/^([A-Za-z]+) cantrip(?: \((.*))?$/i);
+  if (cantrip) {
+    return { level: 0, school: cantrip[1], classes: parseClasses(cantrip[2]) };
+  }
 
   const legacy = line.match(/^(\d+)(?:st|nd|rd|th)-level ([A-Za-z]+)(?: \((ritual)\))?$/i);
   return legacy
@@ -53,7 +61,7 @@ export const parseSpells = ({ text, source }) => {
     const end = starts[index + 1]?.index ?? lines.length;
     const block = lines.slice(start.index, end);
     const body = joinBody(bodyAfterMetadata(block));
-    const higherLevelMarker = body.search(/(?:Using a Higher-Level Spell Slot|At Higher Levels?)\.?/i);
+    const higherLevelMarker = body.search(/(?:Using a Higher-Level Spell Slot|At Higher Levels?|Cantrip Upgrade)\.?/i);
 
     return {
       id: `${source.edition}-spell-${slugify(start.name)}`,
