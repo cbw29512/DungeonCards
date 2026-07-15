@@ -6,19 +6,23 @@ import {
   uniqueByName
 } from "./text-utils.mjs";
 
-const descriptorPattern = /^(Tiny|Small|Medium|Large|Huge|Gargantuan)\s+(.+?),\s*(.+)$/i;
+const descriptorPattern = /^((?:Tiny|Small|Medium|Large|Huge|Gargantuan)(?: or (?:Tiny|Small|Medium|Large|Huge|Gargantuan))?)\s+(.+?),\s*(.+)$/i;
 const sectionHeadings = ["Traits", "Actions", "Bonus Actions", "Reactions", "Legendary Actions"];
 
 const isPlausibleTitle = (value) => (
   value.length >= 2
   && value.length <= 90
   && !value.includes(":")
-  && !/^(Armor Class|Hit Points|Speed|STR|Actions|Traits|Challenge)/i.test(value)
+  && !/^(AC|HP|CR|Armor Class|Hit Points|Speed|STR|Actions|Traits|Challenge)/i.test(value)
 );
+
+const hasStatBlockFields = (lines, descriptorIndex) => lines
+  .slice(descriptorIndex + 1, descriptorIndex + 8)
+  .some((record) => /^(?:AC|Armor Class)\s+\d/i.test(record.text));
 
 const findStarts = (lines) => lines.flatMap((line, index) => {
   const descriptor = line.text.match(descriptorPattern);
-  if (!descriptor) return [];
+  if (!descriptor || !hasStatBlockFields(lines, index)) return [];
   const title = previousNonEmpty(lines, index);
   if (!title || !isPlausibleTitle(title.text)) return [];
   return [{
@@ -36,6 +40,10 @@ const lineValue = (records, label) => {
   const line = records.find((record) => pattern.test(record.text));
   return line?.text.match(pattern)?.[1]?.trim() ?? "";
 };
+
+const armorClassValue = (records) => lineValue(records, "(?:AC|Armor Class)")
+  .replace(/\s+Initiative\s+.*$/i, "")
+  .trim();
 
 const sectionRecords = (records, heading) => {
   const start = records.findIndex((record) => record.text.toLowerCase() === heading.toLowerCase());
@@ -62,10 +70,10 @@ export const parseMonsters = ({ text, source }) => {
       size: start.size,
       type: start.type,
       alignment: start.alignment,
-      armorClass: lineValue(block, "Armor Class"),
-      hitPoints: lineValue(block, "Hit Points"),
+      armorClass: armorClassValue(block),
+      hitPoints: lineValue(block, "(?:HP|Hit Points)"),
       speed: lineValue(block, "Speed"),
-      challenge: lineValue(block, "Challenge(?: Rating)?"),
+      challenge: lineValue(block, "(?:CR|Challenge(?: Rating)?)"),
       traits: joinBody(sectionRecords(block, "Traits")),
       actions: joinBody(sectionRecords(block, "Actions")),
       bonusActions: joinBody(sectionRecords(block, "Bonus Actions")),
@@ -79,6 +87,8 @@ export const parseMonsters = ({ text, source }) => {
 
   return uniqueByName(records).filter((record) => (
     record.rawText.length > 60
-    && (record.armorClass || record.hitPoints || record.challenge)
+    && record.armorClass
+    && record.hitPoints
+    && record.challenge
   ));
 };
