@@ -31,14 +31,30 @@ describe("official SRD spell parser", () => {
     expect(records[0].higherLevels).toContain("Cantrip Upgrade");
   });
 
-  it("parses legacy spell descriptors without blending editions", () => {
+  it("parses legacy descriptors and wrapped component fields", () => {
     const records = parseSpells({
       source: legacySource,
-      text: `Acid Splash\nConjuration cantrip\nCasting Time: 1 action\nRange: 60 feet\nComponents: V, S\nDuration: Instantaneous\nChoose one creature, or choose two creatures within 5 feet of each other. Each target makes a Dexterity saving throw.\n\nAid\n2nd-level abjuration\nCasting Time: 1 action\nRange: 30 feet\nComponents: V, S, M\nDuration: 8 hours\nThree creatures gain additional hit points for the duration.`
+      text: `Acid Arrow\n2nd-\u00ad\u2010\u2011level evocation\nCasting Time: 1 action\nRange: 90 feet\nComponents: V, S, M (powdered rhubarb leaf and an\nadder's stomach)\nDuration: Instantaneous\nA shimmering arrow deals dam-\nage to the target.\n\nAcid Splash\nConjuration cantrip\nCasting Time: 1 action\nRange: 60 feet\nComponents: V, S\nDuration: Instantaneous\nChoose one creature, or choose two creatures within 5 feet of each other.`
     });
 
-    expect(records.map((record) => record.name)).toEqual(["Acid Splash", "Aid"]);
-    expect(records[0]).toMatchObject({ level: 0, school: "Conjuration" });
-    expect(records[0].description).toContain("two creatures");
+    expect(records.map((record) => record.name)).toEqual(["Acid Arrow", "Acid Splash"]);
+    expect(records[0]).toMatchObject({
+      level: 2,
+      school: "evocation",
+      components: "V, S, M (powdered rhubarb leaf and an adder's stomach)"
+    });
+    expect(records[0].description).toContain("deals damage");
+    expect(records[1].description).toContain("two creatures");
+  });
+
+  it("collects wrapped modern class lists", () => {
+    const records = parseSpells({
+      source: modernSource,
+      text: `Example Spell\nLevel 1 Divination (Bard, Cleric, Druid, Ranger,\nSorcerer, Warlock, Wizard)\nCasting Time: Action\nRange: Self\nComponents: V\nDuration: Instantaneous\nYou learn one useful fact.`
+    });
+
+    expect(records[0].classes).toEqual([
+      "Bard", "Cleric", "Druid", "Ranger", "Sorcerer", "Warlock", "Wizard"
+    ]);
   });
 });
