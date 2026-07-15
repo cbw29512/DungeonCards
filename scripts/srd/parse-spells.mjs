@@ -15,7 +15,7 @@ const parseClasses = (value = "") => value
   .filter(Boolean);
 
 const parseDescriptor = (line) => {
-  const modern = line.match(/^Level (\d) ([A-Za-z]+)(?: \((.*)\))?$/);
+  const modern = line.match(/^Level (\d) ([A-Za-z]+)(?: \((.*)\)?)?$/);
   if (modern) {
     return {
       level: Number(modern[1]),
@@ -24,7 +24,7 @@ const parseDescriptor = (line) => {
     };
   }
 
-  const cantrip = line.match(/^([A-Za-z]+) cantrip(?: \((.*)\))?$/i);
+  const cantrip = line.match(/^([A-Za-z]+) cantrip(?: \((.*)\)?)?$/i);
   if (cantrip) {
     return { level: 0, school: cantrip[1], classes: parseClasses(cantrip[2]) };
   }
