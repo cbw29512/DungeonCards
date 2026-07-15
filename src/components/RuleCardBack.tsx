@@ -19,6 +19,14 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
     ? ` rule-card__back--${impact.kind}`
     : "";
 
+  const handleReroll = () => {
+    try {
+      roll();
+    } catch (error) {
+      console.error("Rule card reroll failed", { cardId: card.id, error });
+    }
+  };
+
   const handleRerollKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     try {
       if (event.key !== "Enter" && event.key !== " ") {
@@ -26,9 +34,17 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
       }
 
       event.preventDefault();
-      roll();
+      handleReroll();
     } catch (error) {
       console.error("Rule card keyboard reroll failed", { cardId: card.id, error });
+    }
+  };
+
+  const handleChange = () => {
+    try {
+      setIsFlipped(false);
+    } catch (error) {
+      console.error("Rule card settings reopen failed", { cardId: card.id, error });
     }
   };
 
@@ -40,7 +56,7 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
       <div
         aria-label={`Roll ${card.name} again`}
         className="rule-card__reroll-surface"
-        onClick={roll}
+        onClick={handleReroll}
         onKeyDown={handleRerollKeyDown}
         role="button"
         tabIndex={controller.isFlipped ? 0 : -1}
@@ -74,7 +90,7 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
       </div>
 
       <div className="rule-card__back-actions">
-        <button onClick={() => setIsFlipped(false)} type="button">Change</button>
+        <button onClick={handleChange} type="button">Change</button>
         <span className="rule-card__reroll-hint">Click the card to roll again</span>
       </div>
     </section>
