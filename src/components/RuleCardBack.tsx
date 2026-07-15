@@ -3,6 +3,7 @@ import type { RuleCard } from "../types/ruleCards";
 import type { useRuleCardState } from "../hooks/useRuleCardState";
 import { formatRollBreakdown } from "../utils/formatRollResult";
 import { getAttackRollImpact } from "../utils/ruleRollImpact";
+import { RuleCardAdvantageControls } from "./RuleCardAdvantageControls";
 
 type RuleCardController = ReturnType<typeof useRuleCardState>;
 
@@ -12,12 +13,18 @@ type RuleCardBackProps = {
 };
 
 export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
-  const { result, formula, mode, roll, setIsFlipped } = controller;
+  const {
+    result,
+    formula,
+    mode,
+    advantageMode,
+    roll,
+    setAdvantageMode,
+    setIsFlipped
+  } = controller;
   const impact = getAttackRollImpact(result);
   const outcome = impact?.title ?? mode.label;
-  const impactClass = impact
-    ? ` rule-card__back--${impact.kind}`
-    : "";
+  const impactClass = impact ? ` rule-card__back--${impact.kind}` : "";
 
   const handleReroll = () => {
     try {
@@ -29,10 +36,7 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
 
   const handleRerollKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     try {
-      if (event.key !== "Enter" && event.key !== " ") {
-        return;
-      }
-
+      if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
       handleReroll();
     } catch (error) {
@@ -63,10 +67,7 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
       >
         <header>
           <span aria-hidden="true">{card.imageEmoji}</span>
-          <div>
-            <small>{outcome}</small>
-            <h3>{card.name}</h3>
-          </div>
+          <div><small>{outcome}</small><h3>{card.name}</h3></div>
         </header>
 
         <div className="rule-result" aria-live="polite">
@@ -88,6 +89,14 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
           </div>
         )}
       </div>
+
+      {mode.allowsAdvantage && (
+        <RuleCardAdvantageControls
+          cardName={card.name}
+          mode={advantageMode}
+          onChange={setAdvantageMode}
+        />
+      )}
 
       <div className="rule-card__back-actions">
         <button onClick={handleChange} type="button">Change</button>
