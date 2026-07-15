@@ -3,9 +3,10 @@ import { execFileSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
-import { generatedPaths, srdSources } from "./source-config.mjs";
 import { parseMonsters } from "./parse-monsters.mjs";
 import { parseSpells } from "./parse-spells.mjs";
+import { generatedPaths, srdSources } from "./source-config.mjs";
+import { applySpellSourceCorrections } from "./source-corrections.mjs";
 import { validateCatalogs } from "./validate.mjs";
 
 const download = async (url, destination) => {
@@ -66,10 +67,10 @@ const run = async () => {
     extractRange(pdfPath, source.spellPages, spellTextPath);
     extractRange(pdfPath, source.monsterPages, monsterTextPath);
 
-    const sourceSpells = parseSpells({
+    const sourceSpells = applySpellSourceCorrections(parseSpells({
       text: await readFile(spellTextPath, "utf8"),
       source
-    });
+    }));
     const sourceMonsters = parseMonsters({
       text: await readFile(monsterTextPath, "utf8"),
       source
