@@ -34,6 +34,8 @@ Merged into `main`:
 
 Branch: `agent/roll-side-advantage-core-cards`
 
+Pull request: #13
+
 Current work:
 
 - move Normal, Advantage, and Disadvantage controls to the result side;
@@ -121,17 +123,18 @@ It may not include copied official creature statistics, spell text, weapon table
 
 ### Quality gate
 
-- [ ] Pull request opened.
-- [ ] Dependency installation passes.
-- [ ] High-severity dependency audit passes.
-- [ ] All tests pass.
-- [ ] Strict TypeScript compilation passes.
-- [ ] Production Vite build passes.
-- [ ] Changes merge into `main` only after the automated gate succeeds.
+- [x] Pull request #13 opened.
+- [x] Locked dependency installation passed.
+- [x] High-severity dependency audit passed.
+- [x] All unit and catalog tests passed.
+- [x] Strict TypeScript compilation passed.
+- [x] Production Vite build passed.
+- [x] GitHub Actions workflow run `29452354964` completed successfully.
+- [ ] Changes merge into `main` only after the updated documentation commit passes the automated gate.
 
 ## Next ordered work
 
-1. Pass CI and merge the current interaction/rules/core-card branch.
+1. Merge PR #13 after the documentation update passes CI.
 2. Persist per-instance card settings.
 3. Build machine-readable SRD source manifests and expected-count tests.
 4. Import the complete SRD 5.1 spell and monster catalogs.
