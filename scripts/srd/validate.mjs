@@ -1,0 +1,136 @@
+const requiredSentinels = {
+  "srd-5.1-2014": {
+    spells: ["Acid Splash", "Fireball", "Wish"],
+    monsters: ["Goblin", "Adult Black Dragon", "Lich"]
+  },
+  "srd-5.2.1-2024": {
+    spells: ["Acid Splash", "Elementalism", "Starry Wisp", "Wish"],
+    monsters: ["Goblin Minion", "Allosaurus", "Adult Black Dragon", "Lich"]
+  }
+};
+
+const assert = (condition, message, context = {}) => {
+  if (condition) return;
+  console.error("SRD catalog validation failed", { message, ...context });
+  throw new Error(message);
+};
+
+const validateUnique = (records, label) => {
+  const ids = records.map((record) => record.id);
+  const names = records.map((record) => `${record.edition}:${record.name}`);
+  assert(new Set(ids).size === ids.length, `${label} IDs must be unique.`);
+  assert(new Set(names).size === names.length, `${label} names must be unique per edition.`);
+};
+
+const hasBalancedParentheses = (value) => (
+  [...value].filter((character) => character === "(").length
+  === [...value].filter((character) => character === ")").length
+);
+
+const hasLineWrapArtifact = (value) => /\b[A-Za-z]+-\s+[a-z]/.test(value);
+
+const validateSpellQuality = (spells) => spells.forEach((spell) => {
+  assert(spell.castingTime, "Spell casting time is required.", { spell: spell.id });
+  assert(spell.range, "Spell range is required.", { spell: spell.id });
+  assert(spell.components, "Spell components are required.", { spell: spell.id });
+  assert(spell.duration, "Spell duration is required.", { spell: spell.id });
+  assert(spell.description.length > 20, "Spell description is too short.", { spell: spell.id });
+  assert(hasBalancedParentheses(spell.components), "Spell components are clipped.", {
+    spell: spell.id,
+    components: spell.components
+  });
+  assert(!hasLineWrapArtifact(`${spell.description} ${spell.higherLevels}`), "Spell text contains a PDF line-wrap artifact.", {
+    spell: spell.id
+  });
+  assert(!/\b(?:the )?spells ends\b/i.test(spell.description), "Spell text contains a known source typo.", {
+    spell: spell.id
+  });
+  assert(!/\b3nd level\b/i.test(spell.higherLevels), "Spell scaling contains an invalid ordinal.", {
+    spell: spell.id
+  });
+  assert(!/\badditional beast t level\b/i.test(spell.higherLevels), "Spell scaling contains a clipped source phrase.", {
+    spell: spell.id
+  });
+  if (spell.edition === "srd-5.2.1-2024") {
+    assert(spell.classes.length > 0, "A 2024 spell is missing its class lists.", { spell: spell.id });
+  }
+});
+
+const validateMonsterQuality = (monsters) => monsters.forEach((monster) => {
+  ["armorClass", "hitPoints", "speed", "challenge"].forEach((field) => assert(
+    monster[field],
+    `Monster ${field} is required.`,
+    { monster: monster.id }
+  ));
+  assert(!hasLineWrapArtifact([
+    monster.traits,
+    monster.actions,
+    monster.bonusActions,
+    monster.reactions,
+    monster.legendaryActions
+  ].join(" ")), "Monster text contains a PDF line-wrap artifact.", { monster: monster.id });
+});
+
+const validateEdition = (spells, monsters, edition) => {
+  const editionSpells = spells.filter((record) => record.edition === edition);
+  const editionMonsters = monsters.filter((record) => record.edition === edition);
+  const sentinels = requiredSentinels[edition];
+
+  assert(editionSpells.length >= 300, `${edition} must contain at least 300 spells.`, {
+    count: editionSpells.length
+  });
+  assert(editionMonsters.length >= 250, `${edition} must contain at least 250 monsters.`, {
+    count: editionMonsters.length
+  });
+
+  sentinels.spells.forEach((name) => assert(
+    editionSpells.some((record) => record.name === name),
+    `${edition} is missing spell ${name}.`
+  ));
+  sentinels.monsters.forEach((name) => assert(
+    editionMonsters.some((record) => record.name === name),
+    `${edition} is missing monster ${name}.`
+  ));
+};
+
+const validateEditionDifferences = (spells, monsters) => {
+  const oldAcid = spells.find((record) => (
+    record.edition === "srd-5.1-2014" && record.name === "Acid Splash"
+  ));
+  const newAcid = spells.find((record) => (
+    record.edition === "srd-5.2.1-2024" && record.name === "Acid Splash"
+  ));
+  const oldFriendship = spells.find((record) => (
+    record.edition === "srd-5.1-2014" && record.name === "Animal Friendship"
+  ));
+  const oldMessenger = spells.find((record) => (
+    record.edition === "srd-5.1-2014" && record.name === "Animal Messenger"
+  ));
+
+  assert(oldAcid?.description.includes("two creatures"), "2014 Acid Splash wording was not detected.");
+  assert(newAcid?.description.includes("5-foot-radius Sphere"), "2024 Acid Splash wording was not detected.");
+  assert(!newAcid?.description.includes("two creatures"), "2014 Acid Splash leaked into the 2024 catalog.");
+  assert(oldFriendship?.higherLevels.includes("for each slot level above 1st"), "Animal Friendship source correction is missing.");
+  assert(oldMessenger?.higherLevels.includes("3rd level or higher"), "Animal Messenger source correction is missing.");
+  assert(!monsters.some((record) => (
+    record.edition === "srd-5.1-2014" && record.name === "Goblin Minion"
+  )), "2024 Goblin Minion leaked into the 2014 catalog.");
+};
+
+export const validateCatalogs = ({ spells, monsters, manifest }) => {
+  validateUnique(spells, "Spell");
+  validateUnique(monsters, "Monster");
+  validateSpellQuality(spells);
+  validateMonsterQuality(monsters);
+  Object.keys(requiredSentinels).forEach((edition) => validateEdition(spells, monsters, edition));
+  validateEditionDifferences(spells, monsters);
+  assert(manifest.length === 2, "Both official SRD source manifests are required.");
+  manifest.forEach((source) => {
+    assert(/^[a-f0-9]{64}$/.test(source.sha256), "Each source PDF needs a SHA-256 digest.", {
+      edition: source.edition
+    });
+    assert(source.attribution.includes("Creative Commons Attribution 4.0"), "Attribution is incomplete.", {
+      edition: source.edition
+    });
+  });
+};
