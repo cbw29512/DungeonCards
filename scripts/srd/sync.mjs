@@ -19,7 +19,7 @@ const download = async (url, destination) => {
 const extractRange = (pdfPath, [firstPage, lastPage], outputPath) => {
   try {
     execFileSync("pdftotext", [
-      "-layout",
+      "-raw",
       "-f", String(firstPage),
       "-l", String(lastPage),
       pdfPath,
