@@ -15,6 +15,7 @@ import "./styles/history.css";
 import "./styles/homebrew.css";
 import "./styles/rule-cards.css";
 import "./styles/rule-controls.css";
+import "./styles/rule-advantage.css";
 import "./styles/rule-history.css";
 import "./styles/workspaces.css";
 import "./styles/monsters.css";
