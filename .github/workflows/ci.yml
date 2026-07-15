@@ -79,8 +79,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: generated-srd-catalogs
+          if-no-files-found: warn
           path: |
             src/generated/srd-spells.json
             src/generated/srd-monsters.json
             src/generated/srd-manifest.json
+            /tmp/dungeon-cards-srd-sync/spells-*.txt
+            /tmp/dungeon-cards-srd-sync/monsters-*.txt
             srd-sync.log
