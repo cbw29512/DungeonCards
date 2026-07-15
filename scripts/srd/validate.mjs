@@ -42,6 +42,15 @@ const validateSpellQuality = (spells) => spells.forEach((spell) => {
   assert(!hasLineWrapArtifact(`${spell.description} ${spell.higherLevels}`), "Spell text contains a PDF line-wrap artifact.", {
     spell: spell.id
   });
+  assert(!/\b(?:the )?spells ends\b/i.test(spell.description), "Spell text contains a known source typo.", {
+    spell: spell.id
+  });
+  assert(!/\b3nd level\b/i.test(spell.higherLevels), "Spell scaling contains an invalid ordinal.", {
+    spell: spell.id
+  });
+  assert(!/\badditional beast t level\b/i.test(spell.higherLevels), "Spell scaling contains a clipped source phrase.", {
+    spell: spell.id
+  });
   if (spell.edition === "srd-5.2.1-2024") {
     assert(spell.classes.length > 0, "A 2024 spell is missing its class lists.", { spell: spell.id });
   }
@@ -91,10 +100,18 @@ const validateEditionDifferences = (spells, monsters) => {
   const newAcid = spells.find((record) => (
     record.edition === "srd-5.2.1-2024" && record.name === "Acid Splash"
   ));
+  const oldFriendship = spells.find((record) => (
+    record.edition === "srd-5.1-2014" && record.name === "Animal Friendship"
+  ));
+  const oldMessenger = spells.find((record) => (
+    record.edition === "srd-5.1-2014" && record.name === "Animal Messenger"
+  ));
 
   assert(oldAcid?.description.includes("two creatures"), "2014 Acid Splash wording was not detected.");
   assert(newAcid?.description.includes("5-foot-radius Sphere"), "2024 Acid Splash wording was not detected.");
   assert(!newAcid?.description.includes("two creatures"), "2014 Acid Splash leaked into the 2024 catalog.");
+  assert(oldFriendship?.higherLevels.includes("for each slot level above 1st"), "Animal Friendship source correction is missing.");
+  assert(oldMessenger?.higherLevels.includes("3rd level or higher"), "Animal Messenger source correction is missing.");
   assert(!monsters.some((record) => (
     record.edition === "srd-5.1-2014" && record.name === "Goblin Minion"
   )), "2024 Goblin Minion leaked into the 2014 catalog.");
