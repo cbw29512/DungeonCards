@@ -41,6 +41,16 @@ const writeJson = async (path, value) => {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 };
 
+const writeGeneratedFiles = async (spells, monsters, sourceManifest) => {
+  await writeJson(generatedPaths.spells, spells);
+  await writeJson(generatedPaths.monsters, monsters);
+  await writeJson(generatedPaths.manifest, {
+    schemaVersion: 1,
+    generatedBy: "scripts/srd/sync.mjs",
+    sources: sourceManifest
+  });
+};
+
 const run = async () => {
   const workspace = join(tmpdir(), "dungeon-cards-srd-sync");
   await mkdir(workspace, { recursive: true });
@@ -65,6 +75,16 @@ const run = async () => {
       source
     });
 
+    console.log("Parsed official SRD source", {
+      edition: source.edition,
+      spellCount: sourceSpells.length,
+      monsterCount: sourceMonsters.length,
+      firstSpells: sourceSpells.slice(0, 5).map((record) => record.name),
+      lastSpells: sourceSpells.slice(-5).map((record) => record.name),
+      firstMonsters: sourceMonsters.slice(0, 5).map((record) => record.name),
+      lastMonsters: sourceMonsters.slice(-5).map((record) => record.name)
+    });
+
     spells.push(...sourceSpells);
     monsters.push(...sourceMonsters);
     sourceManifest.push({
@@ -78,15 +98,8 @@ const run = async () => {
     });
   }
 
+  await writeGeneratedFiles(spells, monsters, sourceManifest);
   validateCatalogs({ spells, monsters, manifest: sourceManifest });
-  await writeJson(generatedPaths.spells, spells);
-  await writeJson(generatedPaths.monsters, monsters);
-  await writeJson(generatedPaths.manifest, {
-    schemaVersion: 1,
-    generatedBy: "scripts/srd/sync.mjs",
-    sources: sourceManifest
-  });
-
   console.log(`Generated ${spells.length} spell records and ${monsters.length} monster records.`);
 };
 
