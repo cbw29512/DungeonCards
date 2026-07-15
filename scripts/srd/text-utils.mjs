@@ -33,6 +33,27 @@ const isPageNoise = (line) => (
   || /^\d+$/.test(line)
 );
 
+const preservedHyphenPrefixes = new Set([
+  "all", "day", "foot", "half", "high", "hour", "level", "long",
+  "mile", "non", "one", "round", "self", "short", "three", "turn",
+  "two", "well"
+]);
+
+const appendWrappedLine = (current, line) => {
+  const previous = current.at(-1);
+  const firstCharacter = line.charAt(0);
+  if (!previous?.endsWith("-") || !/[a-z]/.test(firstCharacter)) {
+    current.push(line);
+    return;
+  }
+
+  const previousToken = previous.match(/([^\s]+)-$/)?.[1] ?? "";
+  const keepHyphen = previousToken.includes("-")
+    || /\d/.test(previousToken)
+    || preservedHyphenPrefixes.has(previousToken.toLowerCase());
+  current[current.length - 1] = `${previous.slice(0, -1)}${keepHyphen ? "-" : ""}${line}`;
+};
+
 export const joinBody = (records) => {
   const paragraphs = [];
   let current = [];
@@ -45,11 +66,12 @@ export const joinBody = (records) => {
 
   records.forEach((record) => {
     const line = cleanLine(record.raw);
-    if (!line || isPageNoise(line)) {
+    if (isPageNoise(line)) return;
+    if (!line) {
       flush();
       return;
     }
-    current.push(line);
+    appendWrappedLine(current, line);
   });
   flush();
   return paragraphs.filter(Boolean).join("\n\n");
@@ -59,6 +81,20 @@ export const parseLabeledValue = (records, label) => {
   const pattern = new RegExp(`^${label}:\\s*(.*)$`, "i");
   const record = records.find((item) => pattern.test(item.text));
   return record?.text.match(pattern)?.[1]?.trim() ?? "";
+};
+
+export const parseLabeledBlockValue = (records, label, stopLabels) => {
+  const pattern = new RegExp(`^${label}:\\s*(.*)$`, "i");
+  const start = records.findIndex((item) => pattern.test(item.text));
+  if (start < 0) return "";
+
+  const value = [records[start].text.match(pattern)?.[1]?.trim() ?? ""];
+  const stopPattern = new RegExp(`^(?:${stopLabels.join("|")}):`, "i");
+  for (const record of records.slice(start + 1)) {
+    if (stopPattern.test(record.text)) break;
+    if (record.text && !isPageNoise(record.text)) value.push(record.text);
+  }
+  return value.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
 };
 
 export const uniqueByName = (records) => {
