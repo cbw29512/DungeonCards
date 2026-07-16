@@ -37,4 +37,11 @@ describe("encounter monster catalog", () => {
     const ids = encounterMonsterCatalog.map((monster) => monster.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
+
+  it("stores only CR values in visible encounter metadata", () => {
+    encounterMonsterCatalog.forEach((monster) => {
+      expect(monster.cr).not.toMatch(/\bXP\b/i);
+      expect(monster.cr).not.toContain("(");
+    });
+  });
 });
