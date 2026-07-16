@@ -48,12 +48,34 @@
     display: none !important;
   }
 
-  .monster-reference--print-folio > .monster-card,
+  .monster-reference--print-folio > .monster-card-flip,
   .monster-reference--print-card > .monster-folio {
     display: none !important;
   }
 
-  .monster-reference--print-card > .monster-card {
+  .monster-reference--print-card > .monster-card-flip {
+    display: block;
+    width: 2.5in;
+    height: 3.5in;
+    min-height: 3.5in;
+    perspective: none;
+  }
+
+  .monster-reference--print-card .monster-card-flip__inner {
+    transform: none !important;
+  }
+
+  .monster-reference--print-card .monster-card-flip__front {
+    display: none !important;
+  }
+
+  .monster-reference--print-card .monster-card-flip__back {
+    position: static;
+    display: block !important;
+    transform: none !important;
+  }
+
+  .monster-reference--print-card .monster-card-flip__back > .monster-card {
     width: 2.5in;
     height: 3.5in;
     min-height: 3.5in;
@@ -103,14 +125,16 @@
     padding: 0;
   }
 
-  .monster-folio__cover .monster-card {
+  .monster-folio__cover .monster-card,
+  .monster-folio__cover .monster-portrait-card {
     width: 2.5in;
     height: 3.5in;
     min-height: 3.5in;
     border-radius: 0;
   }
 
-  .monster-card {
+  .monster-card,
+  .monster-portrait-card {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
