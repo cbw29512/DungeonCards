@@ -1,9 +1,14 @@
 import type { SrdMonsterRecord } from "../types/srdCompendium";
 import { RULESET_LABELS } from "../types/ruleCards";
-import { formatMonsterChallengeRating } from "../utils/monsterChallenge";
+import {
+  formatMonsterChallengeRating,
+  stripMonsterExperienceText
+} from "../utils/monsterChallenge";
 
 const previewText = (monster: SrdMonsterRecord) => {
-  const source = monster.actions || monster.traits || monster.rawText;
+  const source = stripMonsterExperienceText(
+    monster.actions || monster.traits || monster.rawText
+  );
   return source.length > 520 ? `${source.slice(0, 517).trim()}…` : source;
 };
 
