@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import type { SrdMonsterRecord } from "../types/srdCompendium";
+import { RULESET_LABELS } from "../types/ruleCards";
 import {
   RuleCardWorkspaceActions,
   type WorkspaceCardControls
 } from "./RuleCardWorkspaceActions";
+import { MonsterCardFlip } from "./MonsterCardFlip";
+import { MonsterPortraitFace } from "./MonsterPortraitFace";
 import { SrdMonsterEncounterFace } from "./SrdMonsterEncounterFace";
 import { SrdMonsterEncounterFolio } from "./SrdMonsterEncounterFolio";
 
@@ -37,7 +40,19 @@ export const SrdMonsterEncounterCard = ({
     <article
       className={`monster-reference monster-reference--accordion monster-reference--print-folio${isPrinting ? " monster-reference--printing" : ""}`}
     >
-      <SrdMonsterEncounterFace monster={monster} />
+      <MonsterCardFlip
+        back={<SrdMonsterEncounterFace monster={monster} />}
+        front={(
+          <MonsterPortraitFace
+            challengeRating={monster.challenge}
+            name={monster.name}
+            rulesetLabel={RULESET_LABELS[monster.edition]}
+            size={monster.size}
+            type={monster.type}
+          />
+        )}
+        monsterName={monster.name}
+      />
       <RuleCardWorkspaceActions
         cardName={monster.name}
         collectionLabel="My Encounter"
