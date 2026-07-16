@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import type { MonsterCardData, MonsterItem } from "../types/monsters";
 import { listMonsterText, monsterRulesetLabel } from "../utils/monsterCards";
-import { MonsterCardFace } from "./MonsterCardFace";
+import { MonsterPortraitFace } from "./MonsterPortraitFace";
 
 const ItemList = ({ items }: { items: MonsterItem[] }) => items.length > 0 ? (
   <ul className="monster-folio__items">
@@ -35,9 +35,25 @@ type FolioCard = {
 };
 
 const buildFolioCards = (monster: MonsterCardData): FolioCard[] => [
-  { id: "overview", label: "Overview", cover: true, content: <MonsterCardFace monster={monster} /> },
+  {
+    id: "portrait",
+    label: "Portrait",
+    cover: true,
+    content: (
+      <MonsterPortraitFace
+        challengeRating={monster.cr}
+        name={monster.name}
+        rulesetLabel={monsterRulesetLabel(monster)}
+        size={monster.size}
+        type={monster.type}
+      />
+    )
+  },
   { id: "defense", label: "Defense & Awareness", content: <>
     <h3>Defense & Awareness</h3>
+    <p><b>Armor Class:</b> {monster.ac}</p>
+    <p><b>Hit Points:</b> {monster.hp}</p>
+    <p><b>Speed:</b> {monster.speed}</p>
     <p><b>Saves:</b> {listMonsterText(monster.saves)}</p>
     <p><b>Skills:</b> {listMonsterText(monster.skills)}</p>
     <p><b>Senses:</b> {monster.senses}</p>

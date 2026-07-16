@@ -1,13 +1,15 @@
 import { useState, type ReactNode } from "react";
 import type { SrdMonsterRecord } from "../types/srdCompendium";
 import { RULESET_LABELS } from "../types/ruleCards";
-import { SrdMonsterEncounterFace } from "./SrdMonsterEncounterFace";
+import { stripMonsterExperienceText } from "../utils/monsterChallenge";
+import { MonsterPortraitFace } from "./MonsterPortraitFace";
 
 const ReferenceText = ({ text, empty = "—" }: { text: string; empty?: string }) => {
-  if (!text.trim()) return <p>{empty}</p>;
+  const cleaned = stripMonsterExperienceText(text);
+  if (!cleaned.trim()) return <p>{empty}</p>;
   return (
     <div className="srd-monster-folio__text">
-      {text.split("\n\n").map((paragraph, index) => (
+      {cleaned.split("\n\n").map((paragraph, index) => (
         <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
       ))}
     </div>
@@ -23,10 +25,18 @@ type FolioCard = {
 
 const buildCards = (monster: SrdMonsterRecord): FolioCard[] => [
   {
-    id: "overview",
-    label: "Overview",
+    id: "portrait",
+    label: "Portrait",
     cover: true,
-    content: <SrdMonsterEncounterFace monster={monster} />
+    content: (
+      <MonsterPortraitFace
+        challengeRating={monster.challenge}
+        name={monster.name}
+        rulesetLabel={RULESET_LABELS[monster.edition]}
+        size={monster.size}
+        type={monster.type}
+      />
+    )
   },
   {
     id: "stat-block",
