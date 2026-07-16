@@ -32,6 +32,7 @@ const buildCards = (monster: SrdMonsterRecord): FolioCard[] => [
       <MonsterPortraitFace
         challengeRating={monster.challenge}
         name={monster.name}
+        ruleset={monster.edition}
         rulesetLabel={RULESET_LABELS[monster.edition]}
         size={monster.size}
         type={monster.type}
@@ -85,18 +86,13 @@ const buildCards = (monster: SrdMonsterRecord): FolioCard[] => [
   }
 ];
 
-export const SrdMonsterEncounterFolio = ({
-  monster
-}: {
-  monster: SrdMonsterRecord;
-}) => {
+export const SrdMonsterEncounterFolio = ({ monster }: { monster: SrdMonsterRecord }) => {
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const cards = buildCards(monster);
   const activeCard = cards[activeCardIndex];
-
-  const moveToCard = (nextIndex: number) => {
-    setActiveCardIndex(Math.max(0, Math.min(cards.length - 1, nextIndex)));
-  };
+  const moveToCard = (nextIndex: number) => setActiveCardIndex(
+    Math.max(0, Math.min(cards.length - 1, nextIndex))
+  );
 
   return (
     <section className="monster-folio" aria-label={`${monster.name} ordered SRD monster folio`}>
@@ -109,33 +105,15 @@ export const SrdMonsterEncounterFolio = ({
             hidden={index !== activeCardIndex}
             key={card.id}
           >
-            {!card.cover && (
-              <small className="monster-folio__card-kicker">
-                Card {index + 1} of {cards.length}
-              </small>
-            )}
+            {!card.cover && <small className="monster-folio__card-kicker">Card {index + 1} of {cards.length}</small>}
             {card.content}
           </div>
         ))}
       </div>
       <nav className="monster-folio__navigation" aria-label={`${monster.name} folio cards`}>
-        <button
-          disabled={activeCardIndex === 0}
-          onClick={() => moveToCard(activeCardIndex - 1)}
-          type="button"
-        >
-          Previous
-        </button>
-        <output aria-live="polite">
-          Card {activeCardIndex + 1} of {cards.length} · {activeCard.label}
-        </output>
-        <button
-          disabled={activeCardIndex === cards.length - 1}
-          onClick={() => moveToCard(activeCardIndex + 1)}
-          type="button"
-        >
-          Next
-        </button>
+        <button disabled={activeCardIndex === 0} onClick={() => moveToCard(activeCardIndex - 1)} type="button">Previous</button>
+        <output aria-live="polite">Card {activeCardIndex + 1} of {cards.length} · {activeCard.label}</output>
+        <button disabled={activeCardIndex === cards.length - 1} onClick={() => moveToCard(activeCardIndex + 1)} type="button">Next</button>
       </nav>
     </section>
   );
