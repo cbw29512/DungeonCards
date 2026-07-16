@@ -54,10 +54,28 @@
   overflow: hidden;
 }
 
-.monster-portrait-card__art {
+.monster-portrait-card__art,
+.monster-portrait-card__licensed-art {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.monster-portrait-card__licensed-art {
+  background: #0c0910;
+  object-fit: cover;
+  object-position: center 25%;
+}
+
+.monster-portrait-card[data-artwork-id="john-batten-goblin"] .monster-portrait-card__licensed-art {
+  padding: 0.5rem 0.35rem 5rem;
+  background: #e7dfcf;
+  object-fit: contain;
+}
+
+.monster-portrait-card[data-artwork-id="bertuch-european-dragon"] .monster-portrait-card__licensed-art {
+  filter: grayscale(0.7) brightness(0.52) contrast(1.35) saturate(0.65);
+  object-position: center 32%;
 }
 
 .monster-portrait-card__caption {
@@ -103,6 +121,14 @@
 .monster-portrait-card__caption span {
   color: #d8c9b8;
   font-size: 0.58rem;
+}
+
+.monster-portrait-card__caption .monster-portrait-card__credit {
+  color: #bcb1a6;
+  font-size: 0.48rem;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: none;
 }
 
 .monster-folio__cover .monster-portrait-card {
