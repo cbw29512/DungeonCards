@@ -23,6 +23,7 @@ import "./styles/rules-guide.css";
 import "./styles/srd-compendium.css";
 import "./styles/workspaces.css";
 import "./styles/monsters.css";
+import "./styles/monster-card-flip.css";
 import "./styles/srd-encounter-monsters.css";
 import "./styles/monster-homebrew.css";
 import "./styles/monster-print.css";
