@@ -1,10 +1,13 @@
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { getMonsterArtwork } from "../data/monsterArtwork";
+import type { MonsterRuleset } from "../types/monsters";
 import { formatMonsterChallengeRating } from "../utils/monsterChallenge";
 
 type MonsterPortraitFaceProps = {
   name: string;
   type: string;
   size: string;
+  ruleset: MonsterRuleset;
   rulesetLabel: string;
   challengeRating: string;
 };
@@ -67,6 +70,7 @@ export const MonsterPortraitFace = ({
   name,
   type,
   size,
+  ruleset,
   rulesetLabel,
   challengeRating
 }: MonsterPortraitFaceProps) => {
@@ -77,27 +81,55 @@ export const MonsterPortraitFace = ({
     "--monster-art-accent": palette[1],
     "--monster-art-glow": palette[2]
   } as CSSProperties;
+  const artwork = ruleset === "homebrew"
+    ? undefined
+    : getMonsterArtwork(ruleset, name);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => setImageFailed(false), [artwork?.imageUrl]);
+
+  const showLicensedArtwork = Boolean(artwork && !imageFailed);
 
   return (
-    <article className="monster-portrait-card" style={style}>
-      <svg
-        aria-label={`Original illustrated portrait for ${name}`}
-        className="monster-portrait-card__art"
-        role="img"
-        viewBox="0 0 500 620"
-      >
-        <rect width="500" height="620" fill="var(--monster-art-bg)" />
-        <circle cx="250" cy="252" r="190" fill="var(--monster-art-accent)" opacity="0.34" />
-        <circle cx="250" cy="252" r="150" fill="var(--monster-art-glow)" opacity="0.12" />
-        <g color="var(--monster-art-accent)" fill="currentColor" opacity="0.96">
-          <MonsterSilhouette seed={seed} type={type} />
-        </g>
-        <path d="M0 510 C110 470 169 556 270 506 C366 458 413 516 500 480 L500 620 L0 620 Z" fill="var(--monster-art-bg)" opacity="0.92" />
-      </svg>
+    <article
+      className={`monster-portrait-card${showLicensedArtwork ? " monster-portrait-card--licensed" : " monster-portrait-card--fallback"}`}
+      data-artwork-id={artwork?.id}
+      style={style}
+    >
+      {showLicensedArtwork ? (
+        <img
+          alt={`${name} illustration: ${artwork?.title}`}
+          className="monster-portrait-card__licensed-art"
+          decoding="async"
+          loading="lazy"
+          onError={() => setImageFailed(true)}
+          src={artwork?.imageUrl}
+        />
+      ) : (
+        <svg
+          aria-label={`Original generated fallback portrait for ${name}`}
+          className="monster-portrait-card__art"
+          role="img"
+          viewBox="0 0 500 620"
+        >
+          <rect width="500" height="620" fill="var(--monster-art-bg)" />
+          <circle cx="250" cy="252" r="190" fill="var(--monster-art-accent)" opacity="0.34" />
+          <circle cx="250" cy="252" r="150" fill="var(--monster-art-glow)" opacity="0.12" />
+          <g color="var(--monster-art-accent)" fill="currentColor" opacity="0.96">
+            <MonsterSilhouette seed={seed} type={type} />
+          </g>
+          <path d="M0 510 C110 470 169 556 270 506 C366 458 413 516 500 480 L500 620 L0 620 Z" fill="var(--monster-art-bg)" opacity="0.92" />
+        </svg>
+      )}
       <div className="monster-portrait-card__caption">
         <small>{rulesetLabel} • {size} {type}</small>
         <h3>{name}</h3>
         <div><b>CR {formatMonsterChallengeRating(challengeRating)}</b><span>Click for stats</span></div>
+        <small className="monster-portrait-card__credit">
+          {artwork
+            ? `${artwork.creator} • ${artwork.licenseName}`
+            : "Original generated fallback • licensing-safe"}
+        </small>
       </div>
     </article>
   );
