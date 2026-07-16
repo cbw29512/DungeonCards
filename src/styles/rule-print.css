@@ -1,0 +1,67 @@
+@media print {
+  .top-nav,
+  .section-heading,
+  .rule-history,
+  .workspace-toolbar,
+  .rules-deck__search,
+  .rule-card__workspace-actions {
+    display: none !important;
+  }
+
+  .rules-deck,
+  .rules-deck__layout {
+    display: block;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .rules-card-grid {
+    display: grid;
+    width: 7.5in;
+    margin: 0 auto;
+    gap: 0;
+    grid-template-columns: repeat(3, 2.5in);
+  }
+
+  .rule-card {
+    width: 2.5in !important;
+    height: 3.5in !important;
+    min-width: 2.5in !important;
+    min-height: 3.5in !important;
+    max-width: 2.5in !important;
+    max-height: 3.5in !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    perspective: none;
+  }
+
+  .rule-card__inner {
+    transform: none !important;
+  }
+
+  .rule-card__face {
+    border-radius: 0.12in;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .rule-card__front {
+    display: flex !important;
+  }
+
+  .rule-card__back {
+    display: none !important;
+  }
+
+  .rule-card.is-flipped .rule-card__front {
+    display: none !important;
+  }
+
+  .rule-card.is-flipped .rule-card__back {
+    display: flex !important;
+    transform: none !important;
+  }
+}
