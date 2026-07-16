@@ -35,8 +35,8 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
   const [secondaryChoiceId, setSecondaryChoiceId] = useState(
     initialMode.secondaryRoll?.choices?.[0]?.id
   );
-  const [slotLevel, setSlotLevel] = useState(1);
-  const [characterLevel, setCharacterLevel] = useState(1);
+  const [slotLevel, setSlotLevelState] = useState(1);
+  const [characterLevel, setCharacterLevelState] = useState(1);
   const [modifier, setModifier] = useState(
     initialMode.modifierControl?.defaultValue ?? 0
   );
@@ -72,6 +72,16 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
   const scalePart = mode.scaling ? mode : mode.secondaryRoll ?? mode;
   const scaleBounds = getScaleBounds(scalePart);
 
+  const setSlotLevel = (nextLevel: number) => {
+    setSlotLevelState(nextLevel);
+    setResult(undefined);
+  };
+
+  const setCharacterLevel = (nextLevel: number) => {
+    setCharacterLevelState(nextLevel);
+    setResult(undefined);
+  };
+
   const configureMode = (nextMode: RuleRollMode) => {
     setModeId(nextMode.id);
     setChoiceId(nextMode.choices?.[0]?.id);
@@ -79,8 +89,8 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
     setModifier(nextMode.modifierControl?.defaultValue ?? 0);
     setSecondaryModifier(nextMode.secondaryRoll?.modifierControl?.defaultValue ?? 0);
     const scaling = nextMode.scaling ?? nextMode.secondaryRoll?.scaling;
-    setSlotLevel(scaling?.kind === "slot-dice" ? scaling.baseLevel : 1);
-    setCharacterLevel(1);
+    setSlotLevelState(scaling?.kind === "slot-dice" ? scaling.baseLevel : 1);
+    setCharacterLevelState(1);
     setAdvantageMode("normal");
     setResult(undefined);
     setIsFlipped(false);
