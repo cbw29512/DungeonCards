@@ -1,5 +1,6 @@
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
 import type { MonsterCardData } from "../types/monsters";
+import { formatMonsterChallengeRating } from "../utils/monsterChallenge";
 import { monsterCatalog } from "./monsterCatalog";
 import { srdMonsters } from "./srdCompendium";
 
@@ -15,7 +16,7 @@ const formattedEntries: EncounterMonsterEntry[] = monsterCatalog.map((monster) =
   kind: "formatted",
   name: monster.name,
   ruleset: monster.ruleset,
-  cr: monster.cr,
+  cr: formatMonsterChallengeRating(monster.cr),
   type: monster.type,
   size: monster.size,
   source: monster.source,
@@ -29,7 +30,7 @@ const generatedEntries: EncounterMonsterEntry[] = srdMonsters
     kind: "reference",
     name: monster.name,
     ruleset: monster.edition,
-    cr: monster.challenge,
+    cr: formatMonsterChallengeRating(monster.challenge),
     type: monster.type,
     size: monster.size,
     source: monster.sourceReference,
@@ -51,7 +52,7 @@ export const createHomebrewEncounterEntry = (
   kind: "formatted",
   name: monster.name,
   ruleset: monster.ruleset,
-  cr: monster.cr,
+  cr: formatMonsterChallengeRating(monster.cr),
   type: monster.type,
   size: monster.size,
   source: monster.source,
