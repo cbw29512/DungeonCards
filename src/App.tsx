@@ -19,6 +19,7 @@ import "./styles/rule-cards.css";
 import "./styles/rule-controls.css";
 import "./styles/rule-advantage.css";
 import "./styles/rule-history.css";
+import "./styles/rule-print.css";
 import "./styles/rules-guide.css";
 import "./styles/srd-compendium.css";
 import "./styles/workspaces.css";
