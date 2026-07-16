@@ -46,6 +46,7 @@ export const SrdMonsterEncounterCard = ({
           <MonsterPortraitFace
             challengeRating={monster.challenge}
             name={monster.name}
+            ruleset={monster.edition}
             rulesetLabel={RULESET_LABELS[monster.edition]}
             size={monster.size}
             type={monster.type}

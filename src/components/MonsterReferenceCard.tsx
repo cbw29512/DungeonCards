@@ -68,6 +68,7 @@ export const MonsterReferenceCard = ({
           <MonsterPortraitFace
             challengeRating={monster.cr}
             name={monster.name}
+            ruleset={monster.ruleset}
             rulesetLabel={monsterRulesetLabel(monster)}
             size={monster.size}
             type={monster.type}
