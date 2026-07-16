@@ -4,6 +4,7 @@ import type { useRuleCardState } from "../hooks/useRuleCardState";
 import { formatRollBreakdown } from "../utils/formatRollResult";
 import { getAttackRollImpact } from "../utils/ruleRollImpact";
 import { RuleCardAdvantageControls } from "./RuleCardAdvantageControls";
+import { RuleCardStepper } from "./RuleCardStepper";
 
 type RuleCardController = ReturnType<typeof useRuleCardState>;
 
@@ -18,10 +19,15 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
     formula,
     mode,
     advantageMode,
+    slotLevel,
+    scaleBounds,
     roll,
     setAdvantageMode,
+    setSlotLevel,
     setIsFlipped
   } = controller;
+  const scaling = mode.scaling ?? mode.secondaryRoll?.scaling;
+  const hasSlotScaling = scaling?.kind === "slot-dice";
   const impact = getAttackRollImpact(result);
   const outcome = impact?.title ?? mode.label;
   const impactClass = impact ? ` rule-card__back--${impact.kind}` : "";
@@ -73,7 +79,7 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
         <div className="rule-result" aria-live="polite">
           <strong>{result?.total ?? "—"}</strong>
           <span>{formula}</span>
-          <p>{formatRollBreakdown(result)}</p>
+          <p>{result ? formatRollBreakdown(result) : "Choose the casting level, then click to roll."}</p>
           {impact && <em className="rule-result__impact-label">{impact.subtitle}</em>}
           {result?.tableResult && <blockquote>{result.tableResult}</blockquote>}
         </div>
@@ -90,17 +96,32 @@ export const RuleCardBack = ({ card, controller }: RuleCardBackProps) => {
         )}
       </div>
 
-      {mode.allowsAdvantage && (
-        <RuleCardAdvantageControls
-          cardName={card.name}
-          mode={advantageMode}
-          onChange={setAdvantageMode}
-        />
+      {(hasSlotScaling || mode.allowsAdvantage) && (
+        <div className="rule-card__roll-settings">
+          {hasSlotScaling && (
+            <RuleCardStepper
+              label="Cast Slot"
+              maximum={scaleBounds[1]}
+              minimum={scaleBounds[0]}
+              onChange={setSlotLevel}
+              value={slotLevel}
+            />
+          )}
+          {mode.allowsAdvantage && (
+            <RuleCardAdvantageControls
+              cardName={card.name}
+              mode={advantageMode}
+              onChange={setAdvantageMode}
+            />
+          )}
+        </div>
       )}
 
       <div className="rule-card__back-actions">
         <button onClick={handleChange} type="button">Change</button>
-        <span className="rule-card__reroll-hint">Click the card to roll again</span>
+        <span className="rule-card__reroll-hint">
+          {hasSlotScaling ? `Slot ${slotLevel} • click card to cast` : "Click the card to roll again"}
+        </span>
       </div>
     </section>
   );

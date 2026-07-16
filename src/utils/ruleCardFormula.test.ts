@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { playerRuleCards } from "../data/ruleCardCatalog";
-import type { RuleRollMode, RulesetId } from "../types/ruleCards";
+import type { RuleRollMode, RuleRollPart, RulesetId } from "../types/ruleCards";
 import {
   resolveRuleFormula,
   resolveRuleTable,
@@ -36,6 +36,15 @@ const formula = (
   characterLevel,
   modifier
 );
+
+const resolvePart = (part: RuleRollPart, slotLevel: number): string =>
+  resolveRuleFormula(
+    part,
+    slotLevel,
+    1,
+    part.modifierControl?.defaultValue ?? 0,
+    part.choices?.[0]?.id
+  );
 
 describe("rule card formula scaling", () => {
   it("scales Fireball one d6 per higher spell slot", () => {
@@ -91,5 +100,27 @@ describe("rule card formula scaling", () => {
     expect(newMode.formula).toBe("1d6");
     expect(resolveTableResult(resolveRuleTable(oldMode), 11)).toContain("Vanish");
     expect(resolveTableResult(resolveRuleTable(newMode), 4)).toContain("Vanish");
+  });
+
+  it("changes every slot-scaled spell formula at the next valid slot", () => {
+    let scalableParts = 0;
+
+    playerRuleCards.forEach((card) => {
+      Object.values(card.variants).forEach((variant) => {
+        variant?.modes.forEach((mode) => {
+          [mode, mode.secondaryRoll].filter(Boolean).forEach((part) => {
+            if (part?.scaling?.kind !== "slot-dice") return;
+            scalableParts += 1;
+            const baseLevel = part.scaling.baseLevel;
+            const nextLevel = Math.min(part.scaling.maxLevel, baseLevel + 1);
+            expect(resolvePart(part, nextLevel), `${card.name} ${mode.label}`).not.toBe(
+              resolvePart(part, baseLevel)
+            );
+          });
+        });
+      });
+    });
+
+    expect(scalableParts).toBeGreaterThan(10);
   });
 });

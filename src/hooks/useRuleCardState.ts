@@ -25,6 +25,11 @@ type RuleCardStateProps = {
 const getRulesets = (card: RuleCard): RulesetId[] =>
   Object.keys(card.variants) as RulesetId[];
 
+const getInitialSlotLevel = (mode: RuleRollMode): number => {
+  const scaling = mode.scaling ?? mode.secondaryRoll?.scaling;
+  return scaling?.kind === "slot-dice" ? scaling.baseLevel : 1;
+};
+
 export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
   const rulesets = useMemo(() => getRulesets(card), [card]);
   const [ruleset, setRuleset] = useState<RulesetId>(rulesets[0]);
@@ -35,8 +40,8 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
   const [secondaryChoiceId, setSecondaryChoiceId] = useState(
     initialMode.secondaryRoll?.choices?.[0]?.id
   );
-  const [slotLevel, setSlotLevel] = useState(1);
-  const [characterLevel, setCharacterLevel] = useState(1);
+  const [slotLevel, setSlotLevelState] = useState(getInitialSlotLevel(initialMode));
+  const [characterLevel, setCharacterLevelState] = useState(1);
   const [modifier, setModifier] = useState(
     initialMode.modifierControl?.defaultValue ?? 0
   );
@@ -72,15 +77,24 @@ export const useRuleCardState = ({ card, onRoll }: RuleCardStateProps) => {
   const scalePart = mode.scaling ? mode : mode.secondaryRoll ?? mode;
   const scaleBounds = getScaleBounds(scalePart);
 
+  const setSlotLevel = (nextLevel: number) => {
+    setSlotLevelState(nextLevel);
+    setResult(undefined);
+  };
+
+  const setCharacterLevel = (nextLevel: number) => {
+    setCharacterLevelState(nextLevel);
+    setResult(undefined);
+  };
+
   const configureMode = (nextMode: RuleRollMode) => {
     setModeId(nextMode.id);
     setChoiceId(nextMode.choices?.[0]?.id);
     setSecondaryChoiceId(nextMode.secondaryRoll?.choices?.[0]?.id);
     setModifier(nextMode.modifierControl?.defaultValue ?? 0);
     setSecondaryModifier(nextMode.secondaryRoll?.modifierControl?.defaultValue ?? 0);
-    const scaling = nextMode.scaling ?? nextMode.secondaryRoll?.scaling;
-    setSlotLevel(scaling?.kind === "slot-dice" ? scaling.baseLevel : 1);
-    setCharacterLevel(1);
+    setSlotLevelState(getInitialSlotLevel(nextMode));
+    setCharacterLevelState(1);
     setAdvantageMode("normal");
     setResult(undefined);
     setIsFlipped(false);
