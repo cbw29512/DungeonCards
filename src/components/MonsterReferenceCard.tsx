@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import type { MonsterCardData } from "../types/monsters";
 import {
   estimateMonsterLayout,
-  getMonsterPrintLayout
+  getMonsterPrintLayout,
+  monsterRulesetLabel
 } from "../utils/monsterCards";
 import {
   RuleCardWorkspaceActions,
   type WorkspaceCardControls
 } from "./RuleCardWorkspaceActions";
 import { MonsterCardFace } from "./MonsterCardFace";
+import { MonsterCardFlip } from "./MonsterCardFlip";
 import { MonsterFolio } from "./MonsterFolio";
+import { MonsterPortraitFace } from "./MonsterPortraitFace";
 
 type MonsterReferenceCardProps = {
   monster: MonsterCardData;
@@ -34,14 +37,8 @@ export const MonsterReferenceCard = ({
   }, []);
 
   const printMonster = () => {
-    if (printLayout === "folio") {
-      setIsExpanded(true);
-    }
-
+    if (printLayout === "folio") setIsExpanded(true);
     setIsPrinting(true);
-
-    // Two animation frames give React time to commit the print-only classes and,
-    // for complex monsters, mount the folio before the browser opens print preview.
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => window.print());
     });
@@ -52,10 +49,7 @@ export const MonsterReferenceCard = ({
       const confirmed = window.confirm(
         `Delete ${monster.name} from your personal Monster Library?`
       );
-
-      if (confirmed) {
-        onDelete?.();
-      }
+      if (confirmed) onDelete?.();
     } catch (error) {
       console.error("Confirming homebrew monster deletion failed", {
         monsterId: monster.id,
@@ -68,7 +62,19 @@ export const MonsterReferenceCard = ({
     <article
       className={`monster-reference monster-reference--${layout} monster-reference--print-${printLayout}${isPrinting ? " monster-reference--printing" : ""}`}
     >
-      <MonsterCardFace monster={monster} />
+      <MonsterCardFlip
+        back={<MonsterCardFace monster={monster} />}
+        front={(
+          <MonsterPortraitFace
+            challengeRating={monster.cr}
+            name={monster.name}
+            rulesetLabel={monsterRulesetLabel(monster)}
+            size={monster.size}
+            type={monster.type}
+          />
+        )}
+        monsterName={monster.name}
+      />
       <RuleCardWorkspaceActions
         cardName={monster.name}
         collectionLabel="My Encounter"
