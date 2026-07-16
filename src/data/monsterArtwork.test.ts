@@ -42,9 +42,9 @@ describe("licensed monster artwork manifest", () => {
     expect(new Set(assignments).size).toBe(assignments.length);
   });
 
-  it("resolves the first verified Goblin Dragon and Lich artwork records", () => {
-    expect(getMonsterArtwork("srd-5.1-2014", "Goblin")?.licenseId).toBe("public-domain");
-    expect(getMonsterArtwork("srd-5.1-2014", "Adult Black Dragon")?.licenseId).toBe("public-domain");
+  it("keeps only the verified matching Lich artwork assignment", () => {
+    expect(getMonsterArtwork("srd-5.1-2014", "Goblin")).toBeUndefined();
+    expect(getMonsterArtwork("srd-5.1-2014", "Adult Black Dragon")).toBeUndefined();
     expect(getMonsterArtwork("srd-5.1-2014", "Lich")?.licenseId).toBe("gpl-2.0-or-later");
     expect(getMonsterArtwork("srd-5.1-2014", "Aboleth")).toBeUndefined();
   });
