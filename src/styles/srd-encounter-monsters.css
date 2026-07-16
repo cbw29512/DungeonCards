@@ -1,0 +1,22 @@
+.monster-card--srd-reference .monster-card__reference-text {
+  display: grid;
+  min-height: 0;
+  align-content: start;
+  gap: 0.3rem;
+}
+
+.monster-card--srd-reference .monster-card__reference-text p {
+  margin: 0;
+  color: #e1d4c7;
+  font-size: 0.56rem;
+  line-height: 1.28;
+  overflow: hidden;
+}
+
+.srd-monster-folio__text p {
+  margin: 0 0 0.35rem;
+}
+
+.srd-monster-folio__text p:last-child {
+  margin-bottom: 0;
+}

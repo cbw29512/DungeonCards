@@ -1,9 +1,13 @@
 import { useMemo, useState } from "react";
-import { monsterCatalog } from "../data/monsterCatalog";
+import {
+  createHomebrewEncounterEntry,
+  encounterMonsterCatalog
+} from "../data/encounterMonsterCatalog";
 import { useCardWorkspace } from "../hooks/useCardWorkspace";
 import type { MonsterCardData, MonsterRuleset } from "../types/monsters";
 import type { WorkspaceView } from "../types/workspaces";
 import { MonsterReferenceCard } from "./MonsterReferenceCard";
+import { SrdMonsterEncounterCard } from "./SrdMonsterEncounterCard";
 import { WorkspaceToolbar } from "./WorkspaceToolbar";
 
 const rulesetOptions: Array<MonsterRuleset | "all"> = [
@@ -36,7 +40,10 @@ export const MonsterDeck = ({
   const [ruleset, setRuleset] = useState<MonsterRuleset | "all">("all");
   const [type, setType] = useState("all");
   const monsters = useMemo(
-    () => [...monsterCatalog, ...homebrewMonsters],
+    () => [
+      ...encounterMonsterCatalog,
+      ...homebrewMonsters.map(createHomebrewEncounterEntry)
+    ],
     [homebrewMonsters]
   );
   const workspace = useCardWorkspace("monster", monsters);
@@ -60,9 +67,10 @@ export const MonsterDeck = ({
     <section className="monster-deck" aria-labelledby="monster-deck-title">
       <div className="section-heading monster-deck__heading">
         <p>monster cards</p>
-        <h2 id="monster-deck-title">Build tonight's encounter from printable monster references.</h2>
+        <h2 id="monster-deck-title">Build tonight's encounter from the complete SRD monster library.</h2>
         <span>
-          Simple monsters stay on one poker-size card. Bosses and spellcasters open into readable folios.
+          All 642 licensed SRD monsters are available. Three have fully formatted combat cards;
+          the remaining records open as ordered, equal-size six-card reference folios.
         </span>
         <WorkspaceToolbar
           activeCount={workspace.workspace.activeCardIds.length}
@@ -78,7 +86,7 @@ export const MonsterDeck = ({
           <input
             aria-label="Search monsters"
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={view === "table" ? "Search My Encounter…" : "Search Monster Library…"}
+            placeholder={view === "table" ? "Search My Encounter…" : "Search all SRD monsters…"}
             type="search"
             value={query}
           />
@@ -87,10 +95,20 @@ export const MonsterDeck = ({
             onChange={(event) => setRuleset(event.target.value as MonsterRuleset | "all")}
             value={ruleset}
           >
-            {rulesetOptions.map((option) => <option key={option} value={option}>{rulesetText(option)}</option>)}
+            {rulesetOptions.map((option) => (
+              <option key={option} value={option}>{rulesetText(option)}</option>
+            ))}
           </select>
-          <select aria-label="Filter monster type" onChange={(event) => setType(event.target.value)} value={type}>
-            {types.map((option) => <option key={option} value={option}>{option === "all" ? "All creature types" : option}</option>)}
+          <select
+            aria-label="Filter monster type"
+            onChange={(event) => setType(event.target.value)}
+            value={type}
+          >
+            {types.map((option) => (
+              <option key={option} value={option}>
+                {option === "all" ? "All creature types" : option}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -110,37 +128,48 @@ export const MonsterDeck = ({
         </div>
       ) : (
         <div className="monster-grid">
-          {filtered.map((monster) => {
-            const isActive = workspace.workspace.activeCardIds.includes(monster.id);
-            const isPinned = workspace.workspace.pinnedCardIds.includes(monster.id);
-            const tableIndex = workspace.activeCards.findIndex((item) => item.id === monster.id);
+          {filtered.map((entry) => {
+            const isActive = workspace.workspace.activeCardIds.includes(entry.id);
+            const isPinned = workspace.workspace.pinnedCardIds.includes(entry.id);
+            const tableIndex = workspace.activeCards.findIndex((item) => item.id === entry.id);
             const previous = workspace.activeCards[tableIndex - 1];
             const next = workspace.activeCards[tableIndex + 1];
             const previousMatches = previous !== undefined
               && workspace.workspace.pinnedCardIds.includes(previous.id) === isPinned;
             const nextMatches = next !== undefined
               && workspace.workspace.pinnedCardIds.includes(next.id) === isPinned;
+            const workspaceControls = {
+              view,
+              isActive,
+              isPinned,
+              canMoveEarlier: view === "table" && previousMatches,
+              canMoveLater: view === "table" && nextMatches,
+              onToggleActive: () => isActive
+                ? workspace.removeCard(entry.id)
+                : workspace.addCard(entry.id),
+              onTogglePin: () => workspace.togglePin(entry.id),
+              onMoveEarlier: () => workspace.moveCard(entry.id, "earlier" as const),
+              onMoveLater: () => workspace.moveCard(entry.id, "later" as const)
+            };
+
+            if (entry.kind === "reference") {
+              return (
+                <SrdMonsterEncounterCard
+                  key={entry.id}
+                  monster={entry.monster}
+                  workspaceControls={workspaceControls}
+                />
+              );
+            }
 
             return (
               <MonsterReferenceCard
-                key={monster.id}
-                monster={monster}
-                onDelete={view === "library" && monster.ruleset === "homebrew"
-                  ? () => onDeleteHomebrewMonster(monster.id)
+                key={entry.id}
+                monster={entry.monster}
+                onDelete={view === "library" && entry.ruleset === "homebrew"
+                  ? () => onDeleteHomebrewMonster(entry.id)
                   : undefined}
-                workspaceControls={{
-                  view,
-                  isActive,
-                  isPinned,
-                  canMoveEarlier: view === "table" && previousMatches,
-                  canMoveLater: view === "table" && nextMatches,
-                  onToggleActive: () => isActive
-                    ? workspace.removeCard(monster.id)
-                    : workspace.addCard(monster.id),
-                  onTogglePin: () => workspace.togglePin(monster.id),
-                  onMoveEarlier: () => workspace.moveCard(monster.id, "earlier"),
-                  onMoveLater: () => workspace.moveCard(monster.id, "later")
-                }}
+                workspaceControls={workspaceControls}
               />
             );
           })}

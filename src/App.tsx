@@ -23,6 +23,7 @@ import "./styles/rules-guide.css";
 import "./styles/srd-compendium.css";
 import "./styles/workspaces.css";
 import "./styles/monsters.css";
+import "./styles/srd-encounter-monsters.css";
 import "./styles/monster-homebrew.css";
 import "./styles/monster-print.css";
 import "./styles/coc-preview.css";
@@ -95,7 +96,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("monster")}>
                 <span>🐉</span><strong>Monster Encounter</strong>
-                <small>Choose playable creatures, open ordered folios, and print references.</small>
+                <small>Choose SRD creatures, open ordered folios, and print references.</small>
               </button>
               <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
                 <span>🛠️</span><strong>Card Builder</strong>
