@@ -9,6 +9,42 @@
   margin: 0 auto 1.5rem;
 }
 
+.dm-forge-handoff {
+  display: grid;
+  margin-top: 1rem;
+  padding: 0.9rem;
+  align-items: center;
+  border: 1px solid #d3a34f;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, rgb(107 40 30 / 92%), rgb(45 24 49 / 96%));
+  gap: 0.65rem 1rem;
+  grid-template-columns: auto 1fr;
+}
+
+.dm-forge-handoff button {
+  min-height: 44px;
+  padding: 0.72rem 1rem;
+  color: #24150c;
+  border: 1px solid #6c4818;
+  border-radius: 0.65rem;
+  background: linear-gradient(#f0c96f, #b98934);
+  box-shadow: 0 3px 0 #4e3212;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.dm-forge-handoff button:hover,
+.dm-forge-handoff button:focus-visible {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.dm-forge-handoff span {
+  color: #f5e6ce;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
 .monster-deck__filters {
   display: grid;
   margin-top: 1rem;
@@ -243,6 +279,11 @@
   .monster-deck__filters,
   .monster-builder__layout { grid-template-columns: 1fr; }
   .monster-folio { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .dm-forge-handoff { grid-template-columns: 1fr; }
+  .dm-forge-handoff button { width: 100%; }
 }
 
 @media (max-width: 560px) {
