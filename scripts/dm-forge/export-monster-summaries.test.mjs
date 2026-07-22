@@ -16,12 +16,14 @@ const monsters = JSON.parse(await readFile(resolve(root, "src/generated/srd-mons
 const manifest = JSON.parse(await readFile(resolve(root, "src/generated/srd-manifest.json"), "utf8"));
 
 describe("DM Forge monster summary export", () => {
-  it("parses combat values without discarding their original source text", () => {
+  it("parses 5e and 5.5e combat values without discarding source text", () => {
     expect(parseArmorClass("19 (natural armor)")).toBe(19);
     expect(parseHitPoints("195 (17d12 + 85)")).toBe(195);
     expect(parseChallenge("14 (11,500 XP)")).toEqual({ challengeRating: "14", xp: 11500 });
+    expect(parseChallenge("14 (XP 11,500; PB +5)")).toEqual({ challengeRating: "14", xp: 11500 });
     expect(parseChallenge("1/4 (50 XP)")).toEqual({ challengeRating: "1/4", xp: 50 });
     expect(parseDexterity("STR DEX CON INT WIS CHA 23 (+6) 14 (+2) 21 (+5) 14 (+2) 13 (+1) 17 (+3)")).toEqual({ dexterity: 14, dexterityModifier: 2 });
+    expect(parseDexterity("MOD SAVE STR 23 +6 +6 DEX 14 +2 +7 CON 21 +5 +10 INT 14 +2 +2 WIS 13 +1 +6 CHA 17 +3 +8")).toEqual({ dexterity: 14, dexterityModifier: 2 });
   });
 
   it("maps only the two verified SRD editions into DM Forge ruleset IDs", () => {
@@ -42,6 +44,7 @@ describe("DM Forge monster summary export", () => {
       expect(monster.type.length).toBeGreaterThan(0);
       expect(monster.armorClass).toBeGreaterThanOrEqual(0);
       expect(monster.hitPoints).toBeGreaterThanOrEqual(0);
+      expect(monster.xp).toBeGreaterThanOrEqual(0);
       expect(monster.dexterity).toBeGreaterThanOrEqual(1);
       expect(monster.dexterityModifier).toBeGreaterThanOrEqual(-5);
       expect(monster.dexterityModifier).toBeLessThanOrEqual(10);
