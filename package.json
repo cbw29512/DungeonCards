@@ -14,7 +14,7 @@
     "check": "npm test && npm run build",
     "sync:srd": "node scripts/srd/sync.mjs",
     "verify:srd": "node scripts/srd/verify-generated.mjs",
-    "export:dm-forge": "node scripts/dm-forge/export-monster-summaries.mjs"
+    "export:dm-forge": "node scripts/dm-forge/export-monster-summaries.mjs && node scripts/dm-forge/export-monster-card-records.mjs"
   },
   "dependencies": {
     "react": "19.2.7",
