@@ -8,12 +8,13 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run export:dm-forge && tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "check": "npm test && npm run build",
     "sync:srd": "node scripts/srd/sync.mjs",
-    "verify:srd": "node scripts/srd/verify-generated.mjs"
+    "verify:srd": "node scripts/srd/verify-generated.mjs",
+    "export:dm-forge": "node scripts/dm-forge/export-monster-summaries.mjs"
   },
   "dependencies": {
     "react": "19.2.7",
