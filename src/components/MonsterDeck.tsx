@@ -3,6 +3,7 @@ import {
   createHomebrewEncounterEntry,
   encounterMonsterCatalog
 } from "../data/encounterMonsterCatalog";
+import { sendEncounterToDmForge } from "../integration/dmForgeEncounterHandoff";
 import { useCardWorkspace } from "../hooks/useCardWorkspace";
 import type { MonsterCardData, MonsterRuleset } from "../types/monsters";
 import type { WorkspaceView } from "../types/workspaces";
@@ -39,6 +40,7 @@ export const MonsterDeck = ({
   const [query, setQuery] = useState("");
   const [ruleset, setRuleset] = useState<MonsterRuleset | "all">("all");
   const [type, setType] = useState("all");
+  const [handoffError, setHandoffError] = useState<string | null>(null);
   const monsters = useMemo(
     () => [
       ...encounterMonsterCatalog,
@@ -63,6 +65,15 @@ export const MonsterDeck = ({
     });
   }, [query, ruleset, type, visible]);
 
+  const sendToDmForge = () => {
+    setHandoffError(null);
+    try {
+      sendEncounterToDmForge(workspace.activeCards);
+    } catch (error) {
+      setHandoffError(error instanceof Error ? error.message : "Could not send this encounter to DM Forge.");
+    }
+  };
+
   return (
     <section className="monster-deck" aria-labelledby="monster-deck-title">
       <div className="section-heading monster-deck__heading">
@@ -81,6 +92,13 @@ export const MonsterDeck = ({
           totalCount={monsters.length}
           view={view}
         />
+        {view === "table" && workspace.activeCards.length > 0 && (
+          <div className="dm-forge-handoff">
+            <button type="button" onClick={sendToDmForge}>Send My Encounter to DM Forge</button>
+            <span>Opens Encounter Forge with these monsters ready for party balancing, quantities, saving, printing, and Session Console launch.</span>
+          </div>
+        )}
+        {handoffError && <p className="workspace-error" role="alert">{handoffError}</p>}
         {libraryError && <p className="workspace-error" role="alert">{libraryError}</p>}
         <div className="monster-deck__filters">
           <input
