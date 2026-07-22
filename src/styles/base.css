@@ -31,17 +31,43 @@ button {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.85rem 1.5rem;
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-  background: rgb(13 8 24 / 86%);
+  border-bottom: 1px solid rgb(247 199 107 / 38%);
+  background: rgb(13 8 24 / 92%);
   backdrop-filter: blur(16px);
 }
-.top-nav div {
+.product-lockup {
+  display: grid;
+  gap: 0.1rem;
+  min-width: max-content;
+}
+.product-lockup span {
+  color: #d9c9b8;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.dm-forge-return {
+  width: max-content;
+  color: #f7c76b;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.dm-forge-return:hover,
+.dm-forge-return:focus-visible {
+  color: #fff4cf;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.top-nav__actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 .top-nav button {
+  min-height: 44px;
   padding: 0.65rem 0.9rem;
   border: 1px solid rgb(255 255 255 / 12%);
   border-radius: 999px;
@@ -49,8 +75,12 @@ button {
   cursor: pointer;
 }
 .top-nav button:hover,
-.top-nav button:focus-visible {
+.top-nav button:focus-visible,
+.top-nav button[aria-pressed="true"] {
   border-color: #f7c76b;
+}
+.top-nav button[aria-pressed="true"] {
+  background: rgb(247 199 107 / 18%);
 }
 .hero {
   display: grid;
@@ -126,7 +156,7 @@ button {
     align-items: flex-start;
     flex-direction: column;
   }
-  .top-nav div {
+  .top-nav__actions {
     justify-content: flex-start;
   }
   .hero {
