@@ -7,7 +7,7 @@ export const DM_FORGE_ENCOUNTER_HANDOFF_VERSION = 1;
 export type DmForgeEncounterHandoffMonster = {
   sourceRecordId: string;
   name: string;
-  ruleset: "2014" | "2024" | "homebrew";
+  ruleset: "2014" | "2024";
   quantity: number;
 };
 
@@ -21,7 +21,7 @@ export type DmForgeEncounterHandoff = {
 const publicRuleset = (value: EncounterMonsterEntry["ruleset"]): DmForgeEncounterHandoffMonster["ruleset"] => {
   if (value === "srd-5.1-2014") return "2014";
   if (value === "srd-5.2.1-2024") return "2024";
-  return "homebrew";
+  throw new Error("Homebrew monsters stay in DungeonCards until the versioned homebrew transfer format is complete.");
 };
 
 const activeCampaignName = (): string => {
@@ -41,17 +41,23 @@ const activeCampaignName = (): string => {
 
 export const buildDmForgeEncounterHandoff = (
   entries: EncounterMonsterEntry[]
-): DmForgeEncounterHandoff => ({
-  version: DM_FORGE_ENCOUNTER_HANDOFF_VERSION,
-  createdAt: new Date().toISOString(),
-  campaign: activeCampaignName().slice(0, 100),
-  monsters: entries.slice(0, 100).map((entry) => ({
-    sourceRecordId: String(entry.id).slice(0, 180),
-    name: String(entry.name).trim().slice(0, 160),
-    ruleset: publicRuleset(entry.ruleset),
-    quantity: 1
-  }))
-});
+): DmForgeEncounterHandoff => {
+  if (entries.some((entry) => entry.ruleset === "homebrew")) {
+    throw new Error("Remove homebrew monsters before sending. Verified SRD monsters can transfer now; homebrew transfer is still being specified.");
+  }
+
+  return {
+    version: DM_FORGE_ENCOUNTER_HANDOFF_VERSION,
+    createdAt: new Date().toISOString(),
+    campaign: activeCampaignName().slice(0, 100),
+    monsters: entries.slice(0, 100).map((entry) => ({
+      sourceRecordId: String(entry.id).slice(0, 180),
+      name: String(entry.name).trim().slice(0, 160),
+      ruleset: publicRuleset(entry.ruleset),
+      quantity: 1
+    }))
+  };
+};
 
 export const sendEncounterToDmForge = (entries: EncounterMonsterEntry[]): void => {
   if (!entries.length) throw new Error("Add at least one monster to My Encounter first.");
