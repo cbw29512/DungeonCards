@@ -35,21 +35,41 @@ export function parseChallenge(value) {
   const text = String(value || "").trim();
   const ratingMatch = text.match(/^(0|1\/8|1\/4|1\/2|\d+)/);
   if (!ratingMatch) throw new Error(`Could not parse challenge rating: ${value}`);
-  const xpMatch = text.match(/\(([\d,]+)\s+XP\)/i);
+
+  // SRD 5.1 generally writes "(5,900 XP)". SRD 5.2.1 generally writes
+  // "(XP 5,900; PB +4)". Search both directions rather than assuming one edition's punctuation.
+  const xpMatch = text.match(/\bXP\s+([\d,]+)/i) || text.match(/([\d,]+)\s+XP\b/i);
+  if (!xpMatch) throw new Error(`Could not parse challenge XP: ${value}`);
+
   return {
     challengeRating: ratingMatch[1],
-    xp: xpMatch ? requiredInteger(xpMatch[1].replaceAll(",", ""), "challenge XP", 0) : 0
+    xp: requiredInteger(xpMatch[1].replaceAll(",", ""), "challenge XP", 0)
   };
 }
 
 export function parseDexterity(rawText) {
   const normalized = String(rawText || "").replace(/\s+/g, " ");
-  const match = normalized.match(/STR\s+DEX\s+CON\s+INT\s+WIS\s+CHA\s+\d+\s+\([^)]+\)\s+(\d+)\s+\(([+-]\d+)\)/i);
-  if (!match) throw new Error("Could not parse Dexterity score and modifier from the SRD stat block.");
-  return {
-    dexterity: requiredInteger(match[1], "Dexterity score", 1),
-    dexterityModifier: Number.parseInt(match[2], 10)
-  };
+
+  // SRD 5.1 uses a horizontal six-ability row with modifiers in parentheses.
+  const horizontal = normalized.match(/STR\s+DEX\s+CON\s+INT\s+WIS\s+CHA\s+\d+\s+\([^)]+\)\s+(\d+)\s+\(([+-]\d+)\)/i);
+  if (horizontal) {
+    return {
+      dexterity: requiredInteger(horizontal[1], "Dexterity score", 1),
+      dexterityModifier: Number.parseInt(horizontal[2], 10)
+    };
+  }
+
+  // SRD 5.2.1 uses vertical ability rows such as "DEX 14 +2 +7" where
+  // the second signed number, when present, is the saving-throw bonus.
+  const vertical = normalized.match(/\bDEX\s+(\d+)\s+([+-]\d+)(?:\s+[+-]\d+)?\b/i);
+  if (vertical) {
+    return {
+      dexterity: requiredInteger(vertical[1], "Dexterity score", 1),
+      dexterityModifier: Number.parseInt(vertical[2], 10)
+    };
+  }
+
+  throw new Error("Could not parse Dexterity score and modifier from the SRD stat block.");
 }
 
 export function summarizeMonster(monster) {
@@ -84,7 +104,16 @@ export function buildExport(monsters, manifest) {
   if (!Array.isArray(monsters)) throw new Error("SRD monster source must be an array.");
   if (manifest?.schemaVersion !== 1 || !Array.isArray(manifest.sources)) throw new Error("Unsupported SRD manifest.");
 
-  const summaries = monsters.map(summarizeMonster);
+  const failures = [];
+  const summaries = monsters.flatMap((monster) => {
+    try { return [summarizeMonster(monster)]; }
+    catch (error) {
+      failures.push(`${monster?.id || monster?.name || "unknown monster"}: ${error.message}`);
+      return [];
+    }
+  });
+  if (failures.length) throw new Error(`Monster summary export rejected ${failures.length} record(s):\n${failures.join("\n")}`);
+
   const ids = new Set(summaries.map((monster) => monster.id));
   if (ids.size !== summaries.length) throw new Error("Monster summary export contains duplicate IDs.");
 
