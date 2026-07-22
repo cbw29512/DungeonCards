@@ -15,6 +15,7 @@ export type DmForgeEncounterHandoff = {
   version: 1;
   createdAt: string;
   campaign: string;
+  ruleset: "2014" | "2024";
   monsters: DmForgeEncounterHandoffMonster[];
 };
 
@@ -46,10 +47,17 @@ export const buildDmForgeEncounterHandoff = (
     throw new Error("Remove homebrew monsters before sending. Verified SRD monsters can transfer now; homebrew transfer is still being specified.");
   }
 
+  const rulesets = new Set(entries.map((entry) => publicRuleset(entry.ruleset)));
+  if (rulesets.size !== 1) {
+    throw new Error("Use one ruleset per encounter before sending: either 5e (2014) or 5.5e (2024).");
+  }
+  const ruleset = [...rulesets][0];
+
   return {
     version: DM_FORGE_ENCOUNTER_HANDOFF_VERSION,
     createdAt: new Date().toISOString(),
     campaign: activeCampaignName().slice(0, 100),
+    ruleset,
     monsters: entries.slice(0, 100).map((entry) => ({
       sourceRecordId: String(entry.id).slice(0, 180),
       name: String(entry.name).trim().slice(0, 160),
