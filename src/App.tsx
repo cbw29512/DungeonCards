@@ -11,6 +11,14 @@ import { SrdCompendium } from "./components/SrdCompendium";
 import { dmRuleCards, playerRuleCards } from "./data/ruleCardCatalog";
 import { useHomebrewCards } from "./hooks/useHomebrewCards";
 import { useHomebrewMonsters } from "./hooks/useHomebrewMonsters";
+import {
+  clearSystemRoute,
+  DM_FORGE_HOME,
+  parseDndPage,
+  parseSystem,
+  replaceDndRoute,
+  type DndAppPage
+} from "./integration/dmForgeRoute";
 import "./styles/base.css";
 import "./styles/cards.css";
 import "./styles/history.css";
@@ -32,20 +40,12 @@ import "./styles/coc-preview.css";
 import "./styles/coc-rule-status.css";
 import "./styles/accessibility.css";
 
-type AppPage =
-  | "home"
-  | "rules"
-  | "compendium"
-  | "player"
-  | "dm"
-  | "monster"
-  | "homebrew"
-  | "monster-homebrew";
-
 type DndAppProps = { onChangeSystem: () => void };
 
+const initialSearch = () => (typeof window === "undefined" ? "" : window.location.search);
+
 const DndApp = ({ onChangeSystem }: DndAppProps) => {
-  const [activePage, setActivePage] = useState<AppPage>("home");
+  const [activePage, setActivePage] = useState<DndAppPage>(() => parseDndPage(initialSearch()));
   const { cards: homebrewCards, storageError, createCard, deleteCard } = useHomebrewCards();
   const {
     monsters: homebrewMonsters,
@@ -54,57 +54,66 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
     deleteMonster
   } = useHomebrewMonsters();
 
+  const navigate = (page: DndAppPage) => {
+    setActivePage(page);
+    replaceDndRoute(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <main>
       <nav className="top-nav" aria-label="Primary navigation">
-        <strong>Dungeon Cards</strong>
-        <div>
-          <button aria-pressed={activePage === "home"} type="button" onClick={() => setActivePage("home")}>Home</button>
-          <button aria-pressed={activePage === "rules"} type="button" onClick={() => setActivePage("rules")}>Rules Guide</button>
-          <button aria-pressed={activePage === "compendium"} type="button" onClick={() => setActivePage("compendium")}>Compendium</button>
-          <button aria-pressed={activePage === "player"} type="button" onClick={() => setActivePage("player")}>Player</button>
-          <button aria-pressed={activePage === "dm"} type="button" onClick={() => setActivePage("dm")}>DM</button>
-          <button aria-pressed={activePage === "monster"} type="button" onClick={() => setActivePage("monster")}>Encounter</button>
-          <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => setActivePage("homebrew")}>Card Builder</button>
-          <button aria-pressed={activePage === "monster-homebrew"} type="button" onClick={() => setActivePage("monster-homebrew")}>Monster Builder</button>
-          <button type="button" onClick={onChangeSystem}>Switch System</button>
+        <div className="product-lockup">
+          <a className="dm-forge-return" href={DM_FORGE_HOME}>DM Forge</a>
+          <span>Rules Compendium &amp; Roll Cards</span>
+        </div>
+        <div className="top-nav__actions">
+          <button aria-pressed={activePage === "home"} type="button" onClick={() => navigate("home")}>Home</button>
+          <button aria-pressed={activePage === "rules"} type="button" onClick={() => navigate("rules")}>Rules Guide</button>
+          <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
+          <button aria-pressed={activePage === "player"} type="button" onClick={() => navigate("player")}>Player</button>
+          <button aria-pressed={activePage === "dm"} type="button" onClick={() => navigate("dm")}>DM</button>
+          <button aria-pressed={activePage === "monster"} type="button" onClick={() => navigate("monster")}>Encounter</button>
+          <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => navigate("homebrew")}>Card Builder</button>
+          <button aria-pressed={activePage === "monster-homebrew"} type="button" onClick={() => navigate("monster-homebrew")}>Monster Builder</button>
+          <button type="button" onClick={onChangeSystem}>Other Systems</button>
         </div>
       </nav>
 
-      {activePage !== "home" && <h1 className="sr-only">Dungeon Cards</h1>}
+      {activePage !== "home" && <h1 className="sr-only">DM Forge Rules Compendium &amp; Roll Cards</h1>}
 
       {activePage === "home" && (
         <section className="hero compact-hero">
           <div className="hero__content">
-            <p className="hero__eyebrow">Dungeon Cards Tabletop Toolkit</p>
+            <p className="hero__eyebrow">DM Forge · Rules Compendium &amp; Roll Cards</p>
             <h1>Choose the card. Run the encounter. Keep playing.</h1>
-            <p>Rules guidance, complete licensed references, personal decks, encounters, and homebrew tools.</p>
+            <p>Verified 5e and 5.5e references, executable roll cards, personal tables, encounter folios, and homebrew tools—all local and account-free.</p>
             <div className="role-card-grid">
-              <button className="role-card" type="button" onClick={() => setActivePage("rules")}>
+              <button className="role-card" type="button" onClick={() => navigate("rules")}>
                 <span>📖</span><strong>Rules Guide</strong>
                 <small>Learn the table procedure first, then open the matching card.</small>
               </button>
-              <button className="role-card" type="button" onClick={() => setActivePage("compendium")}>
+              <button className="role-card" type="button" onClick={() => navigate("compendium")}>
                 <span>📚</span><strong>SRD Compendium</strong>
-                <small>Search every generated SRD 5.1 and 5.2.1 spell and monster reference.</small>
+                <small>Search all generated SRD 5.1 and 5.2.1 spell and monster references.</small>
               </button>
-              <button className="role-card" type="button" onClick={() => setActivePage("player")}>
+              <button className="role-card" type="button" onClick={() => navigate("player")}>
                 <span>🧙</span><strong>Player Workspace</strong>
                 <small>Keep attacks, damage, spells, checks, and saves on My Table.</small>
               </button>
-              <button className="role-card" type="button" onClick={() => setActivePage("dm")}>
+              <button className="role-card" type="button" onClick={() => navigate("dm")}>
                 <span>🎲</span><strong>DM Workspace</strong>
                 <small>Prepare checks, traps, magic items, generators, and random tables.</small>
               </button>
-              <button className="role-card" type="button" onClick={() => setActivePage("monster")}>
+              <button className="role-card" type="button" onClick={() => navigate("monster")}>
                 <span>🐉</span><strong>Monster Encounter</strong>
                 <small>Choose SRD creatures, open ordered folios, and print references.</small>
               </button>
-              <button className="role-card" type="button" onClick={() => setActivePage("homebrew")}>
+              <button className="role-card" type="button" onClick={() => navigate("homebrew")}>
                 <span>🛠️</span><strong>Card Builder</strong>
                 <small>Create custom dice and rules cards without changing SRD content.</small>
               </button>
-              <button className="role-card" type="button" onClick={() => setActivePage("monster-homebrew")}>
+              <button className="role-card" type="button" onClick={() => navigate("monster-homebrew")}>
                 <span>🧌</span><strong>Monster Builder</strong>
                 <small>Create, save, and print custom monster folios.</small>
               </button>
@@ -167,10 +176,20 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
 };
 
 export const App = () => {
-  const [gameSystem, setGameSystem] = useState<GameSystemId>();
-  if (!gameSystem) return <GameSystemGateway onSelect={setGameSystem} />;
-  if (gameSystem === "coc-7e") {
-    return <CocPreview onChangeSystem={() => setGameSystem(undefined)} />;
-  }
-  return <DndApp onChangeSystem={() => setGameSystem(undefined)} />;
+  const [gameSystem, setGameSystem] = useState<GameSystemId | undefined>(() => parseSystem(initialSearch()));
+
+  const selectSystem = (system: GameSystemId) => {
+    setGameSystem(system);
+    if (system === "dnd-5e") replaceDndRoute("home");
+    else if (typeof window !== "undefined") window.history.replaceState(null, "", "?system=coc");
+  };
+
+  const changeSystem = () => {
+    clearSystemRoute();
+    setGameSystem(undefined);
+  };
+
+  if (!gameSystem) return <GameSystemGateway onSelect={selectSystem} />;
+  if (gameSystem === "coc-7e") return <CocPreview onChangeSystem={changeSystem} />;
+  return <DndApp onChangeSystem={changeSystem} />;
 };
