@@ -38,6 +38,7 @@ import "./styles/monster-homebrew.css";
 import "./styles/monster-print.css";
 import "./styles/coc-preview.css";
 import "./styles/coc-rule-status.css";
+import "./styles/coc-reference-expansion.css";
 import "./styles/accessibility.css";
 
 type DndAppProps = { onChangeSystem: () => void };
@@ -111,7 +112,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
               </button>
               <button className="role-card" type="button" onClick={() => navigate("homebrew")}>
                 <span>🛠️</span><strong>Card Builder</strong>
-                <small>Create custom dice and rules cards without changing SRD content.</small>
+                <small>Build custom cards beside a live finished-size preview.</small>
               </button>
               <button className="role-card" type="button" onClick={() => navigate("monster-homebrew")}>
                 <span>🧌</span><strong>Monster Builder</strong>
