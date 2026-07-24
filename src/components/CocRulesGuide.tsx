@@ -11,19 +11,19 @@ const cocRules: CocRuleProcedure[] = [
     title: "Make a skill roll",
     when: "Use only when failure would change the scene or create a meaningful cost.",
     steps: [
-      "Set the skill and the required difficulty before rolling.",
-      "Roll percentile dice. Regular success is at or below the full skill, Hard is at or below half, and Extreme is at or below one-fifth.",
-      "Read the result as both success level and fictional outcome; do not stop at pass or fail."
+      "Agree on the investigator's goal, the skill, and the required difficulty before rolling.",
+      "Regular success is at or below the full skill, Hard at or below half, and Extreme at or below one-fifth.",
+      "A roll of 01 is critical. A fumble begins at 96 when the skill is below 50, or at 100 when the skill is 50 or more."
     ]
   },
   {
     category: "Core roll",
     title: "Choose the difficulty",
-    when: "Set difficulty from the situation, not from how badly the Keeper wants the scene to go.",
+    when: "Set difficulty from the fictional obstacle rather than from how badly the Keeper wants an outcome.",
     steps: [
       "Use Regular for a demanding task under ordinary pressure.",
-      "Use Hard when conditions, opposition, or required precision are severe.",
-      "Use Extreme only for exceptional feats; explain the danger before the roll."
+      "Use Hard when opposition, conditions, or required precision are severe.",
+      "Use Extreme for tasks approaching the limits of human capability."
     ]
   },
   {
@@ -31,29 +31,19 @@ const cocRules: CocRuleProcedure[] = [
     title: "Bonus and Penalty dice",
     when: "Use for a clear situational advantage or disadvantage that difficulty alone does not represent.",
     steps: [
-      "Keep the same units die and roll the additional tens dice.",
-      "With Bonus dice, choose the lowest valid percentile result. With Penalty dice, choose the highest.",
-      "Bonus and Penalty dice cancel one-for-one before the roll."
-    ]
-  },
-  {
-    category: "Core roll",
-    title: "Spend Luck",
-    when: "Use after an eligible failed roll when the table allows Luck spending.",
-    steps: [
-      "Compare the roll to the exact number needed for the desired success level.",
-      "Spend that many Luck points to lower the result to the threshold.",
-      "Do not use Luck to erase every consequence; some rolls and procedures can remain ineligible by campaign rule."
+      "Cancel Bonus and Penalty dice one-for-one.",
+      "Keep one units die and roll the required tens dice.",
+      "Choose the lowest candidate for Bonus dice or the highest candidate for Penalty dice."
     ]
   },
   {
     category: "Core roll",
     title: "Push a failed roll",
-    when: "Use for a failed non-combat skill roll when the Investigator can change the approach and accept greater risk.",
+    when: "Use for an eligible failed non-combat skill roll when the investigator changes the approach and accepts greater risk.",
     steps: [
       "The player explains what is different about the second attempt.",
-      "The Keeper states the serious consequence of failing again before the dice are rolled.",
-      "A failed pushed roll brings that consequence into play. Combat rolls are not pushed."
+      "The Keeper may foreshadow the dire consequence before the player commits.",
+      "A failed pushed roll brings that consequence into play. Combat rolls cannot be pushed."
     ]
   },
   {
@@ -61,9 +51,9 @@ const cocRules: CocRuleProcedure[] = [
     title: "Resolve an opposed roll",
     when: "Use when two characters actively compete and the outcome cannot be handled by one passive difficulty.",
     steps: [
-      "Both sides roll the relevant skill.",
-      "The better success level wins: Extreme beats Hard, Hard beats Regular, and any success beats failure.",
-      "When success levels tie, use the specific tie rule for the procedure; ordinary contests and close combat do not always resolve ties the same way."
+      "Both sides roll the relevant skill and compare success levels.",
+      "If the levels tie, the higher skill value wins.",
+      "If both skill values also tie, each side rolls a separate D100 and the lower result wins."
     ]
   },
   {
@@ -71,9 +61,9 @@ const cocRules: CocRuleProcedure[] = [
     title: "Handle an essential clue",
     when: "Use when the scenario cannot continue unless the investigators receive the information.",
     steps: [
-      "Give the essential clue when the investigators take the right action or search the right place.",
-      "Use a roll to determine speed, extra detail, safety, or what the opposition learns—not whether the entire scenario stops.",
-      "On failure, move the investigation forward with a cost, complication, delay, or reduced-quality lead."
+      "Give the essential clue when they take the correct action or search the correct place.",
+      "Roll for speed, additional detail, secrecy, safety, or what the opposition learns.",
+      "On failure, move the case forward with a cost, complication, delay, or weaker lead."
     ]
   },
   {
@@ -81,9 +71,29 @@ const cocRules: CocRuleProcedure[] = [
     title: "Run a research scene",
     when: "Use for libraries, archives, interviews, laboratories, records, and extended searches.",
     steps: [
-      "State the question the investigators are trying to answer and the time available.",
-      "Choose the most relevant skill and identify what success adds beyond the essential lead.",
-      "Track time, attention, exposure, and new danger while the investigators work."
+      "State the question and the time available.",
+      "Choose the relevant skill and define what success adds beyond the essential lead.",
+      "Track time, attention, exposure, and opposition movement while the investigators work."
+    ]
+  },
+  {
+    category: "Development",
+    title: "Mark a skill for improvement",
+    when: "Use after a successful skill roll during play.",
+    steps: [
+      "Check the skill on the investigator sheet after a successful use.",
+      "A skill may hold only one improvement check at a time.",
+      "Wait until the Keeper calls for improvement rolls at the end of the scenario or session."
+    ]
+  },
+  {
+    category: "Development",
+    title: "Resolve a skill improvement",
+    when: "Use when the Keeper calls for improvement rolls.",
+    steps: [
+      "Roll D100 against each checked skill.",
+      "If the roll is over the current skill, add 1D10 to that skill.",
+      "Erase the check whether the skill increases or not."
     ]
   },
   {
@@ -91,39 +101,79 @@ const cocRules: CocRuleProcedure[] = [
     title: "Resolve a Sanity check",
     when: "Use when an investigator confronts a Mythos horror or another campaign-defined shock.",
     steps: [
-      "Roll against current SAN and determine whether the success or failure loss applies.",
-      "Apply the loss and never reduce SAN below zero.",
-      "Check whether the single loss or accumulated daily loss triggers the campaign's temporary or indefinite breakdown procedure."
+      "Roll against current SAN and apply the listed success or failure loss.",
+      "Any SAN loss causes a momentary involuntary action chosen by the Keeper.",
+      "Never reduce SAN below zero."
+    ]
+  },
+  {
+    category: "Sanity",
+    title: "Check for temporary insanity",
+    when: "Use when one Sanity roll causes a loss of 5 or more SAN.",
+    steps: [
+      "Roll INT after applying the SAN loss.",
+      "If the INT roll succeeds, the investigator comprehends the horror and becomes temporarily insane for 1D10 hours.",
+      "If the INT roll fails, the mind closes itself to the horror and the investigator remains sane for now."
     ]
   },
   {
     category: "Sanity",
     title: "Run a bout of madness",
-    when: "Use when the Sanity procedure calls for an acute loss of control.",
+    when: "Use when temporary insanity begins.",
     steps: [
-      "Keep the episode short enough to preserve player involvement and clear enough to change the scene.",
-      "Choose or roll a response appropriate to the character, danger, and table boundaries.",
-      "Record any lasting belief, fear, attachment, injury, or altered backstory element before play resumes."
+      "Choose or roll a bout result and determine its 1D10-round duration.",
+      "If other investigators are present, play the bout round by round. If alone, summarize the lost time and how the investigator is found.",
+      "Record any lasting phobia, mania, or altered backstory entry the Keeper applies."
+    ]
+  },
+  {
+    category: "Sanity",
+    title: "Handle a delusion and reality check",
+    when: "Use during the 1D10-hour temporary-insanity period.",
+    steps: [
+      "The Keeper may present a false perception as real to the investigator.",
+      "The player may request a reality check by making a Sanity roll.",
+      "A success sees through the delusion; a failure draws the investigator deeper into it."
     ]
   },
   {
     category: "Combat",
     title: "Start a combat round",
-    when: "Use when moment-by-moment action matters and violence cannot be resolved as one narrative exchange.",
+    when: "Use when moment-by-moment action matters.",
     steps: [
-      "Establish positions, immediate threats, cover, escape routes, and what each side is trying to accomplish.",
-      "Resolve actions in the table's chosen Dexterity order and keep reactions tied to the triggering attack.",
-      "Re-state changing cover, distance, wounds, ammunition, and escape options at the top of each new round."
+      "Establish positions, cover, exits, hazards, and each side's immediate objective.",
+      "Act in descending DEX order; a readied firearm acts at DEX + 50 for that shot.",
+      "A round lasts long enough for everyone to take one significant action."
     ]
   },
   {
     category: "Combat",
     title: "Resolve close combat",
-    when: "Use for fighting, brawling, grappling, or a melee weapon exchange.",
+    when: "Use for Fighting attacks and ordinary melee exchanges.",
     steps: [
-      "The defender chooses to Dodge or Fight Back when the procedure allows it.",
-      "Dodge wins a tied success level; the initiating attacker wins a tied success level against Fight Back.",
-      "If both rolls fail, neither side deals damage. Apply build and maneuver limits before resolving special moves."
+      "The defender chooses Dodge or Fight Back when the procedure allows it.",
+      "Dodge wins a tied success level; the initiating attacker wins a tie against Fight Back.",
+      "If both sides fail, neither side deals damage. Combat rolls cannot be pushed."
+    ]
+  },
+  {
+    category: "Combat",
+    title: "Resolve a Fighting Maneuver",
+    when: "Use for a non-damage goal such as disarming, knocking down, or restraining.",
+    steps: [
+      "Use Fighting (Brawl); the defender may Dodge or Fight Back.",
+      "If the attacker has lower Build, apply one Penalty die per point of difference, maximum two.",
+      "If the defender is three or more Build higher, the maneuver cannot affect them."
+    ]
+  },
+  {
+    category: "Combat",
+    title: "Apply the outnumbered rule",
+    when: "Use for later melee attacks against someone who has already defended this round.",
+    steps: [
+      "The first Dodge or Fight Back in the round is resolved normally.",
+      "Each later melee attack against that defender gains one Bonus die.",
+      "Do not apply this Bonus die to firearms attacks."
     ]
   },
   {
@@ -131,9 +181,9 @@ const cocRules: CocRuleProcedure[] = [
     title: "Resolve firearms",
     when: "Use for each selected shot after range, cover, movement, and firing rate are established.",
     steps: [
-      "Calculate net Bonus or Penalty dice before rolling and state the ammunition being spent.",
-      "Roll each shot separately unless a specific automatic-fire procedure says otherwise.",
-      "Apply damage, impales or special results, armor, Major Wounds, and remaining ammunition immediately."
+      "A readied firearm acts at DEX + 50. Point blank is within one-fifth DEX in feet and grants one Bonus die.",
+      "Two or three handgun shots apply one Penalty die to each shot; roll and spend each shot separately.",
+      "A successful dive for cover gives the attack one Penalty die, while any attempted dive costs the target's next attack."
     ]
   },
   {
@@ -141,19 +191,69 @@ const cocRules: CocRuleProcedure[] = [
     title: "Apply damage and Major Wounds",
     when: "Use after every damaging hit rather than combining several attacks into one total.",
     steps: [
-      "Subtract armor or other protection, then apply the remaining damage.",
-      "A single hit dealing at least half maximum HP causes a Major Wound.",
-      "At zero HP, a character with a Major Wound is dying; without one, the character is unconscious but not dying."
+      "Apply armor or other protection, then deduct the remaining damage without going below zero HP.",
+      "A single blow dealing at least half maximum HP causes a Major Wound and a CON roll to remain conscious.",
+      "A single blow equal to or above maximum HP causes instant death."
     ]
   },
   {
     category: "Injury",
-    title: "Stabilize and recover",
-    when: "Use after immediate danger or whenever a dying investigator receives aid.",
+    title: "Track dying",
+    when: "Use when a character with a Major Wound reaches zero HP.",
     steps: [
-      "Use the appropriate first-aid or medical procedure and record whether the character is stable.",
-      "Track Major Wounds separately from current HP because consciousness, dying, and recovery depend on both.",
-      "Advance healing by the campaign's recovery schedule and note treatment, rest, and continuing hazards."
+      "The character is unconscious and dying.",
+      "Make a CON roll at the end of the following round and every round thereafter; failure means death.",
+      "Successful First Aid stabilizes the dying condition so Medicine can be used."
+    ]
+  },
+  {
+    category: "Injury",
+    title: "Use First Aid or Medicine",
+    when: "Use after injury or to stabilize a dying character.",
+    steps: [
+      "Successful First Aid restores 1 HP and can rouse an unconscious character.",
+      "Medicine takes at least one hour with appropriate equipment and restores 1D3 HP.",
+      "On a dying character, First Aid stabilizes and Medicine enables the later healing roll."
+    ]
+  },
+  {
+    category: "Injury",
+    title: "Resolve natural healing",
+    when: "Use during downtime after immediate treatment.",
+    steps: [
+      "Without a Major Wound, recover 1 HP per day.",
+      "With a Major Wound, make a weekly CON roll: success restores 1D3 HP and Extreme success restores 2D3.",
+      "Remove the Major Wound on an Extreme healing success or when current HP reaches at least half maximum HP."
+    ]
+  },
+  {
+    category: "Magic",
+    title: "Spend Magic Points",
+    when: "Use whenever an authorized spell requires an MP cost.",
+    steps: [
+      "Pay the spell's listed MP and SAN costs from the authorized spell record.",
+      "If MP reaches zero, any further MP cost is deducted from HP one-for-one.",
+      "Track the resource payment separately from whether a first-casting roll succeeds."
+    ]
+  },
+  {
+    category: "Magic",
+    title: "Cast a newly learned spell",
+    when: "Use the first time a character attempts a newly learned spell.",
+    steps: [
+      "Pay the costs and make a Hard POW roll.",
+      "On failure, nothing happens yet; the caster may pay the costs again and push the roll.",
+      "A failed pushed roll still casts the spell normally, but the Keeper applies a dire consequence. Later castings need no casting roll."
+    ]
+  },
+  {
+    category: "Magic",
+    title: "Place a spell in combat order",
+    when: "Use when a spell is cast during combat.",
+    steps: [
+      "An instantaneous spell activates at DEX + 50.",
+      "A one-round spell activates on the caster's DEX in the present round.",
+      "Longer spells activate on the caster's DEX after the listed number of rounds is completed."
     ]
   },
   {
@@ -161,9 +261,9 @@ const cocRules: CocRuleProcedure[] = [
     title: "Close the scene",
     when: "Use when the investigators have learned enough, escaped, failed forward, or changed the situation.",
     steps: [
-      "Summarize what the investigators now know, what changed, and what remains uncertain.",
-      "Name the immediate leads, threats, deadlines, and resources available next.",
-      "Update wounds, Sanity, Luck, ammunition, evidence, NPC attitudes, and the campaign clock before moving on."
+      "Summarize confirmed facts, changed beliefs, and unresolved questions.",
+      "Name active leads, threats, deadlines, injuries, and resources.",
+      "Update SAN, HP, MP, ammunition, evidence, NPC attitudes, skill checks, and the opposition clock."
     ]
   }
 ];
@@ -171,11 +271,11 @@ const cocRules: CocRuleProcedure[] = [
 export const CocRulesGuide = () => (
   <section className="coc-section coc-section--page">
     <header className="coc-section__heading">
-      <small>Plain-language table procedures</small>
-      <h1>Enough information to run the scene without opening five books.</h1>
+      <small>Verified plain-language table procedures</small>
+      <h1>Resolve the rule, record the cost, and keep the scene moving.</h1>
       <p>
-        These original summaries are organized in the order a Keeper or Investigator uses them.
-        The source audit remains available for verification and licensing boundaries.
+        These summaries follow Chaosium's official free 7th-edition rules pages. Individual scenarios,
+        proprietary stat blocks, equipment catalogs, and spell effects remain in authorized sources.
       </p>
     </header>
     <div className="coc-rule-guide-grid coc-rule-guide-grid--expanded">
@@ -184,9 +284,7 @@ export const CocRulesGuide = () => (
           <small>{rule.category} · Procedure {index + 1}</small>
           <h2>{rule.title}</h2>
           <p><strong>Use when:</strong> {rule.when}</p>
-          <ol>
-            {rule.steps.map((step) => <li key={step}>{step}</li>)}
-          </ol>
+          <ol>{rule.steps.map((step) => <li key={step}>{step}</li>)}</ol>
         </article>
       ))}
     </div>
