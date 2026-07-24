@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { CocPercentileResult } from "../types/coc";
-import { rollCocPercentile } from "../utils/cocPercentile";
 import {
   applyCocSanityLoss,
   isCocSanityRollSuccessful,
@@ -15,18 +14,21 @@ export const CocSanityCard = () => {
   const [intelligence, setIntelligence] = useState(70);
   const [successLossFormula, setSuccessLossFormula] = useState("0");
   const [failureLossFormula, setFailureLossFormula] = useState("1d6");
+  const [investigatorIsAlone, setInvestigatorIsAlone] = useState(false);
   const [sanityRoll, setSanityRoll] = useState<number>();
   const [sanitySucceeded, setSanitySucceeded] = useState<boolean>();
   const [lossState, setLossState] = useState<CocSanityLossState>();
   const [intResult, setIntResult] = useState<CocPercentileResult>();
   const [insanityHours, setInsanityHours] = useState<number>();
   const [boutTableRoll, setBoutTableRoll] = useState<number>();
+  const [boutDurationRounds, setBoutDurationRounds] = useState<number>();
   const [error, setError] = useState<string>();
 
   const resetFollowUp = () => {
     setIntResult(undefined);
     setInsanityHours(undefined);
     setBoutTableRoll(undefined);
+    setBoutDurationRounds(undefined);
   };
 
   const clearCheck = () => {
@@ -62,14 +64,21 @@ export const CocSanityCard = () => {
       if (!lossState?.temporaryInsanityCheckRequired) {
         throw new Error("An Intelligence check is only required after losing 5 or more Sanity from one check.");
       }
-      const result = rollCocPercentile(intelligence);
+      const result = {
+        ...({} as CocPercentileResult),
+        roll: secureRandomInteger(1, 100),
+        meetsDifficulty: false
+      };
+      result.meetsDifficulty = result.roll <= intelligence;
       setIntResult(result);
       if (result.meetsDifficulty) {
         setInsanityHours(rollDiceFormula("1d10").total);
         setBoutTableRoll(rollDiceFormula("1d10").total);
+        setBoutDurationRounds(rollDiceFormula("1d10").total);
       } else {
         setInsanityHours(undefined);
         setBoutTableRoll(undefined);
+        setBoutDurationRounds(undefined);
       }
       setError(undefined);
     } catch (caught) {
@@ -89,7 +98,7 @@ export const CocSanityCard = () => {
       </header>
 
       <p className="coc-card__summary">
-        Enter the listed success/failure loss, roll against current Sanity, then follow the failed-roll and temporary-insanity prompts when triggered.
+        Enter the listed success/failure loss, roll against current Sanity, apply any involuntary action, then resolve temporary insanity when 5 or more SAN is lost at once.
       </p>
 
       <div className="coc-control-grid coc-control-grid--two">
@@ -123,6 +132,11 @@ export const CocSanityCard = () => {
         </label>
       </div>
 
+      <label className="coc-check-control">
+        <input type="checkbox" checked={investigatorIsAlone} onChange={(event) => setInvestigatorIsAlone(event.target.checked)} />
+        Investigator is alone if a bout of madness occurs
+      </label>
+
       <button className="coc-roll-button" type="button" onClick={makeSanityCheck}>Make Sanity check</button>
 
       {sanityRoll !== undefined && sanitySucceeded !== undefined && lossState && (
@@ -131,8 +145,9 @@ export const CocSanityCard = () => {
           <h3>{sanitySucceeded ? "Sanity roll succeeds" : "Sanity roll fails"}</h3>
           <p>{lossState.sanityLost} Sanity lost. Current Sanity: {lossState.currentSanity}.</p>
           {lossState.involuntaryActionRequired && (
-            <p>The failed Sanity roll lets the Keeper momentarily control the investigator's next action as fear takes hold.</p>
+            <p>Any SAN loss causes a momentary involuntary action chosen by the Keeper, such as screaming, fainting briefly, freezing, or pulling a trigger.</p>
           )}
+          {!lossState.involuntaryActionRequired && <p>No SAN was lost, so no involuntary action is triggered.</p>}
           {lossState.temporaryInsanityCheckRequired && !intResult && (
             <button type="button" onClick={makeIntelligenceCheck}>Roll INT for temporary insanity</button>
           )}
@@ -140,9 +155,15 @@ export const CocSanityCard = () => {
             <>
               <p>INT roll: {intResult.roll} — {intResult.meetsDifficulty ? "success" : "failure"}.</p>
               {intResult.meetsDifficulty ? (
-                <p>
-                  Temporary insanity lasts {insanityHours} hour{insanityHours === 1 ? "" : "s"}. Bout table roll: {boutTableRoll}. Consult an authorized bout table and play the result round by round when other investigators are present.
-                </p>
+                <>
+                  <p>Temporary insanity lasts {insanityHours} hour{insanityHours === 1 ? "" : "s"}.</p>
+                  <p>
+                    Bout table roll: {boutTableRoll}. {investigatorIsAlone
+                      ? "Summarize what happened while the investigator was alone and describe how they are found afterward."
+                      : `Play the bout round by round for ${boutDurationRounds} round${boutDurationRounds === 1 ? "" : "s"}.`}
+                  </p>
+                  <p>During the temporary-insanity period, the Keeper may introduce delusions. The investigator may request a reality check by making a Sanity roll.</p>
+                </>
               ) : (
                 <p>The investigator's mind closes itself to the full horror and they remain sane for now.</p>
               )}
