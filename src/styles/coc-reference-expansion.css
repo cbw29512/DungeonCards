@@ -1,0 +1,106 @@
+.coc-reference-grid {
+  display: grid;
+  margin: 1.5rem 0 3rem;
+  align-items: stretch;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+}
+
+.coc-reference-card {
+  display: flex;
+  min-height: 310px;
+  padding: 1.2rem;
+  border: 1px solid rgb(190 163 104 / 24%);
+  background:
+    linear-gradient(145deg, rgb(30 29 23 / 96%), rgb(12 16 13 / 98%)),
+    repeating-linear-gradient(0deg, transparent 0 6px, rgb(255 255 255 / 2%) 7px);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 24%);
+  flex-direction: column;
+}
+
+.coc-reference-card > small,
+.coc-section__subheading > small {
+  color: #91a187;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.coc-reference-card h2,
+.coc-section__subheading h2 {
+  margin: 0.35rem 0 0.6rem;
+  color: #eee3ca;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.coc-reference-card p {
+  color: #b8ae99;
+  line-height: 1.55;
+}
+
+.coc-reference-card ul {
+  margin: auto 0 0;
+  padding-left: 1.15rem;
+  color: #d8cdb7;
+}
+
+.coc-reference-card li + li {
+  margin-top: 0.45rem;
+}
+
+.coc-section__subheading {
+  max-width: 760px;
+  margin: 4rem 0 1.2rem;
+}
+
+.coc-section__subheading h2 {
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+}
+
+.coc-index-grid--expanded {
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+}
+
+.coc-rule-guide-grid--expanded {
+  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+}
+
+.coc-rule-guide-card {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+.coc-rule-guide-card > p {
+  color: #aaa18e;
+  line-height: 1.5;
+}
+
+.coc-rule-guide-card ol {
+  margin-top: auto;
+}
+
+.coc-legal-note {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgb(133 159 127 / 32%);
+  background: rgb(68 94 71 / 12%);
+}
+
+.coc-legal-note strong {
+  color: #b8c9aa;
+  font-family: Georgia, serif;
+}
+
+.coc-legal-note p {
+  margin-bottom: 0;
+  color: #aaa18e;
+  line-height: 1.55;
+}
+
+@media (max-width: 760px) {
+  .coc-reference-card {
+    min-height: auto;
+  }
+}
