@@ -38,7 +38,7 @@ export const applyCocSanityLoss = (
     currentSanity: currentAfterLoss,
     sanityLost,
     sanityRollFailed,
-    involuntaryActionRequired: sanityRollFailed,
+    involuntaryActionRequired: sanityLost > 0,
     temporaryInsanityCheckRequired: sanityLost >= 5
   };
 };
