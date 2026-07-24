@@ -2,16 +2,24 @@
   padding: 2rem 1.5rem 1rem;
 }
 
+.homebrew-builder__workspace {
+  display: grid;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  align-items: start;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 360px);
+}
+
 .homebrew-form {
   display: grid;
-  max-width: 1180px;
-  margin: 0 auto;
+  margin: 0;
   padding: 1.25rem;
   border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 1.5rem;
   background: rgb(0 0 0 / 24%);
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .homebrew-form label {
@@ -55,6 +63,57 @@
 
 .homebrew-form__checkbox input {
   width: auto;
+}
+
+.homebrew-live-preview {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  padding: 1.1rem;
+  justify-items: center;
+  border: 1px solid rgb(247 199 107 / 34%);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(247 199 107 / 12%), transparent 38%),
+    rgb(0 0 0 / 28%);
+  box-shadow: 0 20px 55px rgb(0 0 0 / 24%);
+  gap: 1rem;
+}
+
+.homebrew-live-preview__heading {
+  width: 100%;
+  text-align: center;
+}
+
+.homebrew-live-preview__heading p {
+  margin: 0;
+  color: #f7c76b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.homebrew-live-preview__heading h3 {
+  margin: 0.2rem 0;
+  color: #fff0c2;
+}
+
+.homebrew-live-preview__heading span {
+  color: #d9c9b8;
+  font-size: 0.78rem;
+}
+
+.homebrew-live-preview__card {
+  display: grid;
+  width: 100%;
+  min-height: 334px;
+  place-items: center;
+}
+
+.homebrew-live-preview .dice-card:disabled {
+  opacity: 1;
+  cursor: default;
 }
 
 .primary-button,
@@ -107,7 +166,13 @@
 }
 
 @media (max-width: 900px) {
+  .homebrew-builder__workspace,
   .homebrew-form {
     grid-template-columns: 1fr;
+  }
+
+  .homebrew-live-preview {
+    position: static;
+    grid-row: 1;
   }
 }
