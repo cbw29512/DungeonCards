@@ -40,19 +40,19 @@ export const CocCombatProcedureCard = () => {
       <div className="coc-control-grid coc-control-grid--two">
         <label>
           Attacker DEX
-          <input min="1" max="100" type="number" value={attackerDexterity} onChange={(event) => setAttackerDexterity(Math.max(1, Math.min(100, Math.trunc(Number(event.target.value) || 1))))} />
+          <input min="1" type="number" value={attackerDexterity} onChange={(event) => setAttackerDexterity(Math.max(1, Math.trunc(Number(event.target.value) || 1)))} />
         </label>
         <label>
           Attacker Build
-          <input min="-2" max="6" type="number" value={attackerBuild} onChange={(event) => setAttackerBuild(Math.max(-2, Math.min(6, Math.trunc(Number(event.target.value) || 0))))} />
+          <input min="-2" type="number" value={attackerBuild} onChange={(event) => setAttackerBuild(Math.max(-2, Math.trunc(Number(event.target.value) || 0)))} />
         </label>
         <label>
           Defender Build
-          <input min="-2" max="10" type="number" value={defenderBuild} onChange={(event) => setDefenderBuild(Math.max(-2, Math.min(10, Math.trunc(Number(event.target.value) || 0))))} />
+          <input min="-2" type="number" value={defenderBuild} onChange={(event) => setDefenderBuild(Math.max(-2, Math.trunc(Number(event.target.value) || 0)))} />
         </label>
         <label>
           Defender reactions already used this round
-          <input min="0" max="20" type="number" value={priorDefensesThisRound} onChange={(event) => setPriorDefensesThisRound(Math.max(0, Math.min(20, Math.trunc(Number(event.target.value) || 0))))} />
+          <input min="0" type="number" value={priorDefensesThisRound} onChange={(event) => setPriorDefensesThisRound(Math.max(0, Math.trunc(Number(event.target.value) || 0)))} />
         </label>
       </div>
 
