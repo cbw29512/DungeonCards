@@ -1,0 +1,28 @@
+{
+  "sources": [
+    {
+      "id": "example-creator-monster-pack",
+      "system": "dnd-5e",
+      "kind": "monster-pack",
+      "title": "Example Creator Monster Pack",
+      "url": "https://example.com/open-homebrew/monster-pack.html",
+      "author": "Example Creator",
+      "attribution": "Example Creator Monster Pack by Example Creator, used under CC BY 4.0.",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "tags": ["monsters", "forest", "tier-2"],
+      "maxCharacters": 12000
+    },
+    {
+      "id": "example-direct-permission",
+      "system": "dnd-5e",
+      "kind": "adventure-tool",
+      "url": "https://example.org/dm-tool.json",
+      "author": "Example Publisher",
+      "attribution": "Imported with direct written permission from Example Publisher.",
+      "license": "CREATOR-PERMISSION",
+      "permissionUrl": "https://example.org/dm-forge-permission",
+      "tags": ["tables", "adventure"]
+    }
+  ]
+}

@@ -6,9 +6,10 @@ type DiceCardProps = {
   isFlipped: boolean;
   result?: RollResult;
   onFlip: (card: DiceCardType) => void;
+  previewOnly?: boolean;
 };
 
-export const DiceCard = ({ card, isFlipped, result, onFlip }: DiceCardProps) => {
+export const DiceCard = ({ card, isFlipped, result, onFlip, previewOnly = false }: DiceCardProps) => {
   const resultLabel = result?.isCritical
     ? "Natural 20"
     : result?.isFailure
@@ -17,10 +18,13 @@ export const DiceCard = ({ card, isFlipped, result, onFlip }: DiceCardProps) => 
 
   return (
     <button
-      aria-label={isFlipped ? `Roll ${card.name} again` : `Roll ${card.name}`}
-      aria-pressed={isFlipped}
-      className={`dice-card ${isFlipped ? "is-flipped" : ""}`}
-      onClick={() => onFlip(card)}
+      aria-label={previewOnly ? `${card.name} live card preview` : isFlipped ? `Roll ${card.name} again` : `Roll ${card.name}`}
+      aria-pressed={previewOnly ? undefined : isFlipped}
+      className={`dice-card ${isFlipped ? "is-flipped" : ""}${previewOnly ? " is-preview" : ""}`}
+      disabled={previewOnly}
+      onClick={() => {
+        if (!previewOnly) onFlip(card);
+      }}
       type="button"
     >
       <span className="dice-card__inner">
