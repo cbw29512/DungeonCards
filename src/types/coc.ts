@@ -18,6 +18,7 @@ export type CocSuccessLevel =
 export type CocRuleVerificationStatus =
   | "prototype"
   | "needs-review"
+  | "source-verified"
   | "verified"
   | "disputed";
 
