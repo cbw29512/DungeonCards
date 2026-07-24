@@ -1,0 +1,101 @@
+.monster-card--combat-reference {
+  gap: 0.32rem;
+}
+
+.monster-card--combat-reference .monster-card__vitals {
+  font-size: 0.54rem;
+}
+
+.monster-card--combat-reference .monster-card__abilities {
+  gap: 0.12rem;
+}
+
+.monster-card--combat-reference .monster-card__abilities div {
+  grid-template-rows: auto auto auto;
+  line-height: 1;
+}
+
+.monster-card--combat-reference .monster-card__abilities em {
+  color: #d9c9b8;
+  font-size: 0.42rem;
+  font-style: normal;
+}
+
+.monster-card__details--combat {
+  gap: 0.12rem;
+  font-size: 0.46rem;
+  line-height: 1.15;
+}
+
+.monster-card__details--combat div {
+  grid-template-columns: 48px minmax(0, 1fr);
+}
+
+.monster-card__details--combat dd {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monster-card__combat-actions {
+  padding-top: 0.25rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+.monster-card__combat-actions ul {
+  display: grid;
+  gap: 0.24rem;
+}
+
+.monster-card__combat-actions li {
+  margin: 0;
+  padding: 0.22rem 0.28rem;
+  border-radius: 0.35rem;
+  background: rgb(255 255 255 / 6%);
+}
+
+.monster-card__combat-actions li span {
+  font-size: 0.53rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.monster-card__combat-actions li small {
+  display: -webkit-box;
+  margin-top: 0.08rem;
+  overflow: hidden;
+  font-size: 0.43rem;
+  line-height: 1.15;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.monster-card__combat-actions > p {
+  margin: 0;
+  color: #d9c9b8;
+  font-size: 0.5rem;
+  line-height: 1.25;
+}
+
+.monster-card__action-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.monster-card__action-flags span {
+  padding: 0.16rem 0.3rem;
+  color: #23150c;
+  border-radius: 999px;
+  background: #f7c76b;
+  font-size: 0.42rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 560px) {
+  .monster-card--combat-reference {
+    width: min(100%, 290px);
+  }
+}
