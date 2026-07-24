@@ -6,6 +6,7 @@ import {
   type CocSanityLossState
 } from "../utils/cocSanity";
 import { rollDiceFormula } from "../utils/rollDice";
+import { rollCocPercentile } from "../utils/cocPercentile";
 import { secureRandomInteger } from "../utils/randomInteger";
 import { CocRuleStatus } from "./CocRuleStatus";
 
@@ -64,12 +65,7 @@ export const CocSanityCard = () => {
       if (!lossState?.temporaryInsanityCheckRequired) {
         throw new Error("An Intelligence check is only required after losing 5 or more Sanity from one check.");
       }
-      const result = {
-        ...({} as CocPercentileResult),
-        roll: secureRandomInteger(1, 100),
-        meetsDifficulty: false
-      };
-      result.meetsDifficulty = result.roll <= intelligence;
+      const result = rollCocPercentile(intelligence);
       setIntResult(result);
       if (result.meetsDifficulty) {
         setInsanityHours(rollDiceFormula("1d10").total);
