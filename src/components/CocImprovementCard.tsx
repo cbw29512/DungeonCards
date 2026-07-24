@@ -21,7 +21,7 @@ export const CocImprovementCard = () => {
       return;
     }
     const increase = rollDiceFormula("1d10").total;
-    const next = Math.min(100, skillValue + increase);
+    const next = skillValue + increase;
     setSkillValue(next);
     setChecked(false);
     setResult(`Improvement roll ${roll} is over ${skillValue}. Add ${increase}; ${skillName || "the skill"} is now ${next}. Erase the check mark.`);
@@ -43,7 +43,7 @@ export const CocImprovementCard = () => {
 
       <div className="coc-control-grid coc-control-grid--two">
         <label>Skill name<input type="text" value={skillName} onChange={(event) => setSkillName(event.target.value)} /></label>
-        <label>Current skill<input min="1" max="100" type="number" value={skillValue} onChange={(event) => setSkillValue(Math.max(1, Math.min(100, Math.trunc(Number(event.target.value) || 1))))} /></label>
+        <label>Current skill<input min="1" type="number" value={skillValue} onChange={(event) => setSkillValue(Math.max(1, Math.trunc(Number(event.target.value) || 1)))} /></label>
       </div>
 
       <label className="coc-check-control"><input type="checkbox" checked={checked} onChange={(event) => setChecked(event.target.checked)} />Skill was successfully used and checked</label>
