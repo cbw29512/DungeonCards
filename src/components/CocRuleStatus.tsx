@@ -6,6 +6,11 @@ type CocRuleStatusProps = {
 
 export const CocRuleStatus = ({ sourceId }: CocRuleStatusProps) => {
   const source = getCocRuleSource(sourceId);
+  const location = source.page
+    ? `p. ${source.page}`
+    : source.status === "prototype"
+      ? "project demonstration record"
+      : "official web section";
 
   return (
     <details className={`coc-rule-status coc-rule-status--${source.status}`}>
@@ -16,7 +21,7 @@ export const CocRuleStatus = ({ sourceId }: CocRuleStatusProps) => {
       <div>
         <strong>{source.ruleName}</strong>
         <span>{source.sourceTitle}</span>
-        <small>{source.chapterOrSection}{source.page ? ` · p. ${source.page}` : " · official web section"}</small>
+        <small>{source.chapterOrSection} · {location}</small>
         <p>{source.implementationSummary}</p>
         {source.primaryReviewer && <small>Rules audit: {source.primaryReviewer}</small>}
         {source.independentReviewer && <small>Independent review: {source.independentReviewer}</small>}
