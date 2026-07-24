@@ -24,11 +24,19 @@ describe("Call of Cthulhu rule source registry", () => {
     }
   });
 
-  it("does not allow a verified rule without both reviews and a verification date", () => {
-    for (const source of cocRuleSources.filter((candidate) => candidate.status === "verified")) {
+  it("requires official-source verification metadata for every verified rule", () => {
+    const verified = cocRuleSources.filter((candidate) => candidate.status === "verified");
+    expect(verified.length).toBeGreaterThanOrEqual(10);
+    for (const source of verified) {
       expect(source.primaryReviewer).toBeTruthy();
-      expect(source.independentReviewer).toBeTruthy();
       expect(source.verifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(source.sourceUrl).toMatch(/^https:\/\/cthulhuwiki\.chaosium\.com\//);
+    }
+  });
+
+  it("keeps original demonstrations outside the verified rules set", () => {
+    for (const source of cocRuleSources.filter((candidate) => candidate.status === "prototype")) {
+      expect(source.sourceTitle).toContain("DM Forge original demonstration content");
     }
   });
 
