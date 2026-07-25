@@ -25,6 +25,9 @@ const rulesetText = (ruleset: MonsterRuleset | "all"): string => {
   return "Homebrew";
 };
 
+const normalizedType = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
+const displayType = (value: string) => value.replace(/\b\w/g, (character) => character.toUpperCase());
+
 type MonsterDeckProps = {
   homebrewMonsters: MonsterCardData[];
   libraryError: string | null;
@@ -51,7 +54,7 @@ export const MonsterDeck = ({
   const workspace = useCardWorkspace("monster", monsters);
   const visible = view === "table" ? workspace.activeCards : monsters;
   const types = useMemo(
-    () => ["all", ...new Set(monsters.map((monster) => monster.type))],
+    () => ["all", ...new Set(monsters.map((monster) => normalizedType(monster.type)).filter(Boolean))],
     [monsters]
   );
   const filtered = useMemo(() => {
@@ -60,7 +63,7 @@ export const MonsterDeck = ({
       const matchesQuery = !normalized
         || `${monster.name} ${monster.type} ${monster.cr}`.toLowerCase().includes(normalized);
       const matchesRuleset = ruleset === "all" || monster.ruleset === ruleset;
-      const matchesType = type === "all" || monster.type === type;
+      const matchesType = type === "all" || normalizedType(monster.type) === type;
       return matchesQuery && matchesRuleset && matchesType;
     });
   }, [query, ruleset, type, visible]);
@@ -80,8 +83,8 @@ export const MonsterDeck = ({
         <p>monster cards</p>
         <h2 id="monster-deck-title">Build tonight's encounter from the complete SRD monster library.</h2>
         <span>
-          All 642 licensed SRD monsters are available. Three have fully formatted combat cards;
-          the remaining records open as ordered, equal-size six-card reference folios.
+          All 642 licensed SRD monsters receive a generated quick-combat face with initiative, defenses,
+          senses, and prioritized actions, plus an ordered six-card folio containing the complete sourced text.
         </span>
         <WorkspaceToolbar
           activeCount={workspace.workspace.activeCardIds.length}
@@ -110,7 +113,7 @@ export const MonsterDeck = ({
           />
           <select
             aria-label="Filter monster ruleset"
-            onChange={(event) => setRuleset(event.target.value as MonsterRuleset | "all")}
+            onChange={(event) => setRuleset(event.target.value as MonsterRuleset)}
             value={ruleset}
           >
             {rulesetOptions.map((option) => (
@@ -124,7 +127,7 @@ export const MonsterDeck = ({
           >
             {types.map((option) => (
               <option key={option} value={option}>
-                {option === "all" ? "All creature types" : option}
+                {option === "all" ? "All creature types" : displayType(option)}
               </option>
             ))}
           </select>

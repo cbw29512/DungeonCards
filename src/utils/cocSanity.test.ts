@@ -16,18 +16,20 @@ describe("isCocSanityRollSuccessful", () => {
 });
 
 describe("applyCocSanityLoss", () => {
-  it("does not require an involuntary action after a successful Sanity roll", () => {
+  it("requires an involuntary action whenever a successful Sanity roll still loses SAN", () => {
     const state = applyCocSanityLoss(60, 1, false);
 
     expect(state.currentSanity).toBe(59);
-    expect(state.involuntaryActionRequired).toBe(false);
+    expect(state.sanityRollFailed).toBe(false);
+    expect(state.involuntaryActionRequired).toBe(true);
   });
 
-  it("requires an involuntary action after a failed Sanity roll even when loss is zero", () => {
+  it("does not require an involuntary action when no Sanity is lost", () => {
     const state = applyCocSanityLoss(60, 0, true);
 
     expect(state.currentSanity).toBe(60);
-    expect(state.involuntaryActionRequired).toBe(true);
+    expect(state.sanityRollFailed).toBe(true);
+    expect(state.involuntaryActionRequired).toBe(false);
   });
 
   it("requires the temporary-insanity INT check at 5 SAN loss", () => {
