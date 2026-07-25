@@ -6,6 +6,7 @@ import { GameSystemGateway, type GameSystemId } from "./components/GameSystemGat
 import { HomebrewBuilder } from "./components/HomebrewBuilder";
 import { MonsterDeck } from "./components/MonsterDeck";
 import { MonsterHomebrewBuilder } from "./components/MonsterHomebrewBuilder";
+import { RulesCoverageDashboard } from "./components/RulesCoverageDashboard";
 import { RulesDeck } from "./components/RulesDeck";
 import { SrdCompendium } from "./components/SrdCompendium";
 import { dmRuleCards, playerRuleCards } from "./data/ruleCardCatalog";
@@ -50,6 +51,7 @@ const initialSearch = () => (typeof window === "undefined" ? "" : window.locatio
 const pageLabels: Record<DndAppPage, string> = {
   home: "Home",
   rules: "Rules Guide",
+  coverage: "Rules Coverage",
   compendium: "SRD Compendium",
   player: "Player Workspace",
   dm: "DM Workspace",
@@ -114,6 +116,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         <div className={`top-nav__actions${navigationOpen ? " is-open" : ""}`} id="dnd-primary-navigation">
           <button aria-pressed={activePage === "home"} type="button" onClick={() => navigate("home")}>Home</button>
           <button aria-pressed={activePage === "rules"} type="button" onClick={() => navigate("rules")}>Rules Guide</button>
+          <button aria-pressed={activePage === "coverage"} type="button" onClick={() => navigate("coverage")}>Coverage</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
           <button aria-pressed={activePage === "player"} type="button" onClick={() => navigate("player")}>Player</button>
           <button aria-pressed={activePage === "dm"} type="button" onClick={() => navigate("dm")}>DM</button>
@@ -137,6 +140,10 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
                 <button className="role-card" type="button" onClick={() => navigate("rules")}>
                   <span aria-hidden="true">📖</span><strong>Rules Guide</strong>
                   <small>Learn the table procedure first, then open the matching card.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("coverage")}>
+                  <span aria-hidden="true">🧭</span><strong>Rules Coverage</strong>
+                  <small>See exactly what is complete, automated, missing, or requires an owned source.</small>
                 </button>
                 <button className="role-card" type="button" onClick={() => navigate("compendium")}>
                   <span aria-hidden="true">📚</span><strong>SRD Compendium</strong>
@@ -168,6 +175,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         )}
 
         {activePage === "rules" && <DndRulesGuide />}
+        {activePage === "coverage" && <RulesCoverageDashboard />}
         {activePage === "compendium" && <SrdCompendium />}
 
         {activePage === "player" && (
