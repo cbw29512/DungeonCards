@@ -7,6 +7,12 @@ describe("DM Forge route contract", () => {
     expect(parseDndPage("?system=dnd&page=compendium")).toBe("compendium");
   });
 
+  it("opens the public rules coverage ledger directly", () => {
+    expect(parseSystem("?system=dnd&page=coverage")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=coverage")).toBe("coverage");
+    expect(dndRoute("coverage")).toBe("?system=dnd&page=coverage");
+  });
+
   it("accepts stable long-form system identifiers", () => {
     expect(parseSystem("?system=dnd-5e&page=monster")).toBe("dnd-5e");
     expect(parseSystem("?system=coc-7e")).toBe("coc-7e");
