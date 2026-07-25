@@ -22,7 +22,7 @@ describe("edition-separated movement and special actions", () => {
     const hide2014 = dndMovement2014.find((item) => item.id.endsWith("-hide"))!;
     const hide2024 = dndMovement2024.find((item) => item.id.endsWith("-hide-search"))!;
 
-    expect(grapple2014.steps.join(" ")).toContain("contested");
+    expect(grapple2014.steps.join(" ")).toContain("Strength (Athletics) against the target's Strength (Athletics) or Dexterity (Acrobatics)");
     expect(grapple2014.steps.join(" ")).not.toContain("8 + your Strength modifier");
     expect(grapple2024.steps.join(" ")).toContain("8 + your Strength modifier + Proficiency Bonus");
     expect(hide2014.steps.join(" ")).not.toContain("DC 15");
