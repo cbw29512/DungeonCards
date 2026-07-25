@@ -19,6 +19,12 @@ describe("DM Forge route contract", () => {
     expect(dndRoute("conditions")).toBe("?system=dnd&page=conditions");
   });
 
+  it("opens the movement and special-actions workspace directly", () => {
+    expect(parseSystem("?system=dnd&page=movement")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=movement")).toBe("movement");
+    expect(dndRoute("movement")).toBe("?system=dnd&page=movement");
+  });
+
   it("accepts stable long-form system identifiers", () => {
     expect(parseSystem("?system=dnd-5e&page=monster")).toBe("dnd-5e");
     expect(parseSystem("?system=coc-7e")).toBe("coc-7e");
