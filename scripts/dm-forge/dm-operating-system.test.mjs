@@ -15,6 +15,9 @@ const [
   builder,
   diceCard,
   homebrewCss,
+  baseCss,
+  accessibilityCss,
+  professionalCss,
   app
 ] = await Promise.all([
   readFile(new URL("../../src/components/GameSystemGateway.tsx", import.meta.url), "utf8"),
@@ -30,6 +33,9 @@ const [
   readFile(new URL("../../src/components/HomebrewBuilder.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/DiceCard.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/styles/homebrew.css", import.meta.url), "utf8"),
+  readFile(new URL("../../src/styles/base.css", import.meta.url), "utf8"),
+  readFile(new URL("../../src/styles/accessibility.css", import.meta.url), "utf8"),
+  readFile(new URL("../../src/styles/professional-polish.css", import.meta.url), "utf8"),
   readFile(new URL("../../src/App.tsx", import.meta.url), "utf8")
 ]);
 
@@ -78,5 +84,23 @@ describe("DM Forge multi-system operating system", () => {
     expect(diceCard).toContain("previewOnly?: boolean");
     expect(homebrewCss).toContain("homebrew-builder__workspace");
     expect(homebrewCss).toContain("homebrew-live-preview");
+  });
+
+  it("keeps both systems keyboard- and mobile-ready", () => {
+    expect(app).toContain('className="skip-link"');
+    expect(app).toContain('aria-controls="dnd-primary-navigation"');
+    expect(app).toContain('className="navigation-toggle"');
+    expect(app).toContain('id="dnd-main-content"');
+    expect(app).toContain("prefers-reduced-motion: reduce");
+    expect(cthulhu).toContain('className="skip-link skip-link--coc"');
+    expect(cthulhu).toContain('aria-controls="coc-primary-navigation"');
+    expect(cthulhu).toContain('navigation-toggle navigation-toggle--coc');
+    expect(cthulhu).toContain('id="coc-main-content"');
+    expect(baseCss).toContain(".navigation-toggle");
+    expect(baseCss).toContain(".top-nav__actions.is-open");
+    expect(accessibilityCss).toContain('@import "./professional-polish.css"');
+    expect(professionalCss).toContain(".coc-nav__links.is-open");
+    expect(professionalCss).toContain("@media print");
+    expect(professionalCss).toContain("width: min(100%, 300px)");
   });
 });
