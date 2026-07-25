@@ -30,6 +30,7 @@ import "./styles/rule-history.css";
 import "./styles/rule-print.css";
 import "./styles/rules-guide.css";
 import "./styles/srd-compendium.css";
+import "./styles/srd-spell-casting.css";
 import "./styles/workspaces.css";
 import "./styles/monsters.css";
 import "./styles/monster-combat-reference.css";
