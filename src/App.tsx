@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CocPreview } from "./components/CocPreview";
 import { DeckGrid } from "./components/DeckGrid";
 import { DndConditionsLibrary } from "./components/DndConditionsLibrary";
+import { DndMovementLibrary } from "./components/DndMovementLibrary";
 import { DndRulesGuide } from "./components/DndRulesGuide";
 import { GameSystemGateway, type GameSystemId } from "./components/GameSystemGateway";
 import { HomebrewBuilder } from "./components/HomebrewBuilder";
@@ -54,6 +55,7 @@ const pageLabels: Record<DndAppPage, string> = {
   rules: "Rules Guide",
   coverage: "Rules Coverage",
   conditions: "Conditions & Exhaustion",
+  movement: "Movement & Special Actions",
   compendium: "SRD Compendium",
   player: "Player Workspace",
   dm: "DM Workspace",
@@ -120,6 +122,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <button aria-pressed={activePage === "rules"} type="button" onClick={() => navigate("rules")}>Rules Guide</button>
           <button aria-pressed={activePage === "coverage"} type="button" onClick={() => navigate("coverage")}>Coverage</button>
           <button aria-pressed={activePage === "conditions"} type="button" onClick={() => navigate("conditions")}>Conditions</button>
+          <button aria-pressed={activePage === "movement"} type="button" onClick={() => navigate("movement")}>Movement</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
           <button aria-pressed={activePage === "player"} type="button" onClick={() => navigate("player")}>Player</button>
           <button aria-pressed={activePage === "dm"} type="button" onClick={() => navigate("dm")}>DM</button>
@@ -151,6 +154,10 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
                 <button className="role-card" type="button" onClick={() => navigate("conditions")}>
                   <span aria-hidden="true">⚠️</span><strong>Conditions &amp; Exhaustion</strong>
                   <small>Search every condition and track edition-specific Exhaustion without mixing rules.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("movement")}>
+                  <span aria-hidden="true">🏃</span><strong>Movement &amp; Special Actions</strong>
+                  <small>Calculate movement, jumps, cover, grapples, shoves, hiding, and Opportunity Attacks.</small>
                 </button>
                 <button className="role-card" type="button" onClick={() => navigate("compendium")}>
                   <span aria-hidden="true">📚</span><strong>SRD Compendium</strong>
@@ -184,6 +191,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         {activePage === "rules" && <DndRulesGuide />}
         {activePage === "coverage" && <RulesCoverageDashboard />}
         {activePage === "conditions" && <DndConditionsLibrary />}
+        {activePage === "movement" && <DndMovementLibrary />}
         {activePage === "compendium" && <SrdCompendium />}
 
         {activePage === "player" && (
