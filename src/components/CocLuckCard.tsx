@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { cocLuckRuleSources } from "../data/cocLuckRuleSources";
 import { createClientId } from "../utils/createId";
 import {
   rollLuck,
@@ -8,19 +9,15 @@ import {
   type CocLuckInvestigator,
   type CocLuckRollResult
 } from "../utils/cocLuck";
+import { CocRuleStatus } from "./CocRuleStatus";
 import "../styles/coc-luck.css";
 
-const LUCK_SOURCE = "https://cthulhuwiki.chaosium.com/rules/opposed-skill-rolls.html";
-const STARTING_LUCK_SOURCE = "https://cthulhuwiki.chaosium.com/investigators/step-two-secondary-attributes.html";
 const clampLuckInput = (value: number): number => Math.min(100, Math.max(0, Math.trunc(value) || 0));
-
-const LuckSourceBoundary = () => (
-  <section className="coc-luck-source-boundary">
-    <strong>Verified against official free rules</strong>
-    <a href={LUCK_SOURCE} rel="noreferrer" target="_blank">Luck Rolls and Group Luck · Chaosium wiki</a>
-    <a href={STARTING_LUCK_SOURCE} rel="noreferrer" target="_blank">Starting Luck · Chaosium wiki</a>
-  </section>
-);
+const getLuckSource = (sourceId: string) => {
+  const source = cocLuckRuleSources.find((candidate) => candidate.id === sourceId);
+  if (!source) throw new Error(`Call of Cthulhu Luck source not found: ${sourceId}`);
+  return source;
+};
 
 const LuckResult = ({ result }: { result?: CocLuckRollResult }) => result ? (
   <section className={`coc-luck-result coc-luck-result--${result.success ? "success" : "failure"}`} aria-live="polite">
@@ -81,6 +78,8 @@ export const CocLuckCard = () => {
         {startingDice && <p aria-live="polite">Dice: {startingDice.join(" + ")} · Starting Luck {currentLuck}</p>}
       </section>
 
+      <CocRuleStatus source={getLuckSource("coc-starting-luck")} />
+
       <section className="coc-luck-spending">
         <header><small>Optional owned-source rule</small><strong>Manual Luck spending tracker</strong></header>
         <p>This bookkeeping control does not state when spending is permitted or what restrictions apply. Consult your owned Keeper Rulebook before using it.</p>
@@ -91,7 +90,7 @@ export const CocLuckCard = () => {
         {spendMessage && <p aria-live="polite">{spendMessage}</p>}
       </section>
 
-      <LuckSourceBoundary />
+      <CocRuleStatus source={getLuckSource("coc-luck-rolls")} />
     </article>
   );
 };
@@ -139,7 +138,7 @@ export const CocGroupLuckCard = () => {
       <section className="coc-group-luck-selection" aria-live="polite"><strong>Who rolls?</strong><p>{selection.summary}</p></section>
       <button className="coc-roll-button" type="button" onClick={() => setResult(rollLuck(selection.lowestLuck))}>Roll Group Luck</button>
       <LuckResult result={result} />
-      <LuckSourceBoundary />
+      <CocRuleStatus source={getLuckSource("coc-luck-rolls")} />
     </article>
   );
 };
