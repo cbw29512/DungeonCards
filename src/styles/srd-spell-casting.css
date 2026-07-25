@@ -1,0 +1,116 @@
+.srd-spell-casting-level {
+  display: grid;
+  padding: 0.75rem;
+  border: 1px solid rgb(247 199 107 / 42%);
+  border-radius: 0.75rem;
+  background: rgb(247 199 107 / 8%);
+  gap: 0.55rem;
+}
+
+.srd-spell-casting-level__heading {
+  display: grid;
+  align-items: end;
+  gap: 0.65rem;
+  grid-template-columns: minmax(0, 1fr) minmax(118px, 0.65fr);
+}
+
+.srd-spell-casting-level__heading > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.srd-spell-casting-level__heading small,
+.srd-spell-casting-level__heading label > span {
+  color: #d9c9b8;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.srd-spell-casting-level__heading strong {
+  color: #fff0c2;
+  font-size: 0.95rem;
+}
+
+.srd-spell-casting-level__heading label {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.srd-spell-casting-level__heading select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 0.6rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 0.55rem;
+  background: #251633;
+}
+
+.srd-spell-casting-level__status,
+.srd-spell-casting-level__rule,
+.srd-spell-casting-level__cantrip {
+  margin: 0;
+  color: #e5d9e8;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.srd-spell-casting-level__rule {
+  padding-top: 0.45rem;
+  color: #ffe2a6;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.srd-spell-casting-level__cantrip {
+  padding: 0.6rem;
+  border-left: 3px solid #8060a4;
+  background: rgb(255 255 255 / 5%);
+}
+
+.srd-spell-casting-level__metrics {
+  display: grid;
+  margin: 0;
+  gap: 0.35rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.srd-spell-casting-level__metrics div {
+  min-width: 0;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  background: rgb(0 0 0 / 20%);
+}
+
+.srd-spell-casting-level__metrics dt {
+  color: #d9c9b8;
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.srd-spell-casting-level__metrics dd {
+  margin: 0.12rem 0 0;
+  color: #fff0c2;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+@media (max-width: 520px) {
+  .srd-spell-casting-level__heading,
+  .srd-spell-casting-level__metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .srd-spell-casting-level__heading label {
+    display: none;
+  }
+
+  .srd-spell-casting-level {
+    border-color: #777;
+    background: transparent;
+  }
+}
