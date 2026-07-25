@@ -1,6 +1,7 @@
 export type DndAppPage =
   | "home"
   | "rules"
+  | "coverage"
   | "compendium"
   | "player"
   | "dm"
@@ -13,6 +14,7 @@ export type DungeonCardsSystem = "dnd-5e" | "coc-7e";
 const DND_PAGES = new Set<DndAppPage>([
   "home",
   "rules",
+  "coverage",
   "compendium",
   "player",
   "dm",
