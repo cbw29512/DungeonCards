@@ -1,0 +1,212 @@
+.coc-luck-card,
+.coc-group-luck-card {
+  align-content: start;
+}
+
+.coc-luck-current,
+.coc-luck-starting,
+.coc-luck-spending,
+.coc-group-luck-selection {
+  display: grid;
+  padding: 0.75rem;
+  border: 1px solid rgb(190 163 104 / 28%);
+  border-radius: 0.5rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.55rem;
+}
+
+.coc-luck-current {
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.coc-luck-current label,
+.coc-luck-spending label,
+.coc-group-luck-roster label {
+  display: grid;
+  color: #a9b49c;
+  font-size: 0.7rem;
+  font-weight: 800;
+  gap: 0.25rem;
+}
+
+.coc-luck-current input,
+.coc-luck-spending input,
+.coc-group-luck-roster input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 0.65rem;
+  color: #f2ead8;
+  border: 1px solid rgb(190 163 104 / 32%);
+  border-radius: 0.4rem;
+  background: #111713;
+}
+
+.coc-luck-result {
+  display: grid;
+  padding: 0.75rem;
+  border-left: 4px solid;
+  background: rgb(0 0 0 / 22%);
+  gap: 0.1rem;
+}
+
+.coc-luck-result strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.coc-luck-result small,
+.coc-luck-result span,
+.coc-luck-starting p,
+.coc-luck-spending p,
+.coc-group-luck-selection p {
+  margin: 0;
+  color: #c7c0ae;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.coc-luck-result--success {
+  border-left-color: #8ebc91;
+}
+
+.coc-luck-result--success strong,
+.coc-luck-result--success span {
+  color: #bce2bd;
+}
+
+.coc-luck-result--failure {
+  border-left-color: #b56d68;
+}
+
+.coc-luck-result--failure strong,
+.coc-luck-result--failure span {
+  color: #e1a5a0;
+}
+
+.coc-luck-starting {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.coc-luck-starting div,
+.coc-luck-spending header {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.coc-luck-starting small,
+.coc-luck-spending small,
+.coc-group-luck-selection strong {
+  color: #a7b28f;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.coc-luck-starting p {
+  grid-column: 1 / -1;
+}
+
+.coc-luck-spending {
+  border-color: rgb(204 166 79 / 42%);
+  background: rgb(120 86 22 / 14%);
+}
+
+.coc-luck-spending > div {
+  display: grid;
+  align-items: end;
+  gap: 0.55rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.coc-luck-source-boundary {
+  display: grid;
+  padding: 0.65rem;
+  border-left: 3px solid #a7b28f;
+  background: rgb(167 178 143 / 8%);
+  gap: 0.15rem;
+}
+
+.coc-luck-source-boundary strong {
+  color: #cdd7ba;
+  font-size: 0.7rem;
+}
+
+.coc-luck-source-boundary a {
+  color: #d8c18a;
+  font-size: 0.68rem;
+}
+
+.coc-group-luck-roster {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.coc-group-luck-roster > div {
+  display: grid;
+  align-items: end;
+  padding: 0.55rem;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 0.45rem;
+  background: rgb(255 255 255 / 3%);
+  gap: 0.45rem;
+  grid-template-columns: minmax(0, 1fr) 90px auto;
+}
+
+.coc-group-luck-roster > div.is-lowest {
+  border-color: #a7b28f;
+  background: rgb(167 178 143 / 10%);
+}
+
+.coc-group-luck-roster button,
+.coc-luck-starting button,
+.coc-luck-spending button,
+.coc-group-luck-card > button {
+  min-height: 44px;
+  padding: 0.55rem 0.7rem;
+  color: #e9dfc9;
+  border: 1px solid rgb(190 163 104 / 26%);
+  border-radius: 0.4rem;
+  background: #171d19;
+  cursor: pointer;
+}
+
+.coc-group-luck-roster button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+@media (max-width: 620px) {
+  .coc-luck-current,
+  .coc-luck-starting,
+  .coc-luck-spending > div,
+  .coc-group-luck-roster > div {
+    grid-template-columns: 1fr;
+  }
+
+  .coc-luck-starting p {
+    grid-column: auto;
+  }
+}
+
+@media print {
+  .coc-luck-current button,
+  .coc-luck-starting button,
+  .coc-luck-spending,
+  .coc-group-luck-roster button,
+  .coc-group-luck-card > button,
+  .coc-group-luck-card .coc-roll-button {
+    display: none;
+  }
+
+  .coc-luck-current,
+  .coc-luck-starting,
+  .coc-group-luck-selection,
+  .coc-group-luck-roster > div,
+  .coc-luck-result {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+  }
+}

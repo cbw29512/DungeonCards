@@ -30,13 +30,21 @@ describe("DM Forge rules coverage ledger", () => {
   });
 
   it("filters by system, status, and search text", () => {
-    const results = filterRulesCoverage(rulesCoverageCatalog, {
+    const verifiedLuck = filterRulesCoverage(rulesCoverageCatalog, {
       system: "coc-7e",
-      status: "missing",
+      status: "automation-complete",
       query: "Luck"
     });
-    expect(results).toHaveLength(1);
-    expect(results[0].title).toContain("Luck");
+    expect(verifiedLuck).toHaveLength(1);
+    expect(verifiedLuck[0].id).toBe("coc-7e-luck");
+
+    const ownedLuck = filterRulesCoverage(rulesCoverageCatalog, {
+      system: "coc-7e",
+      status: "requires-owned-source",
+      query: "Luck"
+    });
+    expect(ownedLuck).toHaveLength(1);
+    expect(ownedLuck[0].id).toBe("coc-7e-luck-spending");
   });
 
   it("groups visible entries by category", () => {

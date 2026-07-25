@@ -1,11 +1,15 @@
 import { cocRuleVerificationLabels, getCocRuleSource } from "../data/cocRuleSources";
+import type { CocRuleSourceRecord } from "../types/coc";
 
 type CocRuleStatusProps = {
-  sourceId: string;
+  sourceId?: string;
+  source?: CocRuleSourceRecord;
 };
 
-export const CocRuleStatus = ({ sourceId }: CocRuleStatusProps) => {
-  const source = getCocRuleSource(sourceId);
+export const CocRuleStatus = ({ sourceId, source: suppliedSource }: CocRuleStatusProps) => {
+  const source = suppliedSource ?? (sourceId ? getCocRuleSource(sourceId) : undefined);
+  if (!source) throw new Error("CocRuleStatus requires a source record or source ID.");
+
   const location = source.page
     ? `p. ${source.page}`
     : source.status === "prototype"
