@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { rollDiceFormula } from "../utils/rollDice";
 import { secureRandomInteger } from "../utils/randomInteger";
+import { CocGroupLuckCard, CocLuckCard } from "./CocLuckCard";
 import { CocRuleStatus } from "./CocRuleStatus";
 
 export const CocImprovementCard = () => {
@@ -28,28 +29,32 @@ export const CocImprovementCard = () => {
   };
 
   return (
-    <article className="coc-card coc-card--interactive">
-      <header className="coc-card__header">
-        <div>
-          <small>Investigator development</small>
-          <h2>Skill Improvement</h2>
+    <>
+      <article className="coc-card coc-card--interactive">
+        <header className="coc-card__header">
+          <div>
+            <small>Investigator development</small>
+            <h2>Skill Improvement</h2>
+          </div>
+          <span className="coc-card__stamp">XP</span>
+        </header>
+
+        <p className="coc-card__summary">
+          A skill may be checked once after a successful use. When the Keeper calls for improvement, roll over the current value to gain 1D10.
+        </p>
+
+        <div className="coc-control-grid coc-control-grid--two">
+          <label>Skill name<input type="text" value={skillName} onChange={(event) => setSkillName(event.target.value)} /></label>
+          <label>Current skill<input min="1" type="number" value={skillValue} onChange={(event) => setSkillValue(Math.max(1, Math.trunc(Number(event.target.value) || 1)))} /></label>
         </div>
-        <span className="coc-card__stamp">XP</span>
-      </header>
 
-      <p className="coc-card__summary">
-        A skill may be checked once after a successful use. When the Keeper calls for improvement, roll over the current value to gain 1D10.
-      </p>
-
-      <div className="coc-control-grid coc-control-grid--two">
-        <label>Skill name<input type="text" value={skillName} onChange={(event) => setSkillName(event.target.value)} /></label>
-        <label>Current skill<input min="1" type="number" value={skillValue} onChange={(event) => setSkillValue(Math.max(1, Math.trunc(Number(event.target.value) || 1)))} /></label>
-      </div>
-
-      <label className="coc-check-control"><input type="checkbox" checked={checked} onChange={(event) => setChecked(event.target.checked)} />Skill was successfully used and checked</label>
-      <button className="coc-roll-button" type="button" onClick={rollImprovement}>Roll improvement</button>
-      <section className="coc-roll-result" aria-live="polite"><p>{result}</p></section>
-      <CocRuleStatus sourceId="coc-skill-improvement" />
-    </article>
+        <label className="coc-check-control"><input type="checkbox" checked={checked} onChange={(event) => setChecked(event.target.checked)} />Skill was successfully used and checked</label>
+        <button className="coc-roll-button" type="button" onClick={rollImprovement}>Roll improvement</button>
+        <section className="coc-roll-result" aria-live="polite"><p>{result}</p></section>
+        <CocRuleStatus sourceId="coc-skill-improvement" />
+      </article>
+      <CocLuckCard />
+      <CocGroupLuckCard />
+    </>
   );
 };
