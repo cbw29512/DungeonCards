@@ -19,6 +19,7 @@ export const SrdSpellReferenceCard = ({ spell }: SrdSpellReferenceCardProps) => 
   const [castingLevel, setCastingLevel] = useState(spell.level);
   const casting = describeSrdSpellCasting(spell, castingLevel);
   const slotOptions = getSpellSlotOptions(spell.level);
+  const scaling = casting.structuredScaling;
 
   return (
     <article className="srd-reference-card srd-reference-card--spell">
@@ -70,6 +71,20 @@ export const SrdSpellReferenceCard = ({ spell }: SrdSpellReferenceCardProps) => 
               <div><dt>Extra slot levels</dt><dd>+{casting.extraSlotLevels}</dd></div>
               <div><dt>Enhanced effect</dt><dd>{casting.hasEnhancedEffect ? "Yes" : "No listed change"}</dd></div>
             </dl>
+          )}
+          {casting.extraSlotLevels > 0 && casting.hasEnhancedEffect && (
+            <div className={`srd-spell-scaling-result srd-spell-scaling-result--${scaling.status}`} aria-live="polite">
+              <strong>{scaling.status === "calculated" ? "Structured increment" : "Manual review required"}</strong>
+              <p>{scaling.summary}</p>
+              {scaling.status === "calculated" && (
+                <ul>
+                  {scaling.effects.map((effect) => (
+                    <li key={`${effect.kind}-${effect.label}`}>{effect.summary}</li>
+                  ))}
+                </ul>
+              )}
+              <small>Use this as an additive shortcut only. The exact source instruction controls targeting, limits, and special conditions.</small>
+            </div>
           )}
           {spell.higherLevels && (
             <p className="srd-spell-casting-level__rule">{spell.higherLevels}</p>
