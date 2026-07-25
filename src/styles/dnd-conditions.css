@@ -1,0 +1,279 @@
+.dnd-conditions-library {
+  width: min(100% - 2rem, 1280px);
+  margin: 0 auto;
+  padding: 2rem 0 5rem;
+}
+
+.dnd-conditions-library__heading {
+  max-width: 900px;
+}
+
+.dnd-conditions-library__heading p {
+  margin: 0;
+  color: #f7c76b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dnd-conditions-library__heading h1 {
+  margin: 0.35rem 0 0.75rem;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.dnd-conditions-library__heading span,
+.dnd-condition-card p,
+.dnd-exhaustion__rest,
+.dnd-exhaustion__clear {
+  color: #d9c9b8;
+  line-height: 1.55;
+}
+
+.dnd-conditions-library__controls {
+  display: grid;
+  margin: 1.4rem 0;
+  padding: 0.9rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.9rem;
+  background: rgb(10 6 18 / 72%);
+  gap: 0.85rem;
+  grid-template-columns: auto minmax(240px, 1fr);
+}
+
+.dnd-conditions-library__controls fieldset {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  gap: 0.4rem;
+}
+
+.dnd-conditions-library__controls legend,
+.dnd-conditions-library__controls label > span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #d9c9b8;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.dnd-conditions-library__controls button,
+.dnd-conditions-library__controls input,
+.dnd-exhaustion__controls button {
+  min-height: 44px;
+  padding: 0.6rem 0.75rem;
+  color: #f8efe0;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 0.65rem;
+  background: #251633;
+}
+
+.dnd-conditions-library__controls button[aria-pressed="true"] {
+  color: #1a1022;
+  border-color: #f7c76b;
+  background: #f7c76b;
+  font-weight: 900;
+}
+
+.dnd-conditions-library__controls input {
+  width: 100%;
+}
+
+.dnd-exhaustion {
+  display: grid;
+  margin-bottom: 1.4rem;
+  padding: 1rem;
+  border: 1px solid rgb(224 123 104 / 48%);
+  border-radius: 0.9rem;
+  background: linear-gradient(160deg, rgb(111 35 43 / 24%), rgb(255 255 255 / 4%));
+  gap: 0.8rem;
+}
+
+.dnd-exhaustion > header,
+.dnd-conditions-library__result,
+.dnd-condition-card > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.dnd-exhaustion h2,
+.dnd-condition-card h2 {
+  margin: 0;
+  color: #fff0c2;
+}
+
+.dnd-exhaustion header small,
+.dnd-condition-card header small,
+.dnd-condition-card footer {
+  color: #d9c9b8;
+  font-size: 0.64rem;
+}
+
+.dnd-exhaustion > header > span {
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 8%);
+  font-weight: 900;
+}
+
+.dnd-exhaustion > header > span.is-dead {
+  color: #fff;
+  background: #8b1f2d;
+}
+
+.dnd-exhaustion__controls {
+  display: grid;
+  align-items: center;
+  gap: 0.6rem;
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.dnd-exhaustion__controls output {
+  min-width: 72px;
+  color: #fff0c2;
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.dnd-exhaustion__controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.dnd-exhaustion__metrics {
+  display: grid;
+  margin: 0;
+  gap: 0.55rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dnd-exhaustion__metrics div {
+  padding: 0.55rem;
+  border-radius: 0.6rem;
+  background: rgb(0 0 0 / 22%);
+}
+
+.dnd-exhaustion__metrics dt {
+  color: #d9c9b8;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.dnd-exhaustion__metrics dd {
+  margin: 0.1rem 0 0;
+  color: #fff0c2;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.dnd-exhaustion__effects {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: 0.4rem;
+}
+
+.dnd-exhaustion__effects li {
+  display: grid;
+  padding: 0.55rem;
+  border-left: 3px solid #e07b68;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.1rem;
+}
+
+.dnd-exhaustion__effects strong {
+  color: #f3a18f;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.dnd-exhaustion__rest,
+.dnd-exhaustion__clear {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+.dnd-conditions-library__result {
+  margin: 0.8rem 0;
+  color: #d9c9b8;
+}
+
+.dnd-condition-grid {
+  display: grid;
+  align-items: start;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+}
+
+.dnd-condition-card {
+  display: grid;
+  min-height: 310px;
+  padding: 0.9rem;
+  border: 1px solid #8060a4;
+  border-radius: 0.9rem;
+  background: linear-gradient(165deg, #30203c, #100b17 72%);
+  gap: 0.65rem;
+}
+
+.dnd-condition-card p,
+.dnd-condition-card ul {
+  margin: 0;
+  font-size: 0.76rem;
+}
+
+.dnd-condition-card ul {
+  display: grid;
+  padding-left: 1.2rem;
+  gap: 0.4rem;
+  line-height: 1.45;
+}
+
+.dnd-condition-card footer {
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.dnd-condition-card footer a {
+  color: #f7c76b;
+}
+
+.dnd-conditions-library__empty {
+  padding: 2rem;
+  border: 1px dashed rgb(255 255 255 / 20%);
+  border-radius: 0.8rem;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .dnd-conditions-library__controls,
+  .dnd-exhaustion__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .dnd-conditions-library__controls fieldset {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .dnd-conditions-library { width: min(100% - 1rem, 1280px); }
+  .dnd-exhaustion__controls { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .dnd-conditions-library__controls,
+  .dnd-exhaustion__controls { display: none; }
+  .dnd-conditions-library { width: 100%; padding: 0; }
+  .dnd-exhaustion, .dnd-condition-card { color: #111; background: transparent; box-shadow: none; break-inside: avoid; }
+  .dnd-condition-card p, .dnd-conditions-library__heading span, .dnd-exhaustion__rest { color: #111; }
+}

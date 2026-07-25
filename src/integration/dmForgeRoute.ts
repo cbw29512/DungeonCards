@@ -2,6 +2,7 @@ export type DndAppPage =
   | "home"
   | "rules"
   | "coverage"
+  | "conditions"
   | "compendium"
   | "player"
   | "dm"
@@ -15,6 +16,7 @@ const DND_PAGES = new Set<DndAppPage>([
   "home",
   "rules",
   "coverage",
+  "conditions",
   "compendium",
   "player",
   "dm",
