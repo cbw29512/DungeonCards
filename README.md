@@ -1,34 +1,40 @@
-# Dungeon Cards
+# DM Forge — Rules Compendium & Roll Cards
 
-Dungeon Cards is a React and TypeScript tabletop toolkit for D&D SRD 5.1, D&D SRD 5.2.1, original Homebrew content, and a separate Call of Cthulhu 7e procedure prototype.
+DM Forge is a local-first, account-free tabletop operating workspace for Dungeons & Dragons and Call of Cthulhu. It is designed for fast table use: authoritative references remain available, while the primary interface surfaces the numbers, procedures, and state a GM needs during play.
 
-The application combines:
+## Product standards
 
-- complete licensed D&D spell and monster reference catalogs;
-- fast executable Player and DM roll cards;
-- independent personal card copies;
-- encounter-ready monster cards and ordered boss folios;
-- plain-language D&D and Call of Cthulhu rules guides;
-- original homebrew card and monster builders.
+- **Fast under pressure:** combat and procedure cards prioritize decisive information over decorative prose.
+- **Rules-transparent:** verified summaries link to their source record, edition, and licensing boundary.
+- **System-separated:** D&D 2014, D&D 2024, and Call of Cthulhu 7th Edition procedures do not silently mix.
+- **Accessible:** keyboard navigation, skip links, visible focus, reduced-motion behavior, responsive menus, and minimum touch targets are part of the release gate.
+- **Local-first:** personal cards and encounter selections remain in the browser without requiring an account.
+- **Print-ready:** operational cards and folios avoid navigation chrome and unnecessary effects when printed.
 
-## D&D areas
+## Current workspaces
 
-### Rules Guide
+### Dungeons & Dragons
 
-The D&D Rules Guide explains common table procedures before presenting source details:
+- Rules guide and executable roll cards
+- SRD 5.1 and SRD 5.2.1 spell and monster references
+- Player and DM personal tables
+- Structured monster quick-combat cards with complete sourced folios
+- Homebrew card and monster builders with live previews
+- DM Forge Encounter handoff
 
-- d20 tests;
-- Advantage and Disadvantage;
-- attacks and damage;
-- checks and saving throws;
-- turn structure;
-- hit points and death;
-- concentration and spellcasting;
-- keeping 2014 and 2024 rules separate.
+### Call of Cthulhu 7th Edition
 
-### SRD Compendium
+- Percentile, difficulty, opposed-roll, and pushed-roll procedures
+- Sanity loss, temporary insanity, bouts of madness, and reality checks
+- DEX order, close combat, Fighting Maneuvers, outnumbering, firearms, and wounds
+- First Aid, Medicine, dying, natural healing, and Major Wound recovery
+- Magic Points, first-time spell casting, pushed casting, and casting timing
+- Skill-improvement procedure
+- Keeper investigation flow, case preparation, and original demonstration dossiers
 
-The Compendium is generated from the official Wizards of the Coast SRD PDFs and includes:
+Official paid scenarios, proprietary creature statistics, spell descriptions, artwork, and logos are not reproduced. Cthulhu examples are original demonstration content unless a separate authorized source is identified.
+
+## Source catalogs
 
 | Ruleset | Spells | Monsters |
 |---|---:|---:|
@@ -36,95 +42,21 @@ The Compendium is generated from the official Wizards of the Coast SRD PDFs and 
 | SRD 5.2.1 — 2024 | 339 | 328 |
 | **Combined** | **658** | **642** |
 
-Users can:
+The generator records official PDF URLs, SHA-256 digests, source versions, source pages, and CC BY 4.0 attribution. Generated records are validated for required fields, edition separation, duplicate IDs, line-wrap artifacts, and deterministic output.
 
-- switch between Spells and Monsters;
-- search by name and relevant metadata;
-- filter 2014, 2024, or both editions;
-- page through large catalogs;
-- open complete source-reference text;
-- see exact source pages and edition labels.
+## Encounter cards
 
-The generator records the official PDF URL, SHA-256 digest, source version, page references, and CC BY 4.0 attribution. It rejects duplicate IDs, missing fields, edition leakage, clipped components, missing 2024 class lists, and visible PDF line-wrap artifacts.
+Every generated SRD monster receives a structured quick-combat face that attempts to surface:
 
-### Player and DM cards
+- armor class, hit points, speed, initiative, and ability scores;
+- saving throws, skills, senses, vulnerabilities, resistances, and immunities;
+- prioritized attacks, Multiattack, save DCs, recharge actions, reactions, bonus actions, and legendary actions.
 
-Executable cards currently include:
-
-- complete SRD 5.1 weapon table: 37 weapons;
-- complete SRD 5.2.1 weapon table: 38 weapons;
-- separate weapon Attack, Damage, and eligible Quick Roll cards;
-- generic Attack Roll, Saving Throw, and Ability Check cards;
-- six individual ability saving throws;
-- eighteen individual skill checks;
-- twenty-two automated spell families;
-- selected traps, magic items, and random tables.
-
-Configured cards roll from the result face. Cards that allow Advantage use mutually exclusive **Normal**, **ADV**, and **DIS** controls on that result face, so the roll mode can change between rolls without reopening settings. **Change** returns to the configuration face.
-
-### Independent copies
-
-Player and DM tables store card instances rather than a unique list of catalog IDs. A user can:
-
-- add the same source card repeatedly;
-- give each copy its own name;
-- pin, reorder, and remove each copy independently;
-- keep separate temporary configuration state while the page remains mounted;
-- migrate an existing one-copy table into the instance schema.
-
-Persisting every copy’s ruleset, modifiers, spell level, selected mode, and Advantage state across browser refreshes remains future work.
-
-### Monster Encounter
-
-The encounter workspace currently provides fully formatted cards for:
-
-- Goblin;
-- Adult Black Dragon;
-- Lich;
-- saved original homebrew monsters.
-
-Simple monsters use poker-size cards. Complex monsters open as a numbered six-card sequence with equal 5:7 dimensions, Previous/Next navigation, and fixed printing at 2.5 × 3.5 inches per card.
-
-The Compendium contains all generated SRD monster references, but converting every imported monster into a complete encounter-ready card or boss folio remains separate automation work.
-
-## Reference-complete versus automation-complete
-
-Dungeon Cards deliberately distinguishes two milestones:
-
-- **Reference-complete:** every licensed record is searchable, edition-tagged, source-referenced, and readable.
-- **Automation-complete:** the record also has structured controls that execute attacks, saves, damage, healing, scaling, tables, or encounter procedures.
-
-The spell and monster Compendium is reference-complete. Weapons, core d20 cards, skills, saves, twenty-two spell families, and three imported monsters have deeper executable behavior. Product copy must not imply that every generated reference is already an automated roll card.
-
-## Official SRD synchronization
-
-Node.js 22.12 or newer and Poppler’s `pdftotext` are required to regenerate source catalogs.
-
-```bash
-npm ci
-npm run sync:srd
-npm run verify:srd
-```
-
-The synchronization pipeline:
-
-1. downloads the official versioned PDFs;
-2. extracts configured spell and monster page ranges;
-3. normalizes PDF typography and wrapped text;
-4. parses edition-specific records;
-5. applies three narrowly documented source-text corrections;
-6. validates counts, fields, quality, attribution, and edition differences;
-7. writes deterministic JSON into `src/generated`.
-
-The current official inputs are SRD 5.1 and SRD 5.2.1 under Creative Commons Attribution 4.0 International.
-
-## Call of Cthulhu prototype
-
-The Call of Cthulhu side includes a plain-language Rules Guide and playable procedure cards for percentile checks, Bonus/Penalty dice, opposed rolls, Sanity, wounds, close combat, and firearms.
-
-The public repository uses original demonstration creatures, weapons, spells, and rituals. It does not copy official Chaosium catalogs, stat blocks, spell text, weapon tables, scenarios, artwork, or protected prose. A separate software license would be required for those materials.
+The complete source-authoritative folio remains available behind the quick-reference face. The parser fails safely when an unusual or older stat block omits an expected section.
 
 ## Local development
+
+Node.js 22.12 or newer is required.
 
 ```bash
 npm ci
@@ -139,29 +71,36 @@ npm run build
 npm run check
 ```
 
-GitHub Actions runs:
+The production build regenerates and validates the DM Forge monster and cleric-spell exports. GitHub Actions blocks on:
 
-- locked dependency installation;
-- high-severity dependency audit;
-- unit, storage, parser, and catalog tests;
-- strict TypeScript compilation;
-- Vite production build;
-- official-PDF generation and quality validation on the catalog branch.
+- high-severity dependency advisories;
+- unit, storage, parser, catalog, and release-shell regressions;
+- TypeScript compilation errors;
+- SRD export failures;
+- production bundle failures.
 
-## Current limitations
+## Official SRD synchronization
 
-- no production login or cloud synchronization;
-- one local Player, DM, and Monster workspace per role;
-- per-instance card settings do not yet survive refresh;
-- only three imported monsters currently have complete encounter-card formatting;
-- only twenty-two spell families currently have executable spell procedures;
-- conditions, equipment, magic items, feats, classes, species, backgrounds, traps, and hazards are not yet reference-complete;
-- no deck import/export;
-- roll history resets when its page unmounts or the browser reloads.
+Poppler's `pdftotext` is required only when regenerating official source catalogs.
+
+```bash
+npm run sync:srd
+npm run verify:srd
+```
+
+The synchronization pipeline downloads the configured official PDFs, extracts page ranges, normalizes PDF typography, parses edition-specific records, validates data quality and attribution, and writes deterministic JSON into `src/generated`.
+
+## Storage and current boundaries
+
+- No production login or cloud synchronization
+- Local browser storage for personal workspaces and homebrew records
+- Per-instance temporary card configuration may reset when a page unmounts or the browser reloads
+- Official paid Call of Cthulhu catalogs and proprietary text are excluded
+- The current GitHub Pages route remains `/DungeonCards/` for compatibility while the visible product brand is DM Forge
 
 ## Attribution
 
-See [`ATTRIBUTION.md`](ATTRIBUTION.md) for the required SRD 5.1 and SRD 5.2.1 Creative Commons attribution statements.
+See [`ATTRIBUTION.md`](ATTRIBUTION.md) for required SRD 5.1 and SRD 5.2.1 Creative Commons attribution statements.
 
 ## Architecture rule
 
