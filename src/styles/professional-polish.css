@@ -1,0 +1,377 @@
+/* Final release-grade overrides shared by the D&D and Cthulhu workspaces. */
+
+.coc-nav {
+  min-height: 72px;
+  padding: 0.65rem clamp(0.9rem, 3vw, 2rem);
+  grid-template-columns: auto auto minmax(0, 1fr);
+  box-shadow: 0 10px 36px rgb(0 0 0 / 28%);
+}
+
+.coc-nav__current {
+  color: #a9b49c;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.coc-nav__links {
+  min-width: 0;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.coc-nav__links button {
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+.coc-nav__switch {
+  margin-left: 0.35rem;
+}
+
+.navigation-toggle--coc {
+  color: #d8ccb2 !important;
+  border: 1px solid rgb(194 165 102 / 30%) !important;
+  border-radius: 0.45rem !important;
+}
+
+.skip-link--coc {
+  color: #09100b;
+  background: #a7b28f;
+}
+
+.coc-hero {
+  min-height: 450px;
+  padding: clamp(1.5rem, 4vw, 3.75rem);
+  border-radius: 0.45rem;
+}
+
+.coc-hero h1 {
+  max-width: 720px;
+  font-size: clamp(2.75rem, 6.5vw, 5.6rem);
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.coc-section {
+  margin-block: clamp(3rem, 6vw, 6rem);
+}
+
+.coc-section--page {
+  margin-top: clamp(1.75rem, 4vw, 3.5rem);
+}
+
+.coc-section__heading h1,
+.coc-section__heading h2 {
+  text-wrap: balance;
+}
+
+.coc-card,
+.coc-dossier,
+.coc-rule-note,
+.coc-reference-card,
+.coc-index-grid button {
+  border-radius: 0.55rem;
+  box-shadow: 0 16px 50px rgb(0 0 0 / 28%);
+}
+
+.coc-card {
+  overflow: hidden;
+}
+
+.coc-card__header {
+  align-items: start;
+}
+
+.coc-card__summary,
+.coc-reference-card p,
+.coc-rule-note p,
+.coc-procedure-reasons,
+.coc-rule-status > div {
+  line-height: 1.58;
+}
+
+.coc-control-grid label,
+.coc-single-control,
+.coc-check-control {
+  font-weight: 750;
+}
+
+.coc-control-grid input,
+.coc-control-grid select,
+.coc-single-control select,
+.coc-single-control input,
+.coc-card input,
+.coc-card select {
+  min-height: 44px;
+  border-color: rgb(190 163 104 / 30%);
+}
+
+.coc-record-grid > span,
+.coc-thresholds > span {
+  min-height: 74px;
+  align-content: center;
+}
+
+.coc-roll-button,
+.coc-button-row button,
+.coc-card > button {
+  min-height: 44px;
+  font-weight: 900;
+}
+
+.coc-rule-status summary {
+  min-height: 42px;
+}
+
+.coc-procedure-grid {
+  gap: 1.25rem;
+}
+
+.coc-procedure-grid > .coc-card,
+.coc-rule-audit-list > .coc-card {
+  min-height: 100%;
+}
+
+.monster-grid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.monster-card-flip,
+.monster-card,
+.monster-portrait-card,
+.monster-reference__actions {
+  width: min(100%, 300px);
+}
+
+.monster-card,
+.monster-portrait-card {
+  border-radius: 1rem;
+}
+
+.monster-card {
+  padding: 0.9rem;
+  gap: 0.42rem;
+}
+
+.monster-card__header small,
+.monster-card__header span,
+.monster-card footer {
+  font-size: 0.64rem;
+  line-height: 1.25;
+}
+
+.monster-card__header h3 {
+  font-size: 1.28rem;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.monster-card__vitals {
+  min-height: 38px;
+  font-size: 0.66rem !important;
+  gap: 0.28rem;
+}
+
+.monster-card__abilities div {
+  min-height: 39px;
+}
+
+.monster-card__abilities span {
+  font-size: 0.7rem;
+}
+
+.monster-card__abilities small {
+  font-size: 0.52rem;
+}
+
+.monster-card--combat-reference .monster-card__abilities em {
+  font-size: 0.48rem;
+}
+
+.monster-card__details--combat {
+  font-size: 0.55rem;
+  line-height: 1.25;
+  gap: 0.16rem;
+}
+
+.monster-card__details--combat div {
+  grid-template-columns: 58px minmax(0, 1fr);
+}
+
+.monster-card__details--combat dd {
+  display: -webkit-box;
+  overflow: hidden;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.monster-card__combat-actions {
+  min-height: 0;
+}
+
+.monster-card__combat-actions ul {
+  gap: 0.3rem;
+}
+
+.monster-card__combat-actions li {
+  padding: 0.3rem 0.36rem;
+}
+
+.monster-card__combat-actions li span {
+  font-size: 0.62rem;
+}
+
+.monster-card__combat-actions li small {
+  font-size: 0.5rem;
+  line-height: 1.22;
+  -webkit-line-clamp: 3;
+}
+
+.monster-card__combat-actions > p {
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+
+.monster-card__action-flags span {
+  font-size: 0.48rem;
+}
+
+.monster-reference__actions button,
+.rule-card__workspace-actions button {
+  min-height: 40px;
+}
+
+.workspace-empty {
+  min-height: 280px;
+  background: rgb(255 255 255 / 3%);
+}
+
+.workspace-error,
+.coc-error {
+  border-radius: 0.55rem;
+}
+
+@media (max-width: 1080px) {
+  .coc-nav {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .coc-nav__current {
+    grid-column: 1;
+    grid-row: 2;
+    margin-left: 2.45rem;
+  }
+
+  .navigation-toggle--coc {
+    display: grid;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .coc-nav__links {
+    display: none;
+    grid-column: 1 / -1;
+    width: 100%;
+    max-height: min(70vh, 580px);
+    padding: 0.65rem;
+    overflow-y: auto;
+    border: 1px solid rgb(190 163 104 / 22%);
+    border-radius: 0.55rem;
+    background: #0b100d;
+    box-shadow: 0 22px 60px rgb(0 0 0 / 52%);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .coc-nav__links.is-open {
+    display: grid;
+  }
+
+  .coc-nav__links button {
+    width: 100%;
+    border: 1px solid rgb(255 255 255 / 9%);
+    text-align: left;
+  }
+
+  .coc-nav__switch {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .coc-nav__links {
+    grid-template-columns: 1fr;
+  }
+
+  .coc-hero {
+    width: min(100% - 1rem, 1220px);
+    padding: 1.35rem;
+  }
+
+  .coc-hero__seal {
+    display: none;
+  }
+
+  .coc-hero h1 {
+    font-size: clamp(2.5rem, 14vw, 4rem);
+  }
+
+  .coc-section {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .monster-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .monster-card-flip,
+  .monster-card,
+  .monster-portrait-card,
+  .monster-reference__actions {
+    width: min(100%, 320px);
+  }
+}
+
+@media print {
+  .top-nav,
+  .coc-nav,
+  .skip-link,
+  .coc-app__grain,
+  .coc-footer,
+  .workspace-toolbar,
+  .dm-forge-handoff,
+  .monster-reference__actions,
+  .rule-card__workspace-actions {
+    display: none !important;
+  }
+
+  body,
+  .application-shell,
+  .coc-app {
+    color: #111 !important;
+    background: #fff !important;
+  }
+
+  .coc-section,
+  .coc-section--page {
+    width: 100%;
+    margin: 0;
+  }
+
+  .coc-card,
+  .coc-dossier,
+  .coc-reference-card,
+  .coc-rule-note,
+  .monster-reference,
+  .monster-card-flip {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+}
