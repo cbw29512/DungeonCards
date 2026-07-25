@@ -46,8 +46,29 @@ type DndAppProps = { onChangeSystem: () => void };
 
 const initialSearch = () => (typeof window === "undefined" ? "" : window.location.search);
 
+const pageLabels: Record<DndAppPage, string> = {
+  home: "Home",
+  rules: "Rules Guide",
+  compendium: "SRD Compendium",
+  player: "Player Workspace",
+  dm: "DM Workspace",
+  monster: "Monster Encounter",
+  homebrew: "Card Builder",
+  "monster-homebrew": "Monster Builder"
+};
+
+const focusMainContent = (id: string) => {
+  window.requestAnimationFrame(() => {
+    const target = document.getElementById(id);
+    target?.focus({ preventScroll: true });
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  });
+};
+
 const DndApp = ({ onChangeSystem }: DndAppProps) => {
   const [activePage, setActivePage] = useState<DndAppPage>(() => parseDndPage(initialSearch()));
+  const [navigationOpen, setNavigationOpen] = useState(false);
   const { cards: homebrewCards, storageError, createCard, deleteCard } = useHomebrewCards();
   const {
     monsters: homebrewMonsters,
@@ -58,18 +79,38 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
 
   const navigate = (page: DndAppPage) => {
     setActivePage(page);
+    setNavigationOpen(false);
     replaceDndRoute(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    focusMainContent("dnd-main-content");
+  };
+
+  const changeSystem = () => {
+    setNavigationOpen(false);
+    onChangeSystem();
   };
 
   return (
-    <main>
+    <div className="application-shell application-shell--dnd">
+      <a className="skip-link" href="#dnd-main-content">Skip to main content</a>
       <nav className="top-nav" aria-label="Primary navigation">
         <div className="product-lockup">
           <a className="dm-forge-return" href={DM_FORGE_HOME}>DM Forge</a>
           <span>Rules Compendium &amp; Roll Cards</span>
+          <small className="top-nav__current">{pageLabels[activePage]}</small>
         </div>
-        <div className="top-nav__actions">
+        <button
+          aria-controls="dnd-primary-navigation"
+          aria-expanded={navigationOpen}
+          aria-label={navigationOpen ? "Close navigation" : "Open navigation"}
+          className="navigation-toggle"
+          onClick={() => setNavigationOpen((current) => !current)}
+          type="button"
+        >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </button>
+        <div className={`top-nav__actions${navigationOpen ? " is-open" : ""}`} id="dnd-primary-navigation">
           <button aria-pressed={activePage === "home"} type="button" onClick={() => navigate("home")}>Home</button>
           <button aria-pressed={activePage === "rules"} type="button" onClick={() => navigate("rules")}>Rules Guide</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
@@ -78,102 +119,104 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <button aria-pressed={activePage === "monster"} type="button" onClick={() => navigate("monster")}>Encounter</button>
           <button aria-pressed={activePage === "homebrew"} type="button" onClick={() => navigate("homebrew")}>Card Builder</button>
           <button aria-pressed={activePage === "monster-homebrew"} type="button" onClick={() => navigate("monster-homebrew")}>Monster Builder</button>
-          <button type="button" onClick={onChangeSystem}>Other Systems</button>
+          <button type="button" onClick={changeSystem}>Other Systems</button>
         </div>
       </nav>
 
-      {activePage !== "home" && <h1 className="sr-only">DM Forge Rules Compendium &amp; Roll Cards</h1>}
+      <main id="dnd-main-content" tabIndex={-1}>
+        {activePage !== "home" && <h1 className="sr-only">DM Forge {pageLabels[activePage]}</h1>}
 
-      {activePage === "home" && (
-        <section className="hero compact-hero">
-          <div className="hero__content">
-            <p className="hero__eyebrow">DM Forge · Rules Compendium &amp; Roll Cards</p>
-            <h1>Choose the card. Run the encounter. Keep playing.</h1>
-            <p>Verified 5e and 5.5e references, executable roll cards, personal tables, encounter folios, and homebrew tools—all local and account-free.</p>
-            <div className="role-card-grid">
-              <button className="role-card" type="button" onClick={() => navigate("rules")}>
-                <span>📖</span><strong>Rules Guide</strong>
-                <small>Learn the table procedure first, then open the matching card.</small>
-              </button>
-              <button className="role-card" type="button" onClick={() => navigate("compendium")}>
-                <span>📚</span><strong>SRD Compendium</strong>
-                <small>Search all generated SRD 5.1 and 5.2.1 spell and monster references.</small>
-              </button>
-              <button className="role-card" type="button" onClick={() => navigate("player")}>
-                <span>🧙</span><strong>Player Workspace</strong>
-                <small>Keep attacks, damage, spells, checks, and saves on My Table.</small>
-              </button>
-              <button className="role-card" type="button" onClick={() => navigate("dm")}>
-                <span>🎲</span><strong>DM Workspace</strong>
-                <small>Prepare checks, traps, magic items, generators, and random tables.</small>
-              </button>
-              <button className="role-card" type="button" onClick={() => navigate("monster")}>
-                <span>🐉</span><strong>Monster Encounter</strong>
-                <small>Choose SRD creatures, open ordered folios, and print references.</small>
-              </button>
-              <button className="role-card" type="button" onClick={() => navigate("homebrew")}>
-                <span>🛠️</span><strong>Card Builder</strong>
-                <small>Build custom cards beside a live finished-size preview.</small>
-              </button>
-              <button className="role-card" type="button" onClick={() => navigate("monster-homebrew")}>
-                <span>🧌</span><strong>Monster Builder</strong>
-                <small>Create, save, and print custom monster folios.</small>
-              </button>
+        {activePage === "home" && (
+          <section className="hero compact-hero">
+            <div className="hero__content">
+              <p className="hero__eyebrow">DM Forge · Rules Compendium &amp; Roll Cards</p>
+              <h1>Choose the card. Run the encounter. Keep playing.</h1>
+              <p>Verified 5e and 5.5e references, executable roll cards, personal tables, encounter folios, and homebrew tools—all local and account-free.</p>
+              <div className="role-card-grid">
+                <button className="role-card" type="button" onClick={() => navigate("rules")}>
+                  <span aria-hidden="true">📖</span><strong>Rules Guide</strong>
+                  <small>Learn the table procedure first, then open the matching card.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("compendium")}>
+                  <span aria-hidden="true">📚</span><strong>SRD Compendium</strong>
+                  <small>Search all generated SRD 5.1 and 5.2.1 spell and monster references.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("player")}>
+                  <span aria-hidden="true">🧙</span><strong>Player Workspace</strong>
+                  <small>Keep attacks, damage, spells, checks, and saves on My Table.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("dm")}>
+                  <span aria-hidden="true">🎲</span><strong>DM Workspace</strong>
+                  <small>Prepare checks, traps, magic items, generators, and random tables.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("monster")}>
+                  <span aria-hidden="true">🐉</span><strong>Monster Encounter</strong>
+                  <small>Choose SRD creatures, open ordered folios, and print references.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("homebrew")}>
+                  <span aria-hidden="true">🛠️</span><strong>Card Builder</strong>
+                  <small>Build custom cards beside a live finished-size preview.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("monster-homebrew")}>
+                  <span aria-hidden="true">🧌</span><strong>Monster Builder</strong>
+                  <small>Create, save, and print custom monster folios.</small>
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {activePage === "rules" && <DndRulesGuide />}
-      {activePage === "compendium" && <SrdCompendium />}
+        {activePage === "rules" && <DndRulesGuide />}
+        {activePage === "compendium" && <SrdCompendium />}
 
-      {activePage === "player" && (
-        <RulesDeck
-          cards={playerRuleCards}
-          description="Add as many independent copies as you need, name each copy, and keep only the cards used by this character on My Table."
-          eyebrow="player"
-          role="player"
-          title="Your personal cards, ready when initiative starts."
-        />
-      )}
+        {activePage === "player" && (
+          <RulesDeck
+            cards={playerRuleCards}
+            description="Add as many independent copies as you need, name each copy, and keep only the cards used by this character on My Table."
+            eyebrow="player"
+            role="player"
+            title="Your personal cards, ready when initiative starts."
+          />
+        )}
 
-      {activePage === "dm" && (
-        <RulesDeck
-          cards={dmRuleCards}
-          description="Build a focused table with independent copies of checks, saves, traps, items, and generators."
-          eyebrow="dm"
-          role="dm"
-          title="A focused DM screen backed by the full rules library."
-        />
-      )}
+        {activePage === "dm" && (
+          <RulesDeck
+            cards={dmRuleCards}
+            description="Build a focused table with independent copies of checks, saves, traps, items, and generators."
+            eyebrow="dm"
+            role="dm"
+            title="A focused DM screen backed by the full rules library."
+          />
+        )}
 
-      {activePage === "monster" && (
-        <MonsterDeck
-          homebrewMonsters={homebrewMonsters}
-          libraryError={homebrewMonsterError}
-          onDeleteHomebrewMonster={deleteMonster}
-        />
-      )}
+        {activePage === "monster" && (
+          <MonsterDeck
+            homebrewMonsters={homebrewMonsters}
+            libraryError={homebrewMonsterError}
+            onDeleteHomebrewMonster={deleteMonster}
+          />
+        )}
 
-      {activePage === "homebrew" && (
-        <>
-          <HomebrewBuilder onCreate={createCard} storageError={storageError} />
-          {homebrewCards.length > 0 ? (
-            <DeckGrid
-              cards={homebrewCards}
-              eyebrow="Homebrew Deck"
-              title="Your custom cards are ready to roll."
-              description="These cards are stored locally in this browser and remain separate from SRD cards."
-              onDeleteCard={deleteCard}
-            />
-          ) : <p className="homebrew-empty">No homebrew cards yet. Build your first card above.</p>}
-        </>
-      )}
+        {activePage === "homebrew" && (
+          <>
+            <HomebrewBuilder onCreate={createCard} storageError={storageError} />
+            {homebrewCards.length > 0 ? (
+              <DeckGrid
+                cards={homebrewCards}
+                eyebrow="Homebrew Deck"
+                title="Your custom cards are ready to roll."
+                description="These cards are stored locally in this browser and remain separate from SRD cards."
+                onDeleteCard={deleteCard}
+              />
+            ) : <p className="homebrew-empty">No homebrew cards yet. Build your first card above.</p>}
+          </>
+        )}
 
-      {activePage === "monster-homebrew" && (
-        <MonsterHomebrewBuilder libraryError={homebrewMonsterError} onSave={createMonster} />
-      )}
-    </main>
+        {activePage === "monster-homebrew" && (
+          <MonsterHomebrewBuilder libraryError={homebrewMonsterError} onSave={createMonster} />
+        )}
+      </main>
+    </div>
   );
 };
 
