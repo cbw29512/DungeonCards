@@ -42,6 +42,19 @@ type ReferenceItem = {
   steps: string[];
 };
 
+const pageLabels: Record<CocPage, string> = {
+  archive: "Home",
+  rules: "Rules Guide",
+  investigation: "Investigation",
+  investigator: "Investigator File",
+  keeper: "Keeper Desk",
+  combat: "Combat Desk",
+  creatures: "Creature Folio",
+  weapons: "Weapons",
+  spells: "Occult Procedure",
+  accuracy: "Sources & Licensing"
+};
+
 const investigationFlow: ReferenceItem[] = [
   {
     eyebrow: "1 · Frame",
@@ -182,141 +195,174 @@ const QuickReferenceGrid = ({ limit }: { limit?: number }) => {
 
 export const CocPreview = ({ onChangeSystem }: CocPreviewProps) => {
   const [activePage, setActivePage] = useState<CocPage>("archive");
+  const [navigationOpen, setNavigationOpen] = useState(false);
+
+  const navigate = (page: CocPage) => {
+    setActivePage(page);
+    setNavigationOpen(false);
+    window.requestAnimationFrame(() => {
+      const target = document.getElementById("coc-main-content");
+      target?.focus({ preventScroll: true });
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  };
+
+  const changeSystem = () => {
+    setNavigationOpen(false);
+    onChangeSystem();
+  };
 
   return (
-    <main className="coc-app">
+    <div className="coc-app">
+      <a className="skip-link skip-link--coc" href="#coc-main-content">Skip to main content</a>
       <div className="coc-app__grain" aria-hidden="true" />
       <nav className="coc-nav" aria-label="Cthulhu Keeper toolkit navigation">
-        <button className="coc-nav__brand" type="button" onClick={() => setActivePage("archive")}>
+        <button className="coc-nav__brand" type="button" onClick={() => navigate("archive")}>
           <span aria-hidden="true">◉</span><strong>DM Forge</strong><small>Cthulhu Keeper tools</small>
         </button>
-        <div className="coc-nav__links">
-          <button aria-pressed={activePage === "archive"} type="button" onClick={() => setActivePage("archive")}>Home</button>
-          <button aria-pressed={activePage === "rules"} type="button" onClick={() => setActivePage("rules")}>Rules</button>
-          <button aria-pressed={activePage === "investigation"} type="button" onClick={() => setActivePage("investigation")}>Investigation</button>
-          <button aria-pressed={activePage === "investigator"} type="button" onClick={() => setActivePage("investigator")}>Investigator</button>
-          <button aria-pressed={activePage === "keeper"} type="button" onClick={() => setActivePage("keeper")}>Keeper</button>
-          <button aria-pressed={activePage === "combat"} type="button" onClick={() => setActivePage("combat")}>Combat</button>
-          <button aria-pressed={activePage === "creatures"} type="button" onClick={() => setActivePage("creatures")}>Creatures</button>
-          <button aria-pressed={activePage === "weapons"} type="button" onClick={() => setActivePage("weapons")}>Weapons</button>
-          <button aria-pressed={activePage === "spells"} type="button" onClick={() => setActivePage("spells")}>Occult</button>
-          <button aria-pressed={activePage === "accuracy"} type="button" onClick={() => setActivePage("accuracy")}>Sources</button>
+        <small className="coc-nav__current">{pageLabels[activePage]}</small>
+        <button
+          aria-controls="coc-primary-navigation"
+          aria-expanded={navigationOpen}
+          aria-label={navigationOpen ? "Close navigation" : "Open navigation"}
+          className="navigation-toggle navigation-toggle--coc"
+          onClick={() => setNavigationOpen((current) => !current)}
+          type="button"
+        >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </button>
+        <div className={`coc-nav__links${navigationOpen ? " is-open" : ""}`} id="coc-primary-navigation">
+          <button aria-pressed={activePage === "archive"} type="button" onClick={() => navigate("archive")}>Home</button>
+          <button aria-pressed={activePage === "rules"} type="button" onClick={() => navigate("rules")}>Rules</button>
+          <button aria-pressed={activePage === "investigation"} type="button" onClick={() => navigate("investigation")}>Investigation</button>
+          <button aria-pressed={activePage === "investigator"} type="button" onClick={() => navigate("investigator")}>Investigator</button>
+          <button aria-pressed={activePage === "keeper"} type="button" onClick={() => navigate("keeper")}>Keeper</button>
+          <button aria-pressed={activePage === "combat"} type="button" onClick={() => navigate("combat")}>Combat</button>
+          <button aria-pressed={activePage === "creatures"} type="button" onClick={() => navigate("creatures")}>Creatures</button>
+          <button aria-pressed={activePage === "weapons"} type="button" onClick={() => navigate("weapons")}>Weapons</button>
+          <button aria-pressed={activePage === "spells"} type="button" onClick={() => navigate("spells")}>Occult</button>
+          <button aria-pressed={activePage === "accuracy"} type="button" onClick={() => navigate("accuracy")}>Sources</button>
+          <button className="coc-nav__switch" type="button" onClick={changeSystem}>Switch system</button>
         </div>
-        <button className="coc-nav__switch" type="button" onClick={onChangeSystem}>Switch system</button>
       </nav>
 
-      {activePage === "archive" && (
-        <>
-          <section className="coc-hero">
-            <div className="coc-hero__copy">
-              <p>DM Forge restricted archive · accession 7E</p>
-              <h1>Run the mystery. Track the cost.</h1>
-              <strong>The rules should support the dread—not interrupt it.</strong>
-              <span>A verified Investigator and Keeper workspace with investigation flow, combat procedures, Sanity, healing, magic, advancement, original dossiers, and visible source boundaries.</span>
-              <div className="coc-button-row coc-button-row--hero">
-                <button className="coc-roll-button" type="button" onClick={() => setActivePage("investigation")}>Run an investigation</button>
-                <button type="button" onClick={() => setActivePage("combat")}>Open combat desk</button>
+      <main id="coc-main-content" tabIndex={-1}>
+        {activePage === "archive" && (
+          <>
+            <section className="coc-hero">
+              <div className="coc-hero__copy">
+                <p>DM Forge restricted archive · accession 7E</p>
+                <h1>Run the mystery. Track the cost.</h1>
+                <strong>The rules should support the dread—not interrupt it.</strong>
+                <span>A verified Investigator and Keeper workspace with investigation flow, combat procedures, Sanity, healing, magic, advancement, original dossiers, and visible source boundaries.</span>
+                <div className="coc-button-row coc-button-row--hero">
+                  <button className="coc-roll-button" type="button" onClick={() => navigate("investigation")}>Run an investigation</button>
+                  <button type="button" onClick={() => navigate("combat")}>Open combat desk</button>
+                </div>
               </div>
+              <div className="coc-hero__seal" aria-hidden="true"><span>◉</span><small>CASE FILE ACTIVE</small></div>
+            </section>
+
+            <section className="coc-section">
+              <header className="coc-section__heading"><small>Try the core mechanic</small><h2>Resolve a percentile check</h2><p>Set the skill and difficulty, then apply any net Bonus or Penalty dice.</p></header>
+              <CocPercentileCard />
+            </section>
+
+            <section className="coc-section coc-section--index">
+              <header className="coc-section__heading"><small>Keeper and Investigator desks</small><h2>Open the part of the case you need now.</h2></header>
+              <div className="coc-index-grid coc-index-grid--expanded">
+                <button type="button" onClick={() => navigate("rules")}><small>Start here</small><strong>Rules Guide</strong><span>Twenty-six verified table procedures in play order.</span></button>
+                <button type="button" onClick={() => navigate("investigation")}><small>Case flow</small><strong>Investigation</strong><span>Clues, research, complications, opposition clocks, and scene closure.</span></button>
+                <button type="button" onClick={() => navigate("investigator")}><small>Player procedures</small><strong>Investigator File</strong><span>Checks, Sanity, injury, healing, and skill advancement.</span></button>
+                <button type="button" onClick={() => navigate("keeper")}><small>Session command</small><strong>Keeper Desk</strong><span>Mystery spine, NPC pressure points, contested action, and campaign records.</span></button>
+                <button type="button" onClick={() => navigate("combat")}><small>Danger procedures</small><strong>Combat Desk</strong><span>DEX order, maneuvers, outnumbering, firearms, wounds, treatment, and escape.</span></button>
+                <button type="button" onClick={() => navigate("accuracy")}><small>Trust boundary</small><strong>Sources &amp; Licensing</strong><span>See what is verified, original, open, or deliberately excluded.</span></button>
+              </div>
+            </section>
+          </>
+        )}
+
+        {activePage === "rules" && <CocRulesGuide />}
+
+        {activePage === "investigation" && (
+          <section className="coc-section coc-section--page">
+            <header className="coc-section__heading"><small>Investigation operating procedure</small><h1>Keep the case moving without giving away the answer.</h1><p>Essential information advances the mystery. Rolls decide cost, quality, exposure, speed, and danger.</p></header>
+            <ReferenceGrid items={investigationFlow} label="Investigation scene flow" />
+          </section>
+        )}
+
+        {activePage === "investigator" && (
+          <section className="coc-section coc-section--page">
+            <header className="coc-section__heading"><small>Investigator workspace</small><h1>Keep the procedures used under pressure in one place.</h1><p>Resolve the roll, apply the cost, and record what changed without searching through the Keeper's notes.</p></header>
+            <div className="coc-procedure-grid">
+              <CocPercentileCard eyebrow="Investigator skill file" title="Active Skill Check" />
+              <CocSanityCard />
+              <CocInjuryCard />
+              <CocHealingCard />
+              <CocImprovementCard />
             </div>
-            <div className="coc-hero__seal" aria-hidden="true"><span>◉</span><small>CASE FILE ACTIVE</small></div>
+            <QuickReferenceGrid />
           </section>
+        )}
 
-          <section className="coc-section">
-            <header className="coc-section__heading"><small>Try the core mechanic</small><h2>Resolve a percentile check</h2><p>Set the skill and difficulty, then apply any net Bonus or Penalty dice.</p></header>
-            <CocPercentileCard />
+        {activePage === "keeper" && (
+          <section className="coc-section coc-section--page">
+            <header className="coc-section__heading"><small>Keeper workspace</small><h1>Run the session from one case desk.</h1><p>Prepare the truth, essential leads, opposition clock, NPC pressure points, and records that must survive the session.</p></header>
+            <ReferenceGrid items={keeperRunSheet} label="Keeper session run sheet" />
+            <div className="coc-section__subheading"><small>Contested action</small><h2>When someone actively resists</h2></div>
+            <div className="coc-procedure-grid"><CocOpposedCard /><CocCombatProcedureCard /></div>
+            <QuickReferenceGrid />
+            <div className="coc-section__subheading"><small>Original sample dossier</small><h2>Combat-ready threat reference</h2></div>
+            <CocCreatureDossier creature={cocPreviewCreature} />
           </section>
+        )}
 
-          <section className="coc-section coc-section--index">
-            <header className="coc-section__heading"><small>Keeper and Investigator desks</small><h2>Open the part of the case you need now.</h2></header>
-            <div className="coc-index-grid coc-index-grid--expanded">
-              <button type="button" onClick={() => setActivePage("rules")}><small>Start here</small><strong>Rules Guide</strong><span>Twenty-six verified table procedures in play order.</span></button>
-              <button type="button" onClick={() => setActivePage("investigation")}><small>Case flow</small><strong>Investigation</strong><span>Clues, research, complications, opposition clocks, and scene closure.</span></button>
-              <button type="button" onClick={() => setActivePage("investigator")}><small>Player procedures</small><strong>Investigator File</strong><span>Checks, Sanity, injury, healing, and skill advancement.</span></button>
-              <button type="button" onClick={() => setActivePage("keeper")}><small>Session command</small><strong>Keeper Desk</strong><span>Mystery spine, NPC pressure points, contested action, and campaign records.</span></button>
-              <button type="button" onClick={() => setActivePage("combat")}><small>Danger procedures</small><strong>Combat Desk</strong><span>DEX order, maneuvers, outnumbering, firearms, wounds, treatment, and escape.</span></button>
-              <button type="button" onClick={() => setActivePage("accuracy")}><small>Trust boundary</small><strong>Sources &amp; Licensing</strong><span>See what is verified, original, open, or deliberately excluded.</span></button>
+        {activePage === "combat" && (
+          <section className="coc-section coc-section--page">
+            <header className="coc-section__heading"><small>Combat operating procedure</small><h1>Make violence fast, dangerous, and escapable.</h1><p>Establish DEX order, resolve one intent at a time, and keep reactions, HP, Major Wounds, dying, cover, ammunition, and treatment visible.</p></header>
+            <ReferenceGrid items={combatRunSheet} label="Combat run sheet" />
+            <div className="coc-procedure-grid">
+              <CocCombatProcedureCard />
+              <CocOpposedCard />
+              <CocFirearmProcedureCard />
+              <CocInjuryCard />
+              <CocHealingCard />
             </div>
           </section>
-        </>
-      )}
+        )}
 
-      {activePage === "rules" && <CocRulesGuide />}
+        {activePage === "creatures" && (
+          <section className="coc-section coc-section--page">
+            <header className="coc-section__heading"><small>Combat-ready Keeper folio</small><h1>Every number needed when it reaches the light.</h1><p>The sample is original demonstration content rather than copied official statistics.</p></header>
+            <CocCreatureDossier creature={cocPreviewCreature} />
+          </section>
+        )}
 
-      {activePage === "investigation" && (
-        <section className="coc-section coc-section--page">
-          <header className="coc-section__heading"><small>Investigation operating procedure</small><h1>Keep the case moving without giving away the answer.</h1><p>Essential information advances the mystery. Rolls decide cost, quality, exposure, speed, and danger.</p></header>
-          <ReferenceGrid items={investigationFlow} label="Investigation scene flow" />
-        </section>
-      )}
+        {activePage === "weapons" && (
+          <section className="coc-section coc-section--page">
+            <header className="coc-section__heading"><small>Firearm procedures and weapon cards</small><h1>Evidence that fires back.</h1><p>Calculate point blank, cover, multiple shots, net dice, ammunition, and the target's lost attack before resolving each shot.</p></header>
+            <div className="coc-procedure-grid"><CocFirearmProcedureCard /><CocWeaponCard weapon={cocPreviewWeapon} /></div>
+          </section>
+        )}
 
-      {activePage === "investigator" && (
-        <section className="coc-section coc-section--page">
-          <header className="coc-section__heading"><small>Investigator workspace</small><h1>Keep the procedures used under pressure in one place.</h1><p>Resolve the roll, apply the cost, and record what changed without searching through the Keeper's notes.</p></header>
-          <div className="coc-procedure-grid">
-            <CocPercentileCard eyebrow="Investigator skill file" title="Active Skill Check" />
-            <CocSanityCard />
-            <CocInjuryCard />
-            <CocHealingCard />
-            <CocImprovementCard />
-          </div>
-          <QuickReferenceGrid />
-        </section>
-      )}
+        {activePage === "spells" && (
+          <section className="coc-section coc-section--page">
+            <header className="coc-section__heading"><small>Verified magic procedure and original ritual</small><h1>Track the cost before opening the door.</h1><p>The procedure card handles first casting, pushed casting, MP overflow, and timing. The invented ritual demonstrates resource tracking without copying an official spell.</p></header>
+            <div className="coc-procedure-grid"><CocMagicProcedureCard /><CocSpellCard spell={cocPreviewSpell} /></div>
+            <div className="coc-legal-note"><strong>Occult-content boundary</strong><p>Public rituals must be original, creator-submitted, public-domain, or licensed for reuse. Paid rulebook spell text is not imported into DM Forge.</p></div>
+          </section>
+        )}
 
-      {activePage === "keeper" && (
-        <section className="coc-section coc-section--page">
-          <header className="coc-section__heading"><small>Keeper workspace</small><h1>Run the session from one case desk.</h1><p>Prepare the truth, essential leads, opposition clock, NPC pressure points, and records that must survive the session.</p></header>
-          <ReferenceGrid items={keeperRunSheet} label="Keeper session run sheet" />
-          <div className="coc-section__subheading"><small>Contested action</small><h2>When someone actively resists</h2></div>
-          <div className="coc-procedure-grid"><CocOpposedCard /><CocCombatProcedureCard /></div>
-          <QuickReferenceGrid />
-          <div className="coc-section__subheading"><small>Original sample dossier</small><h2>Combat-ready threat reference</h2></div>
-          <CocCreatureDossier creature={cocPreviewCreature} />
-        </section>
-      )}
+        {activePage === "accuracy" && <CocRulesAudit />}
 
-      {activePage === "combat" && (
-        <section className="coc-section coc-section--page">
-          <header className="coc-section__heading"><small>Combat operating procedure</small><h1>Make violence fast, dangerous, and escapable.</h1><p>Establish DEX order, resolve one intent at a time, and keep reactions, HP, Major Wounds, dying, cover, ammunition, and treatment visible.</p></header>
-          <ReferenceGrid items={combatRunSheet} label="Combat run sheet" />
-          <div className="coc-procedure-grid">
-            <CocCombatProcedureCard />
-            <CocOpposedCard />
-            <CocFirearmProcedureCard />
-            <CocInjuryCard />
-            <CocHealingCard />
-          </div>
-        </section>
-      )}
-
-      {activePage === "creatures" && (
-        <section className="coc-section coc-section--page">
-          <header className="coc-section__heading"><small>Combat-ready Keeper folio</small><h1>Every number needed when it reaches the light.</h1><p>The sample is original demonstration content rather than copied official statistics.</p></header>
-          <CocCreatureDossier creature={cocPreviewCreature} />
-        </section>
-      )}
-
-      {activePage === "weapons" && (
-        <section className="coc-section coc-section--page">
-          <header className="coc-section__heading"><small>Firearm procedures and weapon cards</small><h1>Evidence that fires back.</h1><p>Calculate point blank, cover, multiple shots, net dice, ammunition, and the target's lost attack before resolving each shot.</p></header>
-          <div className="coc-procedure-grid"><CocFirearmProcedureCard /><CocWeaponCard weapon={cocPreviewWeapon} /></div>
-        </section>
-      )}
-
-      {activePage === "spells" && (
-        <section className="coc-section coc-section--page">
-          <header className="coc-section__heading"><small>Verified magic procedure and original ritual</small><h1>Track the cost before opening the door.</h1><p>The procedure card handles first casting, pushed casting, MP overflow, and timing. The invented ritual demonstrates resource tracking without copying an official spell.</p></header>
-          <div className="coc-procedure-grid"><CocMagicProcedureCard /><CocSpellCard spell={cocPreviewSpell} /></div>
-          <div className="coc-legal-note"><strong>Occult-content boundary</strong><p>Public rituals must be original, creator-submitted, public-domain, or licensed for reuse. Paid rulebook spell text is not imported into DM Forge.</p></div>
-        </section>
-      )}
-
-      {activePage === "accuracy" && <CocRulesAudit />}
-
-      <footer className="coc-footer">
-        <strong>Unofficial, noncommercial fan toolkit.</strong>
-        <span>Call of Cthulhu is a trademark of Chaosium Inc. Original summaries and demonstration content only; paid rulebook text, official scenarios, logos, artwork, and proprietary statistics are not reproduced.</span>
-      </footer>
-    </main>
+        <footer className="coc-footer">
+          <strong>Unofficial, noncommercial fan toolkit.</strong>
+          <span>Call of Cthulhu is a trademark of Chaosium Inc. Original summaries and demonstration content only; paid rulebook text, official scenarios, logos, artwork, and proprietary statistics are not reproduced.</span>
+        </footer>
+      </main>
+    </div>
   );
 };
