@@ -1,4 +1,6 @@
 import type { SrdSpellRecord } from "../types/srdCompendium";
+import type { SrdSpellScalingResult } from "../types/srdSpellScaling";
+import { calculateSrdSpellScaling } from "./srdSpellScaling";
 
 export type SrdSpellCastingState = {
   baseLevel: number;
@@ -7,9 +9,15 @@ export type SrdSpellCastingState = {
   isCantrip: boolean;
   hasEnhancedEffect: boolean;
   status: string;
+  structuredScaling: SrdSpellScalingResult;
 };
 
 const MAX_SPELL_LEVEL = 9;
+const noCalculation = (): SrdSpellScalingResult => ({
+  status: "none",
+  effects: [],
+  summary: "No higher-slot calculation is active."
+});
 
 export const getSpellSlotOptions = (baseLevel: number): number[] => {
   if (baseLevel <= 0 || baseLevel > MAX_SPELL_LEVEL) return [];
@@ -30,7 +38,8 @@ export const describeSrdSpellCasting = (
       extraSlotLevels: 0,
       isCantrip: true,
       hasEnhancedEffect: false,
-      status: "Cantrips do not use spell slots. Any level-based improvement is listed in the spell text."
+      status: "Cantrips do not use spell slots. Any level-based improvement is listed in the spell text.",
+      structuredScaling: noCalculation()
     };
   }
 
@@ -40,6 +49,7 @@ export const describeSrdSpellCasting = (
   );
   const extraSlotLevels = castingLevel - spell.level;
   const hasEnhancedEffect = spell.higherLevels.trim().length > 0;
+  const structuredScaling = calculateSrdSpellScaling(spell.higherLevels, extraSlotLevels);
 
   if (extraSlotLevels === 0) {
     return {
@@ -50,7 +60,8 @@ export const describeSrdSpellCasting = (
       hasEnhancedEffect,
       status: hasEnhancedEffect
         ? "Base casting. Choose a higher slot to apply the spell's listed enhancement."
-        : "Base casting. This spell has no additional higher-slot effect listed."
+        : "Base casting. This spell has no additional higher-slot effect listed.",
+      structuredScaling
     };
   }
 
@@ -62,6 +73,7 @@ export const describeSrdSpellCasting = (
     hasEnhancedEffect,
     status: hasEnhancedEffect
       ? `Cast as a level ${castingLevel} spell. Apply the exact higher-slot rule below.`
-      : `Cast as a level ${castingLevel} spell. No additional effect is listed, but the spell still has that level for this casting.`
+      : `Cast as a level ${castingLevel} spell. No additional effect is listed, but the spell still has that level for this casting.`,
+    structuredScaling
   };
 };
