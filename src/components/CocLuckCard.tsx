@@ -8,10 +8,19 @@ import {
   type CocLuckInvestigator,
   type CocLuckRollResult
 } from "../utils/cocLuck";
-import { CocRuleStatus } from "./CocRuleStatus";
 import "../styles/coc-luck.css";
 
+const LUCK_SOURCE = "https://cthulhuwiki.chaosium.com/rules/opposed-skill-rolls.html";
+const STARTING_LUCK_SOURCE = "https://cthulhuwiki.chaosium.com/investigators/step-two-secondary-attributes.html";
 const clampLuckInput = (value: number): number => Math.min(100, Math.max(0, Math.trunc(value) || 0));
+
+const LuckSourceBoundary = () => (
+  <section className="coc-luck-source-boundary">
+    <strong>Verified against official free rules</strong>
+    <a href={LUCK_SOURCE} rel="noreferrer" target="_blank">Luck Rolls and Group Luck · Chaosium wiki</a>
+    <a href={STARTING_LUCK_SOURCE} rel="noreferrer" target="_blank">Starting Luck · Chaosium wiki</a>
+  </section>
+);
 
 const LuckResult = ({ result }: { result?: CocLuckRollResult }) => result ? (
   <section className={`coc-luck-result coc-luck-result--${result.success ? "success" : "failure"}`} aria-live="polite">
@@ -82,7 +91,7 @@ export const CocLuckCard = () => {
         {spendMessage && <p aria-live="polite">{spendMessage}</p>}
       </section>
 
-      <CocRuleStatus sourceId="coc-luck-rolls" />
+      <LuckSourceBoundary />
     </article>
   );
 };
@@ -95,7 +104,11 @@ export const CocGroupLuckCard = () => {
   const [result, setResult] = useState<CocLuckRollResult>();
   const selection = useMemo(() => selectGroupLuckInvestigators(investigators), [investigators]);
 
-  const update = (id: string, patch: Partial<CocLuckInvestigator>) => setInvestigators((current) => current.map((investigator) =>
+  const replaceInvestigators = (updater: (current: CocLuckInvestigator[]) => CocLuckInvestigator[]) => {
+    setInvestigators(updater);
+    setResult(undefined);
+  };
+  const update = (id: string, patch: Partial<CocLuckInvestigator>) => replaceInvestigators((current) => current.map((investigator) =>
     investigator.id === id ? { ...investigator, ...patch } : investigator
   ));
 
@@ -112,12 +125,12 @@ export const CocGroupLuckCard = () => {
           <div key={investigator.id} className={selection.investigators.some((candidate) => candidate.id === investigator.id) ? "is-lowest" : ""}>
             <label>Name<input value={investigator.name} onChange={(event) => update(investigator.id, { name: event.target.value })} /></label>
             <label>Luck<input min="0" max="100" type="number" value={investigator.luck} onChange={(event) => update(investigator.id, { luck: clampLuckInput(Number(event.target.value)) })} /></label>
-            <button disabled={investigators.length === 1} type="button" onClick={() => setInvestigators((current) => current.filter((candidate) => candidate.id !== investigator.id))}>Remove</button>
+            <button disabled={investigators.length === 1} type="button" onClick={() => replaceInvestigators((current) => current.filter((candidate) => candidate.id !== investigator.id))}>Remove</button>
           </div>
         ))}
       </div>
 
-      <button type="button" onClick={() => setInvestigators((current) => [...current, {
+      <button type="button" onClick={() => replaceInvestigators((current) => [...current, {
         id: createClientId("luck-investigator"),
         name: `Investigator ${current.length + 1}`,
         luck: 50
@@ -126,7 +139,7 @@ export const CocGroupLuckCard = () => {
       <section className="coc-group-luck-selection" aria-live="polite"><strong>Who rolls?</strong><p>{selection.summary}</p></section>
       <button className="coc-roll-button" type="button" onClick={() => setResult(rollLuck(selection.lowestLuck))}>Roll Group Luck</button>
       <LuckResult result={result} />
-      <CocRuleStatus sourceId="coc-luck-rolls" />
+      <LuckSourceBoundary />
     </article>
   );
 };
