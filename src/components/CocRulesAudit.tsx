@@ -1,3 +1,4 @@
+import { cocLuckRuleSources } from "../data/cocLuckRuleSources";
 import { cocRuleSources, cocRuleVerificationLabels } from "../data/cocRuleSources";
 import type { CocRuleVerificationStatus } from "../types/coc";
 import { CocRuleStatus } from "./CocRuleStatus";
@@ -9,11 +10,13 @@ const statusOrder: CocRuleVerificationStatus[] = [
   "verified"
 ];
 
+const auditedSources = [...cocRuleSources, ...cocLuckRuleSources];
+
 export const CocRulesAudit = () => {
   const counts = Object.fromEntries(
     statusOrder.map((status) => [
       status,
-      cocRuleSources.filter((source) => source.status === status).length
+      auditedSources.filter((source) => source.status === status).length
     ])
   ) as Record<CocRuleVerificationStatus, number>;
 
@@ -37,7 +40,7 @@ export const CocRulesAudit = () => {
       </div>
 
       <div className="coc-rule-audit-list">
-        {cocRuleSources.map((source) => (
+        {auditedSources.map((source) => (
           <article className="coc-card" key={source.id}>
             <header className="coc-card__header">
               <div>
@@ -46,7 +49,7 @@ export const CocRulesAudit = () => {
               </div>
               <span className="coc-card__stamp">SRC</span>
             </header>
-            <CocRuleStatus sourceId={source.id} />
+            <CocRuleStatus source={source} />
           </article>
         ))}
       </div>
