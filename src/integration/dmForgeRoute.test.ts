@@ -13,6 +13,12 @@ describe("DM Forge route contract", () => {
     expect(dndRoute("coverage")).toBe("?system=dnd&page=coverage");
   });
 
+  it("opens the edition-separated conditions workspace directly", () => {
+    expect(parseSystem("?system=dnd&page=conditions")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=conditions")).toBe("conditions");
+    expect(dndRoute("conditions")).toBe("?system=dnd&page=conditions");
+  });
+
   it("accepts stable long-form system identifiers", () => {
     expect(parseSystem("?system=dnd-5e&page=monster")).toBe("dnd-5e");
     expect(parseSystem("?system=coc-7e")).toBe("coc-7e");
