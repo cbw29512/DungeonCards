@@ -79,6 +79,8 @@ The production build regenerates and validates the DM Forge monster and cleric-s
 - SRD export failures;
 - production bundle failures.
 
+The professional release shell additionally protects responsive navigation, keyboard skip links, active-page context, focus restoration, reduced-motion behavior, print cleanup, and readable quick-combat card dimensions.
+
 ## Official SRD synchronization
 
 Poppler's `pdftotext` is required only when regenerating official source catalogs.
