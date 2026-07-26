@@ -1,6 +1,7 @@
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
 import type { MonsterItem } from "../types/monsters";
 import { buildMonsterCombatReference, type MonsterCombatActionReference } from "./monsterCombatReference";
+import { parseDndCreatureSize, type DndCreatureSize } from "./dndSpatialCombat";
 
 export type DndMonsterActionKind = "action" | "bonusAction" | "reaction" | "legendaryAction";
 
@@ -18,6 +19,7 @@ export type DndMonsterLiveAction = {
 export type DndMonsterLiveReference = {
   monsterId: string;
   sourceReference: string;
+  size: DndCreatureSize;
   armorClass: string;
   savingThrows: string;
   senses: string;
@@ -89,6 +91,7 @@ export const buildDndMonsterLiveReference = (
     return {
       monsterId: entry.id,
       sourceReference: entry.source,
+      size: parseDndCreatureSize(monster.size),
       armorClass: monster.ac,
       savingThrows: monster.saves.join(", "),
       senses: monster.senses,
@@ -106,6 +109,7 @@ export const buildDndMonsterLiveReference = (
   return {
     monsterId: entry.id,
     sourceReference: entry.source,
+    size: parseDndCreatureSize(monster.size),
     armorClass: monster.armorClass,
     savingThrows: reference.savingThrows,
     senses: reference.senses,
