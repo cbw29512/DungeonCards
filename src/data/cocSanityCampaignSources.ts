@@ -37,5 +37,22 @@ export const cocSanityCampaignSources: CocRuleSourceRecord[] = [
       "The tracker separates Sanity recovery from the care-duration clock.",
       "Whether indefinite insanity has begun must be determined from the user's owned rules source."
     ]
+  },
+  {
+    id: "coc-maximum-sanity",
+    system: "call-of-cthulhu",
+    edition: "7e",
+    ruleName: "Maximum Sanity from Cthulhu Mythos",
+    sourceTitle: "Chaosium — Legacy AutoCalc Character Sheet Instructions",
+    sourceUrl: "https://www.chaosium.com/legacy-autocalc-character-sheet-instructions/",
+    chapterOrSection: "Automatically Calculated Fields / Maximum Sanity",
+    implementationSummary: "Maximum Sanity is calculated from the investigator's Cthulhu Mythos skill. A new investigator with Mythos 0 has maximum Sanity 99, so the tracker calculates maximum Sanity as 99 minus Cthulhu Mythos.",
+    status: "verified",
+    primaryReviewer: PRIMARY_REVIEW,
+    verifiedAt: VERIFIED_AT,
+    notes: [
+      "Monthly treatment cannot increase current Sanity above the calculated maximum.",
+      "The tracker accepts the current Cthulhu Mythos value instead of assuming it remains zero."
+    ]
   }
 ];
