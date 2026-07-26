@@ -25,7 +25,8 @@ describe("D&D mounts, cargo, and barding", () => {
     expect(result.pulledWeightMaximum).toBe(5400);
     expect(result.totalPulledWeight).toBe(3400);
     expect(result.withinPulledMaximum).toBe(true);
-    expect(result.remainingCargoCapacity).toBe(5000);
+    expect(result.maximumCargoWeight).toBe(5000);
+    expect(result.remainingCapacityAfterLoad).toBe(2000);
   });
 
   it("counts the vehicle itself against the pulled maximum", () => {
@@ -39,6 +40,7 @@ describe("D&D mounts, cargo, and barding", () => {
     expect(result.pulledWeightMaximum).toBe(975);
     expect(result.totalPulledWeight).toBe(1000);
     expect(result.withinPulledMaximum).toBe(false);
+    expect(result.remainingCapacityAfterLoad).toBe(0);
   });
 
   it("calculates team and vehicle purchase cost", () => {
