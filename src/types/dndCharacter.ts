@@ -49,6 +49,7 @@ export type DndCharacterRecord = {
   classId: DndPregenClassId;
   className: string;
   subclassName: string;
+  subclassUnlockLevel: number;
   level: number;
   species: string;
   background: string;
@@ -64,6 +65,7 @@ export type DndCharacterRecord = {
   senses: string[];
   attacks: DndCharacterAttack[];
   resources: DndCharacterResource[];
+  spellcastingExpected: boolean;
   spellcasting: DndCharacterSpellcasting;
   classFeatures: string[];
   subclassFeatures: string[];
