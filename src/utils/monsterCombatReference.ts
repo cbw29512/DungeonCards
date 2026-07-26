@@ -10,6 +10,7 @@ export type MonsterCombatActionReference = {
   name: string;
   summary: string;
   recharge?: string;
+  reachOrRange?: string;
 };
 
 export type MonsterCombatReference = {
@@ -24,6 +25,10 @@ export type MonsterCombatReference = {
   senses: string;
   languages: string;
   actions: MonsterCombatActionReference[];
+  allActions: MonsterCombatActionReference[];
+  bonusActions: MonsterCombatActionReference[];
+  reactions: MonsterCombatActionReference[];
+  legendaryActions: MonsterCombatActionReference[];
   hasBonusActions: boolean;
   hasReactions: boolean;
   hasLegendaryActions: boolean;
@@ -97,7 +102,8 @@ const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
     const firstPeriod = normalized.indexOf(".");
     const name = firstPeriod > 0 && firstPeriod < 80 ? normalized.slice(0, firstPeriod) : "Action";
     const description = firstPeriod > 0 && firstPeriod < 80 ? normalized.slice(firstPeriod + 1) : normalized;
-    return [{ name: name.trim(), summary: actionSummary(description) }];
+    const reachOrRange = description.match(/\b(?:reach|range)\s+[^.;]+/i)?.[0];
+    return [{ name: name.trim(), summary: actionSummary(description), reachOrRange }];
   }
   return matches.map((match, index) => {
     const start = (match.index || 0) + match[0].length;
@@ -105,22 +111,24 @@ const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
     const description = normalized.slice(start, end).trim();
     const name = match[1].trim();
     const recharge = name.match(/Recharge\s+[^)]+/i)?.[0];
-    return { name, summary: actionSummary(description), recharge };
+    const reachOrRange = description.match(/\b(?:reach|range)\s+[^.;]+/i)?.[0];
+    return { name, summary: actionSummary(description), recharge, reachOrRange };
   });
 };
 
-const prioritizedActions = (monster: SrdMonsterRecord) => {
-  const actions = parseNamedEntries(monster.actions);
-  return [...actions].sort((a, b) => {
-    const score = (action: MonsterCombatActionReference) => (action.name.toLowerCase().includes("multiattack") ? 4 : 0) + (action.summary.includes("to hit") ? 3 : 0) + (action.summary.includes("saving throw") ? 2 : 0) + (action.recharge ? 1 : 0);
-    return score(b) - score(a);
-  }).slice(0, 3);
-};
+const prioritizedActions = (actions: MonsterCombatActionReference[]) => [...actions].sort((a, b) => {
+  const score = (action: MonsterCombatActionReference) => (action.name.toLowerCase().includes("multiattack") ? 4 : 0) + (action.summary.includes("to hit") ? 3 : 0) + (action.summary.includes("saving throw") ? 2 : 0) + (action.recharge ? 1 : 0);
+  return score(b) - score(a);
+}).slice(0, 3);
 
 export const buildMonsterCombatReference = (monster: SrdMonsterRecord): MonsterCombatReference => {
   const abilities = parseAbilities(monster.rawText);
   const dexterity = abilities.find((ability) => ability.name === "DEX");
   const initiative = dexterity ? `${dexterity.modifier >= 0 ? "+" : ""}${dexterity.modifier} (DEX ${dexterity.score})` : "See full stat block";
+  const allActions = parseNamedEntries(monster.actions);
+  const bonusActions = parseNamedEntries(monster.bonusActions);
+  const reactions = parseNamedEntries(monster.reactions);
+  const legendaryActions = parseNamedEntries(monster.legendaryActions);
   return {
     abilities,
     initiative,
@@ -132,9 +140,13 @@ export const buildMonsterCombatReference = (monster: SrdMonsterRecord): MonsterC
     conditionImmunities: labeledValue(monster.rawText, "Condition Immunities"),
     senses: labeledValue(monster.rawText, "Senses"),
     languages: labeledValue(monster.rawText, "Languages"),
-    actions: prioritizedActions(monster),
-    hasBonusActions: Boolean(monster.bonusActions.trim()),
-    hasReactions: Boolean(monster.reactions.trim()),
-    hasLegendaryActions: Boolean(monster.legendaryActions.trim())
+    actions: prioritizedActions(allActions),
+    allActions,
+    bonusActions,
+    reactions,
+    legendaryActions,
+    hasBonusActions: bonusActions.length > 0,
+    hasReactions: reactions.length > 0,
+    hasLegendaryActions: legendaryActions.length > 0
   };
 };
