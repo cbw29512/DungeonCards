@@ -44,16 +44,32 @@ const labeledValue = (rawText: string, label: string): string => {
   return match?.[1]?.trim() || "";
 };
 
+const buildAbilities = (values: string[]): MonsterAbilityReference[] => abilityNames.map((name, index) => ({
+  name,
+  score: Number(values[index * 2]),
+  modifier: Number(values[(index * 2) + 1])
+}));
+
+const parseSignedInteger = (value: string): number => Number(value.replace(/[−–—]/g, "-"));
+
+const parseLabeledAbilityRows = (normalized: string): MonsterAbilityReference[] => {
+  const parsed = abilityNames.map((name) => {
+    const match = normalized.match(new RegExp(`\\b${name}\\s+(\\d+)\\s+(?:\\(([+\\-−–—]?\\d+)\\)|([+\\-−–—]\\d+))`, "i"));
+    if (!match) return undefined;
+    return { name, score: Number(match[1]), modifier: parseSignedInteger(match[2] ?? match[3]) };
+  });
+  return parsed.every(Boolean) ? parsed as MonsterAbilityReference[] : [];
+};
+
 const parseAbilities = (rawText: string): MonsterAbilityReference[] => {
   const normalized = normalizeLines(rawText).replace(/\n/g, " ");
-  const pattern = /STR\s+(\d+)\s+\(([+-]?\d+)\)\s+DEX\s+(\d+)\s+\(([+-]?\d+)\)\s+CON\s+(\d+)\s+\(([+-]?\d+)\)\s+INT\s+(\d+)\s+\(([+-]?\d+)\)\s+WIS\s+(\d+)\s+\(([+-]?\d+)\)\s+CHA\s+(\d+)\s+\(([+-]?\d+)\)/i;
-  const match = normalized.match(pattern);
-  if (!match) return [];
-  return abilityNames.map((name, index) => ({
-    name,
-    score: Number(match[(index * 2) + 1]),
-    modifier: Number(match[(index * 2) + 2])
-  }));
+  const interleaved = normalized.match(/STR\s+(\d+)\s+\(([+-]?\d+)\)\s+DEX\s+(\d+)\s+\(([+-]?\d+)\)\s+CON\s+(\d+)\s+\(([+-]?\d+)\)\s+INT\s+(\d+)\s+\(([+-]?\d+)\)\s+WIS\s+(\d+)\s+\(([+-]?\d+)\)\s+CHA\s+(\d+)\s+\(([+-]?\d+)\)/i);
+  if (interleaved) return buildAbilities(interleaved.slice(1));
+
+  const headerThenValues = normalized.match(/STR\s+DEX\s+CON\s+INT\s+WIS\s+CHA\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)/i);
+  if (headerThenValues) return buildAbilities(headerThenValues.slice(1));
+
+  return parseLabeledAbilityRows(normalized);
 };
 
 const compactSentence = (value: string, maximum = 155) => {
@@ -67,12 +83,7 @@ const actionSummary = (description: string) => {
   const reachOrRange = description.match(/\b(?:reach|range)\s+[^.;]+/i)?.[0];
   const hitText = description.match(/\bHit:\s*([^.]*)/i)?.[1];
   const save = description.match(/DC\s+\d+\s+[A-Z]{3}\s+saving throw/i)?.[0];
-  const pieces = [
-    attackBonus ? `${attackBonus} to hit` : "",
-    reachOrRange || "",
-    hitText ? `Hit: ${compactSentence(hitText, 90)}` : "",
-    save || ""
-  ].filter(Boolean);
+  const pieces = [attackBonus ? `${attackBonus} to hit` : "", reachOrRange || "", hitText ? `Hit: ${compactSentence(hitText, 90)}` : "", save || ""].filter(Boolean);
   if (pieces.length > 0) return pieces.join(" · ");
   return compactSentence(description.split(/(?<=[.!?])\s+/)[0] || description);
 };
@@ -80,7 +91,6 @@ const actionSummary = (description: string) => {
 const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
   const normalized = normalizeLines(text);
   if (!normalized) return [];
-
   const entryPattern = /(?:^|\n)([A-Z][^\n.]{1,80}(?:\s*\([^\n)]*\))?)\.\s+/g;
   const matches = [...normalized.matchAll(entryPattern)];
   if (matches.length === 0) {
@@ -89,7 +99,6 @@ const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
     const description = firstPeriod > 0 && firstPeriod < 80 ? normalized.slice(firstPeriod + 1) : normalized;
     return [{ name: name.trim(), summary: actionSummary(description) }];
   }
-
   return matches.map((match, index) => {
     const start = (match.index || 0) + match[0].length;
     const end = index + 1 < matches.length ? matches[index + 1].index || normalized.length : normalized.length;
@@ -102,25 +111,16 @@ const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
 
 const prioritizedActions = (monster: SrdMonsterRecord) => {
   const actions = parseNamedEntries(monster.actions);
-  return [...actions]
-    .sort((a, b) => {
-      const score = (action: MonsterCombatActionReference) =>
-        (action.name.toLowerCase().includes("multiattack") ? 4 : 0)
-        + (action.summary.includes("to hit") ? 3 : 0)
-        + (action.summary.includes("saving throw") ? 2 : 0)
-        + (action.recharge ? 1 : 0);
-      return score(b) - score(a);
-    })
-    .slice(0, 3);
+  return [...actions].sort((a, b) => {
+    const score = (action: MonsterCombatActionReference) => (action.name.toLowerCase().includes("multiattack") ? 4 : 0) + (action.summary.includes("to hit") ? 3 : 0) + (action.summary.includes("saving throw") ? 2 : 0) + (action.recharge ? 1 : 0);
+    return score(b) - score(a);
+  }).slice(0, 3);
 };
 
 export const buildMonsterCombatReference = (monster: SrdMonsterRecord): MonsterCombatReference => {
   const abilities = parseAbilities(monster.rawText);
   const dexterity = abilities.find((ability) => ability.name === "DEX");
-  const initiative = dexterity
-    ? `${dexterity.modifier >= 0 ? "+" : ""}${dexterity.modifier} (DEX ${dexterity.score})`
-    : "See full stat block";
-
+  const initiative = dexterity ? `${dexterity.modifier >= 0 ? "+" : ""}${dexterity.modifier} (DEX ${dexterity.score})` : "See full stat block";
   return {
     abilities,
     initiative,
