@@ -1,0 +1,312 @@
+.coc-investigator-builder {
+  display: grid;
+  margin: 1.25rem 0;
+  gap: 1rem;
+}
+
+.coc-investigator-builder__header,
+.coc-investigator-builder__section,
+.coc-investigator-summary {
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.85rem;
+  background: rgb(10 18 22 / 78%);
+}
+
+.coc-investigator-builder__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.coc-investigator-builder__header h2,
+.coc-investigator-builder__header p,
+.coc-investigator-builder__section h3,
+.coc-investigator-builder__section p,
+.coc-investigator-summary h3,
+.coc-investigator-summary p {
+  margin: 0;
+}
+
+.coc-investigator-builder__header small,
+.coc-investigator-builder__section header small,
+.coc-investigator-summary header small {
+  color: #b8b0a1;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.coc-investigator-builder__status {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.65rem;
+  color: #f0d09b;
+  border: 1px solid rgb(240 208 155 / 32%);
+  border-radius: 999px;
+  background: rgb(120 74 20 / 22%);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.coc-investigator-builder__status.is-ready {
+  color: #c8efd3;
+  border-color: rgb(110 204 139 / 40%);
+  background: rgb(31 103 55 / 25%);
+}
+
+.coc-investigator-builder__identity,
+.coc-characteristic-grid,
+.coc-derived-grid,
+.coc-interest-grid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.coc-investigator-builder__identity {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.coc-investigator-builder label {
+  display: grid;
+  gap: 0.25rem;
+  color: #d8d0c2;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.coc-investigator-builder input,
+.coc-investigator-builder select,
+.coc-investigator-builder button {
+  min-height: 42px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 0.55rem;
+}
+
+.coc-investigator-builder input,
+.coc-investigator-builder select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  color: #f4eee4;
+  background: #10191d;
+}
+
+.coc-investigator-builder input:disabled {
+  opacity: 0.72;
+}
+
+.coc-investigator-builder button {
+  padding: 0.5rem 0.7rem;
+  color: #e8dcc9;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.coc-investigator-builder__section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.coc-investigator-builder__section > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.coc-characteristic-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.coc-characteristic-control {
+  padding: 0.65rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 5%);
+}
+
+.coc-characteristic-control > span {
+  color: #f4d8a5;
+  font-size: 0.82rem;
+}
+
+.coc-characteristic-control small,
+.coc-occupation-grid small {
+  color: #aeb7b4;
+  font-size: 0.61rem;
+}
+
+.coc-derived-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.coc-derived-grid span {
+  display: grid;
+  padding: 0.7rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 5%);
+}
+
+.coc-derived-grid small {
+  color: #aeb7b4;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.coc-derived-grid strong {
+  color: #f4d8a5;
+  font-size: 1.05rem;
+}
+
+.coc-occupation-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.coc-occupation-grid > div {
+  display: grid;
+  align-items: end;
+  padding: 0.55rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 4%);
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1.6fr) minmax(88px, 0.55fr) minmax(120px, 0.7fr);
+}
+
+.coc-builder-validation,
+.coc-builder-validation-list p {
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.55rem;
+  font-size: 0.7rem;
+}
+
+.coc-builder-validation-list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.coc-builder-validation-list p {
+  margin: 0;
+}
+
+.coc-builder-validation.is-valid,
+.coc-builder-validation-list .is-valid {
+  color: #c8efd3;
+  background: rgb(31 103 55 / 20%);
+}
+
+.coc-builder-validation.is-error,
+.coc-builder-validation-list .is-error {
+  color: #ffd3c6;
+  background: rgb(122 42 31 / 25%);
+}
+
+.coc-interest-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.coc-interest-grid > div {
+  display: grid;
+  align-items: end;
+  padding: 0.6rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 4%);
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) 90px 56px;
+}
+
+.coc-interest-grid strong {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  color: #f4d8a5;
+  border-radius: 0.55rem;
+  background: rgb(0 0 0 / 22%);
+}
+
+.coc-investigator-summary {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.coc-investigator-summary > div {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.coc-investigator-summary > div span {
+  display: grid;
+  padding: 0.55rem;
+  text-align: center;
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 5%);
+}
+
+.coc-investigator-summary span small,
+.coc-investigator-summary span em {
+  color: #aeb7b4;
+  font-size: 0.58rem;
+  font-style: normal;
+}
+
+.coc-investigator-summary span strong {
+  color: #f4d8a5;
+}
+
+@media (max-width: 900px) {
+  .coc-characteristic-grid,
+  .coc-derived-grid,
+  .coc-investigator-summary > div {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .coc-investigator-builder__header,
+  .coc-investigator-builder__section > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .coc-investigator-builder__identity,
+  .coc-characteristic-grid,
+  .coc-derived-grid,
+  .coc-interest-grid,
+  .coc-investigator-summary > div {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .coc-occupation-grid > div,
+  .coc-interest-grid > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .coc-investigator-builder button,
+  .coc-investigator-builder input,
+  .coc-investigator-builder select,
+  .coc-builder-validation-list,
+  .coc-builder-validation,
+  .coc-rule-status {
+    display: none !important;
+  }
+
+  .coc-investigator-builder__header,
+  .coc-investigator-builder__section,
+  .coc-investigator-summary {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    break-inside: avoid;
+  }
+
+  .coc-investigator-summary span strong,
+  .coc-derived-grid strong,
+  .coc-characteristic-control > span {
+    color: #111;
+  }
+}
