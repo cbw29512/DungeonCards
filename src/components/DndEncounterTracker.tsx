@@ -16,11 +16,13 @@ import {
   type DndCombatantSide,
   type DndEncounterState
 } from "../utils/dndEncounter";
+import type { DndMonsterLiveReference } from "../utils/dndMonsterLiveReference";
 import { secureRandomInteger } from "../utils/randomInteger";
 import { RULESET_LABELS, type RulesetId } from "../types/ruleCards";
 import { DndCombatantEffectsPanel } from "./DndCombatantEffectsPanel";
 import { DndCombatantHealthPanel } from "./DndCombatantHealthPanel";
 import { DndMonsterEncounterImporter } from "./DndMonsterEncounterImporter";
+import { DndMonsterLiveReferencePanel } from "./DndMonsterLiveReferencePanel";
 import "../styles/dnd-encounter-tracker.css";
 
 const emptyEncounter = (ruleset: RulesetId): DndEncounterState => ({
@@ -40,6 +42,7 @@ const sideLabels: Record<DndCombatantSide, string> = {
 export const DndEncounterTracker = () => {
   const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
   const [encounter, setEncounter] = useState<DndEncounterState>(() => emptyEncounter("srd-5.2.1-2024"));
+  const [monsterReferences, setMonsterReferences] = useState<Record<string, DndMonsterLiveReference>>({});
   const [name, setName] = useState("New combatant");
   const [side, setSide] = useState<DndCombatantSide>("enemy");
   const [initiative, setInitiative] = useState(12);
@@ -64,6 +67,7 @@ export const DndEncounterTracker = () => {
   const changeRuleset = (next: RulesetId) => {
     setRuleset(next);
     setEncounter(emptyEncounter(next));
+    setMonsterReferences({});
     setConcentrationCombatantId("");
     setConcentrationResult("");
   };
@@ -93,10 +97,29 @@ export const DndEncounterTracker = () => {
     setSurprised(false);
   };
 
+  const removeCombatant = (combatantId: string) => {
+    setEncounter((current) => ({
+      ...current,
+      combatants: current.combatants.filter((candidate) => candidate.id !== combatantId)
+    }));
+    setMonsterReferences((current) => {
+      const next = { ...current };
+      delete next[combatantId];
+      return next;
+    });
+  };
+
   const startEncounter = () => {
     const started = startDndEncounter(ruleset, encounter.combatants);
     setEncounter(started);
     setConcentrationCombatantId(started.combatants[0]?.id ?? "");
+    setConcentrationResult("");
+  };
+
+  const endEncounter = () => {
+    setEncounter(emptyEncounter(ruleset));
+    setMonsterReferences({});
+    setConcentrationCombatantId("");
     setConcentrationResult("");
   };
 
@@ -125,7 +148,7 @@ export const DndEncounterTracker = () => {
         <div>
           <p>Live combat state</p>
           <h1 id="dnd-encounter-title">Initiative, Turns &amp; Concentration</h1>
-          <span>Run the round in order, track each creature’s action economy, HP, conditions, and Reaction, and resolve concentration one damage source at a time.</span>
+          <span>Run the round in order, track each creature’s action economy, HP, conditions, Reaction, and sourced monster actions, and resolve concentration one damage source at a time.</span>
         </div>
         <div className="dnd-encounter-ruleset" aria-label="D&D rules edition">
           {(Object.keys(RULESET_LABELS) as RulesetId[]).map((option) => (
@@ -141,7 +164,12 @@ export const DndEncounterTracker = () => {
       </section>
 
       {!encounter.started && (
-        <DndMonsterEncounterImporter ruleset={ruleset} encounter={encounter} setEncounter={setEncounter} />
+        <DndMonsterEncounterImporter
+          ruleset={ruleset}
+          encounter={encounter}
+          setEncounter={setEncounter}
+          setReferences={setMonsterReferences}
+        />
       )}
 
       {!encounter.started && (
@@ -169,7 +197,7 @@ export const DndEncounterTracker = () => {
       <section className="dnd-initiative-board" aria-labelledby="initiative-board-title">
         <header>
           <div><small>Turn order</small><h2 id="initiative-board-title">{encounter.started ? `Round ${encounter.round}` : "Setup order"}</h2></div>
-          {encounter.started && <div className="dnd-encounter-button-row"><button type="button" onClick={() => setEncounter((current) => advanceDndTurn(current))}>End turn / Next</button><button type="button" onClick={() => setEncounter(emptyEncounter(ruleset))}>End encounter</button></div>}
+          {encounter.started && <div className="dnd-encounter-button-row"><button type="button" onClick={() => setEncounter((current) => advanceDndTurn(current))}>End turn / Next</button><button type="button" onClick={endEncounter}>End encounter</button></div>}
         </header>
 
         {encounter.combatants.length === 0 ? <p className="dnd-encounter-empty">Add at least one combatant to begin.</p> : (
@@ -183,7 +211,7 @@ export const DndEncounterTracker = () => {
                   <header>
                     <span className="dnd-initiative-count">{combatant.initiative}</span>
                     <div><strong>{combatant.name}</strong><small>{sideLabels[combatant.side]} · Speed {combatant.speedFeet} ft.{combatant.surprised ? " · Surprised" : ""}</small></div>
-                    <div className="dnd-order-controls"><button aria-label={`Move ${combatant.name} earlier`} disabled={index === 0} type="button" onClick={() => setEncounter((current) => moveDndCombatant(current, combatant.id, -1))}>↑</button><button aria-label={`Move ${combatant.name} later`} disabled={index === encounter.combatants.length - 1} type="button" onClick={() => setEncounter((current) => moveDndCombatant(current, combatant.id, 1))}>↓</button>{!encounter.started && <button type="button" onClick={() => setEncounter((current) => ({ ...current, combatants: current.combatants.filter((candidate) => candidate.id !== combatant.id) }))}>Remove</button>}</div>
+                    <div className="dnd-order-controls"><button aria-label={`Move ${combatant.name} earlier`} disabled={index === 0} type="button" onClick={() => setEncounter((current) => moveDndCombatant(current, combatant.id, -1))}>↑</button><button aria-label={`Move ${combatant.name} later`} disabled={index === encounter.combatants.length - 1} type="button" onClick={() => setEncounter((current) => moveDndCombatant(current, combatant.id, 1))}>↓</button>{!encounter.started && <button type="button" onClick={() => removeCombatant(combatant.id)}>Remove</button>}</div>
                   </header>
                   <div className="dnd-health-tags" aria-label={`Health state for ${combatant.name}`}>
                     <span className="hp">HP {combatant.health.currentHitPoints}/{combatant.health.maximumHitPoints}</span>
@@ -214,6 +242,15 @@ export const DndEncounterTracker = () => {
           </ol>
         )}
       </section>
+
+      {encounter.started && Object.keys(monsterReferences).length > 0 && (
+        <DndMonsterLiveReferencePanel
+          encounter={encounter}
+          setEncounter={setEncounter}
+          references={monsterReferences}
+          setReferences={setMonsterReferences}
+        />
+      )}
 
       {encounter.started && encounter.combatants.length > 0 && (
         <DndCombatantHealthPanel ruleset={ruleset} encounter={encounter} setEncounter={setEncounter} />
