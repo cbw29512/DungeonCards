@@ -59,8 +59,9 @@ describe("D&D combatant health integration", () => {
     expect(panel).toContain("dndHealthRuleSources[ruleset]");
     expect(sources).toContain("Basic Rules 2014 · Combat: Damage and Healing");
     expect(sources).toContain("Free Rules 2024 · Playing the Game: Damage and Healing");
-    expect(coverage).toContain('title: "Initiative, HP, concentration, condition, and effect tracking"');
+    expect(coverage).toContain('id: "campaign-tracking"');
     expect(coverage).toContain('status: "automation-complete"');
+    expect(coverage).toContain("HP, Temporary HP, Death Saves");
   });
 
   it("supports responsive and printable combatant health records", () => {
