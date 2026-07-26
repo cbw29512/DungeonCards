@@ -1,0 +1,144 @@
+.dnd-monster-live {
+  margin: 2rem auto;
+  max-width: 1180px;
+  padding: 1.25rem;
+  border: 1px solid rgba(229, 190, 112, 0.32);
+  border-radius: 1rem;
+  background: rgba(15, 18, 27, 0.92);
+}
+
+.dnd-monster-live > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.dnd-monster-live > header small,
+.dnd-monster-live__source {
+  color: var(--muted-text, #b9b5aa);
+}
+
+.dnd-monster-live > header h2,
+.dnd-monster-live__group h3 {
+  margin: 0.2rem 0 0;
+}
+
+.dnd-monster-live > header label {
+  min-width: min(320px, 100%);
+}
+
+.dnd-monster-live > header select {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.dnd-monster-live__vitals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.dnd-monster-live__vitals span {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dnd-monster-live__vitals strong {
+  color: var(--accent, #e5be70);
+}
+
+.dnd-monster-live__group + .dnd-monster-live__group {
+  margin-top: 1.25rem;
+}
+
+.dnd-monster-live__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.65rem;
+}
+
+.dnd-monster-live__grid article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 190px;
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.dnd-monster-live__grid article.is-spent {
+  opacity: 0.72;
+  border-style: dashed;
+}
+
+.dnd-monster-live__grid article > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.dnd-monster-live__grid article > header span {
+  font-size: 0.78rem;
+  color: var(--accent, #e5be70);
+}
+
+.dnd-monster-live__grid article p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.dnd-monster-live__grid article > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.dnd-monster-live output {
+  display: block;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.65rem;
+  background: rgba(229, 190, 112, 0.1);
+}
+
+@media (max-width: 760px) {
+  .dnd-monster-live > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dnd-monster-live__vitals {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .dnd-monster-live {
+    border: 1px solid #777;
+    background: #fff;
+    color: #000;
+    break-inside: avoid;
+  }
+
+  .dnd-monster-live button,
+  .dnd-monster-live select {
+    display: none;
+  }
+
+  .dnd-monster-live__grid article {
+    border-color: #999;
+    background: #fff;
+    break-inside: avoid;
+  }
+}
