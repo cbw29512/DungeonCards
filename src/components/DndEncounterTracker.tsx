@@ -17,12 +17,14 @@ import {
   type DndEncounterState
 } from "../utils/dndEncounter";
 import type { DndMonsterLiveReference } from "../utils/dndMonsterLiveReference";
+import type { DndGridPosition } from "../utils/dndSpatialCombat";
 import { secureRandomInteger } from "../utils/randomInteger";
 import { RULESET_LABELS, type RulesetId } from "../types/ruleCards";
 import { DndCombatantEffectsPanel } from "./DndCombatantEffectsPanel";
 import { DndCombatantHealthPanel } from "./DndCombatantHealthPanel";
 import { DndMonsterEncounterImporter } from "./DndMonsterEncounterImporter";
 import { DndMonsterLiveReferencePanel } from "./DndMonsterLiveReferencePanel";
+import { DndSpatialCombatPanel } from "./DndSpatialCombatPanel";
 import "../styles/dnd-encounter-tracker.css";
 
 const emptyEncounter = (ruleset: RulesetId): DndEncounterState => ({
@@ -43,6 +45,7 @@ export const DndEncounterTracker = () => {
   const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
   const [encounter, setEncounter] = useState<DndEncounterState>(() => emptyEncounter("srd-5.2.1-2024"));
   const [monsterReferences, setMonsterReferences] = useState<Record<string, DndMonsterLiveReference>>({});
+  const [positions, setPositions] = useState<Record<string, DndGridPosition>>({});
   const [name, setName] = useState("New combatant");
   const [side, setSide] = useState<DndCombatantSide>("enemy");
   const [initiative, setInitiative] = useState(12);
@@ -68,6 +71,7 @@ export const DndEncounterTracker = () => {
     setRuleset(next);
     setEncounter(emptyEncounter(next));
     setMonsterReferences({});
+    setPositions({});
     setConcentrationCombatantId("");
     setConcentrationResult("");
   };
@@ -107,6 +111,11 @@ export const DndEncounterTracker = () => {
       delete next[combatantId];
       return next;
     });
+    setPositions((current) => {
+      const next = { ...current };
+      delete next[combatantId];
+      return next;
+    });
   };
 
   const startEncounter = () => {
@@ -119,6 +128,7 @@ export const DndEncounterTracker = () => {
   const endEncounter = () => {
     setEncounter(emptyEncounter(ruleset));
     setMonsterReferences({});
+    setPositions({});
     setConcentrationCombatantId("");
     setConcentrationResult("");
   };
@@ -148,7 +158,7 @@ export const DndEncounterTracker = () => {
         <div>
           <p>Live combat state</p>
           <h1 id="dnd-encounter-title">Initiative, Turns &amp; Concentration</h1>
-          <span>Run the round in order, track each creature’s action economy, HP, conditions, Reaction, and sourced monster actions, and resolve concentration one damage source at a time.</span>
+          <span>Run the round in order, track action economy, HP, conditions, positions, movement, monster actions, reach, range, and concentration.</span>
         </div>
         <div className="dnd-encounter-ruleset" aria-label="D&D rules edition">
           {(Object.keys(RULESET_LABELS) as RulesetId[]).map((option) => (
@@ -242,6 +252,16 @@ export const DndEncounterTracker = () => {
           </ol>
         )}
       </section>
+
+      {encounter.combatants.length > 0 && (
+        <DndSpatialCombatPanel
+          encounter={encounter}
+          setEncounter={setEncounter}
+          references={monsterReferences}
+          positions={positions}
+          setPositions={setPositions}
+        />
+      )}
 
       {encounter.started && Object.keys(monsterReferences).length > 0 && (
         <DndMonsterLiveReferencePanel
