@@ -37,6 +37,12 @@ describe("DM Forge route contract", () => {
     expect(dndRoute("combat")).toBe("?system=dnd&page=combat");
   });
 
+  it("opens the pregen foundry directly", () => {
+    expect(parseSystem("?system=dnd&page=pregens")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=pregens")).toBe("pregens");
+    expect(dndRoute("pregens")).toBe("?system=dnd&page=pregens");
+  });
+
   it("opens the 2024 Weapon Mastery workspace directly", () => {
     expect(parseSystem("?system=dnd&page=mastery")).toBe("dnd-5e");
     expect(parseDndPage("?system=dnd&page=mastery")).toBe("mastery");
