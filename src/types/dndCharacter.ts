@@ -26,6 +26,7 @@ export type DndCharacterResource = {
   id: string;
   name: string;
   maximum: number;
+  unlimited?: boolean;
   refresh: "turn" | "short-rest" | "long-rest" | "manual";
   notes?: string;
 };
