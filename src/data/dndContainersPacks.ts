@@ -143,10 +143,12 @@ export const dndContainerCatalog: DndContainerDefinition[] = [
     id: "waterskin",
     names: { "srd-5.1-2014": "Waterskin", "srd-5.2.1-2024": "Waterskin" },
     costCp: 20,
-    emptyWeightPounds: 5,
     capacity: { "srd-5.1-2014": "4 pints of liquid", "srd-5.2.1-2024": "4 pints" },
     weightCapacityPounds: {},
-    notes: { "srd-5.2.1-2024": "The listed 5-pound weight is for a full waterskin." }
+    notes: {
+      "srd-5.1-2014": "The listed 5-pound equipment weight is for a full waterskin; an empty-container weight is not published.",
+      "srd-5.2.1-2024": "The listed 5-pound equipment weight is for a full waterskin; an empty-container weight is not published."
+    }
   }
 ];
 
