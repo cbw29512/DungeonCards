@@ -38,7 +38,7 @@ export const fighterMagicItemsForLevel = (
       effectSummary: "Restores a small amount of Hit Points as a combat-ready consumable.",
       synergyNote: "Provides emergency recovery without spending Second Wind."
     }),
-    item(ruleset, "potion-climbing", "Potion of Climbing", "common", 17, {
+    item(ruleset, "potion-climbing", "Potion of Climbing", "common", 11, {
       category: "potion", requiresAttunement: false, attunedByDefault: false, consumable: true,
       effectSummary: "Temporarily improves climbing and difficult vertical movement.",
       synergyNote: "Lets the melee build reach elevated enemies without using an attunement slot."
