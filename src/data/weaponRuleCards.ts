@@ -8,18 +8,8 @@ import type {
 } from "../types/ruleCards";
 import { weaponCatalog2014 } from "./weaponCatalog2014";
 import { weaponCatalog2024 } from "./weaponCatalog2024";
+import { weaponMasteryDefinitions2024 } from "./weaponMastery2024";
 import type { WeaponDefinition } from "./weaponCatalogTypes";
-
-const masteryNotes: Record<NonNullable<WeaponDefinition["mastery"]>, string> = {
-  Cleave: "After a hit, make one attack against a second nearby creature; don't add a positive ability modifier to that damage.",
-  Graze: "On a miss, deal damage equal to the attack ability modifier.",
-  Nick: "Make the Light property's extra attack as part of the Attack action instead of as a Bonus Action.",
-  Push: "On a hit, push a Large or smaller creature up to 10 feet straight away.",
-  Sap: "On a hit, the target has Disadvantage on its next attack roll before your next turn.",
-  Slow: "On a damaging hit, reduce the target's Speed by 10 feet until your next turn.",
-  Topple: "On a hit, force a Constitution save or give the target the Prone condition.",
-  Vex: "On a damaging hit, gain Advantage on your next attack against that target before the end of your next turn."
-};
 
 const attackMode: RuleRollMode = {
   id: "attack",
@@ -80,6 +70,12 @@ const buildQuickModes = (weapon: WeaponDefinition): RuleRollMode[] =>
     secondaryRoll: withoutId(damageMode)
   }));
 
+const masteryDetail = (weapon: WeaponDefinition): string | undefined => {
+  if (!weapon.mastery) return undefined;
+  const definition = weaponMasteryDefinitions2024[weapon.mastery];
+  return [definition.trigger, definition.effect, ...definition.limits].join(" ");
+};
+
 const weaponText = (weapon: WeaponDefinition) => {
   const damage = weapon.damage && weapon.damageType
     ? `${weapon.damage} ${weapon.damageType}`
@@ -87,7 +83,7 @@ const weaponText = (weapon: WeaponDefinition) => {
   const mastery = weapon.mastery ? ` • ${weapon.mastery}` : "";
   const details = [
     weapon.note,
-    weapon.mastery ? masteryNotes[weapon.mastery] : undefined
+    masteryDetail(weapon)
   ].filter(Boolean).join(" ");
   return { summary: `${damage} • ${weapon.properties}${mastery}`, details };
 };
@@ -100,7 +96,7 @@ const buildVariant = (
   const text = weaponText(weapon);
   const sourceReference = ruleset === "srd-5.1-2014"
     ? "SRD 5.1 • Equipment: Weapons"
-    : "SRD 5.2.1 • Equipment: Weapons";
+    : "SRD 5.2.1 • Equipment: Weapons and Mastery Properties";
   const modes = family === "attack"
     ? [attackMode]
     : family === "damage"
