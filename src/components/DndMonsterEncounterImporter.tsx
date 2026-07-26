@@ -7,6 +7,10 @@ import {
   buildDndMonsterEncounterDefaults,
   filterDndEncounterMonsters
 } from "../utils/dndMonsterEncounterImport";
+import {
+  buildDndMonsterLiveReference,
+  type DndMonsterLiveReference
+} from "../utils/dndMonsterLiveReference";
 import { secureRandomInteger } from "../utils/randomInteger";
 import "../styles/dnd-monster-encounter-importer.css";
 
@@ -14,12 +18,14 @@ type DndMonsterEncounterImporterProps = {
   ruleset: RulesetId;
   encounter: DndEncounterState;
   setEncounter: Dispatch<SetStateAction<DndEncounterState>>;
+  setReferences: Dispatch<SetStateAction<Record<string, DndMonsterLiveReference>>>;
 };
 
 export const DndMonsterEncounterImporter = ({
   ruleset,
   encounter,
-  setEncounter
+  setEncounter,
+  setReferences
 }: DndMonsterEncounterImporterProps) => {
   const [query, setQuery] = useState("");
   const visible = useMemo(
@@ -29,6 +35,7 @@ export const DndMonsterEncounterImporter = ({
   const [monsterId, setMonsterId] = useState(visible[0]?.id ?? "");
   const selected = visible.find((entry) => entry.id === monsterId) ?? visible[0];
   const defaults = selected ? buildDndMonsterEncounterDefaults(selected) : undefined;
+  const liveReference = selected ? buildDndMonsterLiveReference(selected) : undefined;
   const [maximumHitPoints, setMaximumHitPoints] = useState(defaults?.maximumHitPoints ?? 1);
   const [currentHitPoints, setCurrentHitPoints] = useState(defaults?.maximumHitPoints ?? 1);
   const [speedFeet, setSpeedFeet] = useState(defaults?.speedFeet ?? 30);
@@ -60,26 +67,37 @@ export const DndMonsterEncounterImporter = ({
   const rollInitiative = () => setInitiative(secureRandomInteger(1, 20) + dexterityModifier);
 
   const addMonsters = () => {
-    if (!defaults) return;
+    if (!defaults || !liveReference) return;
     const additions = Array.from({ length: quantity }, (_, index) => {
+      const id = createClientId("srd-monster");
       const numberedName = quantity === 1 ? defaults.name : `${defaults.name} ${index + 1}`;
       const combatantInitiative = rollSeparately
         ? secureRandomInteger(1, 20) + dexterityModifier
         : initiative;
-      return createDndCombatant({
-        id: createClientId("srd-monster"),
-        name: numberedName,
-        side: "enemy",
-        initiative: combatantInitiative,
-        dexterityModifier,
-        speedFeet,
-        surprised: false,
-        ruleset,
-        maximumHitPoints,
-        currentHitPoints
-      });
+      return {
+        id,
+        combatant: createDndCombatant({
+          id,
+          name: numberedName,
+          side: "enemy",
+          initiative: combatantInitiative,
+          dexterityModifier,
+          speedFeet,
+          surprised: false,
+          ruleset,
+          maximumHitPoints,
+          currentHitPoints
+        })
+      };
     });
-    setEncounter((current) => ({ ...current, combatants: [...current.combatants, ...additions] }));
+    setEncounter((current) => ({ ...current, combatants: [...current.combatants, ...additions.map(({ combatant }) => combatant)] }));
+    setReferences((current) => ({
+      ...current,
+      ...Object.fromEntries(additions.map(({ id }) => [id, {
+        ...liveReference,
+        actions: liveReference.actions.map((action) => ({ ...action }))
+      }]))
+    }));
     setResult(`${quantity} ${defaults.name}${quantity === 1 ? "" : " entries"} added from ${defaults.sourceReference}.`);
   };
 
@@ -91,7 +109,7 @@ export const DndMonsterEncounterImporter = ({
       </header>
 
       <p>
-        DM Forge reads explicit HP, walking Speed, and Dexterity from the sourced stat block. Parsed values remain editable before the monster enters the encounter.
+        DM Forge reads explicit HP, walking Speed, Dexterity, AC, saves, senses, and action sections from the sourced stat block. Setup values remain editable before the monster enters the encounter.
       </p>
 
       <div className="dnd-monster-importer__selection">
