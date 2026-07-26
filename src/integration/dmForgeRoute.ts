@@ -6,6 +6,7 @@ export type DndAppPage =
   | "movement"
   | "health"
   | "combat"
+  | "pregens"
   | "mastery"
   | "armor"
   | "compendium"
@@ -25,6 +26,7 @@ const DND_PAGES = new Set<DndAppPage>([
   "movement",
   "health",
   "combat",
+  "pregens",
   "mastery",
   "armor",
   "compendium",
