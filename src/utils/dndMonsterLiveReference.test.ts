@@ -90,7 +90,7 @@ describe("D&D live monster references", () => {
     expect(reference.actions.map((action) => action.kind)).toEqual([
       "action", "action", "action", "bonusAction", "reaction", "legendaryAction"
     ]);
-    expect(reference.actions.find((action) => action.name === "Bite")?.reachOrRange).toContain("reach 10 ft.");
+    expect(reference.actions.find((action) => action.name === "Bite")?.reachOrRange).toContain("reach 10 ft");
   });
 
   it("imports structured formatted monster actions", () => {
