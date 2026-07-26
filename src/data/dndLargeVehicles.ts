@@ -2,7 +2,7 @@ import type { RulesetId } from "../types/ruleCards";
 
 export type DndLargeVehicleStats2024 = {
   crew: number;
-  passengers: number;
+  passengers?: number;
   cargoTons?: number;
   armorClass: number;
   hitPoints: number;
@@ -40,7 +40,7 @@ export const dndLargeVehicleCatalog: DndLargeVehicleDefinition[] = [
     costGp: 30000,
     rowable: true,
     sailDriven: true,
-    stats2024: { crew: 80, passengers: 0, cargoTons: 150, armorClass: 15, hitPoints: 500, damageThreshold: 20 }
+    stats2024: { crew: 80, cargoTons: 150, armorClass: 15, hitPoints: 500, damageThreshold: 20 }
   },
   {
     id: "keelboat",
