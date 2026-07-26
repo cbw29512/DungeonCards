@@ -8,6 +8,7 @@
 
 .pregen-sheet h3,
 .pregen-sheet h4,
+.pregen-sheet h5,
 .pregen-sheet p {
   margin-top: 0;
 }
@@ -19,7 +20,8 @@
   justify-content: space-between;
 }
 
-.pregen-sheet__header p {
+.pregen-sheet__header p,
+.pregen-sheet__spellcasting > header p {
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -78,6 +80,89 @@
 
 .pregen-sheet__abilities small {
   font-weight: 800;
+}
+
+.pregen-sheet__spellcasting {
+  border: 2px solid currentColor;
+  border-radius: 0.85rem;
+  padding: 1rem;
+}
+
+.pregen-sheet__spellcasting > header {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.pregen-sheet__spellcasting h4,
+.pregen-sheet__spellcasting h5 {
+  margin-bottom: 0.35rem;
+}
+
+.pregen-sheet__spellcasting > header dl {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(6rem, 1fr));
+  margin: 0;
+}
+
+.pregen-sheet__spellcasting > header dl div,
+.pregen-sheet__slots div {
+  border: 1px solid currentColor;
+  border-radius: 0.6rem;
+  display: grid;
+  justify-items: center;
+  padding: 0.55rem;
+  text-align: center;
+}
+
+.pregen-sheet__spellcasting dt,
+.pregen-sheet__slots span {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.pregen-sheet__spellcasting dd {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.pregen-sheet__spell-columns {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr);
+  margin-top: 1rem;
+}
+
+.pregen-sheet__spell-columns section {
+  border-top: 1px solid currentColor;
+  padding-top: 0.75rem;
+}
+
+.pregen-sheet__spell-columns p {
+  margin-bottom: 0;
+}
+
+.pregen-sheet__slots {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  margin-top: 1rem;
+}
+
+.pregen-sheet__slots strong {
+  overflow-wrap: anywhere;
+}
+
+.pregen-sheet__spell-notes {
+  border-top: 1px solid currentColor;
+  margin-bottom: 0;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
 }
 
 .pregen-sheet__columns {
@@ -166,7 +251,8 @@
 }
 
 @media (max-width: 760px) {
-  .pregen-sheet__header {
+  .pregen-sheet__header,
+  .pregen-sheet__spellcasting > header {
     flex-direction: column;
   }
 
@@ -175,7 +261,8 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .pregen-sheet__columns {
+  .pregen-sheet__columns,
+  .pregen-sheet__spell-columns {
     grid-template-columns: 1fr;
   }
 }
@@ -205,6 +292,7 @@
   }
 
   .pregen-sheet__columns,
+  .pregen-sheet__spellcasting,
   .pregen-sheet__attack-list article,
   .pregen-sheet__resource-list article {
     break-inside: avoid;
