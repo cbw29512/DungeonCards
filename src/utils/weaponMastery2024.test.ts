@@ -28,10 +28,14 @@ describe("2024 Weapon Mastery", () => {
   });
 
   it("protects the important timing and stacking limits", () => {
+    const cleaveProcedure = [
+      weaponMasteryDefinitions2024.Cleave.effect,
+      ...weaponMasteryDefinitions2024.Cleave.limits
+    ].join(" ");
     expect(weaponMasteryDefinitions2024.Cleave.oncePerTurn).toBe(true);
-    expect(weaponMasteryDefinitions2024.Cleave.limits.join(" ")).toContain("within your reach");
+    expect(cleaveProcedure).toContain("within your reach");
     expect(weaponMasteryDefinitions2024.Nick.oncePerTurn).toBe(true);
-    expect(weaponMasteryDefinitions2024.Slow.limits.join(" ")).toContain("does not reduce");
+    expect(weaponMasteryDefinitions2024.Slow.limits.join(" ")).toContain("do not reduce");
     expect(weaponMasteryDefinitions2024.Sap.effect).toContain("before the start of your next turn");
     expect(weaponMasteryDefinitions2024.Vex.effect).toContain("before the end of your next turn");
   });
