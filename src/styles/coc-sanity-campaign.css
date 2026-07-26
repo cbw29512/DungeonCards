@@ -1,0 +1,139 @@
+.coc-sanity-campaign {
+  display: grid;
+  gap: 1rem;
+}
+
+.coc-sanity-campaign > section {
+  padding: 0.85rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.6rem;
+  background: rgb(0 0 0 / 18%);
+}
+
+.coc-sanity-campaign > section > header {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.coc-sanity-campaign > section > header small {
+  color: #919b89;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.coc-sanity-campaign > section > header strong {
+  color: #e6d9bd;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.coc-sanity-owned-boundary {
+  border-color: rgb(205 165 91 / 32%) !important;
+  background: rgb(106 69 19 / 18%) !important;
+}
+
+.coc-sanity-owned-boundary p,
+.coc-care-clock p,
+.coc-monthly-treatment p,
+.coc-sanity-effects__empty {
+  color: #aaa18e;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.coc-care-clock__complete {
+  color: #c8efd3 !important;
+  padding: 0.55rem;
+  border-radius: 0.45rem;
+  background: rgb(31 103 55 / 20%);
+}
+
+.coc-monthly-treatment > button:not(.coc-roll-button),
+.coc-sanity-effects > button,
+.coc-sanity-effects li button,
+.coc-care-clock button {
+  min-height: 40px;
+  padding: 0.45rem 0.65rem;
+  color: #e6dcc8;
+  border: 1px solid rgb(190 163 104 / 25%);
+  border-radius: 0.45rem;
+  background: rgb(255 255 255 / 6%);
+}
+
+.coc-sanity-campaign button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.coc-sanity-effects ul {
+  display: grid;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+  gap: 0.45rem;
+}
+
+.coc-sanity-effects li {
+  display: grid;
+  align-items: center;
+  padding: 0.55rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 4%);
+  gap: 0.45rem;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.coc-sanity-effects li span {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.coc-sanity-effects li small {
+  color: #919b89;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.coc-sanity-effects li strong {
+  color: #e4d8bd;
+  font-size: 0.8rem;
+}
+
+.coc-sanity-effects li.is-resolved {
+  opacity: 0.55;
+}
+
+.coc-sanity-effects li.is-resolved strong {
+  text-decoration: line-through;
+}
+
+@media (max-width: 620px) {
+  .coc-sanity-effects li {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .coc-sanity-campaign button,
+  .coc-sanity-campaign input,
+  .coc-sanity-campaign select,
+  .coc-sanity-owned-boundary,
+  .coc-rule-status {
+    display: none !important;
+  }
+
+  .coc-sanity-campaign,
+  .coc-sanity-campaign > section {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    break-inside: avoid;
+  }
+
+  .coc-sanity-effects li strong,
+  .coc-sanity-campaign > section > header strong {
+    color: #111;
+  }
+}
