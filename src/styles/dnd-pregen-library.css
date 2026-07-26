@@ -1,0 +1,206 @@
+.pregen-library {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.pregen-library__hero {
+  align-items: end;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem);
+}
+
+.pregen-library__hero h2,
+.pregen-library__selection h3,
+.pregen-library__columns h3 {
+  margin: 0;
+}
+
+.pregen-library__hero p {
+  max-width: 76ch;
+}
+
+.pregen-library__eyebrow,
+.pregen-library__selection-heading p {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin: 0 0 0.45rem;
+  text-transform: uppercase;
+}
+
+.pregen-library__totals {
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  display: grid;
+  padding: 1.15rem;
+}
+
+.pregen-library__totals strong {
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 0.9;
+}
+
+.pregen-library__totals span {
+  font-weight: 800;
+  margin-top: 0.45rem;
+}
+
+.pregen-library__edition {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.pregen-library__edition button,
+.pregen-library__controls select {
+  font: inherit;
+}
+
+.pregen-library__edition button {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 0.65rem 1rem;
+}
+
+.pregen-library__edition button[aria-pressed="true"] {
+  font-weight: 900;
+  outline: 3px solid currentColor;
+  outline-offset: 2px;
+}
+
+.pregen-library__controls {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pregen-library__controls label {
+  display: grid;
+  font-weight: 800;
+  gap: 0.45rem;
+}
+
+.pregen-library__controls select {
+  border: 1px solid currentColor;
+  border-radius: 0.75rem;
+  min-height: 3rem;
+  padding: 0.65rem 0.8rem;
+}
+
+.pregen-library__selection,
+.pregen-library__columns > section,
+.pregen-library__boundary {
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.pregen-library__selection-heading {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.pregen-library__selection-heading > div > span {
+  display: inline-block;
+  font-weight: 800;
+  margin-top: 0.35rem;
+}
+
+.pregen-library__status {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 0.45rem 0.7rem;
+  white-space: nowrap;
+}
+
+.pregen-library__facts,
+.pregen-library__boundary dl {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1.25rem 0;
+}
+
+.pregen-library__facts div,
+.pregen-library__boundary dl div {
+  border-top: 1px solid currentColor;
+  padding-top: 0.65rem;
+}
+
+.pregen-library__facts dt,
+.pregen-library__boundary dt {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pregen-library__facts dd,
+.pregen-library__boundary dd {
+  margin: 0.25rem 0 0;
+}
+
+.pregen-library__facts code {
+  overflow-wrap: anywhere;
+}
+
+.pregen-library__columns {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 1fr);
+}
+
+.pregen-library__requirements {
+  display: grid;
+  gap: 0.65rem;
+  padding-left: 1.4rem;
+}
+
+.pregen-library__boundary p:last-of-type {
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 760px) {
+  .pregen-library__hero,
+  .pregen-library__controls,
+  .pregen-library__columns,
+  .pregen-library__facts,
+  .pregen-library__boundary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .pregen-library__selection-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pregen-library__status {
+    align-self: start;
+    white-space: normal;
+  }
+}
+
+@media print {
+  .pregen-library__edition,
+  .pregen-library__controls {
+    display: none;
+  }
+
+  .pregen-library {
+    padding: 0;
+  }
+
+  .pregen-library__selection,
+  .pregen-library__columns > section,
+  .pregen-library__boundary,
+  .pregen-library__totals {
+    break-inside: avoid;
+  }
+}
