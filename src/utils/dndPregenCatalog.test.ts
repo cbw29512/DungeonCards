@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
 import {
+  auditDndPregenCharacterCatalog,
   dndPregenBuildSlots,
   filterDndPregenBuildSlots,
   getDndPregenBuildSlot,
@@ -57,5 +58,9 @@ describe("D&D pregen catalog foundation", () => {
     expect(filterDndPregenBuildSlots({ ruleset: "srd-5.2.1-2024", classId: "rogue", subclassId: "thief", level: 11 })).toMatchObject([
       { className: "Rogue", subclassId: "thief", subclassName: "Thief", level: 11 }
     ]);
+  });
+
+  it("keeps the checked-in character catalog valid", () => {
+    expect(auditDndPregenCharacterCatalog()).toEqual([]);
   });
 });
