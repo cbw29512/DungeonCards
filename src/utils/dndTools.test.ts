@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { dndToolCatalog } from "../data/dndTools";
 import {
   calculateDndToolCheckModifier,
+  extractDndToolDc,
   filterDndTools,
   resolveDndToolPurchase,
   rollDndToolCheck
@@ -10,6 +11,11 @@ import {
 const tool = (id: string) => dndToolCatalog.find((item) => item.id === id)!;
 
 describe("D&D tool checks", () => {
+  it("extracts published Utilize DCs without inventing one", () => {
+    expect(extractDndToolDc("Pick a lock (DC 15)")).toBe(15);
+    expect(extractDndToolDc("Describe the tool task")).toBeUndefined();
+  });
+
   it("resolves family and variant price and weight", () => {
     expect(resolveDndToolPurchase(tool("thieves"))).toMatchObject({ name: "Thieves’ Tools", costCp: 2500, weightPounds: 1 });
     expect(resolveDndToolPurchase(tool("instrument"), "dulcimer")).toMatchObject({
