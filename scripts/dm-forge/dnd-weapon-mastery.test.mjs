@@ -26,7 +26,7 @@ describe("D&D 2024 Weapon Mastery product integration", () => {
 
   it("includes the critical limits and calculators", () => {
     expect(definitions).toContain("extra attack is available only once per turn");
-    expect(definitions).toContain("does not reduce the creature's Speed by more than 10 feet");
+    expect(definitions).toContain("do not reduce the creature's Speed by more than 10 feet");
     expect(definitions).toContain("8 + the ability modifier used for the attack roll + your Proficiency Bonus");
     expect(component).toContain("calculateToppleSaveDc");
     expect(component).toContain("Mark {selectedMastery} used");
