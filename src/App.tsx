@@ -3,6 +3,7 @@ import { CocPreview } from "./components/CocPreview";
 import { DeckGrid } from "./components/DeckGrid";
 import { DndArmorLoadout } from "./components/DndArmorLoadout";
 import { DndConditionsLibrary } from "./components/DndConditionsLibrary";
+import { DndEncounterTracker } from "./components/DndEncounterTracker";
 import { DndHealthTracker } from "./components/DndHealthTracker";
 import { DndMovementLibrary } from "./components/DndMovementLibrary";
 import { DndRulesGuide } from "./components/DndRulesGuide";
@@ -60,6 +61,7 @@ const pageLabels: Record<DndAppPage, string> = {
   conditions: "Conditions & Exhaustion",
   movement: "Movement & Special Actions",
   health: "HP & Death Saves",
+  combat: "Initiative & Concentration",
   mastery: "Weapon Mastery",
   armor: "Armor & Loadout",
   compendium: "SRD Compendium",
@@ -130,6 +132,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <button aria-pressed={activePage === "conditions"} type="button" onClick={() => navigate("conditions")}>Conditions</button>
           <button aria-pressed={activePage === "movement"} type="button" onClick={() => navigate("movement")}>Movement</button>
           <button aria-pressed={activePage === "health"} type="button" onClick={() => navigate("health")}>Health</button>
+          <button aria-pressed={activePage === "combat"} type="button" onClick={() => navigate("combat")}>Combat</button>
           <button aria-pressed={activePage === "mastery"} type="button" onClick={() => navigate("mastery")}>Mastery</button>
           <button aria-pressed={activePage === "armor"} type="button" onClick={() => navigate("armor")}>Armor</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
@@ -152,58 +155,20 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
               <h1>Choose the card. Run the encounter. Keep playing.</h1>
               <p>Verified 5e and 5.5e references, executable roll cards, personal tables, encounter folios, and homebrew tools—all local and account-free.</p>
               <div className="role-card-grid">
-                <button className="role-card" type="button" onClick={() => navigate("rules")}>
-                  <span aria-hidden="true">📖</span><strong>Rules Guide</strong>
-                  <small>Learn the table procedure first, then open the matching card.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("coverage")}>
-                  <span aria-hidden="true">🧭</span><strong>Rules Coverage</strong>
-                  <small>See exactly what is complete, automated, missing, or requires an owned source.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("conditions")}>
-                  <span aria-hidden="true">⚠️</span><strong>Conditions &amp; Exhaustion</strong>
-                  <small>Search every condition and track edition-specific Exhaustion without mixing rules.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("movement")}>
-                  <span aria-hidden="true">🏃</span><strong>Movement &amp; Special Actions</strong>
-                  <small>Calculate movement, jumps, cover, grapples, shoves, hiding, and Opportunity Attacks.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("health")}>
-                  <span aria-hidden="true">❤️</span><strong>HP &amp; Death Saves</strong>
-                  <small>Track damage, Temporary HP, massive damage, stabilization, Bloodied, and Death Saves.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("mastery")}>
-                  <span aria-hidden="true">⚔️</span><strong>Weapon Mastery</strong>
-                  <small>Run all eight 2024 mastery properties with weapon lookup, Topple DC, and turn limits.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("armor")}>
-                  <span aria-hidden="true">🛡️</span><strong>Armor &amp; Loadout</strong>
-                  <small>Calculate AC, training penalties, armor Speed, carrying limits, and 2014 encumbrance.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("compendium")}>
-                  <span aria-hidden="true">📚</span><strong>SRD Compendium</strong>
-                  <small>Search all generated SRD 5.1 and 5.2.1 spell and monster references.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("player")}>
-                  <span aria-hidden="true">🧙</span><strong>Player Workspace</strong>
-                  <small>Keep attacks, damage, spells, checks, and saves on My Table.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("dm")}>
-                  <span aria-hidden="true">🎲</span><strong>DM Workspace</strong>
-                  <small>Prepare checks, traps, magic items, generators, and random tables.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("monster")}>
-                  <span aria-hidden="true">🐉</span><strong>Monster Encounter</strong>
-                  <small>Choose SRD creatures, open ordered folios, and print references.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("homebrew")}>
-                  <span aria-hidden="true">🛠️</span><strong>Card Builder</strong>
-                  <small>Build custom cards beside a live finished-size preview.</small>
-                </button>
-                <button className="role-card" type="button" onClick={() => navigate("monster-homebrew")}>
-                  <span aria-hidden="true">🧌</span><strong>Monster Builder</strong>
-                  <small>Create, save, and print custom monster folios.</small>
-                </button>
+                <button className="role-card" type="button" onClick={() => navigate("rules")}><span aria-hidden="true">📖</span><strong>Rules Guide</strong><small>Learn the table procedure first, then open the matching card.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("coverage")}><span aria-hidden="true">🧭</span><strong>Rules Coverage</strong><small>See exactly what is complete, automated, missing, or requires an owned source.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("conditions")}><span aria-hidden="true">⚠️</span><strong>Conditions &amp; Exhaustion</strong><small>Search every condition and track edition-specific Exhaustion without mixing rules.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("movement")}><span aria-hidden="true">🏃</span><strong>Movement &amp; Special Actions</strong><small>Calculate movement, jumps, cover, grapples, shoves, hiding, and Opportunity Attacks.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("health")}><span aria-hidden="true">❤️</span><strong>HP &amp; Death Saves</strong><small>Track damage, Temporary HP, massive damage, stabilization, Bloodied, and Death Saves.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("combat")}><span aria-hidden="true">⏱️</span><strong>Initiative &amp; Concentration</strong><small>Run rounds, turns, movement, reactions, surprise, and concentration checks.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("mastery")}><span aria-hidden="true">⚔️</span><strong>Weapon Mastery</strong><small>Run all eight 2024 mastery properties with weapon lookup, Topple DC, and turn limits.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("armor")}><span aria-hidden="true">🛡️</span><strong>Armor &amp; Loadout</strong><small>Calculate AC, training penalties, armor Speed, carrying limits, and 2014 encumbrance.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("compendium")}><span aria-hidden="true">📚</span><strong>SRD Compendium</strong><small>Search all generated SRD 5.1 and 5.2.1 spell and monster references.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("player")}><span aria-hidden="true">🧙</span><strong>Player Workspace</strong><small>Keep attacks, damage, spells, checks, and saves on My Table.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("dm")}><span aria-hidden="true">🎲</span><strong>DM Workspace</strong><small>Prepare checks, traps, magic items, generators, and random tables.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("monster")}><span aria-hidden="true">🐉</span><strong>Monster Encounter</strong><small>Choose SRD creatures, open ordered folios, and print references.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("homebrew")}><span aria-hidden="true">🛠️</span><strong>Card Builder</strong><small>Build custom cards beside a live finished-size preview.</small></button>
+                <button className="role-card" type="button" onClick={() => navigate("monster-homebrew")}><span aria-hidden="true">🧌</span><strong>Monster Builder</strong><small>Create, save, and print custom monster folios.</small></button>
               </div>
             </div>
           </section>
@@ -214,56 +179,31 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         {activePage === "conditions" && <DndConditionsLibrary />}
         {activePage === "movement" && <DndMovementLibrary />}
         {activePage === "health" && <DndHealthTracker />}
+        {activePage === "combat" && <DndEncounterTracker />}
         {activePage === "mastery" && <DndWeaponMasteryLibrary />}
         {activePage === "armor" && <DndArmorLoadout />}
         {activePage === "compendium" && <SrdCompendium />}
 
         {activePage === "player" && (
-          <RulesDeck
-            cards={playerRuleCards}
-            description="Add as many independent copies as you need, name each copy, and keep only the cards used by this character on My Table."
-            eyebrow="player"
-            role="player"
-            title="Your personal cards, ready when initiative starts."
-          />
+          <RulesDeck cards={playerRuleCards} description="Add as many independent copies as you need, name each copy, and keep only the cards used by this character on My Table." eyebrow="player" role="player" title="Your personal cards, ready when initiative starts." />
         )}
 
         {activePage === "dm" && (
-          <RulesDeck
-            cards={dmRuleCards}
-            description="Build a focused table with independent copies of checks, saves, traps, items, and generators."
-            eyebrow="dm"
-            role="dm"
-            title="A focused DM screen backed by the full rules library."
-          />
+          <RulesDeck cards={dmRuleCards} description="Build a focused table with independent copies of checks, saves, traps, items, and generators." eyebrow="dm" role="dm" title="A focused DM screen backed by the full rules library." />
         )}
 
-        {activePage === "monster" && (
-          <MonsterDeck
-            homebrewMonsters={homebrewMonsters}
-            libraryError={homebrewMonsterError}
-            onDeleteHomebrewMonster={deleteMonster}
-          />
-        )}
+        {activePage === "monster" && <MonsterDeck homebrewMonsters={homebrewMonsters} libraryError={homebrewMonsterError} onDeleteHomebrewMonster={deleteMonster} />}
 
         {activePage === "homebrew" && (
           <>
             <HomebrewBuilder onCreate={createCard} storageError={storageError} />
             {homebrewCards.length > 0 ? (
-              <DeckGrid
-                cards={homebrewCards}
-                eyebrow="Homebrew Deck"
-                title="Your custom cards are ready to roll."
-                description="These cards are stored locally in this browser and remain separate from SRD cards."
-                onDeleteCard={deleteCard}
-              />
+              <DeckGrid cards={homebrewCards} eyebrow="Homebrew Deck" title="Your custom cards are ready to roll." description="These cards are stored locally in this browser and remain separate from SRD cards." onDeleteCard={deleteCard} />
             ) : <p className="homebrew-empty">No homebrew cards yet. Build your first card above.</p>}
           </>
         )}
 
-        {activePage === "monster-homebrew" && (
-          <MonsterHomebrewBuilder libraryError={homebrewMonsterError} onSave={createMonster} />
-        )}
+        {activePage === "monster-homebrew" && <MonsterHomebrewBuilder libraryError={homebrewMonsterError} onSave={createMonster} />}
       </main>
     </div>
   );
