@@ -1,0 +1,374 @@
+.weapon-mastery-library {
+  display: grid;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 2rem auto 5rem;
+  gap: 1.25rem;
+}
+
+.weapon-mastery-library__header,
+.weapon-mastery-runner,
+.weapon-mastery-reference,
+.weapon-mastery-catalog,
+.weapon-mastery-source {
+  padding: clamp(1rem, 3vw, 1.6rem);
+  border: 1px solid rgb(247 199 107 / 24%);
+  border-radius: 0.85rem;
+  background: rgb(26 17 35 / 88%);
+}
+
+.weapon-mastery-library__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.weapon-mastery-library__header p,
+.weapon-mastery-reference > header small,
+.weapon-mastery-catalog > header small {
+  margin: 0;
+  color: #d9c9b8;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.weapon-mastery-library__header h1,
+.weapon-mastery-reference h2,
+.weapon-mastery-catalog h2 {
+  margin: 0.25rem 0;
+  color: #fff0c2;
+}
+
+.weapon-mastery-library__header span {
+  display: block;
+  max-width: 760px;
+  color: #d9cfde;
+  line-height: 1.55;
+}
+
+.weapon-mastery-library__header > strong {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.7rem;
+  color: #c8f3d7;
+  border: 1px solid rgb(122 207 154 / 36%);
+  border-radius: 999px;
+  background: rgb(52 122 78 / 18%);
+  font-size: 0.72rem;
+}
+
+.weapon-mastery-runner {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1.35fr);
+}
+
+.weapon-mastery-runner__controls,
+.weapon-mastery-procedure,
+.weapon-mastery-topple {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.weapon-mastery-library label {
+  display: grid;
+  color: #d9c9b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  gap: 0.3rem;
+}
+
+.weapon-mastery-library input,
+.weapon-mastery-library select,
+.weapon-mastery-library button {
+  min-height: 42px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 0.55rem;
+}
+
+.weapon-mastery-library input,
+.weapon-mastery-library select {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  color: #f8efe0;
+  background: #251633;
+}
+
+.weapon-mastery-library button {
+  padding: 0.5rem 0.7rem;
+  color: #f4e7cf;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.weapon-mastery-library button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.weapon-mastery-check {
+  display: flex !important;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border-radius: 0.55rem;
+  background: rgb(0 0 0 / 20%);
+  gap: 0.55rem !important;
+}
+
+.weapon-mastery-check input {
+  width: auto;
+  min-height: auto;
+  margin-top: 0.15rem;
+}
+
+.weapon-mastery-procedure {
+  padding: 1rem;
+  border: 1px solid rgb(247 199 107 / 25%);
+  border-radius: 0.7rem;
+  background: rgb(0 0 0 / 22%);
+}
+
+.weapon-mastery-procedure.is-unlocked {
+  border-color: rgb(122 207 154 / 42%);
+}
+
+.weapon-mastery-procedure > header,
+.weapon-mastery-reference article > header,
+.weapon-mastery-catalog > header,
+.weapon-mastery-topple > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.weapon-mastery-procedure h2,
+.weapon-mastery-reference h3 {
+  margin: 0;
+  color: #fff0c2;
+}
+
+.weapon-mastery-procedure > header small,
+.weapon-mastery-topple small {
+  color: #d9c9b8;
+  font-size: 0.62rem;
+}
+
+.weapon-mastery-procedure > header > span {
+  padding: 0.35rem 0.5rem;
+  color: #ffe2a6;
+  border-radius: 999px;
+  background: rgb(125 80 20 / 25%);
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.weapon-mastery-procedure.is-unlocked > header > span {
+  color: #c8f3d7;
+  background: rgb(52 122 78 / 22%);
+}
+
+.weapon-mastery-procedure dl {
+  display: grid;
+  margin: 0;
+  gap: 0.5rem;
+}
+
+.weapon-mastery-procedure dl div {
+  padding: 0.65rem;
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 5%);
+}
+
+.weapon-mastery-procedure dt {
+  color: #d9c9b8;
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.weapon-mastery-procedure dd {
+  margin: 0.2rem 0 0;
+  color: #eee1f0;
+  line-height: 1.5;
+}
+
+.weapon-mastery-procedure ul,
+.weapon-mastery-reference ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #d9cfde;
+}
+
+.weapon-mastery-topple {
+  padding: 0.75rem;
+  border-radius: 0.55rem;
+  background: rgb(79 54 109 / 30%);
+}
+
+.weapon-mastery-topple > header strong {
+  color: #c8f3d7;
+  font-size: 1.25rem;
+}
+
+.weapon-mastery-topple > div {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.weapon-mastery-topple p,
+.weapon-mastery-warning {
+  margin: 0;
+  color: #d9cfde;
+  font-size: 0.72rem;
+}
+
+.weapon-mastery-warning {
+  padding: 0.6rem;
+  color: #ffe2a6;
+  border-left: 3px solid #d29b4c;
+  background: rgb(125 80 20 / 20%);
+}
+
+.weapon-mastery-turn-tracker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.weapon-mastery-reference,
+.weapon-mastery-catalog {
+  display: grid;
+  gap: 1rem;
+}
+
+.weapon-mastery-reference > div {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+}
+
+.weapon-mastery-reference article {
+  display: grid;
+  padding: 0.85rem;
+  border: 1px solid rgb(255 255 255 / 11%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.5rem;
+}
+
+.weapon-mastery-reference article header span,
+.weapon-mastery-weapon-grid em {
+  color: #c8f3d7;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.weapon-mastery-reference article p {
+  margin: 0;
+  color: #d9cfde;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.weapon-mastery-catalog > header > div:last-child {
+  display: grid;
+  min-width: min(440px, 100%);
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 0.5fr);
+}
+
+.weapon-mastery-catalog > p {
+  margin: 0;
+  color: #d9c9b8;
+  font-size: 0.7rem;
+}
+
+.weapon-mastery-weapon-grid {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+}
+
+.weapon-mastery-weapon-grid button {
+  display: grid;
+  min-height: 130px;
+  padding: 0.75rem;
+  text-align: left;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.55rem;
+}
+
+.weapon-mastery-weapon-grid button > span {
+  grid-row: span 3;
+  font-size: 1.6rem;
+}
+
+.weapon-mastery-weapon-grid button strong {
+  color: #fff0c2;
+}
+
+.weapon-mastery-weapon-grid button small {
+  color: #d9c9b8;
+}
+
+.weapon-mastery-source {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #d9c9b8;
+  font-size: 0.72rem;
+  gap: 1rem;
+}
+
+.weapon-mastery-source a {
+  color: #c8f3d7;
+}
+
+@media (max-width: 760px) {
+  .weapon-mastery-library__header,
+  .weapon-mastery-runner,
+  .weapon-mastery-catalog > header,
+  .weapon-mastery-source {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .weapon-mastery-catalog > header > div:last-child {
+    min-width: 0;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .weapon-mastery-runner__controls,
+  .weapon-mastery-library button,
+  .weapon-mastery-library input,
+  .weapon-mastery-library select {
+    display: none !important;
+  }
+
+  .weapon-mastery-library,
+  .weapon-mastery-library__header,
+  .weapon-mastery-runner,
+  .weapon-mastery-reference,
+  .weapon-mastery-catalog,
+  .weapon-mastery-source,
+  .weapon-mastery-procedure,
+  .weapon-mastery-reference article {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .weapon-mastery-reference article,
+  .weapon-mastery-procedure {
+    break-inside: avoid;
+  }
+}

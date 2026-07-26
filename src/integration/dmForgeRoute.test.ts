@@ -25,6 +25,12 @@ describe("DM Forge route contract", () => {
     expect(dndRoute("movement")).toBe("?system=dnd&page=movement");
   });
 
+  it("opens the 2024 Weapon Mastery workspace directly", () => {
+    expect(parseSystem("?system=dnd&page=mastery")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=mastery")).toBe("mastery");
+    expect(dndRoute("mastery")).toBe("?system=dnd&page=mastery");
+  });
+
   it("accepts stable long-form system identifiers", () => {
     expect(parseSystem("?system=dnd-5e&page=monster")).toBe("dnd-5e");
     expect(parseSystem("?system=coc-7e")).toBe("coc-7e");
