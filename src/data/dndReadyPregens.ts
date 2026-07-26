@@ -1,10 +1,12 @@
 import type { DndCharacterRecord } from "../types/dndCharacter";
 import type { RulesetId } from "../types/ruleCards";
 import { dndBarbarianPregenRecords } from "./dndBarbarianPregens";
+import { dndClericPregenRecords } from "./dndClericPregens";
 import { dndFighterPregenRecords } from "./dndFighterPregens";
 
 export const dndReadyPregenRecords: DndCharacterRecord[] = [
   ...dndBarbarianPregenRecords,
+  ...dndClericPregenRecords,
   ...dndFighterPregenRecords
 ];
 

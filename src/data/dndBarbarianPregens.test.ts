@@ -57,12 +57,13 @@ describe("Barbarian Berserker ready-to-play pregens", () => {
     expect(level20.abilityScores).toMatchObject({ str: 25, con: 22 });
   });
 
-  it("centralizes all released subclass paths without duplicate build slots", () => {
-    expect(dndReadyPregenRecords).toHaveLength(80);
-    expect(countDndReadyPregens("srd-5.1-2014")).toBe(40);
-    expect(countDndReadyPregens("srd-5.2.1-2024")).toBe(40);
-    expect(new Set(dndReadyPregenRecords.map((record) => record.buildSlotId)).size).toBe(80);
+  it("sees the expanded live catalog without duplicate build slots", () => {
+    expect(dndReadyPregenRecords).toHaveLength(120);
+    expect(countDndReadyPregens("srd-5.1-2014")).toBe(60);
+    expect(countDndReadyPregens("srd-5.2.1-2024")).toBe(60);
+    expect(new Set(dndReadyPregenRecords.map((record) => record.buildSlotId)).size).toBe(120);
     expect(getDndReadyPregenRecord("srd-5.2.1-2024", "barbarian", "path-berserker", 20)?.name).toBe("Torra Ashfang");
     expect(getDndReadyPregenRecord("srd-5.1-2014", "fighter", "champion", 20)?.name).toBe("Kara Stoneguard");
+    expect(getDndReadyPregenRecord("srd-5.2.1-2024", "cleric", "life-domain", 20)?.name).toBe("Thora Brightmantle");
   });
 });

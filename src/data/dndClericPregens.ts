@@ -36,7 +36,7 @@ const clericPreparedPool2014: Array<[number, string]> = [
 const clericPreparedPool2024: Array<[number, string]> = [
   [1, "Guiding Bolt"], [1, "Healing Word"], [1, "Sanctuary"], [1, "Command"],
   [3, "Prayer of Healing"], [3, "Hold Person"], [5, "Spirit Guardians"], [5, "Dispel Magic"],
-  [7, "Banishment"], [7, "Freedom of Movement"], [9, "Flame Strike"], [9, "Commune"],
+  [7, "Banishment"], [7, "Freedom of Movement"], [9, "Flame Strike"], [9, "Commune"], [9, "Raise Dead"],
   [11, "Heal"], [11, "Heroes' Feast"], [11, "Word of Recall"], [13, "Resurrection"],
   [13, "Plane Shift"], [15, "Holy Aura"], [17, "Mass Heal"], [17, "True Resurrection"],
   [1, "Detect Magic"], [1, "Protection from Evil and Good"]
