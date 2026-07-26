@@ -19,7 +19,13 @@ export type CocPsychoanalysisOutcome = {
   summary: string;
 };
 
-const clampSanity = (value: number): number => Math.min(99, Math.max(0, Math.trunc(value) || 0));
+const normalizeNonnegative = (value: number): number => Math.max(0, Math.trunc(value) || 0);
+
+export const calculateMaximumSanity = (cthulhuMythosSkill: number): number =>
+  Math.max(0, 99 - normalizeNonnegative(cthulhuMythosSkill));
+
+const clampSanity = (value: number, maximumSanity: number): number =>
+  Math.min(normalizeNonnegative(maximumSanity), normalizeNonnegative(value));
 
 export const rollIndefiniteCareMonths = (
   randomInteger: RandomIntegerSource = secureRandomInteger
@@ -29,22 +35,23 @@ export const resolveMonthlyPsychoanalysis = (
   currentSanity: number,
   psychoanalysisSkill: number,
   roll: number,
+  maximumSanity: number = 99,
   randomInteger: RandomIntegerSource = secureRandomInteger
 ): CocPsychoanalysisOutcome => {
-  const sanity = clampSanity(currentSanity);
+  const sanity = clampSanity(currentSanity, maximumSanity);
   const skill = Math.min(100, Math.max(1, Math.trunc(psychoanalysisSkill) || 1));
   const successLevel = getCocSuccessLevel(roll, skill);
 
   if (successLevel === "fumble") {
     const loss = randomInteger(1, 6);
-    const nextSanity = clampSanity(sanity - loss);
+    const nextSanity = clampSanity(sanity - loss, maximumSanity);
     return {
       roll,
       successLevel,
-      sanityChange: -loss,
+      sanityChange: nextSanity - sanity,
       nextSanity,
       treatmentConcludes: true,
-      summary: `Fumble: lose ${loss} Sanity. Treatment by this analyst concludes.`
+      summary: `Fumble: lose ${sanity - nextSanity} Sanity. Treatment by this analyst concludes.`
     };
   }
 
@@ -60,7 +67,7 @@ export const resolveMonthlyPsychoanalysis = (
   }
 
   const gain = randomInteger(1, 3);
-  const nextSanity = clampSanity(sanity + gain);
+  const nextSanity = clampSanity(sanity + gain, maximumSanity);
   return {
     roll,
     successLevel,
