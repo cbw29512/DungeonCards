@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
+import { dndPregenClassDefinitions, type DndPregenClassDefinition } from "../data/dndPregenCatalog";
 import type { RulesetId } from "../types/ruleCards";
 import {
   createDndCharacterBlueprint,
@@ -16,6 +16,9 @@ const rulesets: Array<{ id: RulesetId; label: string }> = [
 ];
 
 const levels = Array.from({ length: 20 }, (_, index) => index + 1);
+const definitionPath = (definition: DndPregenClassDefinition) => (
+  `${definition.classId}:${definition.subclassId}`
+);
 
 const readySheetRequirements = [
   "Ability scores, modifiers, proficiency bonus, and saving throws",
@@ -44,13 +47,13 @@ const categoryLabels: Record<string, string> = {
 
 export const DndPregenLibrary = () => {
   const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
-  const [classId, setClassId] = useState("fighter");
+  const [pathId, setPathId] = useState("fighter:champion");
   const [level, setLevel] = useState(1);
 
   const definitions = dndPregenClassDefinitions.filter((definition) => definition.ruleset === ruleset);
-  const selectedDefinition = definitions.find((definition) => definition.classId === classId) ?? definitions[0];
+  const selectedDefinition = definitions.find((definition) => definitionPath(definition) === pathId) ?? definitions[0];
   const selectedSlot = selectedDefinition
-    ? getDndPregenBuildSlot(ruleset, selectedDefinition.classId, level)
+    ? getDndPregenBuildSlot(ruleset, selectedDefinition.classId, selectedDefinition.subclassId, level)
     : undefined;
   const selectedBlueprint = selectedSlot ? createDndCharacterBlueprint(selectedSlot) : undefined;
   const readiness = selectedBlueprint ? validateDndCharacterRecord(selectedBlueprint) : undefined;
@@ -59,8 +62,8 @@ export const DndPregenLibrary = () => {
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
     const nextDefinitions = dndPregenClassDefinitions.filter((definition) => definition.ruleset === nextRuleset);
-    if (!nextDefinitions.some((definition) => definition.classId === classId)) {
-      setClassId(nextDefinitions[0]?.classId ?? "fighter");
+    if (!nextDefinitions.some((definition) => definitionPath(definition) === pathId)) {
+      setPathId(nextDefinitions[0] ? definitionPath(nextDefinitions[0]) : "fighter:champion");
     }
   };
 
@@ -71,14 +74,14 @@ export const DndPregenLibrary = () => {
           <p className="pregen-library__eyebrow">Pregen Foundry · licensed build matrix</p>
           <h2 id="pregen-library-title">Every public class path. Every level. No fake completion.</h2>
           <p>
-            This foundation reserves one tested build slot for each of the twelve SRD classes at levels 1–20 in both supported editions.
+            This foundation reserves one tested build slot for each public SRD class and subclass path at levels 1–20 in both supported editions.
             A slot becomes <strong>Ready to play</strong> only after its complete character record, choices, combat actions, spells, gear, and printable sheet pass review.
           </p>
         </div>
         <div className="pregen-library__totals" aria-label="Selected edition pregen totals">
           <strong>{summary.total}</strong>
           <span>planned sheets</span>
-          <small>{summary.classes} classes × {summary.levels} levels</small>
+          <small>{summary.classes} classes · {summary.subclasses} subclasses · {summary.levels} levels</small>
         </div>
       </header>
 
@@ -98,9 +101,9 @@ export const DndPregenLibrary = () => {
       <div className="pregen-library__controls">
         <label>
           Class and public subclass path
-          <select value={selectedDefinition?.classId ?? ""} onChange={(event) => setClassId(event.target.value)}>
+          <select value={selectedDefinition ? definitionPath(selectedDefinition) : ""} onChange={(event) => setPathId(event.target.value)}>
             {definitions.map((definition) => (
-              <option key={definition.classId} value={definition.classId}>
+              <option key={definitionPath(definition)} value={definitionPath(definition)}>
                 {definition.className} · {definition.subclassName}
               </option>
             ))}
@@ -178,7 +181,7 @@ export const DndPregenLibrary = () => {
         <aside className="pregen-library__boundary">
           <h3>Subclass publishing boundary</h3>
           <p>
-            The public catalog can ship the subclass path included in each SRD. Other official subclasses from paid books are not copied into this repository.
+            The public catalog can ship subclass paths included in each SRD. Other official subclasses from paid books are not copied into this repository.
           </p>
           <p>
             Future expansion can add original compatible subclasses or a private, user-owned import layer that never publishes protected text.
