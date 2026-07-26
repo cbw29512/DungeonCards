@@ -151,6 +151,56 @@
   overflow-wrap: anywhere;
 }
 
+.pregen-library__validation {
+  border-bottom: 1px solid currentColor;
+  border-top: 1px solid currentColor;
+  margin: 1.25rem 0;
+  padding: 1.25rem 0;
+}
+
+.pregen-library__validation h4 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.pregen-library__validation > div:first-child > p:last-child {
+  max-width: 70ch;
+}
+
+.pregen-library__validation-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  margin: 1rem 0;
+}
+
+.pregen-library__validation-grid span {
+  border: 1px solid currentColor;
+  border-radius: 0.65rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  padding: 0.55rem 0.65rem;
+}
+
+.pregen-library__validation-grid span[data-complete="true"] {
+  opacity: 0.72;
+}
+
+.pregen-library__validation details {
+  margin-top: 1rem;
+}
+
+.pregen-library__validation summary {
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.pregen-library__validation ul {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 0;
+}
+
 .pregen-library__columns {
   display: grid;
   gap: 1rem;
@@ -200,7 +250,8 @@
   .pregen-library__selection,
   .pregen-library__columns > section,
   .pregen-library__boundary,
-  .pregen-library__totals {
+  .pregen-library__totals,
+  .pregen-library__validation {
     break-inside: avoid;
   }
 }
