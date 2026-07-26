@@ -1,27 +1,29 @@
-import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { describe, expect, it } from "vitest";
 
 const read = (path) => readFile(new URL(`../../${path}`, import.meta.url), "utf8");
 
-const [tracker, importer, panel, adapter, coverage] = await Promise.all([
-  read("src/components/DndEncounterTracker.tsx"),
-  read("src/components/DndMonsterEncounterImporter.tsx"),
-  read("src/components/DndMonsterLiveReferencePanel.tsx"),
-  read("src/utils/dndMonsterLiveReference.ts"),
-  read("src/data/rulesCoverageDnd.ts")
-]);
+describe("D&D monster live-reference integration", () => {
+  it("connects imported references, action sections, and recharge state", async () => {
+    const [tracker, importer, panel, adapter, coverage] = await Promise.all([
+      read("src/components/DndEncounterTracker.tsx"),
+      read("src/components/DndMonsterEncounterImporter.tsx"),
+      read("src/components/DndMonsterLiveReferencePanel.tsx"),
+      read("src/utils/dndMonsterLiveReference.ts"),
+      read("src/data/rulesCoverageDnd.ts")
+    ]);
 
-assert.match(tracker, /DndMonsterLiveReferencePanel/);
-assert.match(tracker, /setReferences=\{setMonsterReferences\}/);
-assert.match(importer, /buildDndMonsterLiveReference/);
-assert.match(importer, /actions: liveReference\.actions\.map/);
-assert.match(panel, /Roll recharge d6/);
-assert.match(panel, /spendDndTurnResource/);
-assert.match(adapter, /reference\.allActions/);
-assert.match(adapter, /reference\.bonusActions/);
-assert.match(adapter, /reference\.reactions/);
-assert.match(adapter, /reference\.legendaryActions/);
-assert.match(coverage, /complete action sections/);
-assert.match(coverage, /independent per-copy recharge state/);
-
-console.log("D&D monster live-reference integration gate passed.");
+    expect(tracker).toMatch(/DndMonsterLiveReferencePanel/);
+    expect(tracker).toMatch(/setReferences=\{setMonsterReferences\}/);
+    expect(importer).toMatch(/buildDndMonsterLiveReference/);
+    expect(importer).toMatch(/actions: liveReference\.actions\.map/);
+    expect(panel).toMatch(/Roll recharge d6/);
+    expect(panel).toMatch(/spendDndTurnResource/);
+    expect(adapter).toMatch(/reference\.allActions/);
+    expect(adapter).toMatch(/reference\.bonusActions/);
+    expect(adapter).toMatch(/reference\.reactions/);
+    expect(adapter).toMatch(/reference\.legendaryActions/);
+    expect(coverage).toMatch(/complete action sections/);
+    expect(coverage).toMatch(/independent per-copy recharge state/);
+  });
+});
