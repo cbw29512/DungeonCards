@@ -6,6 +6,8 @@ describe("Fighter Champion ready-to-play pregens", () => {
   it("publishes a complete level 1–20 ladder for both editions", () => {
     expect(dndFighterPregenRecords).toHaveLength(40);
     expect(new Set(dndFighterPregenRecords.map((record) => record.id)).size).toBe(40);
+    expect(dndFighterPregenRecords.every((record) => record.subclassId === "champion")).toBe(true);
+    expect(dndFighterPregenRecords.every((record) => record.buildSlotId.includes("-fighter-champion-"))).toBe(true);
     for (const ruleset of ["srd-5.1-2014", "srd-5.2.1-2024"] as const) {
       const records = dndFighterPregenRecords.filter((record) => record.ruleset === ruleset);
       expect(records.map((record) => record.level)).toEqual(Array.from({ length: 20 }, (_, index) => index + 1));
@@ -21,11 +23,11 @@ describe("Fighter Champion ready-to-play pregens", () => {
   });
 
   it("preserves the 2014 Fighter and Champion milestones", () => {
-    const level1 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", 1)!;
-    const level3 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", 3)!;
-    const level10 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", 10)!;
-    const level17 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", 17)!;
-    const level20 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", 20)!;
+    const level1 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", "champion", 1)!;
+    const level3 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", "champion", 3)!;
+    const level10 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", "champion", 10)!;
+    const level17 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", "champion", 17)!;
+    const level20 = getDndReadyPregenRecord("srd-5.1-2014", "fighter", "champion", 20)!;
 
     expect(level1.armorClass).toBe(19);
     expect(level1.resources.find((resource) => resource.id === "second-wind")?.maximum).toBe(1);
@@ -37,12 +39,12 @@ describe("Fighter Champion ready-to-play pregens", () => {
   });
 
   it("preserves the 2024 tactical, mastery, and Champion milestones", () => {
-    const level1 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", 1)!;
-    const level3 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", 3)!;
-    const level7 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", 7)!;
-    const level9 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", 9)!;
-    const level19 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", 19)!;
-    const level20 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", 20)!;
+    const level1 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", "champion", 1)!;
+    const level3 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", "champion", 3)!;
+    const level7 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", "champion", 7)!;
+    const level9 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", "champion", 9)!;
+    const level19 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", "champion", 19)!;
+    const level20 = getDndReadyPregenRecord("srd-5.2.1-2024", "fighter", "champion", 20)!;
 
     expect(level1.resources.find((resource) => resource.id === "second-wind")?.maximum).toBe(2);
     expect(level1.classFeatures.join(" ")).toContain("Weapon Mastery choices available: 3");
