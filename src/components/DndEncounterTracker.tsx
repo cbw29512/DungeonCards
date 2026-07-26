@@ -20,6 +20,7 @@ import { secureRandomInteger } from "../utils/randomInteger";
 import { RULESET_LABELS, type RulesetId } from "../types/ruleCards";
 import { DndCombatantEffectsPanel } from "./DndCombatantEffectsPanel";
 import { DndCombatantHealthPanel } from "./DndCombatantHealthPanel";
+import { DndMonsterEncounterImporter } from "./DndMonsterEncounterImporter";
 import "../styles/dnd-encounter-tracker.css";
 
 const emptyEncounter = (ruleset: RulesetId): DndEncounterState => ({
@@ -140,8 +141,12 @@ export const DndEncounterTracker = () => {
       </section>
 
       {!encounter.started && (
+        <DndMonsterEncounterImporter ruleset={ruleset} encounter={encounter} setEncounter={setEncounter} />
+      )}
+
+      {!encounter.started && (
         <section className="dnd-combatant-builder" aria-labelledby="combatant-builder-title">
-          <header><small>Encounter setup</small><h2 id="combatant-builder-title">Add combatants</h2></header>
+          <header><small>Manual encounter setup</small><h2 id="combatant-builder-title">Add another combatant</h2></header>
           <div className="dnd-combatant-builder__grid">
             <label>Name<input value={name} onChange={(event) => setName(event.target.value)} /></label>
             <label>Side<select value={side} onChange={(event) => setSide(event.target.value as DndCombatantSide)}>{Object.entries(sideLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
