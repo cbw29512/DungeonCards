@@ -15,7 +15,7 @@ import {
 
 describe("2024 Weapon Mastery", () => {
   it("assigns one recognized mastery to every 2024 weapon", () => {
-    expect(weaponCatalog2024).toHaveLength(39);
+    expect(weaponCatalog2024).toHaveLength(38);
     for (const weapon of weaponCatalog2024) {
       expect(weapon.mastery).toBeTruthy();
       expect(weaponMasteryOrder).toContain(weapon.mastery);
