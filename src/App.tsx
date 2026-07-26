@@ -3,6 +3,7 @@ import { CocPreview } from "./components/CocPreview";
 import { DeckGrid } from "./components/DeckGrid";
 import { DndArmorLoadout } from "./components/DndArmorLoadout";
 import { DndConditionsLibrary } from "./components/DndConditionsLibrary";
+import { DndHealthTracker } from "./components/DndHealthTracker";
 import { DndMovementLibrary } from "./components/DndMovementLibrary";
 import { DndRulesGuide } from "./components/DndRulesGuide";
 import { DndWeaponMasteryLibrary } from "./components/DndWeaponMasteryLibrary";
@@ -58,6 +59,7 @@ const pageLabels: Record<DndAppPage, string> = {
   coverage: "Rules Coverage",
   conditions: "Conditions & Exhaustion",
   movement: "Movement & Special Actions",
+  health: "HP & Death Saves",
   mastery: "Weapon Mastery",
   armor: "Armor & Loadout",
   compendium: "SRD Compendium",
@@ -127,6 +129,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <button aria-pressed={activePage === "coverage"} type="button" onClick={() => navigate("coverage")}>Coverage</button>
           <button aria-pressed={activePage === "conditions"} type="button" onClick={() => navigate("conditions")}>Conditions</button>
           <button aria-pressed={activePage === "movement"} type="button" onClick={() => navigate("movement")}>Movement</button>
+          <button aria-pressed={activePage === "health"} type="button" onClick={() => navigate("health")}>Health</button>
           <button aria-pressed={activePage === "mastery"} type="button" onClick={() => navigate("mastery")}>Mastery</button>
           <button aria-pressed={activePage === "armor"} type="button" onClick={() => navigate("armor")}>Armor</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
@@ -164,6 +167,10 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
                 <button className="role-card" type="button" onClick={() => navigate("movement")}>
                   <span aria-hidden="true">🏃</span><strong>Movement &amp; Special Actions</strong>
                   <small>Calculate movement, jumps, cover, grapples, shoves, hiding, and Opportunity Attacks.</small>
+                </button>
+                <button className="role-card" type="button" onClick={() => navigate("health")}>
+                  <span aria-hidden="true">❤️</span><strong>HP &amp; Death Saves</strong>
+                  <small>Track damage, Temporary HP, massive damage, stabilization, Bloodied, and Death Saves.</small>
                 </button>
                 <button className="role-card" type="button" onClick={() => navigate("mastery")}>
                   <span aria-hidden="true">⚔️</span><strong>Weapon Mastery</strong>
@@ -206,6 +213,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         {activePage === "coverage" && <RulesCoverageDashboard />}
         {activePage === "conditions" && <DndConditionsLibrary />}
         {activePage === "movement" && <DndMovementLibrary />}
+        {activePage === "health" && <DndHealthTracker />}
         {activePage === "mastery" && <DndWeaponMasteryLibrary />}
         {activePage === "armor" && <DndArmorLoadout />}
         {activePage === "compendium" && <SrdCompendium />}
