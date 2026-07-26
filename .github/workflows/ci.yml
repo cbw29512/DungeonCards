@@ -35,24 +35,19 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Run unit tests
-        run: |
-          set -o pipefail
-          npm test 2>&1 | tee test-output.log
+        run: npm test
 
       - name: Build production bundle
         run: |
           set -o pipefail
           npm run build 2>&1 | tee build-output.log
 
-      - name: Upload failure diagnostics
+      - name: Upload build failure log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostic-output
-          if-no-files-found: ignore
-          path: |
-            test-output.log
-            build-output.log
+          name: build-output
+          path: build-output.log
 
   generate-srd-catalogs:
     if: github.head_ref == 'agent/full-srd-catalog-foundation' || github.ref_name == 'agent/full-srd-catalog-foundation'
