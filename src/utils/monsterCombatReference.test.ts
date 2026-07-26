@@ -53,7 +53,26 @@ describe("buildMonsterCombatReference", () => {
     expect(reference.initiative).toBe("-1 (DEX 9)");
   });
 
-  it("prioritizes actionable combat entries and records other action types", () => {
+  it("parses flattened stat fields and complete inline action sections", () => {
+    const reference = buildMonsterCombatReference({
+      ...monster,
+      rawText: "Armor Class 17 Hit Points 152 Speed 40 ft. STR DEX CON INT WIS CHA 23 (+6) 14 (+2) 19 (+4) 10 (+0) 13 (+1) 15 (+2) Saving Throws Dex +6, Con +8 Skills Perception +9 Damage Resistances fire Senses blindsight 30 ft., passive Perception 19 Languages Common, Draconic Challenge 10",
+      actions: "Multiattack. The drake makes two attacks. Bite. Melee Weapon Attack: +9 to hit, reach 10 ft., one target. Hit: 15 piercing damage. Fire Breath (Recharge 5–6). Each creature in a 30-foot cone must make a DC 17 DEX saving throw."
+    });
+
+    expect(reference.savingThrows).toBe("Dex +6, Con +8");
+    expect(reference.skills).toBe("Perception +9");
+    expect(reference.senses).toBe("blindsight 30 ft., passive Perception 19");
+    expect(reference.languages).toBe("Common, Draconic");
+    expect(reference.allActions.map((action) => action.name)).toEqual([
+      "Multiattack",
+      "Bite",
+      "Fire Breath (Recharge 5–6)"
+    ]);
+    expect(reference.allActions[1].reachOrRange).toContain("reach 10 ft.");
+  });
+
+  it("prioritizes quick actions while retaining complete action sections", () => {
     const reference = buildMonsterCombatReference(monster);
 
     expect(reference.actions.map((action) => action.name)).toEqual([
@@ -61,6 +80,10 @@ describe("buildMonsterCombatReference", () => {
       "Bite",
       "Fire Breath (Recharge 5–6)"
     ]);
+    expect(reference.allActions).toHaveLength(3);
+    expect(reference.bonusActions.map((action) => action.name)).toEqual(["Wing Shift"]);
+    expect(reference.reactions.map((action) => action.name)).toEqual(["Tail Guard"]);
+    expect(reference.legendaryActions.map((action) => action.name)).toEqual(["Detect"]);
     expect(reference.actions[1].summary).toContain("+9 to hit");
     expect(reference.actions[2].summary).toContain("DC 17 DEX saving throw");
     expect(reference.hasBonusActions).toBe(true);
@@ -81,6 +104,7 @@ describe("buildMonsterCombatReference", () => {
     expect(reference.abilities).toEqual([]);
     expect(reference.initiative).toBe("See full stat block");
     expect(reference.actions).toEqual([]);
+    expect(reference.allActions).toEqual([]);
     expect(reference.hasReactions).toBe(false);
   });
 });
