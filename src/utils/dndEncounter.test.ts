@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  addDndCombatantEffect,
   advanceDndTurn,
   calculateDndConcentrationDc,
   createDndCombatant,
   isDndTurnRestrictedBySurprise,
   moveDndCombatant,
+  removeDndCombatantEffect,
   resolveDndConcentrationSave,
+  resolveDndEffectSave,
   sortDndInitiative,
   spendDndMovement,
   spendDndTurnResource,
@@ -29,7 +32,7 @@ const combatant = (
   ruleset
 });
 
-describe("D&D initiative and concentration engine", () => {
+describe("D&D initiative, concentration, and effect engine", () => {
   it("sorts initiative descending while preserving manual tie order", () => {
     const ordered = sortDndInitiative([
       combatant("alpha", 15),
@@ -94,5 +97,80 @@ describe("D&D initiative and concentration engine", () => {
       roll: 8,
       constitutionSaveBonus: 3
     })).toEqual({ dc: 11, total: 11, maintained: true });
+  });
+
+  it("expires start-turn and end-turn effects at the correct boundary", () => {
+    let state = startDndEncounter("srd-5.2.1-2024", [combatant("alpha", 20), combatant("bravo", 10)]);
+    state = addDndCombatantEffect(state, "alpha", {
+      id: "end-effect",
+      name: "Ends after this turn",
+      remainingRounds: 1,
+      tickTiming: "end",
+      breaksConcentration: false
+    });
+    state = addDndCombatantEffect(state, "bravo", {
+      id: "start-effect",
+      name: "Ends when turn begins",
+      remainingRounds: 1,
+      tickTiming: "start",
+      breaksConcentration: false
+    });
+    state = addDndCombatantEffect(state, "bravo", {
+      id: "manual-effect",
+      name: "Manual duration",
+      remainingRounds: 1,
+      tickTiming: "manual",
+      breaksConcentration: false
+    });
+
+    state = advanceDndTurn(state);
+    expect(state.combatants.find((item) => item.id === "alpha")?.effects).toHaveLength(0);
+    expect(state.combatants.find((item) => item.id === "bravo")?.effects.map((effect) => effect.id)).toEqual(["manual-effect"]);
+  });
+
+  it("removes an effect on a successful save and keeps it on failure", () => {
+    let state = startDndEncounter("srd-5.2.1-2024", [combatant("target", 15)]);
+    state = addDndCombatantEffect(state, "target", {
+      id: "restrained",
+      name: "Restrained",
+      tickTiming: "manual",
+      saveAbility: "Strength",
+      saveDc: 14,
+      breaksConcentration: false
+    });
+
+    const failed = resolveDndEffectSave(state, "target", "restrained", 8, 3);
+    expect(failed).toMatchObject({ total: 11, succeeded: false });
+    expect(failed.state.combatants[0].effects).toHaveLength(1);
+
+    const succeeded = resolveDndEffectSave(state, "target", "restrained", 12, 3);
+    expect(succeeded).toMatchObject({ total: 15, succeeded: true });
+    expect(succeeded.state.combatants[0].effects).toHaveLength(0);
+  });
+
+  it("breaks concentration when an incapacitating effect is applied", () => {
+    let state = startDndEncounter("srd-5.2.1-2024", [combatant("caster", 15)]);
+    state = startDndConcentration(state, "caster", "Bless");
+    state = addDndCombatantEffect(state, "caster", {
+      id: "paralyzed",
+      name: "Paralyzed",
+      conditionId: "paralyzed-2024",
+      tickTiming: "manual",
+      breaksConcentration: true
+    });
+    expect(state.combatants[0].concentration).toBeUndefined();
+    expect(state.combatants[0].effects[0].name).toBe("Paralyzed");
+  });
+
+  it("removes effects manually", () => {
+    let state = startDndEncounter("srd-5.2.1-2024", [combatant("target", 15)]);
+    state = addDndCombatantEffect(state, "target", {
+      id: "effect",
+      name: "Marked",
+      tickTiming: "manual",
+      breaksConcentration: false
+    });
+    state = removeDndCombatantEffect(state, "target", "effect");
+    expect(state.combatants[0].effects).toHaveLength(0);
   });
 });

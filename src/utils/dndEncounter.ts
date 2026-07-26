@@ -1,9 +1,22 @@
 import type { RulesetId } from "../types/ruleCards";
 
 export type DndCombatantSide = "player" | "ally" | "enemy";
+export type DndEffectTickTiming = "start" | "end" | "manual";
 
 export type DndConcentrationState = {
   effectName: string;
+};
+
+export type DndCombatantEffect = {
+  id: string;
+  name: string;
+  conditionId?: string;
+  remainingRounds?: number;
+  tickTiming: DndEffectTickTiming;
+  saveAbility?: string;
+  saveDc?: number;
+  notes?: string;
+  breaksConcentration: boolean;
 };
 
 export type DndCombatant = {
@@ -20,6 +33,7 @@ export type DndCombatant = {
   surprised: boolean;
   surprisePending: boolean;
   concentration?: DndConcentrationState;
+  effects: DndCombatantEffect[];
 };
 
 export type DndEncounterState = {
@@ -64,7 +78,8 @@ export const createDndCombatant = ({
   reactionAvailable: ruleset === "srd-5.1-2014" ? !surprised : true,
   surprised,
   surprisePending: surprised,
-  concentration: undefined
+  concentration: undefined,
+  effects: []
 });
 
 export const sortDndInitiative = (combatants: DndCombatant[]): DndCombatant[] =>
@@ -72,6 +87,18 @@ export const sortDndInitiative = (combatants: DndCombatant[]): DndCombatant[] =>
     .map((combatant, index) => ({ combatant, index }))
     .sort((left, right) => right.combatant.initiative - left.combatant.initiative || left.index - right.index)
     .map(({ combatant }) => combatant);
+
+const tickDndEffects = (
+  combatant: DndCombatant,
+  timing: Exclude<DndEffectTickTiming, "manual">
+): DndCombatant => ({
+  ...combatant,
+  effects: combatant.effects
+    .map((effect) => effect.tickTiming === timing && effect.remainingRounds !== undefined
+      ? { ...effect, remainingRounds: Math.max(0, effect.remainingRounds - 1) }
+      : effect)
+    .filter((effect) => effect.remainingRounds === undefined || effect.remainingRounds > 0)
+});
 
 const resetTurnResources = (
   ruleset: RulesetId,
@@ -94,7 +121,7 @@ export const startDndEncounter = (
     ...combatant,
     reactionAvailable: ruleset === "srd-5.1-2014" ? !combatant.surprisePending : true
   }));
-  if (ordered.length > 0) ordered[0] = resetTurnResources(ruleset, ordered[0]);
+  if (ordered.length > 0) ordered[0] = tickDndEffects(resetTurnResources(ruleset, ordered[0]), "start");
   return { ruleset, round: ordered.length > 0 ? 1 : 0, currentIndex: 0, started: ordered.length > 0, combatants: ordered };
 };
 
@@ -106,7 +133,7 @@ export const isDndTurnRestrictedBySurprise = (
 export const advanceDndTurn = (input: DndEncounterState): DndEncounterState => {
   if (!input.started || input.combatants.length === 0) return input;
   const combatants = [...input.combatants];
-  const current = combatants[input.currentIndex];
+  const current = tickDndEffects(combatants[input.currentIndex], "end");
   combatants[input.currentIndex] = {
     ...current,
     surprisePending: false,
@@ -115,7 +142,10 @@ export const advanceDndTurn = (input: DndEncounterState): DndEncounterState => {
 
   const wraps = input.currentIndex >= combatants.length - 1;
   const currentIndex = wraps ? 0 : input.currentIndex + 1;
-  combatants[currentIndex] = resetTurnResources(input.ruleset, combatants[currentIndex]);
+  combatants[currentIndex] = tickDndEffects(
+    resetTurnResources(input.ruleset, combatants[currentIndex]),
+    "start"
+  );
 
   return {
     ...input,
@@ -148,6 +178,55 @@ export const updateDndCombatant = (
   ...state,
   combatants: state.combatants.map((combatant) => combatant.id === combatantId ? { ...combatant, ...patch } : combatant)
 });
+
+export const addDndCombatantEffect = (
+  state: DndEncounterState,
+  combatantId: string,
+  effect: DndCombatantEffect
+): DndEncounterState => {
+  const combatant = state.combatants.find((candidate) => candidate.id === combatantId);
+  if (!combatant || !effect.name.trim()) return state;
+  return updateDndCombatant(state, combatantId, {
+    effects: [...combatant.effects, {
+      ...effect,
+      name: effect.name.trim(),
+      remainingRounds: effect.remainingRounds === undefined ? undefined : Math.max(1, whole(effect.remainingRounds, 1)),
+      saveDc: effect.saveDc === undefined ? undefined : Math.max(1, whole(effect.saveDc, 1))
+    }],
+    concentration: effect.breaksConcentration ? undefined : combatant.concentration
+  });
+};
+
+export const removeDndCombatantEffect = (
+  state: DndEncounterState,
+  combatantId: string,
+  effectId: string
+): DndEncounterState => {
+  const combatant = state.combatants.find((candidate) => candidate.id === combatantId);
+  if (!combatant) return state;
+  return updateDndCombatant(state, combatantId, {
+    effects: combatant.effects.filter((effect) => effect.id !== effectId)
+  });
+};
+
+export const resolveDndEffectSave = (
+  state: DndEncounterState,
+  combatantId: string,
+  effectId: string,
+  roll: number,
+  saveBonus: number
+): { state: DndEncounterState; total: number; succeeded: boolean } => {
+  const combatant = state.combatants.find((candidate) => candidate.id === combatantId);
+  const effect = combatant?.effects.find((candidate) => candidate.id === effectId);
+  const total = Math.min(20, Math.max(1, whole(roll, 1))) + Math.trunc(saveBonus);
+  if (!combatant || !effect?.saveDc) return { state, total, succeeded: false };
+  const succeeded = total >= effect.saveDc;
+  return {
+    state: succeeded ? removeDndCombatantEffect(state, combatantId, effectId) : state,
+    total,
+    succeeded
+  };
+};
 
 export const spendDndTurnResource = (
   state: DndEncounterState,

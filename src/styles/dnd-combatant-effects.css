@@ -1,0 +1,205 @@
+.dnd-combatant-effects {
+  display: grid;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgb(247 199 107 / 22%);
+  border-radius: 0.85rem;
+  background: rgb(26 17 35 / 88%);
+  gap: 0.85rem;
+}
+
+.dnd-combatant-effects > header,
+.dnd-selected-condition > header,
+.dnd-effect-roster > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dnd-combatant-effects > header small {
+  color: #d9c9b8;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dnd-combatant-effects h2 {
+  margin: 0.2rem 0;
+  color: #fff0c2;
+}
+
+.dnd-combatant-effects > header > strong {
+  padding: 0.35rem 0.55rem;
+  color: #c8f3d7;
+  border-radius: 999px;
+  background: rgb(52 122 78 / 22%);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.dnd-effect-boundary {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  color: #d9cfde;
+  border-left: 3px solid #d09d55;
+  background: rgb(125 80 20 / 17%);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.dnd-effect-builder {
+  display: grid;
+  align-items: end;
+  gap: 0.6rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dnd-effect-builder button,
+.dnd-effect-roster button {
+  min-height: 42px;
+  padding: 0.48rem 0.72rem;
+  color: #f4e7cf;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.dnd-effect-builder button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.dnd-selected-condition,
+.dnd-effect-roster {
+  padding: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 20%);
+}
+
+.dnd-selected-condition header strong,
+.dnd-effect-roster header strong {
+  color: #fff0c2;
+}
+
+.dnd-selected-condition header a {
+  color: #c8f3d7;
+  font-size: 0.68rem;
+}
+
+.dnd-selected-condition p {
+  margin: 0.55rem 0 0;
+  color: #d9cfde;
+  line-height: 1.5;
+}
+
+.dnd-effect-roster > header {
+  align-items: end;
+}
+
+.dnd-effect-roster > header label {
+  width: min(170px, 100%);
+}
+
+.dnd-effect-roster ul {
+  display: grid;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+  gap: 0.45rem;
+}
+
+.dnd-effect-roster li {
+  display: grid;
+  align-items: center;
+  padding: 0.55rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 5%);
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.45rem;
+}
+
+.dnd-effect-roster li div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.dnd-effect-roster li strong {
+  color: #efe4f1;
+}
+
+.dnd-effect-roster li small {
+  color: #aaa4b1;
+  font-size: 0.67rem;
+}
+
+.dnd-combatant-effects output {
+  padding: 0.6rem 0.7rem;
+  color: #e8ddf3;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 5%);
+}
+
+.dnd-effect-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.dnd-effect-tags span {
+  padding: 0.3rem 0.5rem;
+  color: #f0defe;
+  border: 1px solid rgb(185 132 238 / 28%);
+  border-radius: 999px;
+  background: rgb(94 56 144 / 22%);
+  font-size: 0.64rem;
+}
+
+@media (max-width: 980px) {
+  .dnd-effect-builder {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .dnd-combatant-effects > header,
+  .dnd-selected-condition > header,
+  .dnd-effect-roster > header {
+    display: grid;
+  }
+
+  .dnd-effect-builder {
+    grid-template-columns: 1fr;
+  }
+
+  .dnd-effect-roster li {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .dnd-effect-builder,
+  .dnd-combatant-effects button,
+  .dnd-combatant-effects input,
+  .dnd-combatant-effects select,
+  .dnd-effect-boundary {
+    display: none !important;
+  }
+
+  .dnd-combatant-effects,
+  .dnd-selected-condition,
+  .dnd-effect-roster,
+  .dnd-effect-roster li {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .dnd-combatant-effects,
+  .dnd-effect-roster li {
+    break-inside: avoid;
+  }
+}
