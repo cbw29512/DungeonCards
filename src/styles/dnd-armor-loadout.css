@@ -1,0 +1,375 @@
+.dnd-armor-loadout {
+  display: grid;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 2rem auto 5rem;
+  gap: 1.25rem;
+}
+
+.dnd-armor-loadout__heading,
+.dnd-armor-loadout__ruleset,
+.dnd-loadout-calculator,
+.dnd-armor-procedures,
+.dnd-armor-catalog,
+.dnd-armor-sources {
+  padding: clamp(1rem, 3vw, 1.6rem);
+  border: 1px solid rgb(239 193 107 / 23%);
+  border-radius: 0.85rem;
+  background: rgb(24 17 34 / 88%);
+}
+
+.dnd-armor-loadout__heading p,
+.dnd-armor-procedures > header small,
+.dnd-armor-catalog > header small,
+.dnd-loadout-result small {
+  margin: 0;
+  color: #d7c9b8;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dnd-armor-loadout__heading h1,
+.dnd-armor-procedures h2,
+.dnd-armor-catalog h2,
+.dnd-loadout-result h2 {
+  margin: 0.25rem 0;
+  color: #fff0c2;
+}
+
+.dnd-armor-loadout__heading span {
+  display: block;
+  max-width: 780px;
+  color: #d9cfde;
+  line-height: 1.55;
+}
+
+.dnd-armor-loadout__ruleset,
+.dnd-armor-catalog > header,
+.dnd-loadout-result > header,
+.dnd-armor-sources {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dnd-armor-loadout__ruleset fieldset {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  gap: 0.5rem;
+}
+
+.dnd-armor-loadout__ruleset legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.dnd-armor-loadout button,
+.dnd-armor-loadout input,
+.dnd-armor-loadout select {
+  min-height: 42px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.55rem;
+}
+
+.dnd-armor-loadout button {
+  padding: 0.5rem 0.7rem;
+  color: #f4e7cf;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.dnd-armor-loadout button[aria-pressed="true"] {
+  color: #201329;
+  border-color: #f1ca77;
+  background: #f1ca77;
+}
+
+.dnd-armor-loadout input,
+.dnd-armor-loadout select {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  color: #f8efe0;
+  background: #251633;
+}
+
+.dnd-armor-loadout label {
+  display: grid;
+  color: #d9c9b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  gap: 0.3rem;
+}
+
+.dnd-armor-loadout__ruleset > strong,
+.dnd-armor-catalog > header > strong {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.65rem;
+  color: #c8f3d7;
+  border: 1px solid rgb(122 207 154 / 34%);
+  border-radius: 999px;
+  background: rgb(52 122 78 / 18%);
+  font-size: 0.68rem;
+}
+
+.dnd-loadout-calculator {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.28fr);
+}
+
+.dnd-loadout-controls,
+.dnd-loadout-result,
+.dnd-loadout-effects,
+.dnd-armor-procedures,
+.dnd-armor-catalog {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.dnd-loadout-control-grid {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dnd-loadout-checks {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.dnd-loadout-checks label {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.65rem;
+  border-radius: 0.55rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.55rem;
+}
+
+.dnd-loadout-checks input {
+  width: auto;
+  min-height: auto;
+  margin-top: 0.1rem;
+}
+
+.dnd-loadout-result {
+  padding: 1rem;
+  border: 1px solid rgb(241 202 119 / 25%);
+  border-radius: 0.7rem;
+  background: rgb(0 0 0 / 22%);
+}
+
+.dnd-loadout-result > header > strong {
+  color: #c8f3d7;
+  font-size: 1.05rem;
+}
+
+.dnd-loadout-result dl {
+  display: grid;
+  margin: 0;
+  gap: 0.5rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.dnd-loadout-result dl div {
+  display: grid;
+  padding: 0.65rem;
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 5%);
+  gap: 0.15rem;
+}
+
+.dnd-loadout-result dt {
+  color: #d7c9b8;
+  font-size: 0.56rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dnd-loadout-result dd {
+  margin: 0;
+  color: #fff0c2;
+  font-weight: 800;
+}
+
+.dnd-loadout-effects p {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  color: #d9cfde;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 4%);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.dnd-loadout-effects .is-good {
+  color: #c8f3d7;
+  background: rgb(52 122 78 / 20%);
+}
+
+.dnd-loadout-effects .is-warning {
+  color: #ffe2a6;
+  background: rgb(125 80 20 / 22%);
+}
+
+.dnd-loadout-effects .is-danger {
+  color: #ffd4c7;
+  background: rgb(126 45 33 / 24%);
+}
+
+.dnd-armor-procedures > div {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dnd-armor-procedures article {
+  padding: 0.85rem;
+  border: 1px solid rgb(255 255 255 / 11%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 18%);
+}
+
+.dnd-armor-procedures h3 {
+  margin: 0 0 0.45rem;
+  color: #fff0c2;
+}
+
+.dnd-armor-procedures p,
+.dnd-armor-procedures li {
+  color: #d9cfde;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.dnd-armor-procedures ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.dnd-armor-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.dnd-armor-grid button {
+  display: grid;
+  min-height: 170px;
+  padding: 0.8rem;
+  text-align: left;
+  align-content: start;
+  gap: 0.3rem;
+}
+
+.dnd-armor-grid button > span,
+.dnd-armor-grid button > em,
+.dnd-armor-grid button > i {
+  font-style: normal;
+}
+
+.dnd-armor-grid button > span {
+  color: #c8f3d7;
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dnd-armor-grid button > strong {
+  color: #fff0c2;
+}
+
+.dnd-armor-grid button > small,
+.dnd-armor-grid button > em,
+.dnd-armor-grid button > i {
+  color: #d7c9b8;
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+
+.dnd-armor-grid button[aria-pressed="true"] > strong,
+.dnd-armor-grid button[aria-pressed="true"] > span,
+.dnd-armor-grid button[aria-pressed="true"] > small,
+.dnd-armor-grid button[aria-pressed="true"] > em,
+.dnd-armor-grid button[aria-pressed="true"] > i {
+  color: #201329;
+}
+
+.dnd-armor-sources {
+  flex-wrap: wrap;
+}
+
+.dnd-armor-sources a {
+  color: #c8f3d7;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 850px) {
+  .dnd-loadout-calculator {
+    grid-template-columns: 1fr;
+  }
+
+  .dnd-loadout-result dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dnd-armor-procedures > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .dnd-armor-loadout__ruleset,
+  .dnd-armor-catalog > header,
+  .dnd-loadout-result > header,
+  .dnd-armor-sources {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dnd-armor-loadout__ruleset fieldset {
+    display: grid;
+  }
+
+  .dnd-loadout-control-grid,
+  .dnd-loadout-result dl {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media print {
+  .dnd-armor-loadout__ruleset,
+  .dnd-loadout-controls,
+  .dnd-armor-loadout button,
+  .dnd-armor-loadout input,
+  .dnd-armor-loadout select {
+    display: none !important;
+  }
+
+  .dnd-armor-loadout,
+  .dnd-armor-loadout__heading,
+  .dnd-loadout-calculator,
+  .dnd-loadout-result,
+  .dnd-armor-procedures,
+  .dnd-armor-catalog,
+  .dnd-armor-sources,
+  .dnd-armor-procedures article {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .dnd-loadout-result,
+  .dnd-armor-procedures article,
+  .dnd-armor-grid button {
+    break-inside: avoid;
+  }
+}
