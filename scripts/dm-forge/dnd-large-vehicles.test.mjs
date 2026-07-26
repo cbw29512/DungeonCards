@@ -21,7 +21,8 @@ describe("D&D large vehicle product integration", () => {
     expect(component).toContain("Do not backfill 2024 ship statistics");
     expect(component).toContain('ruleset === "srd-5.1-2014"');
     expect(utility).toContain('ruleset === "srd-5.2.1-2024"');
-    expect(utility).toContain("available: false");
+    expect(utility).toContain("available: Boolean(stats)");
+    expect(utility).toContain("days: available ?");
   });
 
   it("preserves edition catalog and unpublished boundaries", () => {
