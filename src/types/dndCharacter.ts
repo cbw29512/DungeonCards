@@ -48,6 +48,7 @@ export type DndCharacterRecord = {
   name: string;
   classId: DndPregenClassId;
   className: string;
+  subclassId: string;
   subclassName: string;
   subclassUnlockLevel: number;
   level: number;
