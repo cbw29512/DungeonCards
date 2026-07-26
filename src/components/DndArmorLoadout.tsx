@@ -13,6 +13,7 @@ import {
   calculateLoadoutWeight
 } from "../utils/dndArmor";
 import { DndContainersPacks } from "./DndContainersPacks";
+import { DndLargeVehicles } from "./DndLargeVehicles";
 import { DndMountCargo } from "./DndMountCargo";
 import "../styles/dnd-armor-loadout.css";
 
@@ -77,9 +78,9 @@ export const DndArmorLoadout = () => {
   return (
     <section className="dnd-armor-loadout" aria-labelledby="dnd-armor-loadout-title">
       <header className="dnd-armor-loadout__heading">
-        <p>Armor, shields, and carrying</p>
+        <p>Equipment and loadout</p>
         <h1 id="dnd-armor-loadout-title">Calculate the loadout in the edition actually being played.</h1>
-        <span>Armor statistics are shared, but training language, shield use, mount capacity, storage, packs, and the optional encumbrance rule are kept edition-specific.</span>
+        <span>Armor, carrying, mounts, storage, packs, and large vehicles follow one edition selector so 2014 and 2024 procedures never blend silently.</span>
       </header>
 
       <div className="dnd-armor-loadout__ruleset">
@@ -175,6 +176,7 @@ export const DndArmorLoadout = () => {
 
       <DndMountCargo ruleset={ruleset} />
       <DndContainersPacks ruleset={ruleset} />
+      <DndLargeVehicles ruleset={ruleset} />
 
       <footer className="dnd-armor-sources">
         <a href={editionRules.armorSourceUrl} target="_blank" rel="noreferrer">{editionRules.armorSourceReference}</a>
