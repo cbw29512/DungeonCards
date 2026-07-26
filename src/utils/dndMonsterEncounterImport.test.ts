@@ -11,6 +11,9 @@ describe("D&D SRD monster encounter import", () => {
     const srdEntries = encounterMonsterCatalog.filter((entry) => entry.ruleset !== "homebrew");
     expect(srdEntries.length).toBeGreaterThan(600);
 
+    const sample2024 = srdEntries.find((entry) => entry.ruleset === "srd-5.2.1-2024" && entry.kind === "generated");
+    if (sample2024?.kind === "generated") console.error("MONSTER_2024_RAW", sample2024.monster.rawText);
+
     const unresolved = srdEntries
       .map((entry) => buildDndMonsterEncounterDefaults(entry))
       .filter((defaults) => defaults.issues.length > 0)
