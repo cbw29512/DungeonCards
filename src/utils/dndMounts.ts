@@ -12,7 +12,8 @@ export type DndMountTeamCalculation = {
   vehicleWeight: number;
   cargoWeight: number;
   totalPulledWeight: number;
-  remainingCargoCapacity: number;
+  maximumCargoWeight: number;
+  remainingCapacityAfterLoad: number;
   withinPulledMaximum: boolean;
   animalPurchaseCostGp: number;
   vehiclePurchaseCostGp: number;
@@ -40,7 +41,8 @@ export const calculateDndMountTeam = ({
   const teamCarryingCapacity = mount.carryingCapacity[ruleset] * count;
   const pulledWeightMaximum = teamCarryingCapacity * 5;
   const totalPulledWeight = vehicle.weightPounds + cargo;
-  const remainingCargoCapacity = Math.max(0, pulledWeightMaximum - vehicle.weightPounds);
+  const maximumCargoWeight = Math.max(0, pulledWeightMaximum - vehicle.weightPounds);
+  const remainingCapacityAfterLoad = Math.max(0, pulledWeightMaximum - totalPulledWeight);
   const animalPurchaseCostGp = mount.costGp * count;
 
   return {
@@ -50,7 +52,8 @@ export const calculateDndMountTeam = ({
     vehicleWeight: vehicle.weightPounds,
     cargoWeight: cargo,
     totalPulledWeight,
-    remainingCargoCapacity,
+    maximumCargoWeight,
+    remainingCapacityAfterLoad,
     withinPulledMaximum: totalPulledWeight <= pulledWeightMaximum,
     animalPurchaseCostGp,
     vehiclePurchaseCostGp: vehicle.costGp,
