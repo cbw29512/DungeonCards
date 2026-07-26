@@ -6,6 +6,7 @@ import { DndConditionsLibrary } from "./components/DndConditionsLibrary";
 import { DndEncounterTracker } from "./components/DndEncounterTracker";
 import { DndHealthTracker } from "./components/DndHealthTracker";
 import { DndMovementLibrary } from "./components/DndMovementLibrary";
+import { DndPregenLibrary } from "./components/DndPregenLibrary";
 import { DndRulesGuide } from "./components/DndRulesGuide";
 import { DndWeaponMasteryLibrary } from "./components/DndWeaponMasteryLibrary";
 import { GameSystemGateway, type GameSystemId } from "./components/GameSystemGateway";
@@ -39,6 +40,7 @@ import "./styles/rules-guide.css";
 import "./styles/srd-compendium.css";
 import "./styles/srd-spell-casting.css";
 import "./styles/workspaces.css";
+import "./styles/dnd-pregens.css";
 import "./styles/monsters.css";
 import "./styles/monster-combat-reference.css";
 import "./styles/monster-card-flip.css";
@@ -65,6 +67,7 @@ const pageLabels: Record<DndAppPage, string> = {
   mastery: "Weapon Mastery",
   armor: "Armor & Loadout",
   compendium: "SRD Compendium",
+  pregens: "Premade Characters",
   player: "Player Workspace",
   dm: "DM Workspace",
   monster: "Monster Encounter",
@@ -136,6 +139,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <button aria-pressed={activePage === "mastery"} type="button" onClick={() => navigate("mastery")}>Mastery</button>
           <button aria-pressed={activePage === "armor"} type="button" onClick={() => navigate("armor")}>Armor</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
+          <button aria-pressed={activePage === "pregens"} type="button" onClick={() => navigate("pregens")}>Pregens</button>
           <button aria-pressed={activePage === "player"} type="button" onClick={() => navigate("player")}>Player</button>
           <button aria-pressed={activePage === "dm"} type="button" onClick={() => navigate("dm")}>DM</button>
           <button aria-pressed={activePage === "monster"} type="button" onClick={() => navigate("monster")}>Encounter</button>
@@ -191,6 +195,10 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
                   <span aria-hidden="true">📚</span><strong>SRD Compendium</strong>
                   <small>Search all generated SRD 5.1 and 5.2.1 spell and monster references.</small>
                 </button>
+                <button className="role-card" type="button" onClick={() => navigate("pregens")}>
+                  <span aria-hidden="true">🧑‍🤝‍🧑</span><strong>Premade Characters</strong>
+                  <small>Pick a verified ready-to-play character by class, subclass, edition, and level.</small>
+                </button>
                 <button className="role-card" type="button" onClick={() => navigate("player")}>
                   <span aria-hidden="true">🧙</span><strong>Player Workspace</strong>
                   <small>Keep attacks, damage, spells, checks, and saves on My Table.</small>
@@ -225,6 +233,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         {activePage === "mastery" && <DndWeaponMasteryLibrary />}
         {activePage === "armor" && <DndArmorLoadout />}
         {activePage === "compendium" && <SrdCompendium />}
+        {activePage === "pregens" && <DndPregenLibrary />}
 
         {activePage === "player" && (
           <RulesDeck
