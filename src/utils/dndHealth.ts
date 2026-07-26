@@ -79,15 +79,26 @@ export const applyDndDamage = (
   const damageAfterTemporary = damage - temporaryHitPointsLost;
   const temporaryHitPoints = state.temporaryHitPoints - temporaryHitPointsLost;
 
+  if (damageAfterTemporary === 0) {
+    return {
+      state: { ...state, temporaryHitPoints },
+      temporaryHitPointsLost,
+      hitPointsLost: 0,
+      massiveDamageRemainder: 0,
+      deathFailuresAdded: 0,
+      summary: "Temporary Hit Points absorbed all incoming damage."
+    };
+  }
+
   if (state.currentHitPoints === 0) {
-    if (damage >= state.maximumHitPoints) {
+    if (damageAfterTemporary >= state.maximumHitPoints) {
       return {
         state: { ...state, temporaryHitPoints, lifeState: "dead", deathSaveSuccesses: 0, deathSaveFailures: 0 },
         temporaryHitPointsLost,
         hitPointsLost: 0,
-        massiveDamageRemainder: damage,
+        massiveDamageRemainder: damageAfterTemporary,
         deathFailuresAdded: 0,
-        summary: "Damage at 0 HP equaled or exceeded the Hit Point maximum: instant death."
+        summary: "Damage remaining after Temporary HP equaled or exceeded the Hit Point maximum: instant death."
       };
     }
     const deathFailuresAdded = criticalHit ? 2 : 1;
@@ -105,7 +116,7 @@ export const applyDndDamage = (
       hitPointsLost: 0,
       massiveDamageRemainder: 0,
       deathFailuresAdded,
-      summary: died ? "Damage at 0 HP caused the third Death Save failure: death." : `${criticalHit ? "Critical damage" : "Damage"} at 0 HP caused ${deathFailuresAdded} Death Save failure${deathFailuresAdded === 1 ? "" : "s"}.`
+      summary: died ? "Damage at 0 HP caused the third Death Save failure: death." : `${criticalHit ? "Critical damage" : "Damage"} remaining after Temporary HP caused ${deathFailuresAdded} Death Save failure${deathFailuresAdded === 1 ? "" : "s"}.`
     };
   }
 
