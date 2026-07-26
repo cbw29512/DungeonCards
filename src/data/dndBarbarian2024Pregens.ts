@@ -42,12 +42,13 @@ const classFeatures2024 = (level: number): string[] => [
     [1, "Weapon Mastery: use selected Simple or Martial Melee weapon mastery properties"],
     [2, "Danger Sense: Advantage on Dexterity saves unless incapacitated"],
     [2, "Reckless Attack: Strength attacks gain Advantage until next turn; attacks against you gain Advantage"],
-    [3, "Primal Knowledge: gain another Barbarian skill; use Strength for selected skills while raging"],
+    [3, "Primal Knowledge: gain Stealth proficiency; while raging, use Strength for Acrobatics, Intimidation, Perception, Stealth, or Survival checks"],
     [5, "Extra Attack: make two attacks with the Attack action"],
     [5, "Fast Movement: Speed increases by 10 feet while not wearing Heavy armor"],
     [7, "Feral Instinct: Advantage on Initiative"],
     [7, "Instinctive Pounce: move up to half Speed when entering Rage"],
     [9, "Brutal Strike: forgo Reckless Advantage on one hit for +1d10 damage and Forceful or Hamstring Blow"],
+    [10, "Primal Knowledge improvement: gain Acrobatics proficiency"],
     [11, "Relentless Rage: DC 10 Constitution save to change 0 HP to twice Barbarian level; DC rises by 5 until a rest"],
     [13, "Improved Brutal Strike: add Staggering Blow and Sundering Blow options"],
     [15, "Persistent Rage: once per Long Rest, regain all Rage uses on Initiative; Rage lasts 10 minutes without extension"],
@@ -72,6 +73,12 @@ const resources2024 = (level: number): DndCharacterResource[] => [
   ...(level >= 15 ? [{ id: "persistent-rage-refresh", name: "Persistent Rage refresh", maximum: 1, refresh: "long-rest" as const, notes: "When rolling Initiative, regain all expended Rage uses." }] : [])
 ];
 
+const skills2024 = (level: number): string[] => [
+  "Athletics", "Intimidation", "Perception", "Survival", "Insight",
+  ...(level >= 3 ? ["Stealth"] : []),
+  ...(level >= 10 ? ["Acrobatics"] : [])
+];
+
 const makeBarbarian2024 = (level: number): DndCharacterRecord => {
   const slot = getDndPregenBuildSlot("srd-5.2.1-2024", "barbarian", "path-berserker", level);
   if (!slot) throw new Error(`Missing 2024 Barbarian build slot at level ${level}.`);
@@ -85,8 +92,7 @@ const makeBarbarian2024 = (level: number): DndCharacterRecord => {
     level, species: "Human", background: "Soldier", abilityScores, hitDie: 12,
     maximumHitPoints: dndFixedHitPoints(12, level, abilityScores.con) + (2 * level),
     armorClass: barbarianUnarmoredAc(abilityScores), speedFeet: level >= 5 ? 40 : 30,
-    savingThrowProficiencies: ["str", "con"],
-    skillProficiencies: ["Athletics", "Intimidation", "Perception", "Survival", "Insight"],
+    savingThrowProficiencies: ["str", "con"], skillProficiencies: skills2024(level),
     languages: ["Common", "Dwarvish", "Giant"], toolProficiencies: ["Dice Set"], senses: ["Normal vision"],
     attacks: [
       { id: "greataxe", name: "Greataxe", attackAbility: "str", proficient: true, damageFormula: `1d12+${strengthModifier}`, damageType: "slashing", rangeOrReach: "5 ft.", notes: `Cleave mastery. Add +${rageDamage} while raging.${level >= 3 ? ` Frenzy adds ${rageDamage}d6 to the first Reckless Strength hit each turn.` : ""} Attack action: ${barbarianAttackCount(level)} attack${barbarianAttackCount(level) === 1 ? "" : "s"}.` },
