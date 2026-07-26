@@ -1,4 +1,4 @@
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { getDndConditions } from "../data/dndConditions";
 import type { RulesetId } from "../types/ruleCards";
 import { createClientId } from "../utils/createId";
@@ -10,6 +10,7 @@ import {
   type DndEncounterState
 } from "../utils/dndEncounter";
 import { secureRandomInteger } from "../utils/randomInteger";
+import "../styles/dnd-combatant-effects.css";
 
 const incapacitatingConditions = new Set([
   "Incapacitated",
@@ -49,6 +50,19 @@ export const DndCombatantEffectsPanel = ({
   const [saveDc, setSaveDc] = useState(10);
   const [saveBonus, setSaveBonus] = useState(0);
   const [result, setResult] = useState("");
+
+  useEffect(() => {
+    if (!conditions.some((condition) => condition.id === conditionId)) {
+      setConditionId(conditions[0]?.id ?? "");
+    }
+  }, [conditionId, conditions]);
+
+  useEffect(() => {
+    if (combatantId && !encounter.combatants.some((combatant) => combatant.id === combatantId)) {
+      setCombatantId("");
+      setResult("");
+    }
+  }, [combatantId, encounter.combatants]);
 
   const selectedCondition = conditions.find((condition) => condition.id === conditionId) ?? conditions[0];
   const selectedCombatant = encounter.combatants.find((combatant) => combatant.id === combatantId);
