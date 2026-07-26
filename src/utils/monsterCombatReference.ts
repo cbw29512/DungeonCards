@@ -44,16 +44,19 @@ const labeledValue = (rawText: string, label: string): string => {
   return match?.[1]?.trim() || "";
 };
 
+const buildAbilities = (values: string[]): MonsterAbilityReference[] => abilityNames.map((name, index) => ({
+  name,
+  score: Number(values[index * 2]),
+  modifier: Number(values[(index * 2) + 1])
+}));
+
 const parseAbilities = (rawText: string): MonsterAbilityReference[] => {
   const normalized = normalizeLines(rawText).replace(/\n/g, " ");
-  const pattern = /STR\s+(\d+)\s+\(([+-]?\d+)\)\s+DEX\s+(\d+)\s+\(([+-]?\d+)\)\s+CON\s+(\d+)\s+\(([+-]?\d+)\)\s+INT\s+(\d+)\s+\(([+-]?\d+)\)\s+WIS\s+(\d+)\s+\(([+-]?\d+)\)\s+CHA\s+(\d+)\s+\(([+-]?\d+)\)/i;
-  const match = normalized.match(pattern);
-  if (!match) return [];
-  return abilityNames.map((name, index) => ({
-    name,
-    score: Number(match[(index * 2) + 1]),
-    modifier: Number(match[(index * 2) + 2])
-  }));
+  const interleaved = normalized.match(/STR\s+(\d+)\s+\(([+-]?\d+)\)\s+DEX\s+(\d+)\s+\(([+-]?\d+)\)\s+CON\s+(\d+)\s+\(([+-]?\d+)\)\s+INT\s+(\d+)\s+\(([+-]?\d+)\)\s+WIS\s+(\d+)\s+\(([+-]?\d+)\)\s+CHA\s+(\d+)\s+\(([+-]?\d+)\)/i);
+  if (interleaved) return buildAbilities(interleaved.slice(1));
+
+  const headerThenValues = normalized.match(/STR\s+DEX\s+CON\s+INT\s+WIS\s+CHA\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)\s+(\d+)\s+\(([+-]?\d+)\)/i);
+  return headerThenValues ? buildAbilities(headerThenValues.slice(1)) : [];
 };
 
 const compactSentence = (value: string, maximum = 155) => {
