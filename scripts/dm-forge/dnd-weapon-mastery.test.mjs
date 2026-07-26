@@ -39,7 +39,7 @@ describe("D&D 2024 Weapon Mastery product integration", () => {
 
   it("supports search, responsive use, and printing", () => {
     expect(component).toContain("filterMasteryWeapons");
-    expect(component).toContain("39 matching").toBe(false);
+    expect(component).toContain("matching weapon");
     expect(css).toContain("@media (max-width: 760px)");
     expect(css).toContain("@media print");
     expect(css).toContain("break-inside: avoid");
