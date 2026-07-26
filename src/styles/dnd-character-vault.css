@@ -147,11 +147,3 @@
 
 .character-vault__sources { border-top: 1px solid currentColor; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; padding-top: 1rem; }
 .character-vault__sources h4 { flex-basis: 100%; margin-bottom: 0; }
-
-@media (max-width: 820px) {
-  .character-vault__header { grid-template-columns: auto 1fr; }
-  .character-vault__header-actions { grid-column: 1 / -1; justify-content: start; }
-  .character-vault__vitals,
-  .character-vault__abilities { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .character-vault__panel-grid { grid-template-columns: 1fr; }
-}
