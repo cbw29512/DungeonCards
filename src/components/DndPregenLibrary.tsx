@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
+import { dndPregenClassDefinitions, type DndPregenClassDefinition } from "../data/dndPregenCatalog";
 import type { RulesetId } from "../types/ruleCards";
-import {
-  getDndPregenBuildSlot,
-  summarizeDndPregenBuilds
-} from "../utils/dndPregenCatalog";
+import { getDndPregenBuildSlot, summarizeDndPregenBuilds } from "../utils/dndPregenCatalog";
 
 const rulesets: Array<{ id: RulesetId; label: string }> = [
   { id: "srd-5.1-2014", label: "2014 / SRD 5.1" },
   { id: "srd-5.2.1-2024", label: "2024 / SRD 5.2.1" }
 ];
-
 const levels = Array.from({ length: 20 }, (_, index) => index + 1);
-
+const definitionPath = (definition: DndPregenClassDefinition) => (
+  `${definition.classId}:${definition.subclassId}`
+);
 const readySheetRequirements = [
   "Ability scores, modifiers, proficiency bonus, and saving throws",
   "Species, background, skills, languages, and tool proficiencies",
@@ -26,11 +24,10 @@ const readySheetRequirements = [
 
 export const DndPregenLibrary = () => {
   const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
-  const [classId, setClassId] = useState("fighter");
+  const [pathId, setPathId] = useState("fighter:champion");
   const [level, setLevel] = useState(1);
-
   const definitions = dndPregenClassDefinitions.filter((definition) => definition.ruleset === ruleset);
-  const selectedDefinition = definitions.find((definition) => definition.classId === classId) ?? definitions[0];
+  const selectedDefinition = definitions.find((definition) => definitionPath(definition) === pathId) ?? definitions[0];
   const selectedSlot = selectedDefinition
     ? getDndPregenBuildSlot(ruleset, selectedDefinition.classId, selectedDefinition.subclassId, level)
     : undefined;
@@ -39,8 +36,8 @@ export const DndPregenLibrary = () => {
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
     const nextDefinitions = dndPregenClassDefinitions.filter((definition) => definition.ruleset === nextRuleset);
-    if (!nextDefinitions.some((definition) => definition.classId === classId)) {
-      setClassId(nextDefinitions[0]?.classId ?? "fighter");
+    if (!nextDefinitions.some((definition) => definitionPath(definition) === pathId)) {
+      setPathId(nextDefinitions[0] ? definitionPath(nextDefinitions[0]) : "fighter:champion");
     }
   };
 
@@ -64,12 +61,7 @@ export const DndPregenLibrary = () => {
 
       <div className="pregen-library__edition" role="group" aria-label="Pregen rules edition">
         {rulesets.map((option) => (
-          <button
-            aria-pressed={ruleset === option.id}
-            key={option.id}
-            onClick={() => changeRuleset(option.id)}
-            type="button"
-          >
+          <button aria-pressed={ruleset === option.id} key={option.id} onClick={() => changeRuleset(option.id)} type="button">
             {option.label}
           </button>
         ))}
@@ -78,9 +70,9 @@ export const DndPregenLibrary = () => {
       <div className="pregen-library__controls">
         <label>
           Class and public subclass path
-          <select value={selectedDefinition?.classId ?? ""} onChange={(event) => setClassId(event.target.value)}>
+          <select value={selectedDefinition ? definitionPath(selectedDefinition) : ""} onChange={(event) => setPathId(event.target.value)}>
             {definitions.map((definition) => (
-              <option key={`${definition.classId}-${definition.subclassId}`} value={definition.classId}>
+              <option key={definitionPath(definition)} value={definitionPath(definition)}>
                 {definition.className} · {definition.subclassName}
               </option>
             ))}
@@ -106,17 +98,13 @@ export const DndPregenLibrary = () => {
               {selectedSlot.deliveryStatus === "ready-to-play" ? "Ready to play" : "Blueprint · sheet data pending"}
             </span>
           </div>
-
           <dl className="pregen-library__facts">
             <div><dt>Build ID</dt><dd><code>{selectedSlot.id}</code></dd></div>
             <div><dt>Subclass starts</dt><dd>Level {selectedDefinition.subclassUnlockLevel}</dd></div>
             <div><dt>At this level</dt><dd>{selectedSlot.subclassActive ? "Subclass features are active" : "Class features only; subclass path is reserved"}</dd></div>
             <div><dt>Public scope</dt><dd>SRD / free-rules content only</dd></div>
           </dl>
-
-          <a href={selectedDefinition.sourceUrl} rel="noreferrer" target="_blank">
-            Open {selectedDefinition.sourceLabel}
-          </a>
+          <a href={selectedDefinition.sourceUrl} rel="noreferrer" target="_blank">Open {selectedDefinition.sourceLabel}</a>
         </article>
       )}
 
@@ -128,7 +116,6 @@ export const DndPregenLibrary = () => {
             {readySheetRequirements.map((requirement) => <li key={requirement}>{requirement}</li>)}
           </ol>
         </section>
-
         <aside className="pregen-library__boundary">
           <h3>Subclass publishing boundary</h3>
           <p>The public catalog can ship the subclass paths included in the SRDs. Other official subclasses from paid books are not copied into this repository.</p>
