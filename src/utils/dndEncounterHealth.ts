@@ -18,9 +18,16 @@ const updateCombatantHealth = (
 ): DndEncounterState => {
   const combatant = state.combatants.find((candidate) => candidate.id === combatantId);
   if (!combatant) return state;
+  const regainedConsciousness = combatant.health.lifeState !== "conscious" && health.lifeState === "conscious";
+  const isActiveTurn = state.started && state.combatants[state.currentIndex]?.id === combatantId;
+  const restoreCurrentTurn = regainedConsciousness && isActiveTurn;
   return updateDndCombatant(state, combatantId, {
     health,
-    concentration: shouldEndConcentration(health.lifeState) ? undefined : combatant.concentration
+    concentration: shouldEndConcentration(health.lifeState) ? undefined : combatant.concentration,
+    actionAvailable: restoreCurrentTurn ? true : combatant.actionAvailable,
+    bonusActionAvailable: restoreCurrentTurn ? true : combatant.bonusActionAvailable,
+    reactionAvailable: restoreCurrentTurn ? true : combatant.reactionAvailable,
+    movementRemainingFeet: restoreCurrentTurn ? combatant.speedFeet : combatant.movementRemainingFeet
   });
 };
 
