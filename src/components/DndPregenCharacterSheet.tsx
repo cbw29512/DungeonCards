@@ -2,7 +2,9 @@ import type { DndAbilityId, DndCharacterRecord } from "../types/dndCharacter";
 import {
   dndAbilityModifier,
   dndAttackBonus,
-  dndProficiencyBonus
+  dndProficiencyBonus,
+  dndSpellAttackBonus,
+  dndSpellSaveDc
 } from "../utils/dndCharacterRecord";
 
 const abilityLabels: Record<DndAbilityId, string> = {
@@ -25,6 +27,8 @@ const refreshLabel = (refresh: DndCharacterRecord["resources"][number]["refresh"
 export const DndPregenCharacterSheet = ({ record }: { record: DndCharacterRecord }) => {
   const proficiencyBonus = dndProficiencyBonus(record.level);
   const initiative = dndAbilityModifier(record.abilityScores.dex);
+  const spellcasting = record.spellcasting.kind === "none" ? undefined : record.spellcasting;
+  const spellcastingScore = spellcasting ? record.abilityScores[spellcasting.ability] : undefined;
 
   return (
     <article className="pregen-sheet" aria-labelledby={`pregen-sheet-${record.id}`}>
@@ -55,6 +59,42 @@ export const DndPregenCharacterSheet = ({ record }: { record: DndCharacterRecord
           </div>
         ))}
       </section>
+
+      {spellcasting && spellcastingScore !== undefined && (
+        <section className="pregen-sheet__spellcasting" aria-labelledby={`spellcasting-${record.id}`}>
+          <header>
+            <div>
+              <p>Spellcasting</p>
+              <h4 id={`spellcasting-${record.id}`}>{abilityLabels[spellcasting.ability]} · {spellcasting.kind === "known" ? "Spells Known" : "Prepared Spells"}</h4>
+            </div>
+            <dl>
+              <div><dt>Save DC</dt><dd>{dndSpellSaveDc(spellcastingScore, record.level)}</dd></div>
+              <div><dt>Spell Attack</dt><dd>{signed(dndSpellAttackBonus(spellcastingScore, record.level))}</dd></div>
+            </dl>
+          </header>
+          <div className="pregen-sheet__spell-columns">
+            <section>
+              <h5>Cantrips</h5>
+              <p>{spellcasting.cantrips.join(" · ") || "None"}</p>
+            </section>
+            <section>
+              <h5>{spellcasting.kind === "known" ? "Known Spells" : "Prepared Spells"}</h5>
+              <p>{spellcasting.spells.join(" · ") || "None"}</p>
+            </section>
+          </div>
+          <div className="pregen-sheet__slots" aria-label="Spell slots">
+            {Object.entries(spellcasting.slotsByLevel)
+              .filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] > 0)
+              .map(([slotLevel, maximum]) => (
+                <div key={slotLevel}>
+                  <span>Level {slotLevel}</span>
+                  <strong>{Array.from({ length: maximum }, () => "○").join(" ")}</strong>
+                </div>
+              ))}
+          </div>
+          {spellcasting.notes && <p className="pregen-sheet__spell-notes">{spellcasting.notes}</p>}
+        </section>
+      )}
 
       <div className="pregen-sheet__columns">
         <section>
