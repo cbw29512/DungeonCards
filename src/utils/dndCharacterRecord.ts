@@ -42,6 +42,12 @@ export const dndSpellSaveDc = (abilityScore: number, level: number): number =>
 export const dndSpellAttackBonus = (abilityScore: number, level: number): number =>
   dndProficiencyBonus(level) + dndAbilityModifier(abilityScore);
 
+export const isDndSpellcastingExpected = (slot: DndPregenBuildSlot): boolean => {
+  if (["bard", "cleric", "druid", "sorcerer", "warlock", "wizard"].includes(slot.classId)) return true;
+  if (!["paladin", "ranger"].includes(slot.classId)) return false;
+  return slot.ruleset === "srd-5.2.1-2024" || slot.level >= 2;
+};
+
 const emptyAbilityScores = (): DndAbilityScores => ({ str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 });
 
 export const createDndCharacterBlueprint = (slot: DndPregenBuildSlot): DndCharacterRecord => ({
@@ -52,6 +58,7 @@ export const createDndCharacterBlueprint = (slot: DndPregenBuildSlot): DndCharac
   classId: slot.classId,
   className: slot.className,
   subclassName: slot.subclassName,
+  subclassUnlockLevel: slot.subclassUnlockLevel,
   level: slot.level,
   species: "",
   background: "",
@@ -67,6 +74,7 @@ export const createDndCharacterBlueprint = (slot: DndPregenBuildSlot): DndCharac
   senses: [],
   attacks: [],
   resources: [],
+  spellcastingExpected: isDndSpellcastingExpected(slot),
   spellcasting: { kind: "none" },
   classFeatures: [],
   subclassFeatures: [],
@@ -97,6 +105,7 @@ export const validateDndCharacterRecord = (record: DndCharacterRecord): DndChara
   addIssue(issues, "identity", !record.background.trim(), "Background is missing.");
   addIssue(issues, "identity", record.level < 1 || record.level > 20, "Character level must be between 1 and 20.");
   addIssue(issues, "identity", !record.className.trim() || !record.subclassName.trim(), "Class or subclass path is missing.");
+  addIssue(issues, "identity", record.subclassUnlockLevel < 1 || record.subclassUnlockLevel > 20, "Subclass unlock level is invalid.");
 
   for (const ability of dndAbilityIds) {
     const score = record.abilityScores[ability];
@@ -118,6 +127,7 @@ export const validateDndCharacterRecord = (record: DndCharacterRecord): DndChara
   addIssue(issues, "resources", record.classFeatures.length === 0, "Class features for this level are missing.");
   addIssue(issues, "resources", record.resources.some((resource) => !resource.id || !resource.name.trim() || resource.maximum < 1), "Every tracked resource needs an ID, name, and positive maximum.");
 
+  addIssue(issues, "spellcasting", record.spellcastingExpected && record.spellcasting.kind === "none", "This class and level require a complete spellcasting profile.");
   if (record.spellcasting.kind !== "none") {
     const castingScore = record.abilityScores[record.spellcasting.ability];
     addIssue(issues, "spellcasting", castingScore < 1, "Spellcasting ability is invalid.");
@@ -127,7 +137,7 @@ export const validateDndCharacterRecord = (record: DndCharacterRecord): DndChara
 
   addIssue(issues, "advancement", record.level >= 4 && record.advancementChoices.length === 0, "Level-earned advancement choices are missing.");
   addIssue(issues, "advancement", record.level >= 1 && record.classFeatures.length === 0, "Class progression has not been applied.");
-  addIssue(issues, "advancement", record.level >= 3 && record.subclassFeatures.length === 0, "Subclass features for this level are missing.");
+  addIssue(issues, "advancement", record.level >= record.subclassUnlockLevel && record.subclassFeatures.length === 0, "Subclass features for this level are missing.");
 
   addIssue(issues, "equipment", record.equipment.length === 0, "Starting or level-appropriate equipment is missing.");
   addIssue(issues, "equipment", !Number.isFinite(record.currencyGp) || record.currencyGp < 0, "Currency must be a nonnegative number.");
