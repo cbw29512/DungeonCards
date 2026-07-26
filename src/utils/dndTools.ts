@@ -28,6 +28,11 @@ export type DndToolCheckResult = {
 
 const normalizeInteger = (value: number): number => Math.trunc(Number.isFinite(value) ? value : 0);
 
+export const extractDndToolDc = (procedure: string): number | undefined => {
+  const match = procedure.match(/\(DC\s+(\d+)\)/i);
+  return match ? Number.parseInt(match[1], 10) : undefined;
+};
+
 export const resolveDndToolPurchase = (
   tool: DndToolDefinition,
   variantId?: string
