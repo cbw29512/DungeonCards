@@ -23,7 +23,8 @@ describe("D&D monster live-reference integration", () => {
     expect(adapter).toMatch(/reference\.bonusActions/);
     expect(adapter).toMatch(/reference\.reactions/);
     expect(adapter).toMatch(/reference\.legendaryActions/);
+    expect(coverage).toMatch(/id: "monster-encounter-import"/);
     expect(coverage).toMatch(/complete action sections/);
-    expect(coverage).toMatch(/independent per-copy recharge state/);
+    expect(coverage).toMatch(/independent recharge state/);
   });
 });
