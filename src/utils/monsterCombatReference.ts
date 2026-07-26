@@ -35,6 +35,23 @@ export type MonsterCombatReference = {
 };
 
 const abilityNames = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
+const statLabels = [
+  "Saving Throws",
+  "Skills",
+  "Damage Vulnerabilities",
+  "Damage Resistances",
+  "Damage Immunities",
+  "Condition Immunities",
+  "Senses",
+  "Languages",
+  "Challenge",
+  "Proficiency Bonus",
+  "Traits",
+  "Actions",
+  "Bonus Actions",
+  "Reactions",
+  "Legendary Actions"
+] as const;
 
 const normalizeLines = (value: string) => String(value || "")
   .replace(/\r/g, "")
@@ -45,7 +62,12 @@ const normalizeLines = (value: string) => String(value || "")
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const labeledValue = (rawText: string, label: string): string => {
-  const match = normalizeLines(rawText).match(new RegExp(`(?:^|\\n)${escapeRegExp(label)}\\s+([^\\n]+)`, "i"));
+  const normalized = normalizeLines(rawText).replace(/\n/g, " ");
+  const stops = statLabels
+    .filter((candidate) => candidate !== label)
+    .map(escapeRegExp)
+    .join("|");
+  const match = normalized.match(new RegExp(`\\b${escapeRegExp(label)}\\s+(.+?)(?=\\s+(?:${stops})\\s+|$)`, "i"));
   return match?.[1]?.trim() || "";
 };
 
@@ -96,7 +118,7 @@ const actionSummary = (description: string) => {
 const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
   const normalized = normalizeLines(text);
   if (!normalized) return [];
-  const entryPattern = /(?:^|\n)([A-Z][^\n.]{1,80}(?:\s*\([^\n)]*\))?)\.\s+/g;
+  const entryPattern = /(?:^|\n|(?<=\.\s))([A-Z][A-Za-z0-9'’/&,+\- ]{1,70}(?:\s*\([^\n)]*\))?)\.\s+(?=(?:Melee|Ranged|The\b|Each\b|One\b|Up to\b|A\b|An\b|If\b|When\b|While\b|Roll\b|Make\b|Choose\b))/g;
   const matches = [...normalized.matchAll(entryPattern)];
   if (matches.length === 0) {
     const firstPeriod = normalized.indexOf(".");
