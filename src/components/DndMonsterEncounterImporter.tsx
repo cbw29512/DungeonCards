@@ -109,7 +109,7 @@ export const DndMonsterEncounterImporter = ({
       </header>
 
       <p>
-        DM Forge reads explicit HP, walking Speed, Dexterity, AC, saves, senses, and action sections from the sourced stat block. Setup values remain editable before the monster enters the encounter.
+        DM Forge reads explicit HP, walking Speed, Dexterity, AC, saves, senses, and action sections from the sourced stat block. Parsed values remain editable before the monster enters the encounter.
       </p>
 
       <div className="dnd-monster-importer__selection">
