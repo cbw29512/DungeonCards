@@ -97,7 +97,7 @@ export const validateOccupationValueAllocation = (values: number[]): boolean => 
 };
 
 export const applyPersonalInterestBoost = (baseValue: number): number =>
-  Math.min(100, Math.max(0, Math.trunc(baseValue) || 0) + 20);
+  Math.max(0, Math.trunc(baseValue) || 0) + 20;
 
 export const isCthulhuMythosSkill = (skillName: string): boolean =>
   skillName.trim().toLowerCase().replace(/[^a-z]/g, "") === "cthulhumythos";
