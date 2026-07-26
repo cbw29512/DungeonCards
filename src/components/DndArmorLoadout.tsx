@@ -15,6 +15,7 @@ import {
 import { DndContainersPacks } from "./DndContainersPacks";
 import { DndLargeVehicles } from "./DndLargeVehicles";
 import { DndMountCargo } from "./DndMountCargo";
+import { DndToolsWorkspace } from "./DndToolsWorkspace";
 import "../styles/dnd-armor-loadout.css";
 
 const sizeLabels: Record<DndCreatureSize, string> = {
@@ -80,7 +81,7 @@ export const DndArmorLoadout = () => {
       <header className="dnd-armor-loadout__heading">
         <p>Equipment and loadout</p>
         <h1 id="dnd-armor-loadout-title">Calculate the loadout in the edition actually being played.</h1>
-        <span>Armor, carrying, mounts, storage, packs, and large vehicles follow one edition selector so 2014 and 2024 procedures never blend silently.</span>
+        <span>Armor, carrying, mounts, storage, packs, large vehicles, and tools follow one edition selector so 2014 and 2024 procedures never blend silently.</span>
       </header>
 
       <div className="dnd-armor-loadout__ruleset">
@@ -177,6 +178,7 @@ export const DndArmorLoadout = () => {
       <DndMountCargo ruleset={ruleset} />
       <DndContainersPacks ruleset={ruleset} />
       <DndLargeVehicles ruleset={ruleset} />
+      <DndToolsWorkspace ruleset={ruleset} />
 
       <footer className="dnd-armor-sources">
         <a href={editionRules.armorSourceUrl} target="_blank" rel="noreferrer">{editionRules.armorSourceReference}</a>
