@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { rollDiceFormula } from "../utils/rollDice";
 import { secureRandomInteger } from "../utils/randomInteger";
+import { CocInvestigatorBuilder } from "./CocInvestigatorBuilder";
 import { CocGroupLuckCard, CocLuckCard } from "./CocLuckCard";
 import { CocRuleStatus } from "./CocRuleStatus";
 
@@ -30,6 +31,7 @@ export const CocImprovementCard = () => {
 
   return (
     <>
+      <CocInvestigatorBuilder />
       <article className="coc-card coc-card--interactive">
         <header className="coc-card__header">
           <div>
