@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { dndFighterPregenRecords, getDndReadyPregenRecord } from "../data/dndFighterPregens";
 import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
+import {
+  countDndReadyPregens,
+  dndReadyPregenRecords,
+  getDndReadyPregenRecord
+} from "../data/dndReadyPregens";
 import type { RulesetId } from "../types/ruleCards";
 import {
   createDndCharacterBlueprint,
@@ -60,7 +64,7 @@ export const DndPregenLibrary = () => {
   const selectedRecord = selectedReadyRecord ?? (selectedSlot ? createDndCharacterBlueprint(selectedSlot) : undefined);
   const readiness = selectedRecord ? validateDndCharacterRecord(selectedRecord) : undefined;
   const summary = summarizeDndPregenBuilds(ruleset);
-  const releasedCount = dndFighterPregenRecords.filter((record) => record.ruleset === ruleset).length;
+  const releasedCount = countDndReadyPregens(ruleset);
 
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
@@ -106,7 +110,7 @@ export const DndPregenLibrary = () => {
           Class and public subclass path
           <select value={selectedDefinition?.classId ?? ""} onChange={(event) => setClassId(event.target.value)}>
             {definitions.map((definition) => {
-              const classReleased = dndFighterPregenRecords.some((record) => record.ruleset === ruleset && record.classId === definition.classId);
+              const classReleased = dndReadyPregenRecords.some((record) => record.ruleset === ruleset && record.classId === definition.classId);
               return (
                 <option key={definition.classId} value={definition.classId}>
                   {definition.className} · {definition.subclassName}{classReleased ? " · Ready" : " · Blueprint"}
