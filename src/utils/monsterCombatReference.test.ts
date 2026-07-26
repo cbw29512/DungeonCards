@@ -69,7 +69,7 @@ describe("buildMonsterCombatReference", () => {
       "Bite",
       "Fire Breath (Recharge 5–6)"
     ]);
-    expect(reference.allActions[1].reachOrRange).toContain("reach 10 ft.");
+    expect(reference.allActions[1].reachOrRange).toContain("reach 10 ft");
   });
 
   it("prioritizes quick actions while retaining complete action sections", () => {
