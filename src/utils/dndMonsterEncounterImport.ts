@@ -23,6 +23,15 @@ const firstPositiveInteger = (value: string): number | undefined => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 };
 
+export const parseDndWalkingSpeed = (value: string): number | undefined => {
+  const normalized = String(value || "").trim();
+  const initialWalk = normalized.match(/^(\d+)\s*ft\.?/i);
+  if (initialWalk) return Number(initialWalk[1]);
+
+  const labeledWalk = normalized.match(/\bwalk(?:ing)?\s+(\d+)\s*ft\.?/i);
+  return labeledWalk ? Number(labeledWalk[1]) : undefined;
+};
+
 const abilityModifier = (score: number): number => Math.floor((score - 10) / 2);
 
 export const buildDndMonsterEncounterDefaults = (
@@ -32,9 +41,7 @@ export const buildDndMonsterEncounterDefaults = (
   const maximumHitPoints = entry.kind === "formatted"
     ? firstPositiveInteger(entry.monster.hp)
     : firstPositiveInteger(entry.monster.hitPoints);
-  const speedFeet = entry.kind === "formatted"
-    ? firstPositiveInteger(entry.monster.speed)
-    : firstPositiveInteger(entry.monster.speed);
+  const speedFeet = parseDndWalkingSpeed(entry.monster.speed);
   const dexterityModifier = entry.kind === "formatted"
     ? abilityModifier(entry.monster.abilities.dex)
     : buildMonsterCombatReference(entry.monster).abilities.find((ability) => ability.name === "DEX")?.modifier;
