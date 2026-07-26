@@ -1,0 +1,291 @@
+.dnd-mount-cargo {
+  display: grid;
+  margin-top: 1.25rem;
+  gap: 1rem;
+}
+
+.dnd-mount-cargo__heading,
+.dnd-mount-cargo__calculator,
+.dnd-mount-catalog,
+.dnd-vehicle-catalog,
+.dnd-barding-calculator,
+.dnd-mount-cargo__source {
+  padding: 1rem;
+  border: 1px solid rgb(239 193 107 / 20%);
+  border-radius: 0.75rem;
+  background: rgb(20 14 29 / 76%);
+}
+
+.dnd-mount-cargo__heading,
+.dnd-mount-cargo__result > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dnd-mount-cargo__heading small,
+.dnd-mount-catalog header small,
+.dnd-vehicle-catalog header small,
+.dnd-barding-calculator header small,
+.dnd-mount-cargo__result small {
+  color: #d7c9b8;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dnd-mount-cargo h2,
+.dnd-mount-cargo h3 {
+  margin: 0.2rem 0;
+  color: #fff0c2;
+}
+
+.dnd-mount-cargo__heading p,
+.dnd-mount-cargo__result p,
+.dnd-barding-summary p {
+  margin: 0;
+  color: #d9cfde;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.dnd-mount-cargo__heading > strong {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.65rem;
+  color: #c8f3d7;
+  border: 1px solid rgb(122 207 154 / 34%);
+  border-radius: 999px;
+  background: rgb(52 122 78 / 18%);
+  font-size: 0.68rem;
+}
+
+.dnd-mount-cargo__calculator {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(230px, 0.65fr) minmax(0, 1.35fr);
+}
+
+.dnd-mount-cargo__controls,
+.dnd-mount-cargo__result,
+.dnd-barding-calculator,
+.dnd-barding-summary {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dnd-mount-cargo label {
+  display: grid;
+  color: #d9c9b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  gap: 0.3rem;
+}
+
+.dnd-mount-cargo input,
+.dnd-mount-cargo select,
+.dnd-mount-cargo button {
+  min-height: 42px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.55rem;
+}
+
+.dnd-mount-cargo input,
+.dnd-mount-cargo select {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  color: #f8efe0;
+  background: #251633;
+}
+
+.dnd-mount-cargo button {
+  padding: 0.55rem 0.65rem;
+  color: #f4e7cf;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.dnd-mount-cargo button[aria-pressed="true"] {
+  color: #201329;
+  border-color: #f1ca77;
+  background: #f1ca77;
+}
+
+.dnd-mount-cargo__result {
+  padding: 0.9rem;
+  border: 1px solid rgb(122 207 154 / 30%);
+  border-radius: 0.65rem;
+  background: rgb(52 122 78 / 12%);
+}
+
+.dnd-mount-cargo__result.is-overloaded {
+  border-color: rgb(223 111 89 / 38%);
+  background: rgb(126 45 33 / 18%);
+}
+
+.dnd-mount-cargo__result > header > strong {
+  color: #c8f3d7;
+}
+
+.dnd-mount-cargo__result.is-overloaded > header > strong {
+  color: #ffd4c7;
+}
+
+.dnd-mount-cargo__result dl {
+  display: grid;
+  margin: 0;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dnd-mount-cargo__result dl div {
+  display: grid;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.1rem;
+}
+
+.dnd-mount-cargo__result dt {
+  color: #d7c9b8;
+  font-size: 0.55rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dnd-mount-cargo__result dd {
+  margin: 0;
+  color: #fff0c2;
+  font-weight: 800;
+}
+
+.dnd-mount-catalog,
+.dnd-vehicle-catalog {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dnd-mount-catalog > div,
+.dnd-vehicle-catalog > div {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.dnd-mount-catalog button,
+.dnd-vehicle-catalog button {
+  display: grid;
+  min-height: 110px;
+  padding: 0.7rem;
+  text-align: left;
+  align-content: start;
+  gap: 0.25rem;
+}
+
+.dnd-mount-catalog button strong,
+.dnd-vehicle-catalog button strong {
+  color: #fff0c2;
+}
+
+.dnd-mount-catalog button span,
+.dnd-vehicle-catalog button span {
+  color: #c8f3d7;
+  font-weight: 800;
+}
+
+.dnd-mount-catalog button small,
+.dnd-vehicle-catalog button small {
+  color: #d7c9b8;
+}
+
+.dnd-mount-catalog button[aria-pressed="true"] strong,
+.dnd-mount-catalog button[aria-pressed="true"] span,
+.dnd-mount-catalog button[aria-pressed="true"] small,
+.dnd-vehicle-catalog button[aria-pressed="true"] strong,
+.dnd-vehicle-catalog button[aria-pressed="true"] span,
+.dnd-vehicle-catalog button[aria-pressed="true"] small {
+  color: #201329;
+}
+
+.dnd-barding-calculator__controls,
+.dnd-barding-summary {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dnd-barding-summary article {
+  display: grid;
+  padding: 0.8rem;
+  border-radius: 0.55rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.25rem;
+}
+
+.dnd-barding-summary strong {
+  color: #fff0c2;
+  font-size: 1.05rem;
+}
+
+.dnd-barding-summary span {
+  color: #c8f3d7;
+  font-weight: 800;
+}
+
+.dnd-mount-cargo__source a {
+  color: #c8f3d7;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 760px) {
+  .dnd-mount-cargo__calculator {
+    grid-template-columns: 1fr;
+  }
+
+  .dnd-mount-cargo__result dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .dnd-mount-cargo__heading,
+  .dnd-mount-cargo__result > header {
+    flex-direction: column;
+  }
+
+  .dnd-barding-calculator__controls,
+  .dnd-barding-summary,
+  .dnd-mount-cargo__result dl {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .dnd-mount-cargo__controls,
+  .dnd-mount-cargo button,
+  .dnd-mount-cargo input,
+  .dnd-mount-cargo select {
+    display: none !important;
+  }
+
+  .dnd-mount-cargo,
+  .dnd-mount-cargo__heading,
+  .dnd-mount-cargo__calculator,
+  .dnd-mount-cargo__result,
+  .dnd-mount-catalog,
+  .dnd-vehicle-catalog,
+  .dnd-barding-calculator,
+  .dnd-mount-cargo__source,
+  .dnd-barding-summary article {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .dnd-mount-cargo__result,
+  .dnd-barding-summary article {
+    break-inside: avoid;
+  }
+}

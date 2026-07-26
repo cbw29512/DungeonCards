@@ -12,6 +12,7 @@ import {
   calculateDndCapacity,
   calculateLoadoutWeight
 } from "../utils/dndArmor";
+import { DndMountCargo } from "./DndMountCargo";
 import "../styles/dnd-armor-loadout.css";
 
 const sizeLabels: Record<DndCreatureSize, string> = {
@@ -77,7 +78,7 @@ export const DndArmorLoadout = () => {
       <header className="dnd-armor-loadout__heading">
         <p>Armor, shields, and carrying</p>
         <h1 id="dnd-armor-loadout-title">Calculate the loadout in the edition actually being played.</h1>
-        <span>Armor statistics are shared, but training language, shield use, and the optional encumbrance rule are kept edition-specific.</span>
+        <span>Armor statistics are shared, but training language, shield use, mount capacity, and the optional encumbrance rule are kept edition-specific.</span>
       </header>
 
       <div className="dnd-armor-loadout__ruleset">
@@ -170,6 +171,8 @@ export const DndArmorLoadout = () => {
           ))}
         </div>
       </section>
+
+      <DndMountCargo ruleset={ruleset} />
 
       <footer className="dnd-armor-sources">
         <a href={editionRules.armorSourceUrl} target="_blank" rel="noreferrer">{editionRules.armorSourceReference}</a>
