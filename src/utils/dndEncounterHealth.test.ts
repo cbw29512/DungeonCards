@@ -9,20 +9,20 @@ import {
   stabilizeDndCombatant
 } from "./dndEncounterHealth";
 
-const encounter = () => startDndEncounter("srd-5.2.1-2024", [
-  createDndCombatant({
-    id: "caster",
-    name: "Caster",
-    side: "player",
-    initiative: 15,
-    dexterityModifier: 2,
-    speedFeet: 30,
-    surprised: false,
-    ruleset: "srd-5.2.1-2024",
-    maximumHitPoints: 20,
-    currentHitPoints: 20
-  })
-]);
+const makeCombatant = (id: string, initiative: number, currentHitPoints = 20) => createDndCombatant({
+  id,
+  name: id,
+  side: "player",
+  initiative,
+  dexterityModifier: 2,
+  speedFeet: 30,
+  surprised: false,
+  ruleset: "srd-5.2.1-2024",
+  maximumHitPoints: 20,
+  currentHitPoints
+});
+
+const encounter = () => startDndEncounter("srd-5.2.1-2024", [makeCombatant("caster", 15)]);
 
 describe("D&D combatant health integration", () => {
   it("creates combatants with normalized health state", () => {
@@ -66,6 +66,43 @@ describe("D&D combatant health integration", () => {
     state = { ...state, combatants: [{ ...state.combatants[0], concentration: { effectName: "Impossible test state" }, health: { ...state.combatants[0].health, deathSaveFailures: 2 } }] };
     const result = resolveDndCombatantDeathSave(state, "caster", 2);
     expect(result.state.combatants[0]).toMatchObject({ concentration: undefined, health: { lifeState: "dead" } });
+  });
+
+  it("restores the active turn after a natural 20 Death Save", () => {
+    let state = startDndEncounter("srd-5.2.1-2024", [makeCombatant("down", 20, 0), makeCombatant("ally", 10)]);
+    state = {
+      ...state,
+      combatants: state.combatants.map((combatant) => combatant.id === "down"
+        ? { ...combatant, actionAvailable: false, bonusActionAvailable: false, reactionAvailable: false, movementRemainingFeet: 0 }
+        : combatant)
+    };
+    const resolved = resolveDndCombatantDeathSave(state, "down", 20).state;
+    expect(resolved.combatants[0]).toMatchObject({
+      health: { currentHitPoints: 1, lifeState: "conscious" },
+      actionAvailable: true,
+      bonusActionAvailable: true,
+      reactionAvailable: true,
+      movementRemainingFeet: 30
+    });
+  });
+
+  it("does not refresh turn resources when healed outside the combatant's turn", () => {
+    let state = startDndEncounter("srd-5.2.1-2024", [makeCombatant("active", 20), makeCombatant("down", 10, 0)]);
+    state = {
+      ...state,
+      combatants: state.combatants.map((combatant) => combatant.id === "down"
+        ? { ...combatant, actionAvailable: false, bonusActionAvailable: false, reactionAvailable: false, movementRemainingFeet: 0 }
+        : combatant)
+    };
+    state = applyDndCombatantHealing(state, "down", 5);
+    const healed = state.combatants.find((combatant) => combatant.id === "down");
+    expect(healed).toMatchObject({
+      health: { currentHitPoints: 5, lifeState: "conscious" },
+      actionAvailable: false,
+      bonusActionAvailable: false,
+      reactionAvailable: false,
+      movementRemainingFeet: 0
+    });
   });
 
   it("heals a living combatant and resets death saves", () => {
