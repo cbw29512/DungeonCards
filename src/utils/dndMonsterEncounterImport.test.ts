@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { encounterMonsterCatalog } from "../data/encounterMonsterCatalog";
 import {
   buildDndMonsterEncounterDefaults,
-  filterDndEncounterMonsters
+  filterDndEncounterMonsters,
+  parseDndWalkingSpeed
 } from "./dndMonsterEncounterImport";
 
 describe("D&D SRD monster encounter import", () => {
@@ -16,6 +17,13 @@ describe("D&D SRD monster encounter import", () => {
       .map((defaults) => ({ name: defaults.name, ruleset: defaults.ruleset, issues: defaults.issues }));
 
     expect(unresolved).toEqual([]);
+  });
+
+  it("reads only explicit walking speed and never substitutes fly or swim speed", () => {
+    expect(parseDndWalkingSpeed("30 ft., fly 60 ft.")).toBe(30);
+    expect(parseDndWalkingSpeed("0 ft., fly 50 ft. (hover)")).toBe(0);
+    expect(parseDndWalkingSpeed("walking 25 ft., swim 40 ft.")).toBe(25);
+    expect(parseDndWalkingSpeed("fly 60 ft.")).toBeUndefined();
   });
 
   it("preserves source identity and monster metadata", () => {
