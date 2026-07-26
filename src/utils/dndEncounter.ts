@@ -1,4 +1,5 @@
 import type { RulesetId } from "../types/ruleCards";
+import { createDndHealthState, type DndHealthState } from "./dndHealth";
 
 export type DndCombatantSide = "player" | "ally" | "enemy";
 export type DndEffectTickTiming = "start" | "end" | "manual";
@@ -34,6 +35,7 @@ export type DndCombatant = {
   surprisePending: boolean;
   concentration?: DndConcentrationState;
   effects: DndCombatantEffect[];
+  health: DndHealthState;
 };
 
 export type DndEncounterState = {
@@ -55,7 +57,9 @@ export const createDndCombatant = ({
   dexterityModifier,
   speedFeet,
   surprised,
-  ruleset
+  ruleset,
+  maximumHitPoints = 10,
+  currentHitPoints = maximumHitPoints
 }: {
   id: string;
   name: string;
@@ -65,6 +69,8 @@ export const createDndCombatant = ({
   speedFeet: number;
   surprised: boolean;
   ruleset: RulesetId;
+  maximumHitPoints?: number;
+  currentHitPoints?: number;
 }): DndCombatant => ({
   id,
   name: name.trim() || "Unnamed combatant",
@@ -79,7 +85,8 @@ export const createDndCombatant = ({
   surprised,
   surprisePending: surprised,
   concentration: undefined,
-  effects: []
+  effects: [],
+  health: createDndHealthState(ruleset, maximumHitPoints, currentHitPoints)
 });
 
 export const sortDndInitiative = (combatants: DndCombatant[]): DndCombatant[] =>

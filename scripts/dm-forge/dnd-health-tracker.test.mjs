@@ -22,8 +22,8 @@ describe("D&D health and death tracker product integration", () => {
   it("protects the critical death-state transitions", () => {
     expect(engine).toContain("massiveDamageRemainder >= state.maximumHitPoints");
     expect(engine).toContain("criticalHit ? 2 : 1");
-    expect(engine).toContain('result === 20');
-    expect(engine).toContain('result === 1');
+    expect(engine).toContain("result === 20");
+    expect(engine).toContain("result === 1");
     expect(engine).toContain('lifeState: "stable"');
   });
 
@@ -38,11 +38,12 @@ describe("D&D health and death tracker product integration", () => {
     expect(sources).toContain("Bloodied means current HP is half the maximum or lower");
   });
 
-  it("advances honest public coverage", () => {
+  it("advances honest public coverage while preserving the standalone route", () => {
     expect(coverage).toContain('id: "damage-death"');
     expect(coverage).toContain('status: "automation-complete"');
-    expect(coverage).toContain('route: "?system=dnd&page=health"');
+    expect(coverage).toContain('route: "?system=dnd&page=combat"');
     expect(coverage).toContain("resurrection and rest recovery workflows");
+    expect(route).toContain('"health"');
   });
 
   it("supports responsive, reduced-motion, and printable use", () => {

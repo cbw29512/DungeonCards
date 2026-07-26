@@ -19,6 +19,7 @@ import {
 import { secureRandomInteger } from "../utils/randomInteger";
 import { RULESET_LABELS, type RulesetId } from "../types/ruleCards";
 import { DndCombatantEffectsPanel } from "./DndCombatantEffectsPanel";
+import { DndCombatantHealthPanel } from "./DndCombatantHealthPanel";
 import "../styles/dnd-encounter-tracker.css";
 
 const emptyEncounter = (ruleset: RulesetId): DndEncounterState => ({
@@ -43,6 +44,8 @@ export const DndEncounterTracker = () => {
   const [initiative, setInitiative] = useState(12);
   const [dexterityModifier, setDexterityModifier] = useState(2);
   const [speedFeet, setSpeedFeet] = useState(30);
+  const [maximumHitPoints, setMaximumHitPoints] = useState(20);
+  const [currentHitPoints, setCurrentHitPoints] = useState(20);
   const [surprised, setSurprised] = useState(false);
   const [concentrationCombatantId, setConcentrationCombatantId] = useState("");
   const [concentrationEffect, setConcentrationEffect] = useState("Bless");
@@ -51,7 +54,6 @@ export const DndEncounterTracker = () => {
   const [concentrationResult, setConcentrationResult] = useState("");
 
   const source = dndEncounterRules[ruleset];
-  const active = encounter.started ? encounter.combatants[encounter.currentIndex] : undefined;
   const concentrationDc = calculateDndConcentrationDc(ruleset, damageTaken);
   const concentratingCombatants = useMemo(
     () => encounter.combatants.filter((combatant) => combatant.concentration),
@@ -81,7 +83,9 @@ export const DndEncounterTracker = () => {
       dexterityModifier,
       speedFeet,
       surprised,
-      ruleset
+      ruleset,
+      maximumHitPoints,
+      currentHitPoints
     });
     setEncounter((current) => ({ ...current, combatants: [...current.combatants, combatant] }));
     setName("New combatant");
@@ -120,7 +124,7 @@ export const DndEncounterTracker = () => {
         <div>
           <p>Live combat state</p>
           <h1 id="dnd-encounter-title">Initiative, Turns &amp; Concentration</h1>
-          <span>Run the round in order, track each creature’s action economy and Reaction, and resolve concentration one damage source at a time.</span>
+          <span>Run the round in order, track each creature’s action economy, HP, conditions, and Reaction, and resolve concentration one damage source at a time.</span>
         </div>
         <div className="dnd-encounter-ruleset" aria-label="D&D rules edition">
           {(Object.keys(RULESET_LABELS) as RulesetId[]).map((option) => (
@@ -144,6 +148,8 @@ export const DndEncounterTracker = () => {
             <label>Dexterity modifier<input min="-5" max="15" type="number" value={dexterityModifier} onChange={(event) => setDexterityModifier(Math.trunc(Number(event.target.value) || 0))} /></label>
             <label>Initiative<input type="number" value={initiative} onChange={(event) => setInitiative(Math.trunc(Number(event.target.value) || 0))} /></label>
             <label>Speed<input min="0" step="5" type="number" value={speedFeet} onChange={(event) => setSpeedFeet(Math.max(0, Math.trunc(Number(event.target.value) || 0)))} /></label>
+            <label>Maximum HP<input min="1" type="number" value={maximumHitPoints} onChange={(event) => { const maximum = Math.max(1, Math.trunc(Number(event.target.value) || 1)); setMaximumHitPoints(maximum); setCurrentHitPoints((current) => Math.min(current, maximum)); }} /></label>
+            <label>Current HP<input min="0" max={maximumHitPoints} type="number" value={currentHitPoints} onChange={(event) => setCurrentHitPoints(Math.min(maximumHitPoints, Math.max(0, Math.trunc(Number(event.target.value) || 0))))} /></label>
             <label className="dnd-encounter-check"><input type="checkbox" checked={surprised} onChange={(event) => setSurprised(event.target.checked)} />Surprised when combat begins</label>
           </div>
           <div className="dnd-encounter-button-row">
@@ -166,6 +172,7 @@ export const DndEncounterTracker = () => {
             {encounter.combatants.map((combatant, index) => {
               const isActive = encounter.started && index === encounter.currentIndex;
               const restricted = isActive && isDndTurnRestrictedBySurprise(encounter, combatant);
+              const canAct = combatant.health.lifeState === "conscious";
               return (
                 <li className={`${isActive ? "is-active " : ""}side-${combatant.side}`} key={combatant.id}>
                   <header>
@@ -173,15 +180,21 @@ export const DndEncounterTracker = () => {
                     <div><strong>{combatant.name}</strong><small>{sideLabels[combatant.side]} · Speed {combatant.speedFeet} ft.{combatant.surprised ? " · Surprised" : ""}</small></div>
                     <div className="dnd-order-controls"><button aria-label={`Move ${combatant.name} earlier`} disabled={index === 0} type="button" onClick={() => setEncounter((current) => moveDndCombatant(current, combatant.id, -1))}>↑</button><button aria-label={`Move ${combatant.name} later`} disabled={index === encounter.combatants.length - 1} type="button" onClick={() => setEncounter((current) => moveDndCombatant(current, combatant.id, 1))}>↓</button>{!encounter.started && <button type="button" onClick={() => setEncounter((current) => ({ ...current, combatants: current.combatants.filter((candidate) => candidate.id !== combatant.id) }))}>Remove</button>}</div>
                   </header>
+                  <div className="dnd-health-tags" aria-label={`Health state for ${combatant.name}`}>
+                    <span className="hp">HP {combatant.health.currentHitPoints}/{combatant.health.maximumHitPoints}</span>
+                    {combatant.health.temporaryHitPoints > 0 && <span className="temp">Temp {combatant.health.temporaryHitPoints}</span>}
+                    {combatant.health.lifeState !== "conscious" && <span className={combatant.health.lifeState === "dead" ? "dead" : "life"}>{combatant.health.lifeState}</span>}
+                  </div>
                   {encounter.started && (
                     <div className="dnd-turn-resources">
-                      <button disabled={!isActive || restricted || !combatant.actionAvailable} type="button" onClick={() => setEncounter((current) => spendDndTurnResource(current, combatant.id, "action"))}>Action {combatant.actionAvailable ? "ready" : "used"}</button>
-                      <button disabled={!isActive || restricted || !combatant.bonusActionAvailable} type="button" onClick={() => setEncounter((current) => spendDndTurnResource(current, combatant.id, "bonusAction"))}>Bonus {combatant.bonusActionAvailable ? "ready" : "used"}</button>
-                      <button disabled={!combatant.reactionAvailable} type="button" onClick={() => setEncounter((current) => spendDndTurnResource(current, combatant.id, "reaction"))}>Reaction {combatant.reactionAvailable ? "ready" : "used"}</button>
-                      <button disabled={!isActive || restricted || combatant.movementRemainingFeet === 0} type="button" onClick={() => setEncounter((current) => spendDndMovement(current, combatant.id, 5))}>Move 5 ft. ({combatant.movementRemainingFeet} left)</button>
+                      <button disabled={!isActive || !canAct || restricted || !combatant.actionAvailable} type="button" onClick={() => setEncounter((current) => spendDndTurnResource(current, combatant.id, "action"))}>Action {combatant.actionAvailable ? "ready" : "used"}</button>
+                      <button disabled={!isActive || !canAct || restricted || !combatant.bonusActionAvailable} type="button" onClick={() => setEncounter((current) => spendDndTurnResource(current, combatant.id, "bonusAction"))}>Bonus {combatant.bonusActionAvailable ? "ready" : "used"}</button>
+                      <button disabled={!canAct || !combatant.reactionAvailable} type="button" onClick={() => setEncounter((current) => spendDndTurnResource(current, combatant.id, "reaction"))}>Reaction {combatant.reactionAvailable ? "ready" : "used"}</button>
+                      <button disabled={!isActive || !canAct || restricted || combatant.movementRemainingFeet === 0} type="button" onClick={() => setEncounter((current) => spendDndMovement(current, combatant.id, 5))}>Move 5 ft. ({combatant.movementRemainingFeet} left)</button>
                     </div>
                   )}
                   {restricted && <p className="dnd-surprise-warning">2014 surprise: no movement, Action, Bonus Action, or Reaction until this first turn ends.</p>}
+                  {!canAct && <p className="dnd-surprise-warning">{combatant.health.lifeState === "dead" ? "Dead combatant: ordinary healing and turn resources are unavailable." : `${combatant.health.lifeState} at 0 HP: turn resources are unavailable; resolve Death Saves, stabilization, or healing.`}</p>}
                   {combatant.concentration && <p className="dnd-concentration-tag">Concentrating: {combatant.concentration.effectName}</p>}
                   {combatant.effects.length > 0 && (
                     <div className="dnd-effect-tags" aria-label={`Active effects on ${combatant.name}`}>
@@ -198,6 +211,10 @@ export const DndEncounterTracker = () => {
       </section>
 
       {encounter.started && encounter.combatants.length > 0 && (
+        <DndCombatantHealthPanel ruleset={ruleset} encounter={encounter} setEncounter={setEncounter} />
+      )}
+
+      {encounter.started && encounter.combatants.length > 0 && (
         <DndCombatantEffectsPanel ruleset={ruleset} encounter={encounter} setEncounter={setEncounter} />
       )}
 
@@ -208,7 +225,7 @@ export const DndEncounterTracker = () => {
           <div className="dnd-concentration-controls">
             <label>Combatant<select value={concentrationCombatantId} onChange={(event) => { setConcentrationCombatantId(event.target.value); setConcentrationResult(""); }}><option value="">Select combatant</option>{encounter.combatants.map((combatant) => <option key={combatant.id} value={combatant.id}>{combatant.name}</option>)}</select></label>
             <label>Effect<input value={concentrationEffect} onChange={(event) => setConcentrationEffect(event.target.value)} /></label>
-            <button disabled={!concentrationCombatantId} type="button" onClick={() => setEncounter((current) => startDndConcentration(current, concentrationCombatantId, concentrationEffect))}>Start / replace concentration</button>
+            <button disabled={!concentrationCombatantId || encounter.combatants.find((combatant) => combatant.id === concentrationCombatantId)?.health.lifeState !== "conscious"} type="button" onClick={() => setEncounter((current) => startDndConcentration(current, concentrationCombatantId, concentrationEffect))}>Start / replace concentration</button>
             <button disabled={!concentrationCombatantId} type="button" onClick={() => setEncounter((current) => endDndConcentration(current, concentrationCombatantId))}>End concentration</button>
           </div>
           <div className="dnd-concentration-save">

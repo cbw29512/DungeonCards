@@ -1,0 +1,253 @@
+.dnd-combatant-health {
+  display: grid;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgb(247 199 107 / 22%);
+  border-radius: 0.85rem;
+  background: rgb(26 17 35 / 88%);
+  gap: 0.85rem;
+}
+
+.dnd-combatant-health > header,
+.dnd-live-health-card > header,
+.dnd-live-health-actions section > header,
+.dnd-combatant-health > footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dnd-combatant-health > header small,
+.dnd-live-health-card small {
+  color: #d9c9b8;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dnd-combatant-health h2 {
+  margin: 0.2rem 0;
+  color: #fff0c2;
+}
+
+.dnd-combatant-health > header > strong {
+  padding: 0.35rem 0.55rem;
+  color: #ffd3d3;
+  border-radius: 999px;
+  background: rgb(141 54 54 / 24%);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.dnd-combatant-health__boundary {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  color: #d9cfde;
+  border-left: 3px solid #c97878;
+  background: rgb(117 43 43 / 17%);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.dnd-combatant-health__selector {
+  width: min(360px, 100%);
+}
+
+.dnd-live-health-card {
+  display: grid;
+  padding: 0.85rem;
+  border: 1px solid rgb(122 207 154 / 28%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 20%);
+  gap: 0.7rem;
+}
+
+.dnd-live-health-card.state-unconscious,
+.dnd-live-health-card.state-stable {
+  border-color: rgb(231 175 81 / 42%);
+}
+
+.dnd-live-health-card.state-dead {
+  border-color: rgb(201 91 91 / 48%);
+  opacity: 0.75;
+}
+
+.dnd-live-health-card > header div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.dnd-live-health-card > header strong {
+  color: #fff0c2;
+  text-transform: capitalize;
+}
+
+.dnd-live-health-card > header span {
+  color: #c8f3d7;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.dnd-live-health-metrics {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dnd-live-health-metrics span {
+  display: grid;
+  padding: 0.55rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 5%);
+  gap: 0.15rem;
+}
+
+.dnd-live-health-metrics strong {
+  color: #efe4f1;
+}
+
+.dnd-live-health-card p {
+  margin: 0;
+  color: #cfb8ff;
+}
+
+.dnd-live-health-actions {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dnd-live-health-actions section {
+  display: grid;
+  align-content: start;
+  padding: 0.7rem;
+  border-radius: 0.6rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.55rem;
+}
+
+.dnd-live-health-actions section > header strong {
+  color: #fff0c2;
+}
+
+.dnd-live-health-actions section > div,
+.dnd-death-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.dnd-live-health-actions button,
+.dnd-death-state-actions button {
+  min-height: 42px;
+  padding: 0.48rem 0.72rem;
+  color: #f4e7cf;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.dnd-live-health-actions button:disabled,
+.dnd-death-state-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.dnd-death-state-actions button {
+  flex: 1 1 190px;
+}
+
+.dnd-combatant-health output {
+  padding: 0.6rem 0.7rem;
+  color: #e8ddf3;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 5%);
+}
+
+.dnd-combatant-health > footer {
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.dnd-combatant-health > footer a {
+  color: #c8f3d7;
+}
+
+.dnd-health-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.dnd-health-tags span {
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.64rem;
+}
+
+.dnd-health-tags .hp {
+  color: #c8f3d7;
+  background: rgb(52 122 78 / 22%);
+}
+
+.dnd-health-tags .temp {
+  color: #d9e9ff;
+  background: rgb(52 89 139 / 22%);
+}
+
+.dnd-health-tags .life {
+  color: #ffe2a6;
+  background: rgb(125 80 20 / 22%);
+  text-transform: capitalize;
+}
+
+.dnd-health-tags .dead {
+  color: #ffd3d3;
+  background: rgb(141 54 54 / 24%);
+}
+
+@media (max-width: 850px) {
+  .dnd-live-health-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .dnd-combatant-health > header,
+  .dnd-live-health-card > header,
+  .dnd-combatant-health > footer {
+    display: grid;
+  }
+
+  .dnd-live-health-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media print {
+  .dnd-combatant-health__selector,
+  .dnd-live-health-actions,
+  .dnd-death-state-actions,
+  .dnd-combatant-health button,
+  .dnd-combatant-health input,
+  .dnd-combatant-health select,
+  .dnd-combatant-health__boundary {
+    display: none !important;
+  }
+
+  .dnd-combatant-health,
+  .dnd-live-health-card,
+  .dnd-live-health-metrics span {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .dnd-combatant-health,
+  .dnd-live-health-card {
+    break-inside: avoid;
+  }
+}
