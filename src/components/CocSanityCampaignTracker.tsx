@@ -3,6 +3,7 @@ import { cocSanityCampaignSources } from "../data/cocSanityCampaignSources";
 import { createClientId } from "../utils/createId";
 import {
   addSanityCampaignEffect,
+  calculateMaximumSanity,
   resolveMonthlyPsychoanalysis,
   rollIndefiniteCareMonths,
   toggleSanityCampaignEffect,
@@ -29,6 +30,7 @@ const effectLabels: Record<CocSanityCampaignEffectType, string> = {
 };
 
 export const CocSanityCampaignTracker = () => {
+  const [cthulhuMythos, setCthulhuMythos] = useState(0);
   const [currentSanity, setCurrentSanity] = useState(50);
   const [indefiniteActive, setIndefiniteActive] = useState(false);
   const [careMonths, setCareMonths] = useState<number>();
@@ -39,6 +41,7 @@ export const CocSanityCampaignTracker = () => {
   const [effectType, setEffectType] = useState<CocSanityCampaignEffectType>("phobia");
   const [effectDescription, setEffectDescription] = useState("");
   const [effects, setEffects] = useState<CocSanityCampaignEffect[]>([]);
+  const maximumSanity = calculateMaximumSanity(cthulhuMythos);
 
   const beginCare = () => {
     setCareMonths(rollIndefiniteCareMonths());
@@ -51,7 +54,8 @@ export const CocSanityCampaignTracker = () => {
     const outcome = resolveMonthlyPsychoanalysis(
       currentSanity,
       psychoanalysisSkill,
-      secureRandomInteger(1, 100)
+      secureRandomInteger(1, 100),
+      maximumSanity
     );
     setTreatmentResult(outcome);
     setCurrentSanity(outcome.nextSanity);
@@ -97,8 +101,16 @@ export const CocSanityCampaignTracker = () => {
       </section>
 
       <div className="coc-control-grid coc-control-grid--two">
-        <label>Current Sanity<input min="0" max="99" type="number" value={currentSanity} onChange={(event) => {
-          setCurrentSanity(Math.min(99, Math.max(0, Math.trunc(Number(event.target.value) || 0))));
+        <label>Cthulhu Mythos<input min="0" max="99" type="number" value={cthulhuMythos} onChange={(event) => {
+          const nextMythos = Math.min(99, Math.max(0, Math.trunc(Number(event.target.value) || 0)));
+          const nextMaximum = calculateMaximumSanity(nextMythos);
+          setCthulhuMythos(nextMythos);
+          setCurrentSanity((current) => Math.min(nextMaximum, current));
+          setTreatmentResult(undefined);
+        }} /></label>
+        <label>Maximum Sanity<input readOnly type="number" value={maximumSanity} /></label>
+        <label>Current Sanity<input min="0" max={maximumSanity} type="number" value={currentSanity} onChange={(event) => {
+          setCurrentSanity(Math.min(maximumSanity, Math.max(0, Math.trunc(Number(event.target.value) || 0))));
           setTreatmentResult(undefined);
         }} /></label>
         <label>Psychoanalysis skill<input min="1" max="100" type="number" value={psychoanalysisSkill} onChange={(event) => {
@@ -106,6 +118,7 @@ export const CocSanityCampaignTracker = () => {
           setTreatmentResult(undefined);
         }} /></label>
       </div>
+      <CocRuleStatus source={source("coc-maximum-sanity")} />
 
       <section className="coc-care-clock">
         <header><small>Institutional or similar care</small><strong>{careMonths === undefined ? "Duration not generated" : `${monthsCompleted} of ${careMonths} months completed`}</strong></header>
@@ -131,7 +144,7 @@ export const CocSanityCampaignTracker = () => {
           <section className="coc-compact-result" aria-live="polite">
             <small>Roll {treatmentResult.roll} · {treatmentResult.successLevel}</small>
             <strong>{treatmentResult.sanityChange > 0 ? `+${treatmentResult.sanityChange}` : treatmentResult.sanityChange}</strong>
-            <span>SAN {treatmentResult.nextSanity}</span>
+            <span>SAN {treatmentResult.nextSanity} / {maximumSanity}</span>
             <p>{treatmentResult.summary}</p>
           </section>
         )}
