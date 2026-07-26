@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DndPregenCharacterRecord } from "../types/dndPregenCharacter";
+import { auditDndPregenCharacterCatalog } from "./dndPregenCatalog";
 import {
   dndAbilityModifier,
   dndProficiencyBonusForLevel,
@@ -26,14 +27,7 @@ const validRecord: DndPregenCharacterRecord = {
   role: "defender",
   complexity: "beginner",
   tags: ["melee", "shield"],
-  abilityScores: {
-    strength: 16,
-    dexterity: 12,
-    constitution: 14,
-    intelligence: 8,
-    wisdom: 10,
-    charisma: 13
-  },
+  abilityScores: { strength: 16, dexterity: 12, constitution: 14, intelligence: 8, wisdom: 10, charisma: 13 },
   proficiencyBonus: 2,
   armorClass: 18,
   initiative: 1,
@@ -45,19 +39,8 @@ const validRecord: DndPregenCharacterRecord = {
   senses: ["Passive Perception 12"],
   languages: ["Common"],
   proficiencies: ["All armor", "Shields", "Simple weapons", "Martial weapons"],
-  attacks: [{
-    id: "longsword",
-    name: "Longsword",
-    attackBonus: 5,
-    range: "5 ft.",
-    damage: "1d8 + 3 slashing"
-  }],
-  resources: [{
-    id: "second-wind",
-    name: "Second Wind",
-    maximum: 1,
-    recovery: "short-rest"
-  }],
+  attacks: [{ id: "longsword", name: "Longsword", attackBonus: 5, range: "5 ft.", damage: "1d8 + 3 slashing" }],
+  resources: [{ id: "second-wind", name: "Second Wind", maximum: 1, recovery: "short-rest" }],
   features: ["Fighting Style", "Second Wind"],
   actions: ["Attack", "Dash", "Disengage", "Dodge", "Help", "Ready", "Search"],
   bonusActions: ["Second Wind"],
@@ -93,6 +76,32 @@ describe("D&D ready-to-play pregen validation", () => {
     expect(isDndPregenReadyToPlay(validRecord)).toBe(true);
   });
 
+  it("validates standard spell attack and save DC formulas", () => {
+    const spellcaster: DndPregenCharacterRecord = {
+      ...validRecord,
+      id: "sample-evoker-2024-1",
+      slotId: "srd-5.2.1-2024-wizard-evoker-1",
+      classId: "wizard",
+      className: "Wizard",
+      subclassId: "evoker",
+      subclassName: "Evoker",
+      abilityScores: { ...validRecord.abilityScores, intelligence: 16 },
+      spellcasting: {
+        ability: "intelligence",
+        attackBonus: 5,
+        saveDc: 13,
+        slots: { 1: 2 },
+        cantrips: ["Fire Bolt"],
+        preparedOrKnown: ["Magic Missile"]
+      }
+    };
+    expect(validateDndPregenCharacter(spellcaster)).toEqual([]);
+    expect(validateDndPregenCharacter({
+      ...spellcaster,
+      spellcasting: { ...spellcaster.spellcasting!, saveDc: 14 }
+    })).toContain("Spell save DC does not match the standard formula.");
+  });
+
   it("rejects mismatched slot identity and edition sources", () => {
     const invalid = {
       ...validRecord,
@@ -106,9 +115,13 @@ describe("D&D ready-to-play pregen validation", () => {
     expect(isDndPregenReadyToPlay(invalid)).toBe(false);
   });
 
-  it("keeps complete drafts out of the ready catalog", () => {
+  it("keeps drafts out and reports duplicate production records", () => {
     const draft = { ...validRecord, reviewStatus: "draft" as const, reviewedAt: undefined };
     expect(validateDndPregenCharacter(draft)).toEqual([]);
     expect(isDndPregenReadyToPlay(draft)).toBe(false);
+    expect(auditDndPregenCharacterCatalog([validRecord, validRecord])).toEqual(expect.arrayContaining([
+      `Duplicate character id: ${validRecord.id}`,
+      `Duplicate character slot: ${validRecord.slotId}`
+    ]));
   });
 });
