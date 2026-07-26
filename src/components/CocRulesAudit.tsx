@@ -1,6 +1,7 @@
 import { cocInvestigatorRuleSources } from "../data/cocInvestigatorRuleSources";
 import { cocLuckRuleSources } from "../data/cocLuckRuleSources";
 import { cocRuleSources, cocRuleVerificationLabels } from "../data/cocRuleSources";
+import { cocSanityCampaignSources } from "../data/cocSanityCampaignSources";
 import type { CocRuleVerificationStatus } from "../types/coc";
 import { CocRuleStatus } from "./CocRuleStatus";
 
@@ -14,7 +15,8 @@ const statusOrder: CocRuleVerificationStatus[] = [
 const auditedSources = [
   ...cocRuleSources,
   ...cocLuckRuleSources,
-  ...cocInvestigatorRuleSources
+  ...cocInvestigatorRuleSources,
+  ...cocSanityCampaignSources
 ];
 
 export const CocRulesAudit = () => {
