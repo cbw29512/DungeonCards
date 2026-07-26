@@ -49,7 +49,7 @@ const classFeatures2014 = (level: number): string[] => attainedBarbarianFeatures
 const subclassFeatures2014 = (level: number): string[] => attainedBarbarianFeatures(level, [
   [3, "Frenzy: when entering Rage, choose Frenzy; on later turns make one melee weapon attack as a Bonus Action, then gain one Exhaustion level when Rage ends"],
   [6, "Mindless Rage: while raging, you cannot be charmed or frightened; existing effects are suspended"],
-  [10, "Intimidating Presence: Action; one creature within 30 feet makes a Wisdom save against DC 8 + Proficiency Bonus + Charisma modifier or becomes frightened"],
+  [10, "Intimidating Presence: Action; one creature within 30 feet that can see or hear you makes a Wisdom save against DC 8 + Proficiency Bonus + Charisma modifier. On failure it is frightened until the end of your next turn; use your Action on later turns to extend it. After success or the effect ends, the creature is immune for 24 hours"],
   [14, "Retaliation: Reaction; after a creature within 5 feet damages you, make one melee weapon attack against it"]
 ]);
 
