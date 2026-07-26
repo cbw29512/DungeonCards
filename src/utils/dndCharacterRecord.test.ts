@@ -34,11 +34,11 @@ describe("D&D structured character record engine", () => {
   });
 
   it("derives spellcasting expectations by class, edition, and level", () => {
-    const bard = getDndPregenBuildSlot("srd-5.1-2014", "bard", 1)!;
-    const fighter = getDndPregenBuildSlot("srd-5.2.1-2024", "fighter", 20)!;
-    const paladin2014Level1 = getDndPregenBuildSlot("srd-5.1-2014", "paladin", 1)!;
-    const paladin2014Level2 = getDndPregenBuildSlot("srd-5.1-2014", "paladin", 2)!;
-    const paladin2024Level1 = getDndPregenBuildSlot("srd-5.2.1-2024", "paladin", 1)!;
+    const bard = getDndPregenBuildSlot("srd-5.1-2014", "bard", "college-lore", 1)!;
+    const fighter = getDndPregenBuildSlot("srd-5.2.1-2024", "fighter", "champion", 20)!;
+    const paladin2014Level1 = getDndPregenBuildSlot("srd-5.1-2014", "paladin", "oath-devotion", 1)!;
+    const paladin2014Level2 = getDndPregenBuildSlot("srd-5.1-2014", "paladin", "oath-devotion", 2)!;
+    const paladin2024Level1 = getDndPregenBuildSlot("srd-5.2.1-2024", "paladin", "oath-devotion", 1)!;
 
     expect(isDndSpellcastingExpected(bard)).toBe(true);
     expect(isDndSpellcastingExpected(fighter)).toBe(false);
@@ -47,13 +47,14 @@ describe("D&D structured character record engine", () => {
     expect(isDndSpellcastingExpected(paladin2024Level1)).toBe(true);
   });
 
-  it("creates intentionally incomplete blueprints tied to their build slot", () => {
-    const slot = getDndPregenBuildSlot("srd-5.1-2014", "cleric", 1)!;
+  it("creates intentionally incomplete blueprints tied to their subclass-aware slot", () => {
+    const slot = getDndPregenBuildSlot("srd-5.1-2014", "cleric", "life-domain", 1)!;
     const blueprint = createDndCharacterBlueprint(slot);
     const validation = validateDndCharacterRecord(blueprint);
 
     expect(blueprint).toMatchObject({
       buildSlotId: slot.id,
+      subclassId: "life-domain",
       subclassUnlockLevel: 1,
       spellcastingExpected: true,
       spellcasting: { kind: "none" },
@@ -65,7 +66,7 @@ describe("D&D structured character record engine", () => {
   });
 
   it("uses the edition-specific subclass unlock level", () => {
-    const clericSlot = getDndPregenBuildSlot("srd-5.1-2014", "cleric", 1)!;
+    const clericSlot = getDndPregenBuildSlot("srd-5.1-2014", "cleric", "life-domain", 1)!;
     const cleric = createDndCharacterBlueprint(clericSlot);
     cleric.name = "Sister Arden";
     cleric.species = "Human";
@@ -87,8 +88,8 @@ describe("D&D structured character record engine", () => {
     expect(validation.issues.some((issue) => issue.message.includes("Subclass features"))).toBe(true);
   });
 
-  it("approves a complete non-spellcasting record and rejects regressions", () => {
-    const slot = getDndPregenBuildSlot("srd-5.2.1-2024", "fighter", 5)!;
+  it("approves a complete non-spellcasting record and rejects identity regressions", () => {
+    const slot = getDndPregenBuildSlot("srd-5.2.1-2024", "fighter", "champion", 5)!;
     const record = createDndCharacterBlueprint(slot);
     Object.assign(record, {
       name: "Kara Stoneguard",
@@ -118,9 +119,9 @@ describe("D&D structured character record engine", () => {
 
     expect(validateDndCharacterRecord(record)).toMatchObject({ ready: true, issues: [] });
 
-    record.attacks = [];
+    record.subclassId = "wrong-subclass";
     const invalid = validateDndCharacterRecord(record);
     expect(invalid.ready).toBe(false);
-    expect(invalid.missingCategories).toContain("combat");
+    expect(invalid.issues.some((issue) => issue.message.includes("Build slot"))).toBe(true);
   });
 });
