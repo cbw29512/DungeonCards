@@ -6,6 +6,7 @@ import { DndConditionsLibrary } from "./components/DndConditionsLibrary";
 import { DndEncounterTracker } from "./components/DndEncounterTracker";
 import { DndHealthTracker } from "./components/DndHealthTracker";
 import { DndMovementLibrary } from "./components/DndMovementLibrary";
+import { DndPregenLibrary } from "./components/DndPregenLibrary";
 import { DndRulesGuide } from "./components/DndRulesGuide";
 import { DndWeaponMasteryLibrary } from "./components/DndWeaponMasteryLibrary";
 import { GameSystemGateway, type GameSystemId } from "./components/GameSystemGateway";
@@ -45,6 +46,7 @@ import "./styles/monster-card-flip.css";
 import "./styles/srd-encounter-monsters.css";
 import "./styles/monster-homebrew.css";
 import "./styles/monster-print.css";
+import "./styles/dnd-pregen-library.css";
 import "./styles/coc-preview.css";
 import "./styles/coc-rule-status.css";
 import "./styles/coc-reference-expansion.css";
@@ -62,6 +64,7 @@ const pageLabels: Record<DndAppPage, string> = {
   movement: "Movement & Special Actions",
   health: "HP & Death Saves",
   combat: "Initiative & Concentration",
+  pregens: "Premade Characters",
   mastery: "Weapon Mastery",
   armor: "Armor & Loadout",
   compendium: "SRD Compendium",
@@ -133,6 +136,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <button aria-pressed={activePage === "movement"} type="button" onClick={() => navigate("movement")}>Movement</button>
           <button aria-pressed={activePage === "health"} type="button" onClick={() => navigate("health")}>Health</button>
           <button aria-pressed={activePage === "combat"} type="button" onClick={() => navigate("combat")}>Combat</button>
+          <button aria-pressed={activePage === "pregens"} type="button" onClick={() => navigate("pregens")}>Pregens</button>
           <button aria-pressed={activePage === "mastery"} type="button" onClick={() => navigate("mastery")}>Mastery</button>
           <button aria-pressed={activePage === "armor"} type="button" onClick={() => navigate("armor")}>Armor</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
@@ -179,6 +183,10 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
                   <span aria-hidden="true">⏱️</span><strong>Initiative &amp; Concentration</strong>
                   <small>Run rounds, turns, movement, reactions, surprise, and concentration checks.</small>
                 </button>
+                <button className="role-card" type="button" onClick={() => navigate("pregens")}>
+                  <span aria-hidden="true">🧑‍🤝‍🧑</span><strong>Premade Characters</strong>
+                  <small>Browse the edition-separated class, subclass, and level build matrix as complete sheets are released.</small>
+                </button>
                 <button className="role-card" type="button" onClick={() => navigate("mastery")}>
                   <span aria-hidden="true">⚔️</span><strong>Weapon Mastery</strong>
                   <small>Run all eight 2024 mastery properties with weapon lookup, Topple DC, and turn limits.</small>
@@ -222,6 +230,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         {activePage === "movement" && <DndMovementLibrary />}
         {activePage === "health" && <DndHealthTracker />}
         {activePage === "combat" && <DndEncounterTracker />}
+        {activePage === "pregens" && <DndPregenLibrary />}
         {activePage === "mastery" && <DndWeaponMasteryLibrary />}
         {activePage === "armor" && <DndArmorLoadout />}
         {activePage === "compendium" && <SrdCompendium />}
