@@ -57,6 +57,7 @@ export const createDndCharacterBlueprint = (slot: DndPregenBuildSlot): DndCharac
   name: "",
   classId: slot.classId,
   className: slot.className,
+  subclassId: slot.subclassId,
   subclassName: slot.subclassName,
   subclassUnlockLevel: slot.subclassUnlockLevel,
   level: slot.level,
@@ -97,6 +98,10 @@ const addIssue = (
 
 const unique = <T,>(values: T[]): T[] => [...new Set(values)];
 
+export const expectedDndCharacterBuildSlotId = (record: DndCharacterRecord): string => (
+  `${record.ruleset}-${record.classId}-${record.subclassId}-${record.level}`
+);
+
 export const validateDndCharacterRecord = (record: DndCharacterRecord): DndCharacterValidation => {
   const issues: DndCharacterValidationIssue[] = [];
 
@@ -104,8 +109,9 @@ export const validateDndCharacterRecord = (record: DndCharacterRecord): DndChara
   addIssue(issues, "identity", !record.species.trim(), "Species is missing.");
   addIssue(issues, "identity", !record.background.trim(), "Background is missing.");
   addIssue(issues, "identity", record.level < 1 || record.level > 20, "Character level must be between 1 and 20.");
-  addIssue(issues, "identity", !record.className.trim() || !record.subclassName.trim(), "Class or subclass path is missing.");
+  addIssue(issues, "identity", !record.className.trim() || !record.subclassId.trim() || !record.subclassName.trim(), "Class or subclass path is missing.");
   addIssue(issues, "identity", record.subclassUnlockLevel < 1 || record.subclassUnlockLevel > 20, "Subclass unlock level is invalid.");
+  addIssue(issues, "identity", record.buildSlotId !== expectedDndCharacterBuildSlotId(record), "Build slot does not match edition, class, subclass, and level.");
 
   for (const ability of dndAbilityIds) {
     const score = record.abilityScores[ability];
@@ -136,37 +142,20 @@ export const validateDndCharacterRecord = (record: DndCharacterRecord): DndChara
   }
 
   addIssue(issues, "advancement", record.level >= 4 && record.advancementChoices.length === 0, "Level-earned advancement choices are missing.");
-  addIssue(issues, "advancement", record.level >= 1 && record.classFeatures.length === 0, "Class progression has not been applied.");
+  addIssue(issues, "advancement", record.classFeatures.length === 0, "Class progression has not been applied.");
   addIssue(issues, "advancement", record.level >= record.subclassUnlockLevel && record.subclassFeatures.length === 0, "Subclass features for this level are missing.");
-
   addIssue(issues, "equipment", record.equipment.length === 0, "Starting or level-appropriate equipment is missing.");
   addIssue(issues, "equipment", !Number.isFinite(record.currencyGp) || record.currencyGp < 0, "Currency must be a nonnegative number.");
-
   addIssue(issues, "sources", record.sources.length === 0, "At least one source reference is required.");
   addIssue(issues, "sources", record.sources.some((source) => !source.label.trim() || !source.url.trim()), "Every source needs a label and URL.");
-
   addIssue(issues, "print", !record.printableSummaryReady, "Printable quick-play output has not passed review.");
 
-  const categories: DndCharacterValidationCategory[] = [
-    "identity",
-    "abilities",
-    "defenses",
-    "proficiencies",
-    "combat",
-    "resources",
-    "spellcasting",
-    "advancement",
-    "equipment",
-    "sources",
-    "print"
-  ];
+  const categories: DndCharacterValidationCategory[] = ["identity", "abilities", "defenses", "proficiencies", "combat", "resources", "spellcasting", "advancement", "equipment", "sources", "print"];
   const missingCategories = unique(issues.map((issue) => issue.category));
-  const completedCategories = categories.filter((category) => !missingCategories.includes(category));
-
   return {
     ready: issues.length === 0,
     issues,
-    completedCategories,
+    completedCategories: categories.filter((category) => !missingCategories.includes(category)),
     missingCategories
   };
 };
