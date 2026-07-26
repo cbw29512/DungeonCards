@@ -18,6 +18,7 @@ export type DndPregenClassDefinition = {
   ruleset: RulesetId;
   classId: DndPregenClassId;
   className: string;
+  subclassId: string;
   subclassName: string;
   subclassUnlockLevel: number;
   sourceLabel: string;
@@ -25,56 +26,76 @@ export type DndPregenClassDefinition = {
   licenseScope: "public-srd";
 };
 
-const source2014 = "https://www.dndbeyond.com/sources/dnd/basic-rules-2014/classes";
-const source2024 = "https://www.dndbeyond.com/sources/dnd/br-2024/character-classes";
+type DefinitionRow = readonly [
+  DndPregenClassId,
+  string,
+  string,
+  string,
+  number
+];
 
-const definitions2014: DndPregenClassDefinition[] = [
-  ["barbarian", "Barbarian", "Path of the Berserker", 3],
-  ["bard", "Bard", "College of Lore", 3],
-  ["cleric", "Cleric", "Life Domain", 1],
-  ["druid", "Druid", "Circle of the Land", 2],
-  ["fighter", "Fighter", "Champion", 3],
-  ["monk", "Monk", "Way of the Open Hand", 3],
-  ["paladin", "Paladin", "Oath of Devotion", 3],
-  ["ranger", "Ranger", "Hunter", 3],
-  ["rogue", "Rogue", "Thief", 3],
-  ["sorcerer", "Sorcerer", "Draconic Bloodline", 1],
-  ["warlock", "Warlock", "The Fiend", 1],
-  ["wizard", "Wizard", "School of Evocation", 2]
-].map(([classId, className, subclassName, subclassUnlockLevel]) => ({
-  ruleset: "srd-5.1-2014",
-  classId: classId as DndPregenClassId,
-  className: className as string,
-  subclassName: subclassName as string,
-  subclassUnlockLevel: subclassUnlockLevel as number,
-  sourceLabel: "2014 Basic Rules / SRD 5.1 class",
-  sourceUrl: source2014,
+const createDefinitions = (
+  ruleset: RulesetId,
+  sourceLabel: string,
+  sourceUrl: string,
+  rows: DefinitionRow[]
+): DndPregenClassDefinition[] => rows.map(([
+  classId,
+  className,
+  subclassId,
+  subclassName,
+  subclassUnlockLevel
+]) => ({
+  ruleset,
+  classId,
+  className,
+  subclassId,
+  subclassName,
+  subclassUnlockLevel,
+  sourceLabel,
+  sourceUrl,
   licenseScope: "public-srd"
 }));
 
-const definitions2024: DndPregenClassDefinition[] = [
-  ["barbarian", "Barbarian", "Path of the Berserker"],
-  ["bard", "Bard", "College of Lore"],
-  ["cleric", "Cleric", "Life Domain"],
-  ["druid", "Druid", "Circle of the Land"],
-  ["fighter", "Fighter", "Champion"],
-  ["monk", "Monk", "Warrior of the Open Hand"],
-  ["paladin", "Paladin", "Oath of Devotion"],
-  ["ranger", "Ranger", "Hunter"],
-  ["rogue", "Rogue", "Thief"],
-  ["sorcerer", "Sorcerer", "Draconic Sorcery"],
-  ["warlock", "Warlock", "Fiend Patron"],
-  ["wizard", "Wizard", "Evoker"]
-].map(([classId, className, subclassName]) => ({
-  ruleset: "srd-5.2.1-2024",
-  classId: classId as DndPregenClassId,
-  className: className as string,
-  subclassName: subclassName as string,
-  subclassUnlockLevel: 3,
-  sourceLabel: "2024 Free Rules / SRD 5.2.1 class",
-  sourceUrl: source2024,
-  licenseScope: "public-srd"
-}));
+const definitions2014 = createDefinitions(
+  "srd-5.1-2014",
+  "2014 Basic Rules / SRD 5.1 class",
+  "https://www.dndbeyond.com/sources/dnd/basic-rules-2014/classes",
+  [
+    ["barbarian", "Barbarian", "path-berserker", "Path of the Berserker", 3],
+    ["bard", "Bard", "college-lore", "College of Lore", 3],
+    ["cleric", "Cleric", "life-domain", "Life Domain", 1],
+    ["druid", "Druid", "circle-land", "Circle of the Land", 2],
+    ["fighter", "Fighter", "champion", "Champion", 3],
+    ["monk", "Monk", "way-open-hand", "Way of the Open Hand", 3],
+    ["paladin", "Paladin", "oath-devotion", "Oath of Devotion", 3],
+    ["ranger", "Ranger", "hunter", "Hunter", 3],
+    ["rogue", "Rogue", "thief", "Thief", 3],
+    ["sorcerer", "Sorcerer", "draconic-bloodline", "Draconic Bloodline", 1],
+    ["warlock", "Warlock", "fiend", "The Fiend", 1],
+    ["wizard", "Wizard", "school-evocation", "School of Evocation", 2]
+  ]
+);
+
+const definitions2024 = createDefinitions(
+  "srd-5.2.1-2024",
+  "2024 Free Rules / SRD 5.2.1 class",
+  "https://www.dndbeyond.com/sources/dnd/br-2024/character-classes",
+  [
+    ["barbarian", "Barbarian", "path-berserker", "Path of the Berserker", 3],
+    ["bard", "Bard", "college-lore", "College of Lore", 3],
+    ["cleric", "Cleric", "life-domain", "Life Domain", 3],
+    ["druid", "Druid", "circle-land", "Circle of the Land", 3],
+    ["fighter", "Fighter", "champion", "Champion", 3],
+    ["monk", "Monk", "warrior-open-hand", "Warrior of the Open Hand", 3],
+    ["paladin", "Paladin", "oath-devotion", "Oath of Devotion", 3],
+    ["ranger", "Ranger", "hunter", "Hunter", 3],
+    ["rogue", "Rogue", "thief", "Thief", 3],
+    ["sorcerer", "Sorcerer", "draconic-sorcery", "Draconic Sorcery", 3],
+    ["warlock", "Warlock", "fiend-patron", "Fiend Patron", 3],
+    ["wizard", "Wizard", "evoker", "Evoker", 3]
+  ]
+);
 
 export const dndPregenClassDefinitions: DndPregenClassDefinition[] = [
   ...definitions2014,
