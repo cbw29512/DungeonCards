@@ -18,6 +18,21 @@ describe("D&D health and death-state engine", () => {
     expect(result.state).toMatchObject({ currentHitPoints: 17, temporaryHitPoints: 0, lifeState: "conscious" });
   });
 
+  it("resolves temporary HP before damage consequences at zero HP", () => {
+    const protectedState = chooseDndTemporaryHitPoints(createDndHealthState("srd-5.2.1-2024", 20, 0), 5, "replace");
+    const fullyAbsorbed = applyDndDamage(protectedState, 5, true);
+    expect(fullyAbsorbed.state).toMatchObject({ lifeState: "unconscious", temporaryHitPoints: 0, deathSaveFailures: 0 });
+    expect(fullyAbsorbed.deathFailuresAdded).toBe(0);
+
+    const partiallyAbsorbed = applyDndDamage(protectedState, 7);
+    expect(partiallyAbsorbed.state).toMatchObject({ temporaryHitPoints: 0, deathSaveFailures: 1 });
+
+    const massiveAfterBuffer = applyDndDamage(protectedState, 24);
+    expect(massiveAfterBuffer.state.lifeState).toBe("unconscious");
+    const lethalAfterBuffer = applyDndDamage(protectedState, 25);
+    expect(lethalAfterBuffer.state.lifeState).toBe("dead");
+  });
+
   it("drops to 0 without going negative and detects massive damage", () => {
     const unconscious = applyDndDamage(createDndHealthState("srd-5.1-2014", 12, 6), 10);
     expect(unconscious.state).toMatchObject({ currentHitPoints: 0, lifeState: "unconscious" });
