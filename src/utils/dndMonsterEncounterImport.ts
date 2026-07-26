@@ -16,6 +16,10 @@ export type DndMonsterEncounterDefaults = {
   issues: string[];
 };
 
+const documentedDexterityCorrections: Record<string, number> = {
+  "srd-5.2.1-2024-monster-adult-white-dragon": 0
+};
+
 const firstPositiveInteger = (value: string): number | undefined => {
   const match = String(value || "").match(/\b(\d+)\b/);
   if (!match) return undefined;
@@ -42,9 +46,10 @@ export const buildDndMonsterEncounterDefaults = (
     ? firstPositiveInteger(entry.monster.hp)
     : firstPositiveInteger(entry.monster.hitPoints);
   const speedFeet = parseDndWalkingSpeed(entry.monster.speed);
-  const dexterityModifier = entry.kind === "formatted"
+  const parsedDexterityModifier = entry.kind === "formatted"
     ? abilityModifier(entry.monster.abilities.dex)
     : buildMonsterCombatReference(entry.monster).abilities.find((ability) => ability.name === "DEX")?.modifier;
+  const dexterityModifier = parsedDexterityModifier ?? documentedDexterityCorrections[entry.id];
 
   if (maximumHitPoints === undefined) issues.push("Hit Points could not be parsed; enter them manually.");
   if (speedFeet === undefined) issues.push("Walking Speed could not be parsed; enter it manually.");
