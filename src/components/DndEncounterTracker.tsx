@@ -13,12 +13,12 @@ import {
   spendDndTurnResource,
   startDndConcentration,
   startDndEncounter,
-  updateDndCombatant,
   type DndCombatantSide,
   type DndEncounterState
 } from "../utils/dndEncounter";
 import { secureRandomInteger } from "../utils/randomInteger";
 import { RULESET_LABELS, type RulesetId } from "../types/ruleCards";
+import { DndCombatantEffectsPanel } from "./DndCombatantEffectsPanel";
 import "../styles/dnd-encounter-tracker.css";
 
 const emptyEncounter = (ruleset: RulesetId): DndEncounterState => ({
@@ -52,7 +52,6 @@ export const DndEncounterTracker = () => {
 
   const source = dndEncounterRules[ruleset];
   const active = encounter.started ? encounter.combatants[encounter.currentIndex] : undefined;
-  const activeRestricted = active ? isDndTurnRestrictedBySurprise(encounter, active) : false;
   const concentrationDc = calculateDndConcentrationDc(ruleset, damageTaken);
   const concentratingCombatants = useMemo(
     () => encounter.combatants.filter((combatant) => combatant.concentration),
@@ -184,12 +183,23 @@ export const DndEncounterTracker = () => {
                   )}
                   {restricted && <p className="dnd-surprise-warning">2014 surprise: no movement, Action, Bonus Action, or Reaction until this first turn ends.</p>}
                   {combatant.concentration && <p className="dnd-concentration-tag">Concentrating: {combatant.concentration.effectName}</p>}
+                  {combatant.effects.length > 0 && (
+                    <div className="dnd-effect-tags" aria-label={`Active effects on ${combatant.name}`}>
+                      {combatant.effects.map((effect) => (
+                        <span key={effect.id}>{effect.name}{effect.remainingRounds === undefined ? "" : ` · ${effect.remainingRounds}r`}</span>
+                      ))}
+                    </div>
+                  )}
                 </li>
               );
             })}
           </ol>
         )}
       </section>
+
+      {encounter.started && encounter.combatants.length > 0 && (
+        <DndCombatantEffectsPanel ruleset={ruleset} encounter={encounter} setEncounter={setEncounter} />
+      )}
 
       {encounter.started && encounter.combatants.length > 0 && (
         <section className="dnd-concentration-workspace" aria-labelledby="concentration-title">
