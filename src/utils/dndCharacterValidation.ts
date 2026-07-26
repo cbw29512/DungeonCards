@@ -50,7 +50,12 @@ export const validateDndCharacterRecord = (record: DndCharacterRecord): DndChara
   addIssue(issues, "combat", record.attacks.some((attack) => !attack.id || !attack.name.trim() || !attack.damageFormula.trim() || !attack.damageType.trim() || !attack.rangeOrReach.trim()), "Every attack needs an ID, name, damage formula, damage type, and range or reach.");
 
   addIssue(issues, "resources", record.classFeatures.length === 0, "Class features for this level are missing.");
-  addIssue(issues, "resources", record.resources.some((resource) => !resource.id || !resource.name.trim() || resource.maximum < 1), "Every tracked resource needs an ID, name, and positive maximum.");
+  addIssue(issues, "resources", record.resources.some((resource) => (
+    !resource.id
+    || !resource.name.trim()
+    || (!resource.unlimited && resource.maximum < 1)
+    || (resource.unlimited && resource.maximum !== 0)
+  )), "Every tracked resource needs an ID, name, and either a positive maximum or an unlimited marker.");
 
   addIssue(issues, "spellcasting", record.spellcastingExpected && record.spellcasting.kind === "none", "This class and level require a complete spellcasting profile.");
   if (record.spellcasting.kind !== "none") {
