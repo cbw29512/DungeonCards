@@ -36,6 +36,23 @@ describe("buildMonsterCombatReference", () => {
     expect(reference.senses).toContain("passive Perception 19");
   });
 
+  it("parses generated SRD blocks with labels followed by six values", () => {
+    const reference = buildMonsterCombatReference({
+      ...monster,
+      rawText: "Armor Class 17 Hit Points 135 Speed 10 ft., swim 40 ft. STR DEX CON INT WIS CHA 21 (+5) 9 (-1) 15 (+2) 18 (+4) 15 (+2) 18 (+4) Saving Throws Con +6"
+    });
+
+    expect(reference.abilities).toEqual([
+      { name: "STR", score: 21, modifier: 5 },
+      { name: "DEX", score: 9, modifier: -1 },
+      { name: "CON", score: 15, modifier: 2 },
+      { name: "INT", score: 18, modifier: 4 },
+      { name: "WIS", score: 15, modifier: 2 },
+      { name: "CHA", score: 18, modifier: 4 }
+    ]);
+    expect(reference.initiative).toBe("-1 (DEX 9)");
+  });
+
   it("prioritizes actionable combat entries and records other action types", () => {
     const reference = buildMonsterCombatReference(monster);
 
