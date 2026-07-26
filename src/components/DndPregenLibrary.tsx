@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dndFighterPregenRecords, getDndReadyPregenRecord } from "../data/dndFighterPregens";
 import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
 import type { RulesetId } from "../types/ruleCards";
 import {
@@ -9,6 +10,7 @@ import {
   getDndPregenBuildSlot,
   summarizeDndPregenBuilds
 } from "../utils/dndPregenCatalog";
+import { DndPregenCharacterSheet } from "./DndPregenCharacterSheet";
 
 const rulesets: Array<{ id: RulesetId; label: string }> = [
   { id: "srd-5.1-2014", label: "2014 / SRD 5.1" },
@@ -52,9 +54,13 @@ export const DndPregenLibrary = () => {
   const selectedSlot = selectedDefinition
     ? getDndPregenBuildSlot(ruleset, selectedDefinition.classId, level)
     : undefined;
-  const selectedBlueprint = selectedSlot ? createDndCharacterBlueprint(selectedSlot) : undefined;
-  const readiness = selectedBlueprint ? validateDndCharacterRecord(selectedBlueprint) : undefined;
+  const selectedReadyRecord = selectedDefinition
+    ? getDndReadyPregenRecord(ruleset, selectedDefinition.classId, level)
+    : undefined;
+  const selectedRecord = selectedReadyRecord ?? (selectedSlot ? createDndCharacterBlueprint(selectedSlot) : undefined);
+  const readiness = selectedRecord ? validateDndCharacterRecord(selectedRecord) : undefined;
   const summary = summarizeDndPregenBuilds(ruleset);
+  const releasedCount = dndFighterPregenRecords.filter((record) => record.ruleset === ruleset).length;
 
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
@@ -78,7 +84,7 @@ export const DndPregenLibrary = () => {
         <div className="pregen-library__totals" aria-label="Selected edition pregen totals">
           <strong>{summary.total}</strong>
           <span>planned sheets</span>
-          <small>{summary.classes} classes × {summary.levels} levels</small>
+          <small>{releasedCount} released · {summary.total - releasedCount} blueprints</small>
         </div>
       </header>
 
@@ -99,11 +105,14 @@ export const DndPregenLibrary = () => {
         <label>
           Class and public subclass path
           <select value={selectedDefinition?.classId ?? ""} onChange={(event) => setClassId(event.target.value)}>
-            {definitions.map((definition) => (
-              <option key={definition.classId} value={definition.classId}>
-                {definition.className} · {definition.subclassName}
-              </option>
-            ))}
+            {definitions.map((definition) => {
+              const classReleased = dndFighterPregenRecords.some((record) => record.ruleset === ruleset && record.classId === definition.classId);
+              return (
+                <option key={definition.classId} value={definition.classId}>
+                  {definition.className} · {definition.subclassName}{classReleased ? " · Ready" : " · Blueprint"}
+                </option>
+              );
+            })}
           </select>
         </label>
         <label>
@@ -118,7 +127,7 @@ export const DndPregenLibrary = () => {
         <article className="pregen-library__selection">
           <div className="pregen-library__selection-heading">
             <div>
-              <p>{ruleset === "srd-5.1-2014" ? "2014" : "2024"} pregen blueprint</p>
+              <p>{ruleset === "srd-5.1-2014" ? "2014" : "2024"} pregen {readiness.ready ? "release" : "blueprint"}</p>
               <h3>Level {level} {selectedDefinition.className}</h3>
               <span>{selectedDefinition.subclassName}</span>
             </div>
@@ -166,6 +175,8 @@ export const DndPregenLibrary = () => {
         </article>
       )}
 
+      {selectedReadyRecord && readiness?.ready && <DndPregenCharacterSheet record={selectedReadyRecord} />}
+
       <div className="pregen-library__columns">
         <section>
           <h3>Ready-to-play gate</h3>
@@ -184,8 +195,8 @@ export const DndPregenLibrary = () => {
             Future expansion can add original compatible subclasses or a private, user-owned import layer that never publishes protected text.
           </p>
           <dl>
-            <div><dt>Public blueprints</dt><dd>{summary.blueprints}</dd></div>
-            <div><dt>Ready to play</dt><dd>{summary.readyToPlay}</dd></div>
+            <div><dt>Public blueprints</dt><dd>{summary.total - releasedCount}</dd></div>
+            <div><dt>Ready to play</dt><dd>{releasedCount}</dd></div>
           </dl>
         </aside>
       </div>
