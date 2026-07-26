@@ -1,3 +1,4 @@
+import { cocInvestigatorRuleSources } from "../data/cocInvestigatorRuleSources";
 import { cocLuckRuleSources } from "../data/cocLuckRuleSources";
 import { cocRuleSources, cocRuleVerificationLabels } from "../data/cocRuleSources";
 import type { CocRuleVerificationStatus } from "../types/coc";
@@ -10,7 +11,11 @@ const statusOrder: CocRuleVerificationStatus[] = [
   "verified"
 ];
 
-const auditedSources = [...cocRuleSources, ...cocLuckRuleSources];
+const auditedSources = [
+  ...cocRuleSources,
+  ...cocLuckRuleSources,
+  ...cocInvestigatorRuleSources
+];
 
 export const CocRulesAudit = () => {
   const counts = Object.fromEntries(
