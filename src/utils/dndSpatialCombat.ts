@@ -26,7 +26,13 @@ export type DndActionDistanceResult = {
   summary: string;
 };
 
+const creatureSizes: DndCreatureSize[] = ["Tiny", "Small", "Medium", "Large", "Huge", "Gargantuan"];
 const whole = (value: number): number => Math.trunc(Number.isFinite(value) ? value : 0);
+
+export const parseDndCreatureSize = (value?: string): DndCreatureSize => {
+  const normalized = String(value || "").trim().toLowerCase();
+  return creatureSizes.find((size) => normalized.startsWith(size.toLowerCase())) ?? "Medium";
+};
 
 export const dndCreatureSpaceSquares = (size: DndCreatureSize): number => {
   if (size === "Large") return 2;
