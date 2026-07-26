@@ -31,6 +31,12 @@ describe("DM Forge route contract", () => {
     expect(dndRoute("mastery")).toBe("?system=dnd&page=mastery");
   });
 
+  it("opens the edition-separated Armor and Loadout workspace directly", () => {
+    expect(parseSystem("?system=dnd&page=armor")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=armor")).toBe("armor");
+    expect(dndRoute("armor")).toBe("?system=dnd&page=armor");
+  });
+
   it("accepts stable long-form system identifiers", () => {
     expect(parseSystem("?system=dnd-5e&page=monster")).toBe("dnd-5e");
     expect(parseSystem("?system=coc-7e")).toBe("coc-7e");
