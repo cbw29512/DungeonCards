@@ -49,7 +49,7 @@ export const DndWeaponMasteryLibrary = () => {
           <h1 id="weapon-mastery-title">Weapon Mastery</h1>
           <span>Select the weapon you mastered, check the trigger, and resolve the exact property without carrying the rule into 2014 play.</span>
         </div>
-        <strong>39 weapons · 8 properties</strong>
+        <strong>{weaponCatalog2024.length} weapons · 8 properties</strong>
       </header>
 
       <section className="weapon-mastery-runner" aria-label="Selected Weapon Mastery procedure">
