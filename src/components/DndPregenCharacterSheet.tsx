@@ -70,7 +70,10 @@ export const DndPregenCharacterSheet = ({ record }: { record: DndCharacterRecord
             <div className="pregen-sheet__resource-list">
               {record.resources.map((resource) => (
                 <article key={resource.id}>
-                  <div><strong>{resource.name}</strong><span>{Array.from({ length: resource.maximum }, () => "○").join(" ")}</span></div>
+                  <div>
+                    <strong>{resource.name}</strong>
+                    <span>{resource.unlimited ? "Unlimited" : Array.from({ length: resource.maximum }, () => "○").join(" ")}</span>
+                  </div>
                   <small>Refresh: {resource.refresh.replace("-", " ")}{resource.notes ? ` · ${resource.notes}` : ""}</small>
                 </article>
               ))}
@@ -85,10 +88,10 @@ export const DndPregenCharacterSheet = ({ record }: { record: DndCharacterRecord
           <ul>{record.classFeatures.map((feature) => <li key={feature}>{feature}</li>)}</ul>
         </section>
         <section>
-          <h4>Champion features</h4>
+          <h4>{record.subclassName} features</h4>
           {record.subclassFeatures.length > 0
             ? <ul>{record.subclassFeatures.map((feature) => <li key={feature}>{feature}</li>)}</ul>
-            : <p>The Champion path begins at level {record.subclassUnlockLevel}.</p>}
+            : <p>The {record.subclassName} path begins at level {record.subclassUnlockLevel}.</p>}
         </section>
       </div>
 
