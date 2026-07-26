@@ -73,11 +73,16 @@ export const sortDndInitiative = (combatants: DndCombatant[]): DndCombatant[] =>
     .sort((left, right) => right.combatant.initiative - left.combatant.initiative || left.index - right.index)
     .map(({ combatant }) => combatant);
 
-const resetTurnResources = (combatant: DndCombatant): DndCombatant => ({
+const resetTurnResources = (
+  ruleset: RulesetId,
+  combatant: DndCombatant
+): DndCombatant => ({
   ...combatant,
   actionAvailable: true,
   bonusActionAvailable: true,
-  reactionAvailable: true,
+  reactionAvailable: ruleset === "srd-5.1-2014" && combatant.surprisePending
+    ? false
+    : true,
   movementRemainingFeet: combatant.speedFeet
 });
 
@@ -89,7 +94,7 @@ export const startDndEncounter = (
     ...combatant,
     reactionAvailable: ruleset === "srd-5.1-2014" ? !combatant.surprisePending : true
   }));
-  if (ordered.length > 0) ordered[0] = resetTurnResources(ordered[0]);
+  if (ordered.length > 0) ordered[0] = resetTurnResources(ruleset, ordered[0]);
   return { ruleset, round: ordered.length > 0 ? 1 : 0, currentIndex: 0, started: ordered.length > 0, combatants: ordered };
 };
 
@@ -110,7 +115,7 @@ export const advanceDndTurn = (input: DndEncounterState): DndEncounterState => {
 
   const wraps = input.currentIndex >= combatants.length - 1;
   const currentIndex = wraps ? 0 : input.currentIndex + 1;
-  combatants[currentIndex] = resetTurnResources(combatants[currentIndex]);
+  combatants[currentIndex] = resetTurnResources(input.ruleset, combatants[currentIndex]);
 
   return {
     ...input,
