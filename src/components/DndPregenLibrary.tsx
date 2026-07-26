@@ -17,11 +17,13 @@ export function DndPregenLibrary() {
   const [filters, setFilters] = useState<PregenCatalogFilters>(defaultFilters);
   const readyCatalog = useMemo(() => pregenCatalog.filter(isReadyToPlay), []);
   const characters = useMemo(() => filterPregenCharacters(readyCatalog, filters), [filters, readyCatalog]);
-  const classes = useMemo(() => [...new Map(readyCatalog.map((item) => [item.classId, item.className])).entries()], [readyCatalog]);
+  const classes = useMemo(() => [...new Map(
+    readyCatalog.map((item) => [item.classId, item.className] as const)
+  ).entries()], [readyCatalog]);
   const subclasses = useMemo(() => [...new Map(
     readyCatalog
       .filter((item) => filters.classId === "all" || item.classId === filters.classId)
-      .map((item) => [item.subclassId, item.subclassName])
+      .map((item) => [item.subclassId, item.subclassName] as const)
   ).entries()], [filters.classId, readyCatalog]);
 
   return (
@@ -68,6 +70,11 @@ export function DndPregenLibrary() {
             <option value="all">Any complexity</option><option value="beginner">Beginner</option><option value="standard">Standard</option><option value="advanced">Advanced</option>
           </select>
         </label>
+        <label>Source
+          <select value={filters.sourceScope} onChange={(event) => setFilters({ ...filters, sourceScope: event.target.value as PregenCatalogFilters["sourceScope"] })}>
+            <option value="all">All public sources</option><option value="srd">SRD</option><option value="original">Original</option><option value="owned">Owned locally</option>
+          </select>
+        </label>
         <button type="button" onClick={() => setFilters(defaultFilters)}>Reset filters</button>
       </form>
 
@@ -85,7 +92,7 @@ export function DndPregenLibrary() {
               <strong>{character.className} · {character.subclassName}</strong>
               <dl><div><dt>AC</dt><dd>{character.armorClass}</dd></div><div><dt>HP</dt><dd>{character.maxHitPoints}</dd></div><div><dt>Speed</dt><dd>{character.speed} ft.</dd></div><div><dt>Initiative</dt><dd>{character.initiative >= 0 ? "+" : ""}{character.initiative}</dd></div></dl>
               <p>{character.tactics[0]}</p>
-              <button type="button">Open character</button>
+              <details><summary>Open character summary</summary><p>{character.speciesName} · {character.backgroundName}</p><p>{character.attacks.map((attack) => attack.name).join(", ")}</p></details>
             </article>
           ))}
         </div>
