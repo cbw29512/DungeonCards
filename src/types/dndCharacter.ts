@@ -25,8 +25,8 @@ export type DndCharacterAttack = {
 export type DndCharacterResource = {
   id: string;
   name: string;
-  maximum: number;
-  refresh: "turn" | "short-rest" | "long-rest" | "manual";
+  maximum: number | "unlimited";
+  refresh: "turn" | "short-rest" | "long-rest" | "manual" | "none";
   notes?: string;
 };
 
