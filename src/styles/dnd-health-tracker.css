@@ -1,0 +1,354 @@
+.dnd-health-tracker {
+  display: grid;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 2rem auto 5rem;
+  gap: 1rem;
+}
+
+.dnd-health-tracker__heading,
+.dnd-health-status,
+.dnd-health-panel,
+.dnd-death-workspace,
+.dnd-health-reference,
+.dnd-health-source {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgb(247 199 107 / 22%);
+  border-radius: 0.85rem;
+  background: rgb(26 17 35 / 88%);
+}
+
+.dnd-health-tracker__heading,
+.dnd-health-status > header,
+.dnd-death-workspace > header,
+.dnd-health-source {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dnd-health-tracker__heading p,
+.dnd-health-panel > header small,
+.dnd-death-workspace > header small,
+.dnd-health-reference > header small,
+.dnd-health-status > header small {
+  margin: 0;
+  color: #d9c9b8;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dnd-health-tracker h1,
+.dnd-health-tracker h2,
+.dnd-health-tracker h3 {
+  margin: 0.2rem 0;
+  color: #fff0c2;
+}
+
+.dnd-health-tracker__heading span {
+  display: block;
+  max-width: 760px;
+  color: #d9cfde;
+  line-height: 1.55;
+}
+
+.dnd-health-ruleset {
+  display: flex;
+  flex: 0 0 auto;
+  padding: 0.25rem;
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 22%);
+  gap: 0.25rem;
+}
+
+.dnd-health-tracker button,
+.dnd-health-tracker input {
+  min-height: 42px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.5rem;
+}
+
+.dnd-health-tracker button {
+  padding: 0.5rem 0.75rem;
+  color: #f4e7cf;
+  background: rgb(255 255 255 / 6%);
+  cursor: pointer;
+}
+
+.dnd-health-tracker button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.dnd-health-ruleset button[aria-pressed="true"] {
+  color: #201627;
+  background: #f2c86e;
+}
+
+.dnd-health-tracker input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  color: #f8efe0;
+  background: #251633;
+}
+
+.dnd-health-tracker label {
+  display: grid;
+  color: #d9c9b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  gap: 0.3rem;
+}
+
+.dnd-health-status {
+  display: grid;
+  border-color: rgb(122 207 154 / 34%);
+  gap: 0.7rem;
+}
+
+.dnd-health-status.is-unconscious,
+.dnd-health-status.is-stable {
+  border-color: rgb(236 184 91 / 46%);
+}
+
+.dnd-health-status.is-dead {
+  border-color: rgb(211 86 83 / 52%);
+  background: rgb(48 16 26 / 92%);
+}
+
+.dnd-health-status > header strong,
+.dnd-death-workspace > header strong {
+  color: #c8f3d7;
+  font-size: 1.1rem;
+}
+
+.dnd-health-status.is-unconscious > header strong,
+.dnd-health-status.is-stable > header strong {
+  color: #ffe2a6;
+}
+
+.dnd-health-status.is-dead > header strong {
+  color: #ffc4c1;
+}
+
+.dnd-health-meter {
+  height: 0.75rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 35%);
+}
+
+.dnd-health-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8f3939, #d1a24f, #58a878);
+  transition: width 180ms ease;
+}
+
+.dnd-health-status dl {
+  display: grid;
+  margin: 0;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dnd-health-status dl div,
+.dnd-death-counters span {
+  display: grid;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 5%);
+  gap: 0.1rem;
+}
+
+.dnd-health-status dt,
+.dnd-death-counters small {
+  color: #aeb0b8;
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dnd-health-status dd {
+  margin: 0;
+  color: #fff0c2;
+  font-weight: 800;
+}
+
+.dnd-health-status > p,
+.dnd-death-workspace > p,
+.dnd-health-panel > small {
+  margin: 0;
+  color: #d9cfde;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.dnd-health-workspaces {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dnd-health-panel {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.dnd-health-control-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dnd-health-check {
+  display: flex !important;
+  align-items: center;
+  align-self: end;
+  min-height: 42px;
+  padding: 0.55rem;
+  border-radius: 0.5rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.5rem !important;
+}
+
+.dnd-health-check input {
+  width: auto;
+  min-height: auto;
+}
+
+.dnd-health-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dnd-death-workspace {
+  display: grid;
+  border-color: rgb(236 184 91 / 36%);
+  gap: 0.8rem;
+}
+
+.dnd-death-counters {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dnd-death-counters strong {
+  color: #fff0c2;
+  font-size: 1.35rem;
+  letter-spacing: 0.16em;
+}
+
+.dnd-health-reference {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.dnd-health-reference > div {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+}
+
+.dnd-health-reference article {
+  padding: 0.8rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.6rem;
+  background: rgb(0 0 0 / 18%);
+}
+
+.dnd-health-reference article p {
+  margin: 0;
+  color: #d9cfde;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.dnd-health-source {
+  align-items: center;
+  color: #d9c9b8;
+  font-size: 0.72rem;
+}
+
+.dnd-health-source a {
+  color: #c8f3d7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dnd-health-meter span {
+    transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .dnd-health-tracker__heading,
+  .dnd-health-status > header,
+  .dnd-death-workspace > header,
+  .dnd-health-source {
+    display: grid;
+  }
+
+  .dnd-health-workspaces,
+  .dnd-health-status dl,
+  .dnd-death-counters {
+    grid-template-columns: 1fr;
+  }
+
+  .dnd-health-ruleset {
+    width: 100%;
+  }
+
+  .dnd-health-ruleset button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .dnd-health-control-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .dnd-health-ruleset,
+  .dnd-health-tracker button,
+  .dnd-health-tracker input,
+  .dnd-health-meter {
+    display: none !important;
+  }
+
+  .dnd-health-tracker,
+  .dnd-health-tracker__heading,
+  .dnd-health-status,
+  .dnd-health-panel,
+  .dnd-death-workspace,
+  .dnd-health-reference,
+  .dnd-health-source,
+  .dnd-health-reference article {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .dnd-health-status,
+  .dnd-health-panel,
+  .dnd-death-workspace,
+  .dnd-health-reference article {
+    break-inside: avoid;
+  }
+
+  .dnd-health-tracker h1,
+  .dnd-health-tracker h2,
+  .dnd-health-tracker h3,
+  .dnd-health-status dd,
+  .dnd-death-counters strong {
+    color: #111;
+  }
+}
