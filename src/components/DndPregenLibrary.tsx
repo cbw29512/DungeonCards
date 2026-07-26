@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { DndPregenCharacterSheet } from "./DndPregenCharacterSheet";
 import { DndPregenValidationPanel } from "./DndPregenValidationPanel";
-import { dndFighterPregenRecords, getDndReadyPregenRecord } from "../data/dndFighterPregens";
 import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
+import {
+  countDndReadyPregens,
+  dndReadyPregenRecords,
+  getDndReadyPregenRecord
+} from "../data/dndReadyPregens";
 import {
   dndPregenDefinitionPath,
   dndPregenLevels,
@@ -28,7 +32,7 @@ export const DndPregenLibrary = () => {
   const selectedRecord = selectedReadyRecord ?? (selectedSlot ? createDndCharacterBlueprint(selectedSlot) : undefined);
   const readiness = selectedRecord ? validateDndCharacterRecord(selectedRecord) : undefined;
   const summary = summarizeDndPregenBuilds(ruleset);
-  const releasedCount = dndFighterPregenRecords.filter((record) => record.ruleset === ruleset).length;
+  const releasedCount = countDndReadyPregens(ruleset);
 
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
@@ -67,7 +71,7 @@ export const DndPregenLibrary = () => {
           Class and public subclass path
           <select value={selectedDefinition ? dndPregenDefinitionPath(selectedDefinition) : ""} onChange={(event) => setPathId(event.target.value)}>
             {definitions.map((definition) => {
-              const pathReleased = dndFighterPregenRecords.some((record) => (
+              const pathReleased = dndReadyPregenRecords.some((record) => (
                 record.ruleset === ruleset
                 && record.classId === definition.classId
                 && record.subclassId === definition.subclassId
