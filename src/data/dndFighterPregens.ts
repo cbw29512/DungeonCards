@@ -138,7 +138,7 @@ const fighterResources2024 = (level: number): DndCharacterResource[] => [
 ];
 
 const makeFighter2014 = (level: number): DndCharacterRecord => {
-  const slot = getDndPregenBuildSlot("srd-5.1-2014", "fighter", level);
+  const slot = getDndPregenBuildSlot("srd-5.1-2014", "fighter", "champion", level);
   if (!slot) throw new Error(`Missing 2014 Fighter build slot at level ${level}.`);
   const abilityScores = scores2014(level);
   const strengthModifier = dndAbilityModifier(abilityScores.str);
@@ -151,6 +151,7 @@ const makeFighter2014 = (level: number): DndCharacterRecord => {
     name: "Kara Stoneguard",
     classId: "fighter",
     className: "Fighter",
+    subclassId: "champion",
     subclassName: "Champion",
     subclassUnlockLevel: 3,
     level,
@@ -193,7 +194,7 @@ const makeFighter2014 = (level: number): DndCharacterRecord => {
 };
 
 const makeFighter2024 = (level: number): DndCharacterRecord => {
-  const slot = getDndPregenBuildSlot("srd-5.2.1-2024", "fighter", level);
+  const slot = getDndPregenBuildSlot("srd-5.2.1-2024", "fighter", "champion", level);
   if (!slot) throw new Error(`Missing 2024 Fighter build slot at level ${level}.`);
   const abilityScores = scores2024(level);
   const strengthModifier = dndAbilityModifier(abilityScores.str);
@@ -204,6 +205,7 @@ const makeFighter2024 = (level: number): DndCharacterRecord => {
     name: "Rowan Ironmark",
     classId: "fighter",
     className: "Fighter",
+    subclassId: "champion",
     subclassName: "Champion",
     subclassUnlockLevel: 3,
     level,
@@ -227,10 +229,7 @@ const makeFighter2024 = (level: number): DndCharacterRecord => {
     resources: fighterResources2024(level),
     spellcastingExpected: false,
     spellcasting: { kind: "none" },
-    classFeatures: [
-      ...classFeatures2024(level),
-      `Weapon Mastery choices available: ${weaponMasteryCount2024(level)}`
-    ],
+    classFeatures: [...classFeatures2024(level), `Weapon Mastery choices available: ${weaponMasteryCount2024(level)}`],
     subclassFeatures: subclassFeatures2024(level),
     advancementChoices: choices2024(level),
     equipment: ["Chain Mail", "Greatsword", "Flail", "8 Javelins", "Dungeoneer's Pack", "Soldier Background Equipment", "Dice Set", "Smith's Tools"],
@@ -259,7 +258,11 @@ export const dndFighterPregenRecords: DndCharacterRecord[] = [
 export const getDndReadyPregenRecord = (
   ruleset: RulesetId,
   classId: string,
+  subclassId: string,
   level: number
 ): DndCharacterRecord | undefined => dndFighterPregenRecords.find((record) => (
-  record.ruleset === ruleset && record.classId === classId && record.level === level
+  record.ruleset === ruleset
+  && record.classId === classId
+  && record.subclassId === subclassId
+  && record.level === level
 ));
