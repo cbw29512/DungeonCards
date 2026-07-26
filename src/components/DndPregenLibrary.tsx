@@ -13,8 +13,10 @@ import {
   dndPregenReadyRequirements,
   dndPregenRulesets
 } from "../data/dndPregenUi";
+import { getDndVaultFighterProfile } from "../data/dndVaultFighterProfiles";
 import type { RulesetId } from "../types/ruleCards";
 import { createDndCharacterBlueprint, validateDndCharacterRecord } from "../utils/dndCharacterRecord";
+import { isDndCharacterVaultReady } from "../utils/dndCharacterVaultValidation";
 import { getDndPregenBuildSlot, summarizeDndPregenBuilds } from "../utils/dndPregenCatalog";
 
 export const DndPregenLibrary = () => {
@@ -29,10 +31,15 @@ export const DndPregenLibrary = () => {
   const selectedReadyRecord = selectedDefinition
     ? getDndReadyPregenRecord(ruleset, selectedDefinition.classId, selectedDefinition.subclassId, level)
     : undefined;
+  const selectedVaultProfile = selectedDefinition?.classId === "fighter"
+    ? getDndVaultFighterProfile(ruleset, level)
+    : undefined;
   const selectedRecord = selectedReadyRecord ?? (selectedSlot ? createDndCharacterBlueprint(selectedSlot) : undefined);
   const readiness = selectedRecord ? validateDndCharacterRecord(selectedRecord) : undefined;
+  const vaultReady = selectedVaultProfile ? isDndCharacterVaultReady(selectedVaultProfile) : false;
   const summary = summarizeDndPregenBuilds(ruleset);
   const releasedCount = countDndReadyPregens(ruleset);
+  const vaultReadyCount = 20;
 
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
@@ -46,15 +53,15 @@ export const DndPregenLibrary = () => {
     <section className="pregen-library" aria-labelledby="pregen-library-title">
       <header className="pregen-library__hero">
         <div>
-          <p className="pregen-library__eyebrow">Pregen Foundry · licensed build matrix</p>
-          <h2 id="pregen-library-title">Every public class path. Every level. No fake completion.</h2>
+          <p className="pregen-library__eyebrow">Character Vault · optimized build matrix</p>
+          <h2 id="pregen-library-title">Choose a class path and level. Print it or save a playable copy.</h2>
           <p>
-            Every slot is keyed by edition, class, subclass, and level. A character becomes <strong>Ready to play</strong> only after its complete record and printable sheet pass review.
+            Ready records pass the complete character gate. <strong>Vault Ready</strong> records also pass optimization, tactics, advancement, magic-item, attunement, and sheet-v2 review.
           </p>
         </div>
         <div className="pregen-library__totals" aria-label="Selected edition pregen totals">
           <strong>{summary.total}</strong><span>planned sheets</span>
-          <small>{releasedCount} released · {summary.total - releasedCount} blueprints</small>
+          <small>{releasedCount} ready · {vaultReadyCount} Vault Ready · {summary.total - releasedCount} blueprints</small>
         </div>
       </header>
 
@@ -76,9 +83,10 @@ export const DndPregenLibrary = () => {
                 && record.classId === definition.classId
                 && record.subclassId === definition.subclassId
               ));
+              const pathVaultReady = definition.classId === "fighter";
               return (
                 <option key={dndPregenDefinitionPath(definition)} value={dndPregenDefinitionPath(definition)}>
-                  {definition.className} · {definition.subclassName}{pathReleased ? " · Ready" : " · Blueprint"}
+                  {definition.className} · {definition.subclassName}{pathVaultReady ? " · Vault Ready" : pathReleased ? " · Ready" : " · Blueprint"}
                 </option>
               );
             })}
@@ -96,12 +104,12 @@ export const DndPregenLibrary = () => {
         <article className="pregen-library__selection">
           <div className="pregen-library__selection-heading">
             <div>
-              <p>{ruleset === "srd-5.1-2014" ? "2014" : "2024"} pregen {readiness.ready ? "release" : "blueprint"}</p>
+              <p>{ruleset === "srd-5.1-2014" ? "2014" : "2024"} character {vaultReady ? "vault release" : readiness.ready ? "release" : "blueprint"}</p>
               <h3>Level {level} {selectedDefinition.className}</h3>
               <span>{selectedDefinition.subclassName}</span>
             </div>
-            <span className="pregen-library__status" data-status={readiness.ready ? "ready-to-play" : "blueprint"}>
-              {readiness.ready ? "Ready to play" : "Blueprint · validation incomplete"}
+            <span className="pregen-library__status" data-status={vaultReady ? "vault-ready" : readiness.ready ? "ready-to-play" : "blueprint"}>
+              {vaultReady ? "Vault Ready" : readiness.ready ? "Ready to play · Vault review pending" : "Blueprint · validation incomplete"}
             </span>
           </div>
           <dl className="pregen-library__facts">
@@ -115,7 +123,9 @@ export const DndPregenLibrary = () => {
         </article>
       )}
 
-      {selectedReadyRecord && readiness?.ready && <DndPregenCharacterSheet record={selectedReadyRecord} />}
+      {selectedReadyRecord && readiness?.ready && (
+        <DndPregenCharacterSheet profile={selectedVaultProfile} record={selectedReadyRecord} />
+      )}
 
       <div className="pregen-library__columns">
         <section>
@@ -130,6 +140,7 @@ export const DndPregenLibrary = () => {
           <dl>
             <div><dt>Public blueprints</dt><dd>{summary.total - releasedCount}</dd></div>
             <div><dt>Ready to play</dt><dd>{releasedCount}</dd></div>
+            <div><dt>Vault Ready</dt><dd>{vaultReadyCount}</dd></div>
           </dl>
         </aside>
       </div>
