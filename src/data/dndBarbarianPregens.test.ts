@@ -29,10 +29,12 @@ describe("Barbarian Berserker ready-to-play pregens", () => {
 
   it("preserves the 2014 Rage, Berserker, and capstone milestones", () => {
     const level3 = getDndBarbarianPregenRecord("srd-5.1-2014", 3)!;
+    const level10 = getDndBarbarianPregenRecord("srd-5.1-2014", 10)!;
     const level14 = getDndBarbarianPregenRecord("srd-5.1-2014", 14)!;
     const level20 = getDndBarbarianPregenRecord("srd-5.1-2014", 20)!;
 
     expect(level3.subclassFeatures.join(" ")).toContain("Exhaustion");
+    expect(level10.subclassFeatures.join(" ")).toContain("immune for 24 hours");
     expect(level14.subclassFeatures.join(" ")).toContain("Retaliation");
     expect(level20.abilityScores.str).toBe(24);
     expect(level20.abilityScores.con).toBe(24);
@@ -43,13 +45,18 @@ describe("Barbarian Berserker ready-to-play pregens", () => {
     expect(level20.armorClass).toBe(19);
   });
 
-  it("preserves the 2024 Frenzy, Brutal Strike, and resource milestones", () => {
+  it("preserves the 2024 Frenzy, Primal Knowledge, and resource milestones", () => {
+    const level2 = getDndBarbarianPregenRecord("srd-5.2.1-2024", 2)!;
     const level3 = getDndBarbarianPregenRecord("srd-5.2.1-2024", 3)!;
+    const level10 = getDndBarbarianPregenRecord("srd-5.2.1-2024", 10)!;
     const level14 = getDndBarbarianPregenRecord("srd-5.2.1-2024", 14)!;
     const level15 = getDndBarbarianPregenRecord("srd-5.2.1-2024", 15)!;
     const level17 = getDndBarbarianPregenRecord("srd-5.2.1-2024", 17)!;
     const level20 = getDndBarbarianPregenRecord("srd-5.2.1-2024", 20)!;
 
+    expect(level2.skillProficiencies).not.toContain("Stealth");
+    expect(level3.skillProficiencies).toContain("Stealth");
+    expect(level10.skillProficiencies).toContain("Acrobatics");
     expect(level3.attacks[0].notes).toContain("2d6");
     expect(level14.resources.some((resource) => resource.id === "intimidating-presence")).toBe(true);
     expect(level15.resources.some((resource) => resource.id === "persistent-rage-refresh")).toBe(true);
