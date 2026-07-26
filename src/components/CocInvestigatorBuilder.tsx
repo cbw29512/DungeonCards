@@ -57,6 +57,7 @@ const source = (sourceId: string) => {
 };
 
 const formatBuild = (build: number): string => build > 0 ? `+${build}` : `${build}`;
+const normalizeSkillName = (skillName: string): string => skillName.trim().toLowerCase();
 
 export const CocInvestigatorBuilder = () => {
   const [name, setName] = useState("New Investigator");
@@ -68,11 +69,11 @@ export const CocInvestigatorBuilder = () => {
   const allocationValid = validateStandardCharacteristicAllocation(characteristics);
   const occupationValuesValid = validateOccupationValueAllocation(occupationRows.map((row) => row.value));
   const derived = useMemo(() => calculateCocDerivedAttributes(characteristics), [characteristics]);
-  const occupationNames = occupationRows
-    .filter((row) => !row.locked)
-    .map((row) => row.skill.trim().toLowerCase())
-    .filter(Boolean);
+  const occupationNames = occupationRows.map((row) => normalizeSkillName(row.skill)).filter(Boolean);
+  const interestNames = interestRows.map((row) => normalizeSkillName(row.skill)).filter(Boolean);
   const duplicateOccupationSkills = new Set(occupationNames).size !== occupationNames.length;
+  const duplicateInterestSkills = new Set(interestNames).size !== interestNames.length;
+  const interestDuplicatesOccupation = interestNames.some((skillName) => occupationNames.includes(skillName));
   const mythosOccupation = occupationRows.some((row) => isCthulhuMythosSkill(row.skill));
   const mythosInterest = interestRows.some((row) => isCthulhuMythosSkill(row.skill));
 
@@ -91,6 +92,8 @@ export const CocInvestigatorBuilder = () => {
   const creationReady = allocationValid
     && occupationValuesValid
     && !duplicateOccupationSkills
+    && !duplicateInterestSkills
+    && !interestDuplicatesOccupation
     && !mythosOccupation
     && !mythosInterest
     && occupationRows.filter((row) => !row.locked).every((row) => row.skill.trim().length > 0)
@@ -178,14 +181,14 @@ export const CocInvestigatorBuilder = () => {
         </div>
         <div className="coc-builder-validation-list" aria-live="polite">
           <p className={occupationValuesValid ? "is-valid" : "is-error"}>{occupationValuesValid ? "Occupation values match the public allocation." : `Required values: ${COC_OCCUPATION_VALUES.join(", ")}.`}</p>
-          {duplicateOccupationSkills && <p className="is-error">Occupation skill names must be unique.</p>}
+          {duplicateOccupationSkills && <p className="is-error">Occupation skills—including Credit Rating—must be unique.</p>}
           {mythosOccupation && <p className="is-error">Beginning investigators cannot assign creation values to Cthulhu Mythos.</p>}
         </div>
       </section>
 
       <section className="coc-investigator-builder__section">
         <header><div><small>Step 4</small><h3>Add personal-interest skills</h3></div></header>
-        <p>Choose four nonoccupation skills and add 20 to each listed base value.</p>
+        <p>Choose four unique nonoccupation skills and add 20 to each listed base value.</p>
         <div className="coc-interest-grid">
           {interestRows.map((row, index) => (
             <div key={row.id}>
@@ -195,7 +198,11 @@ export const CocInvestigatorBuilder = () => {
             </div>
           ))}
         </div>
-        {mythosInterest && <p className="coc-builder-validation is-error" aria-live="polite">Beginning investigators cannot add personal-interest points to Cthulhu Mythos.</p>}
+        <div className="coc-builder-validation-list" aria-live="polite">
+          {duplicateInterestSkills && <p className="is-error">Personal-interest skill names must be unique.</p>}
+          {interestDuplicatesOccupation && <p className="is-error">Personal-interest skills must be nonoccupation skills.</p>}
+          {mythosInterest && <p className="is-error">Beginning investigators cannot add personal-interest points to Cthulhu Mythos.</p>}
+        </div>
         <CocRuleStatus source={source("coc-investigator-occupation")} />
       </section>
 
