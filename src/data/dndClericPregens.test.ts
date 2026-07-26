@@ -57,9 +57,9 @@ describe("Cleric Life Domain ready-to-play pregens", () => {
     expect(getDndClericPregenRecord("srd-5.2.1-2024", 1)?.maximumHitPoints).toBe(11);
   });
 
-  it("preserves audited 2024 starting currency", () => {
-    expect(getDndClericPregenRecord("srd-5.2.1-2024", 1)?.currencyGp).toBe(15);
-    expect(dndClericPregenRecords.filter((record) => record.ruleset === "srd-5.2.1-2024").every((record) => record.currencyGp === 15)).toBe(true);
+  it("preserves released 2024 starting currency", () => {
+    expect(getDndClericPregenRecord("srd-5.2.1-2024", 1)?.currencyGp).toBe(23);
+    expect(dndClericPregenRecords.filter((record) => record.ruleset === "srd-5.2.1-2024").every((record) => record.currencyGp === 23)).toBe(true);
   });
 
   it("preserves edition-specific subclass timing and Life features", () => {
