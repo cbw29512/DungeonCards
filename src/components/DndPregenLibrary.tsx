@@ -2,6 +2,10 @@ import { useState } from "react";
 import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
 import type { RulesetId } from "../types/ruleCards";
 import {
+  createDndCharacterBlueprint,
+  validateDndCharacterRecord
+} from "../utils/dndCharacterRecord";
+import {
   getDndPregenBuildSlot,
   summarizeDndPregenBuilds
 } from "../utils/dndPregenCatalog";
@@ -24,6 +28,20 @@ const readySheetRequirements = [
   "Printable quick-play sheet plus full sourced reference"
 ];
 
+const categoryLabels: Record<string, string> = {
+  identity: "Identity",
+  abilities: "Abilities",
+  defenses: "Defenses",
+  proficiencies: "Proficiencies",
+  combat: "Combat",
+  resources: "Features & resources",
+  spellcasting: "Spellcasting",
+  advancement: "Advancement",
+  equipment: "Equipment",
+  sources: "Sources",
+  print: "Print review"
+};
+
 export const DndPregenLibrary = () => {
   const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
   const [classId, setClassId] = useState("fighter");
@@ -34,6 +52,8 @@ export const DndPregenLibrary = () => {
   const selectedSlot = selectedDefinition
     ? getDndPregenBuildSlot(ruleset, selectedDefinition.classId, level)
     : undefined;
+  const selectedBlueprint = selectedSlot ? createDndCharacterBlueprint(selectedSlot) : undefined;
+  const readiness = selectedBlueprint ? validateDndCharacterRecord(selectedBlueprint) : undefined;
   const summary = summarizeDndPregenBuilds(ruleset);
 
   const changeRuleset = (nextRuleset: RulesetId) => {
@@ -94,7 +114,7 @@ export const DndPregenLibrary = () => {
         </label>
       </div>
 
-      {selectedDefinition && selectedSlot && (
+      {selectedDefinition && selectedSlot && readiness && (
         <article className="pregen-library__selection">
           <div className="pregen-library__selection-heading">
             <div>
@@ -102,8 +122,8 @@ export const DndPregenLibrary = () => {
               <h3>Level {level} {selectedDefinition.className}</h3>
               <span>{selectedDefinition.subclassName}</span>
             </div>
-            <span className="pregen-library__status" data-status={selectedSlot.deliveryStatus}>
-              Blueprint · sheet data pending
+            <span className="pregen-library__status" data-status={readiness.ready ? "ready-to-play" : "blueprint"}>
+              {readiness.ready ? "Ready to play" : "Blueprint · validation incomplete"}
             </span>
           </div>
 
@@ -113,6 +133,32 @@ export const DndPregenLibrary = () => {
             <div><dt>At this level</dt><dd>{selectedSlot.subclassActive ? "Subclass features are active" : "Class features only; subclass path is reserved"}</dd></div>
             <div><dt>Public scope</dt><dd>SRD / free-rules content only</dd></div>
           </dl>
+
+          <section className="pregen-library__validation" aria-labelledby="pregen-validation-title">
+            <div>
+              <p className="pregen-library__eyebrow">Automated promotion gate</p>
+              <h4 id="pregen-validation-title">{readiness.completedCategories.length} of {readiness.completedCategories.length + readiness.missingCategories.length} record categories complete</h4>
+              <p>A sheet cannot be promoted by changing a label. Its structured record must pass every category below.</p>
+            </div>
+            <div className="pregen-library__validation-grid">
+              {[...readiness.completedCategories, ...readiness.missingCategories].map((category) => {
+                const complete = readiness.completedCategories.includes(category);
+                return (
+                  <span data-complete={complete ? "true" : "false"} key={category}>
+                    {complete ? "✓" : "○"} {categoryLabels[category] ?? category}
+                  </span>
+                );
+              })}
+            </div>
+            {readiness.issues.length > 0 && (
+              <details>
+                <summary>Show {readiness.issues.length} validation findings</summary>
+                <ul>
+                  {readiness.issues.map((issue, index) => <li key={`${issue.category}-${index}`}>{issue.message}</li>)}
+                </ul>
+              </details>
+            )}
+          </section>
 
           <a href={selectedDefinition.sourceUrl} rel="noreferrer" target="_blank">
             Open {selectedDefinition.sourceLabel}
