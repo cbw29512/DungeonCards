@@ -1,138 +1,99 @@
-import type { DndAbilityId, DndCharacterRecord } from "../types/dndCharacter";
-import {
-  dndAbilityModifier,
-  dndAttackBonus,
-  dndProficiencyBonus
-} from "../utils/dndCharacterRecord";
+import { useState } from "react";
+import { DndVaultActions } from "./dndCharacterVault/DndVaultActions";
+import { DndVaultBuildGuide } from "./dndCharacterVault/DndVaultBuildGuide";
+import { DndVaultFeatures } from "./dndCharacterVault/DndVaultFeatures";
+import { DndVaultInventory } from "./dndCharacterVault/DndVaultInventory";
+import { DndVaultSpells } from "./dndCharacterVault/DndVaultSpells";
+import { DndVaultSummary } from "./dndCharacterVault/DndVaultSummary";
+import type { DndCharacterRecord } from "../types/dndCharacter";
+import type { DndOptimizedBuildProfile } from "../types/dndCharacterVault";
+import { isDndCharacterVaultReady } from "../utils/dndCharacterVaultValidation";
 
-const abilityLabels: Record<DndAbilityId, string> = {
-  str: "STR",
-  dex: "DEX",
-  con: "CON",
-  int: "INT",
-  wis: "WIS",
-  cha: "CHA"
-};
+type VaultTabId = "actions" | "spells" | "features" | "inventory" | "notes" | "build";
 
-const signed = (value: number): string => `${value >= 0 ? "+" : ""}${value}`;
+const tabs: Array<{ id: VaultTabId; label: string }> = [
+  { id: "actions", label: "Actions" },
+  { id: "spells", label: "Spells" },
+  { id: "features", label: "Features" },
+  { id: "inventory", label: "Inventory" },
+  { id: "notes", label: "Notes" },
+  { id: "build", label: "Build Guide" }
+];
 
-const resourceMarks = (maximum: number | "unlimited"): string =>
-  maximum === "unlimited" ? "Unlimited" : Array.from({ length: maximum }, () => "○").join(" ");
+export const DndPregenCharacterSheet = ({
+  record,
+  profile,
+  signedIn = false,
+  onSave
+}: {
+  record: DndCharacterRecord;
+  profile?: DndOptimizedBuildProfile;
+  signedIn?: boolean;
+  onSave?: () => void;
+}) => {
+  const [activeTab, setActiveTab] = useState<VaultTabId>("actions");
+  const vaultReady = profile ? isDndCharacterVaultReady(profile) : false;
+  const panelClass = (tab: VaultTabId): string => `character-vault__panel${activeTab === tab ? " is-active" : ""}`;
 
-const refreshLabel = (refresh: DndCharacterRecord["resources"][number]["refresh"]): string =>
-  refresh === "none" ? "No refresh required" : `Refresh: ${refresh.replace("-", " ")}`;
-
-export const DndPregenCharacterSheet = ({ record }: { record: DndCharacterRecord }) => {
-  const proficiencyBonus = dndProficiencyBonus(record.level);
-  const initiative = dndAbilityModifier(record.abilityScores.dex);
+  const moveTab = (direction: number) => {
+    const current = tabs.findIndex((tab) => tab.id === activeTab);
+    const next = (current + direction + tabs.length) % tabs.length;
+    setActiveTab(tabs[next].id);
+  };
 
   return (
-    <article className="pregen-sheet" aria-labelledby={`pregen-sheet-${record.id}`}>
-      <header className="pregen-sheet__header">
-        <div>
-          <p>{record.ruleset === "srd-5.1-2014" ? "2014 / SRD 5.1" : "2024 / SRD 5.2.1"} · Ready to play</p>
-          <h3 id={`pregen-sheet-${record.id}`}>{record.name}</h3>
-          <span>Level {record.level} {record.species} {record.className} ({record.subclassName}) · {record.background}</span>
+    <article className="character-vault" aria-labelledby={`character-vault-${record.id}`}>
+      <header className="character-vault__header">
+        <div className="character-vault__portrait" aria-hidden="true"><span>{record.name.slice(0, 1).toUpperCase()}</span></div>
+        <div className="character-vault__identity">
+          <p>{record.ruleset === "srd-5.1-2014" ? "2014 / SRD 5.1" : "2024 / SRD 5.2.1"} · {vaultReady ? "Vault Ready" : "Ready to play"}</p>
+          <h3 id={`character-vault-${record.id}`}>{record.name}</h3>
+          <span>Level {record.level} {record.species} {record.className} · {record.subclassName}</span>
+          <small>{record.background}</small>
         </div>
-        <button type="button" onClick={() => window.print()}>Print sheet</button>
+        <div className="character-vault__header-actions">
+          <button disabled={!signedIn || !onSave} onClick={onSave} type="button">{signedIn ? "Save character" : "Sign in to save"}</button>
+          <button onClick={() => window.print()} type="button">Print packet</button>
+        </div>
       </header>
 
-      <section className="pregen-sheet__combat-summary" aria-label="Combat summary">
-        <div><span>AC</span><strong>{record.armorClass}</strong></div>
-        <div><span>HP</span><strong>{record.maximumHitPoints}</strong></div>
-        <div><span>Speed</span><strong>{record.speedFeet} ft.</strong></div>
-        <div><span>Initiative</span><strong>{signed(initiative)}</strong></div>
-        <div><span>Proficiency</span><strong>{signed(proficiencyBonus)}</strong></div>
-        <div><span>Hit Dice</span><strong>{record.level}d{record.hitDie}</strong></div>
-      </section>
+      <DndVaultSummary record={record} />
 
-      <section className="pregen-sheet__abilities" aria-label="Ability scores">
-        {Object.entries(record.abilityScores).map(([ability, score]) => (
-          <div key={ability}>
-            <span>{abilityLabels[ability as DndAbilityId]}</span>
-            <strong>{score}</strong>
-            <small>{signed(dndAbilityModifier(score))}</small>
-          </div>
+      <nav className="character-vault__tabs" aria-label="Character sheet sections" role="tablist">
+        {tabs.map((tab) => (
+          <button
+            aria-controls={`vault-panel-${tab.id}`}
+            aria-selected={activeTab === tab.id}
+            id={`vault-tab-${tab.id}`}
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight") moveTab(1);
+              if (event.key === "ArrowLeft") moveTab(-1);
+              if (event.key === "Home") setActiveTab(tabs[0].id);
+              if (event.key === "End") setActiveTab(tabs[tabs.length - 1].id);
+            }}
+            role="tab"
+            tabIndex={activeTab === tab.id ? 0 : -1}
+            type="button"
+          >
+            {tab.label}
+          </button>
         ))}
+      </nav>
+
+      <section aria-hidden={activeTab !== "actions"} aria-labelledby="vault-tab-actions" className={panelClass("actions")} id="vault-panel-actions" role="tabpanel"><DndVaultActions record={record} /></section>
+      <section aria-hidden={activeTab !== "spells"} aria-labelledby="vault-tab-spells" className={panelClass("spells")} id="vault-panel-spells" role="tabpanel"><DndVaultSpells record={record} /></section>
+      <section aria-hidden={activeTab !== "features"} aria-labelledby="vault-tab-features" className={panelClass("features")} id="vault-panel-features" role="tabpanel"><DndVaultFeatures record={record} /></section>
+      <section aria-hidden={activeTab !== "inventory"} aria-labelledby="vault-tab-inventory" className={panelClass("inventory")} id="vault-panel-inventory" role="tabpanel"><DndVaultInventory profile={profile} record={record} /></section>
+      <section aria-hidden={activeTab !== "notes"} aria-labelledby="vault-tab-notes" className={panelClass("notes")} id="vault-panel-notes" role="tabpanel">
+        <section className="character-vault__card"><h4>Quick-play notes</h4><ul>{record.notes.map((note) => <li key={note}>{note}</li>)}</ul></section>
       </section>
+      <section aria-hidden={activeTab !== "build"} aria-labelledby="vault-tab-build" className={panelClass("build")} id="vault-panel-build" role="tabpanel"><DndVaultBuildGuide profile={profile} record={record} /></section>
 
-      <div className="pregen-sheet__columns">
-        <section>
-          <h4>Attacks</h4>
-          <div className="pregen-sheet__attack-list">
-            {record.attacks.map((attack) => (
-              <article key={attack.id}>
-                <div><strong>{attack.name}</strong><span>{signed(dndAttackBonus(record.abilityScores[attack.attackAbility], record.level, attack.proficient))} to hit</span></div>
-                <p>{attack.damageFormula} {attack.damageType} · {attack.rangeOrReach}</p>
-                {attack.notes && <small>{attack.notes}</small>}
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <h4>Trackable resources</h4>
-          {record.resources.length > 0 ? (
-            <div className="pregen-sheet__resource-list">
-              {record.resources.map((resource) => (
-                <article key={resource.id}>
-                  <div><strong>{resource.name}</strong><span>{resourceMarks(resource.maximum)}</span></div>
-                  <small>{refreshLabel(resource.refresh)}{resource.notes ? ` · ${resource.notes}` : ""}</small>
-                </article>
-              ))}
-            </div>
-          ) : <p>No limited-use class resources at this level.</p>}
-        </section>
-      </div>
-
-      <div className="pregen-sheet__columns">
-        <section>
-          <h4>Class features</h4>
-          <ul>{record.classFeatures.map((feature) => <li key={feature}>{feature}</li>)}</ul>
-        </section>
-        <section>
-          <h4>{record.subclassName} features</h4>
-          {record.subclassFeatures.length > 0
-            ? <ul>{record.subclassFeatures.map((feature) => <li key={feature}>{feature}</li>)}</ul>
-            : <p>The {record.subclassName} path begins at level {record.subclassUnlockLevel}.</p>}
-        </section>
-      </div>
-
-      <div className="pregen-sheet__columns">
-        <section>
-          <h4>Proficiencies</h4>
-          <dl className="pregen-sheet__compact-list">
-            <div><dt>Saving Throws</dt><dd>{record.savingThrowProficiencies.map((ability) => abilityLabels[ability]).join(", ")}</dd></div>
-            <div><dt>Skills</dt><dd>{record.skillProficiencies.join(", ")}</dd></div>
-            <div><dt>Tools</dt><dd>{record.toolProficiencies.join(", ") || "None"}</dd></div>
-            <div><dt>Languages</dt><dd>{record.languages.join(", ")}</dd></div>
-          </dl>
-        </section>
-        <section>
-          <h4>Advancement choices</h4>
-          {record.advancementChoices.length > 0
-            ? <ul>{record.advancementChoices.map((choice) => <li key={choice}>{choice}</li>)}</ul>
-            : <p>No level-earned ability or feat choice yet.</p>}
-        </section>
-      </div>
-
-      <div className="pregen-sheet__columns">
-        <section>
-          <h4>Equipment</h4>
-          <p>{record.equipment.join(" · ")}</p>
-          <p><strong>Currency:</strong> {record.currencyGp} GP</p>
-        </section>
-        <section>
-          <h4>Quick-play notes</h4>
-          <ul>{record.notes.map((note) => <li key={note}>{note}</li>)}</ul>
-        </section>
-      </div>
-
-      <footer className="pregen-sheet__sources">
+      <footer className="character-vault__sources">
         <h4>Sources</h4>
-        {record.sources.map((source) => (
-          <a href={source.url} key={`${source.label}-${source.url}`} rel="noreferrer" target="_blank">{source.label}</a>
-        ))}
+        {record.sources.map((source) => <a href={source.url} key={`${source.label}-${source.url}`} rel="noreferrer" target="_blank">{source.label}</a>)}
       </footer>
     </article>
   );

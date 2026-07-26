@@ -1,0 +1,149 @@
+.character-vault {
+  background: Canvas;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 1.25rem;
+  box-shadow: 0 1rem 3rem color-mix(in srgb, currentColor 10%, transparent);
+  color: CanvasText;
+  display: grid;
+  gap: 1.25rem;
+  overflow: hidden;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.character-vault h3,
+.character-vault h4,
+.character-vault p { margin-top: 0; }
+
+.character-vault__header {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.character-vault__portrait {
+  align-items: center;
+  aspect-ratio: 1;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  display: flex;
+  font-size: 2rem;
+  font-weight: 900;
+  justify-content: center;
+  width: 5rem;
+}
+
+.character-vault__identity p,
+.character-vault__card h4,
+.character-vault__sources h4 {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.character-vault__identity h3 {
+  font-size: clamp(1.8rem, 5vw, 3.6rem);
+  line-height: 0.95;
+  margin-bottom: 0.35rem;
+}
+
+.character-vault__identity span,
+.character-vault__identity small { display: block; font-weight: 800; }
+
+.character-vault__header-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: end; }
+.character-vault__header-actions button,
+.character-vault__tabs button {
+  background: ButtonFace;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: ButtonText;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 850;
+  padding: 0.65rem 1rem;
+}
+.character-vault__header-actions button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+.character-vault__vitals,
+.character-vault__abilities {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.character-vault__vitals article,
+.character-vault__abilities article {
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  border-radius: 0.85rem;
+  display: grid;
+  justify-items: center;
+  padding: 0.7rem 0.4rem;
+  text-align: center;
+}
+
+.character-vault__vitals span,
+.character-vault__abilities span,
+.character-vault__spell-summary article span {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.character-vault__vitals strong,
+.character-vault__abilities strong { font-size: 1.35rem; }
+
+.character-vault__tabs {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.2rem 0 0.5rem;
+}
+.character-vault__tabs button[aria-selected="true"] { outline: 3px double currentColor; outline-offset: 2px; }
+
+.character-vault__panel { display: none; }
+.character-vault__panel.is-active { display: block; }
+.character-vault__panel-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.character-vault__card {
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 0.9rem;
+  min-width: 0;
+  padding: 1rem;
+}
+.character-vault__card ul,
+.character-vault__card ol { display: grid; gap: 0.4rem; margin-bottom: 0; padding-left: 1.25rem; }
+
+.character-vault__action-list,
+.character-vault__resource-list,
+.character-vault__slot-grid { display: grid; gap: 0.65rem; }
+.character-vault__action-list article,
+.character-vault__resource-list article,
+.character-vault__magic-item,
+.character-vault__choice {
+  border-top: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  padding-top: 0.65rem;
+}
+.character-vault__action-list header,
+.character-vault__resource-list header,
+.character-vault__magic-item header,
+.character-vault__choice header { display: flex; gap: 0.75rem; justify-content: space-between; }
+.character-vault__action-list p,
+.character-vault__magic-item p,
+.character-vault__choice p { font-weight: 750; margin: 0.3rem 0; }
+
+.character-vault__spell-summary > div { display: grid; gap: 0.65rem; grid-template-columns: repeat(3, 1fr); }
+.character-vault__spell-summary article { display: grid; justify-items: center; }
+.character-vault__spell-summary strong { font-size: 1.35rem; }
+.character-vault__slot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.character-vault__slot-grid article { display: grid; gap: 0.2rem; }
+.character-vault__spell-list { columns: 2; display: block !important; }
+
+.character-vault__definition-list { display: grid; gap: 0.65rem; margin: 0; }
+.character-vault__definition-list div { display: grid; gap: 0.2rem; }
+.character-vault__definition-list dt { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; }
+.character-vault__definition-list dd { margin: 0; }
+.character-vault__empty-panel { max-width: 60rem; }
+
+.character-vault__sources { border-top: 1px solid currentColor; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; padding-top: 1rem; }
+.character-vault__sources h4 { flex-basis: 100%; margin-bottom: 0; }

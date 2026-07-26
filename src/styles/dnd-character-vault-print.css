@@ -1,0 +1,77 @@
+@media print {
+  @page { margin: 0.45in; size: letter portrait; }
+
+  body * { visibility: hidden; }
+  .character-vault,
+  .character-vault * { visibility: visible; }
+
+  .character-vault {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #000;
+    display: block;
+    left: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  .character-vault__header {
+    border-bottom: 2px solid #000;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    margin-bottom: 0.15in;
+    padding-bottom: 0.12in;
+  }
+
+  .character-vault__portrait { width: 0.65in; }
+  .character-vault__identity h3 { font-size: 24pt; }
+  .character-vault__header-actions,
+  .character-vault__tabs { display: none !important; }
+
+  .character-vault__vitals,
+  .character-vault__abilities {
+    gap: 0.08in;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    margin-bottom: 0.12in;
+  }
+
+  .character-vault__vitals article,
+  .character-vault__abilities article,
+  .character-vault__card {
+    border: 1px solid #000;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .character-vault__panel,
+  .character-vault__panel.is-active {
+    display: block !important;
+    margin-top: 0.15in;
+    page-break-before: always;
+  }
+
+  #vault-panel-actions { page-break-before: auto; }
+
+  .character-vault__panel-grid {
+    display: grid;
+    gap: 0.12in;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .character-vault__card,
+  .character-vault__action-list article,
+  .character-vault__resource-list article,
+  .character-vault__magic-item,
+  .character-vault__choice,
+  .character-vault__slot-grid article {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .character-vault__spell-list { columns: 3; }
+  .character-vault__sources { break-before: page; page-break-before: always; }
+  .character-vault a { color: #000; text-decoration: none; }
+}
