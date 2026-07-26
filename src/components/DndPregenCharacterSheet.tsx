@@ -19,6 +19,9 @@ const signed = (value: number): string => `${value >= 0 ? "+" : ""}${value}`;
 const resourceMarks = (maximum: number | "unlimited"): string =>
   maximum === "unlimited" ? "Unlimited" : Array.from({ length: maximum }, () => "○").join(" ");
 
+const refreshLabel = (refresh: DndCharacterRecord["resources"][number]["refresh"]): string =>
+  refresh === "none" ? "No refresh required" : `Refresh: ${refresh.replace("-", " ")}`;
+
 export const DndPregenCharacterSheet = ({ record }: { record: DndCharacterRecord }) => {
   const proficiencyBonus = dndProficiencyBonus(record.level);
   const initiative = dndAbilityModifier(record.abilityScores.dex);
@@ -74,7 +77,7 @@ export const DndPregenCharacterSheet = ({ record }: { record: DndCharacterRecord
               {record.resources.map((resource) => (
                 <article key={resource.id}>
                   <div><strong>{resource.name}</strong><span>{resourceMarks(resource.maximum)}</span></div>
-                  <small>Refresh: {resource.refresh.replace("-", " ")}{resource.notes ? ` · ${resource.notes}` : ""}</small>
+                  <small>{refreshLabel(resource.refresh)}{resource.notes ? ` · ${resource.notes}` : ""}</small>
                 </article>
               ))}
             </div>
