@@ -1,0 +1,359 @@
+.dnd-encounter-tracker {
+  display: grid;
+  width: min(1220px, calc(100% - 2rem));
+  margin: 2rem auto 5rem;
+  gap: 1rem;
+}
+
+.dnd-encounter-tracker__header,
+.dnd-encounter-source-note,
+.dnd-combatant-builder,
+.dnd-initiative-board,
+.dnd-concentration-workspace,
+.dnd-encounter-sources {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgb(247 199 107 / 22%);
+  border-radius: 0.85rem;
+  background: rgb(26 17 35 / 88%);
+}
+
+.dnd-encounter-tracker__header,
+.dnd-initiative-board > header,
+.dnd-combatant-builder > header,
+.dnd-concentration-workspace > header,
+.dnd-encounter-sources {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dnd-encounter-tracker__header p,
+.dnd-combatant-builder small,
+.dnd-initiative-board small,
+.dnd-concentration-workspace small {
+  margin: 0;
+  color: #d9c9b8;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dnd-encounter-tracker h1,
+.dnd-encounter-tracker h2 {
+  margin: 0.2rem 0;
+  color: #fff0c2;
+}
+
+.dnd-encounter-tracker__header span,
+.dnd-encounter-source-note,
+.dnd-concentration-workspace > p,
+.dnd-concentration-reminder {
+  color: #d9cfde;
+  line-height: 1.5;
+}
+
+.dnd-encounter-ruleset,
+.dnd-encounter-button-row,
+.dnd-turn-resources,
+.dnd-order-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.dnd-encounter-ruleset {
+  flex: 0 0 auto;
+  padding: 0.25rem;
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 22%);
+}
+
+.dnd-encounter-tracker button,
+.dnd-encounter-tracker input,
+.dnd-encounter-tracker select {
+  min-height: 42px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.5rem;
+}
+
+.dnd-encounter-tracker button {
+  padding: 0.48rem 0.72rem;
+  color: #f4e7cf;
+  background: rgb(255 255 255 / 7%);
+  cursor: pointer;
+}
+
+.dnd-encounter-tracker button[aria-pressed="true"] {
+  color: #201627;
+  background: #f2c86e;
+}
+
+.dnd-encounter-tracker button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.dnd-encounter-tracker input,
+.dnd-encounter-tracker select {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  color: #f8efe0;
+  background: #251633;
+}
+
+.dnd-encounter-tracker label {
+  display: grid;
+  color: #d9c9b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  gap: 0.3rem;
+}
+
+.dnd-encounter-source-note {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.dnd-encounter-source-note strong {
+  color: #c8f3d7;
+}
+
+.dnd-encounter-source-note p {
+  margin: 0;
+  font-size: 0.76rem;
+}
+
+.dnd-combatant-builder,
+.dnd-initiative-board,
+.dnd-concentration-workspace {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.dnd-combatant-builder__grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.dnd-encounter-check {
+  display: flex !important;
+  align-items: center;
+  padding: 0.55rem;
+  border-radius: 0.5rem;
+  background: rgb(0 0 0 / 18%);
+  gap: 0.5rem !important;
+}
+
+.dnd-encounter-check input {
+  width: auto;
+  min-height: auto;
+}
+
+.dnd-initiative-board ol {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: 0.55rem;
+}
+
+.dnd-initiative-board li {
+  display: grid;
+  padding: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 20%);
+  gap: 0.6rem;
+}
+
+.dnd-initiative-board li.side-player {
+  border-left: 4px solid #72b6ff;
+}
+
+.dnd-initiative-board li.side-ally {
+  border-left: 4px solid #77d294;
+}
+
+.dnd-initiative-board li.side-enemy {
+  border-left: 4px solid #e18484;
+}
+
+.dnd-initiative-board li.is-active {
+  border-color: rgb(247 199 107 / 72%);
+  box-shadow: 0 0 0 2px rgb(247 199 107 / 14%);
+}
+
+.dnd-initiative-board li > header {
+  display: grid;
+  align-items: center;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.7rem;
+}
+
+.dnd-initiative-count {
+  display: grid;
+  width: 48px;
+  min-height: 48px;
+  place-items: center;
+  color: #241a28;
+  border-radius: 50%;
+  background: #f2c86e;
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.dnd-initiative-board li header div:nth-child(2) {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.dnd-initiative-board li header strong {
+  color: #fff0c2;
+}
+
+.dnd-initiative-board li header small {
+  color: #aaa4b1;
+  text-transform: none;
+}
+
+.dnd-order-controls button {
+  min-width: 42px;
+}
+
+.dnd-turn-resources button {
+  flex: 1 1 145px;
+}
+
+.dnd-surprise-warning,
+.dnd-concentration-tag,
+.dnd-concentration-workspace output {
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.5rem;
+  font-size: 0.74rem;
+}
+
+.dnd-surprise-warning {
+  color: #ffe2a6;
+  background: rgb(125 80 20 / 24%);
+}
+
+.dnd-concentration-tag {
+  color: #cfb8ff;
+  background: rgb(94 56 144 / 25%);
+}
+
+.dnd-encounter-empty {
+  margin: 0;
+  color: #aaa4b1;
+}
+
+.dnd-concentration-controls,
+.dnd-concentration-save {
+  display: grid;
+  align-items: end;
+  gap: 0.6rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dnd-concentration-save strong {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  color: #c8f3d7;
+  border: 1px solid rgb(122 207 154 / 30%);
+  border-radius: 0.5rem;
+  background: rgb(52 122 78 / 18%);
+}
+
+.dnd-concentration-workspace output {
+  color: #e8ddf3;
+  background: rgb(255 255 255 / 5%);
+}
+
+.dnd-encounter-sources {
+  align-items: center;
+  color: #d9c9b8;
+  font-size: 0.72rem;
+}
+
+.dnd-encounter-sources a {
+  color: #c8f3d7;
+}
+
+@media (max-width: 980px) {
+  .dnd-combatant-builder__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dnd-concentration-controls,
+  .dnd-concentration-save {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .dnd-encounter-tracker__header,
+  .dnd-initiative-board > header,
+  .dnd-combatant-builder > header,
+  .dnd-concentration-workspace > header,
+  .dnd-encounter-sources {
+    display: grid;
+  }
+
+  .dnd-combatant-builder__grid,
+  .dnd-concentration-controls,
+  .dnd-concentration-save {
+    grid-template-columns: 1fr;
+  }
+
+  .dnd-initiative-board li > header {
+    grid-template-columns: auto 1fr;
+  }
+
+  .dnd-order-controls {
+    grid-column: 1 / -1;
+  }
+
+  .dnd-encounter-ruleset button {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dnd-initiative-board li {
+    transition: none;
+  }
+}
+
+@media print {
+  .dnd-encounter-ruleset,
+  .dnd-combatant-builder,
+  .dnd-encounter-tracker button,
+  .dnd-encounter-tracker input,
+  .dnd-encounter-tracker select,
+  .dnd-concentration-save {
+    display: none !important;
+  }
+
+  .dnd-encounter-tracker,
+  .dnd-encounter-tracker__header,
+  .dnd-encounter-source-note,
+  .dnd-initiative-board,
+  .dnd-concentration-workspace,
+  .dnd-encounter-sources,
+  .dnd-initiative-board li {
+    color: #111;
+    border-color: #777;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .dnd-initiative-board li,
+  .dnd-concentration-workspace {
+    break-inside: avoid;
+  }
+}

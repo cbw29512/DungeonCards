@@ -31,6 +31,12 @@ describe("DM Forge route contract", () => {
     expect(dndRoute("health")).toBe("?system=dnd&page=health");
   });
 
+  it("opens the live initiative and concentration tracker directly", () => {
+    expect(parseSystem("?system=dnd&page=combat")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=combat")).toBe("combat");
+    expect(dndRoute("combat")).toBe("?system=dnd&page=combat");
+  });
+
   it("opens the 2024 Weapon Mastery workspace directly", () => {
     expect(parseSystem("?system=dnd&page=mastery")).toBe("dnd-5e");
     expect(parseDndPage("?system=dnd&page=mastery")).toBe("mastery");
