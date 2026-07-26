@@ -64,9 +64,9 @@ describe("Call of Cthulhu investigator creation", () => {
     expect(validateOccupationValueAllocation([70, 70, 60, 50, 50, 50, 40, 40, 40])).toBe(false);
   });
 
-  it("applies personal-interest boosts and blocks Mythos creation points", () => {
+  it("adds exactly 20 personal-interest points and blocks Mythos creation points", () => {
     expect(applyPersonalInterestBoost(25)).toBe(45);
-    expect(applyPersonalInterestBoost(90)).toBe(100);
+    expect(applyPersonalInterestBoost(90)).toBe(110);
     expect(isCthulhuMythosSkill("Cthulhu Mythos")).toBe(true);
     expect(isCthulhuMythosSkill("Library Use")).toBe(false);
   });
