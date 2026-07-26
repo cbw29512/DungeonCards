@@ -49,6 +49,12 @@ describe("DM Forge route contract", () => {
     expect(dndRoute("armor")).toBe("?system=dnd&page=armor");
   });
 
+  it("opens the ready-to-play pregen library directly", () => {
+    expect(parseSystem("?system=dnd&page=pregens")).toBe("dnd-5e");
+    expect(parseDndPage("?system=dnd&page=pregens")).toBe("pregens");
+    expect(dndRoute("pregens")).toBe("?system=dnd&page=pregens");
+  });
+
   it("accepts stable long-form system identifiers", () => {
     expect(parseSystem("?system=dnd-5e&page=monster")).toBe("dnd-5e");
     expect(parseSystem("?system=coc-7e")).toBe("coc-7e");
