@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CocPreview } from "./components/CocPreview";
 import { DeckGrid } from "./components/DeckGrid";
+import { DndArmorLoadout } from "./components/DndArmorLoadout";
 import { DndConditionsLibrary } from "./components/DndConditionsLibrary";
 import { DndMovementLibrary } from "./components/DndMovementLibrary";
 import { DndRulesGuide } from "./components/DndRulesGuide";
@@ -58,6 +59,7 @@ const pageLabels: Record<DndAppPage, string> = {
   conditions: "Conditions & Exhaustion",
   movement: "Movement & Special Actions",
   mastery: "Weapon Mastery",
+  armor: "Armor & Loadout",
   compendium: "SRD Compendium",
   player: "Player Workspace",
   dm: "DM Workspace",
@@ -126,6 +128,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
           <button aria-pressed={activePage === "conditions"} type="button" onClick={() => navigate("conditions")}>Conditions</button>
           <button aria-pressed={activePage === "movement"} type="button" onClick={() => navigate("movement")}>Movement</button>
           <button aria-pressed={activePage === "mastery"} type="button" onClick={() => navigate("mastery")}>Mastery</button>
+          <button aria-pressed={activePage === "armor"} type="button" onClick={() => navigate("armor")}>Armor</button>
           <button aria-pressed={activePage === "compendium"} type="button" onClick={() => navigate("compendium")}>Compendium</button>
           <button aria-pressed={activePage === "player"} type="button" onClick={() => navigate("player")}>Player</button>
           <button aria-pressed={activePage === "dm"} type="button" onClick={() => navigate("dm")}>DM</button>
@@ -166,6 +169,10 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
                   <span aria-hidden="true">⚔️</span><strong>Weapon Mastery</strong>
                   <small>Run all eight 2024 mastery properties with weapon lookup, Topple DC, and turn limits.</small>
                 </button>
+                <button className="role-card" type="button" onClick={() => navigate("armor")}>
+                  <span aria-hidden="true">🛡️</span><strong>Armor &amp; Loadout</strong>
+                  <small>Calculate AC, training penalties, armor Speed, carrying limits, and 2014 encumbrance.</small>
+                </button>
                 <button className="role-card" type="button" onClick={() => navigate("compendium")}>
                   <span aria-hidden="true">📚</span><strong>SRD Compendium</strong>
                   <small>Search all generated SRD 5.1 and 5.2.1 spell and monster references.</small>
@@ -200,6 +207,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         {activePage === "conditions" && <DndConditionsLibrary />}
         {activePage === "movement" && <DndMovementLibrary />}
         {activePage === "mastery" && <DndWeaponMasteryLibrary />}
+        {activePage === "armor" && <DndArmorLoadout />}
         {activePage === "compendium" && <SrdCompendium />}
 
         {activePage === "player" && (
