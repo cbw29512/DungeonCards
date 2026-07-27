@@ -1,12 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { publicArchiveCard } from "../../utils/cardPlatformArchiveFixtures";
 import { buildCardCatalog } from "../../utils/cardCatalogBuild";
 import { CARD_CATALOG_PAGE_SIZE } from "../../utils/cardCatalogQuery";
 import { CardCatalogWorkspace } from "./CardCatalogWorkspace";
 
 describe("Card Catalog workspace", () => {
-  it("renders source health, metadata, private distinction, and one bounded page", () => {
+  it("renders source health, bounded cards, and external active-deck controls", () => {
     const definitions = Array.from({ length: 40 }, (_, index) => ({
       ...publicArchiveCard,
       id: `catalog:render:${index}`,
@@ -18,7 +18,9 @@ describe("Card Catalog workspace", () => {
     ]);
     const html = renderToStaticMarkup(
       <CardCatalogWorkspace
+        activeDeckName="Adventure Deck"
         catalog={catalog}
+        onAddCard={vi.fn()}
         sourceActions={[
           { sourceId: "rules", label: "Built-in Rules" },
           { sourceId: "private", label: "Imported Private" }
@@ -30,6 +32,8 @@ describe("Card Catalog workspace", () => {
     expect(html).toContain("Private import");
     expect(html).toContain(`Showing ${CARD_CATALOG_PAGE_SIZE} of 40 matching cards`);
     expect((html.match(/class="card-platform-card"/g) ?? []).length).toBe(CARD_CATALOG_PAGE_SIZE);
+    expect((html.match(/Add to Adventure Deck/g) ?? []).length).toBe(CARD_CATALOG_PAGE_SIZE);
+    expect(html.indexOf("card-catalog__add")).toBeGreaterThan(html.indexOf("card-platform-card"));
     expect(html).toContain("Print current page");
     expect(html).toContain("Page 1 of 2");
   });
