@@ -68,7 +68,7 @@ describe("Fighter Champion Character Vault profiles", () => {
       "Boon of Combat Prowess"
     ]));
     expect(fighter2024.character.abilityScores).toMatchObject({ str: 20, dex: 14, con: 18, wis: 14 });
-    expect(fighter2024.character.maximumHitPoints).toBe(200);
+    expect(fighter2024.character.maximumHitPoints).toBe(204);
     expect(fighter2024.character.speedFeet).toBe(40);
     expect(fighter2024.character.savingThrowProficiencies).toContain("wis");
     expect(fighter2024.character.attacks.find((attack) => attack.id === "greatsword")?.notes).toContain("Great Weapon Master");
