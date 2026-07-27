@@ -13,8 +13,12 @@ import {
 
 class MemoryStorage {
   values = new Map<string, string>();
+  failWrites = false;
   getItem(key: string) { return this.values.get(key) ?? null; }
-  setItem(key: string, value: string) { this.values.set(key, value); }
+  setItem(key: string, value: string) {
+    if (this.failWrites) throw new Error("quota exceeded");
+    this.values.set(key, value);
+  }
   removeItem(key: string) { this.values.delete(key); }
 }
 
@@ -51,14 +55,12 @@ describe("exact-system private card library storage", () => {
     expect(() => loadPrivateCardLibrary(storage, "dnd-2024")).toThrow(/not valid JSON/i);
   });
 
-  it("leaves the previous saved value intact when a write fails", () => {
+  it("leaves the previous saved value intact when the same storage write fails", () => {
     const storage = new MemoryStorage();
     const key = privateCardLibraryKey("dnd-2024");
     storage.setItem(key, "previous-library");
-    const failing = {
-      setItem: () => { throw new Error("quota exceeded"); }
-    };
-    expect(() => savePrivateCardLibrary(failing, validArchiveFixture())).toThrow(/quota exceeded/i);
+    storage.failWrites = true;
+    expect(() => savePrivateCardLibrary(storage, validArchiveFixture())).toThrow(/quota exceeded/i);
     expect(storage.getItem(key)).toBe("previous-library");
   });
 
