@@ -49,6 +49,9 @@ export const createCardActionHistoryEntry = (input: {
 }): CardActionHistoryEntry => {
   const instance = input.library.instances.find((candidate) => candidate.id === input.instanceId);
   if (!instance) throw new Error(`Card instance not found: ${input.instanceId}`);
+  const definition = input.library.definitions.find((candidate) => candidate.id === instance.definitionId);
+  const canonicalAction = definition?.actions.find((candidate) => candidate.id === input.action.id);
+  if (!definition || !canonicalAction) throw new Error(`Canonical card action not found: ${input.action.id}`);
   return {
     schemaVersion: 1,
     id: input.id,
@@ -57,9 +60,9 @@ export const createCardActionHistoryEntry = (input: {
     deckId: input.deckId,
     cardInstanceId: input.instanceId,
     definitionId: instance.definitionId,
-    actionId: input.action.id,
-    actionKind: input.action.kind,
-    label: input.action.label,
+    actionId: canonicalAction.id,
+    actionKind: canonicalAction.kind,
+    label: canonicalAction.label,
     summary: input.result.summary,
     ...(input.result.roll ? { roll: input.result.roll } : {}),
     resourceChanges: input.result.resourceChanges.map((change) => ({ ...change }))
