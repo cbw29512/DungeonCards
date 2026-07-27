@@ -12,6 +12,7 @@ export const cocPageLabels: Record<CocAppPage, string> = {
   investigator: "Investigator",
   keeper: "Keeper",
   rules: "Rules",
+  catalog: "Card Catalog",
   equipment: "Equipment",
   spells: "Spells & Rituals",
   creatures: "Creatures & NPCs",
@@ -22,11 +23,12 @@ export const cocPageLabels: Record<CocAppPage, string> = {
 };
 
 export const cocNavigationPages: CocAppPage[] = [
-  "home", "investigator", "keeper", "rules", "equipment", "spells",
+  "home", "investigator", "keeper", "rules", "catalog", "equipment", "spells",
   "creatures", "encounters", "library", "builders", "sources"
 ];
 
 export const cocHomeCards: CocHomeCard[] = [
+  { page: "catalog", eyebrow: "Card-first index", title: "Card Catalog", description: "Search verified procedures, original demonstrations, and private cards inside CoC 7e." },
   { page: "investigator", eyebrow: "Player desk", title: "Investigator", description: "Checks, Sanity, injury, healing, advancement, and quick-reference cards." },
   { page: "keeper", eyebrow: "Case command", title: "Keeper", description: "Mystery flow, essential clues, NPC pressure, opposition clocks, and records." },
   { page: "rules", eyebrow: "Verified procedure", title: "Rules", description: "Open the complete table-procedure guide and source status." },
