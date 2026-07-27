@@ -40,13 +40,15 @@ export const PlayableCardRuntimePanel = (props: Props) => (
         <div className="playable-card-runtime__resources">
           {props.definition.resources.map((resource) => {
             const current = props.instance.resourceState[resource.id] ?? 0;
-            const unlimited = resource.maximum === "unlimited";
+            const maximum = resource.maximum;
+            const unlimited = maximum === "unlimited";
+            const atMaximum = maximum !== "unlimited" && current >= maximum;
             return (
               <article key={resource.id}>
-                <div><strong>{resource.label}</strong><span>{unlimited ? "Unlimited" : `${current} / ${resource.maximum}`} · {resource.refresh.replaceAll("-", " ")}</span></div>
+                <div><strong>{resource.label}</strong><span>{unlimited ? "Unlimited" : `${current} / ${maximum}`} · {resource.refresh.replaceAll("-", " ")}</span></div>
                 <div>
                   <button disabled={unlimited || current <= 0} onClick={() => props.onAdjustResource(resource.id, -1)} type="button">−</button>
-                  <button disabled={unlimited || current >= resource.maximum} onClick={() => props.onAdjustResource(resource.id, 1)} type="button">+</button>
+                  <button disabled={unlimited || atMaximum} onClick={() => props.onAdjustResource(resource.id, 1)} type="button">+</button>
                   <button onClick={() => props.onResetResource(resource.id)} type="button">Reset</button>
                 </div>
               </article>
