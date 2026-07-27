@@ -1,5 +1,6 @@
 import type { useCardDeckLibrary } from "../../hooks/useCardDeckLibrary";
 import { getActiveCardDeckLibraryView } from "../../utils/cardDeckLibraryView";
+import { printCardSurface } from "../../utils/printCardSurface";
 import { PlayableCardRuntimePanel } from "./PlayableCardRuntimePanel";
 import { PlayableDeckManager } from "./PlayableDeckManager";
 
@@ -35,7 +36,7 @@ export const PlayableDeckWorkspace = ({ controller }: { controller: CardDeckLibr
         <section className="playable-deck-table" aria-labelledby="playable-deck-table-title">
           <header>
             <div><small>{view.deck.kind.replaceAll("-", " ")} · {view.deck.gameSystemId}</small><h2 id="playable-deck-table-title">{view.deck.name}</h2></div>
-            <span>{view.instances.length} runtime card cop{view.instances.length === 1 ? "y" : "ies"}</span>
+            <div className="playable-deck-table__actions"><span>{view.instances.length} runtime card cop{view.instances.length === 1 ? "y" : "ies"}</span><button disabled={view.instances.length === 0} onClick={() => printCardSurface("playable-deck")} type="button">Print active deck</button></div>
           </header>
           {(view.missingDefinitionIds.length > 0 || view.missingInstanceIds.length > 0) && (
             <div className="playable-deck-table__missing" role="alert">
