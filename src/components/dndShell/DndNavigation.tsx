@@ -1,5 +1,9 @@
 import { DM_FORGE_HOME, type DndAppPage } from "../../integration/dmForgeRoute";
-import { dndNavigationPages, dndPageLabels } from "./dndPageRegistry";
+import {
+  dndNavigationLabels,
+  dndNavigationPages,
+  dndPageLabels
+} from "./dndPageRegistry";
 
 type Props = {
   activePage: DndAppPage;
@@ -42,16 +46,7 @@ export const DndNavigation = ({
           onClick={() => onChangePage(page)}
           type="button"
         >
-          {page === "rules" ? "Rules Guide"
-            : page === "coverage" ? "Coverage"
-              : page === "monster-homebrew" ? "Monster Builder"
-                : page === "homebrew" ? "Card Builder"
-                  : page === "monster" ? "Encounter"
-                    : page === "compendium" ? "Compendium"
-                      : page === "pregens" ? "Pregens"
-                        : page === "mastery" ? "Mastery"
-                          : page === "conditions" ? "Conditions"
-                            : dndPageLabels[page].split(" &")[0].split(" Workspace")[0]}
+          {dndNavigationLabels[page]}
         </button>
       ))}
       <button type="button" onClick={onChangeSystem}>Other Systems</button>
