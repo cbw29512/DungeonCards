@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CardPlatformExportEnvelope } from "../../types/cardPlatformRuntime";
 import {
   EMPTY_PRIVATE_LIBRARY_FILTERS,
@@ -23,6 +23,9 @@ export const PrivateCardLibraryBrowser = ({
     () => new Set(library.definitions.map((card) => card.id)),
     [library.definitions]
   );
+
+  useEffect(() => setFilters(EMPTY_PRIVATE_LIBRARY_FILTERS), [library.gameSystemId]);
+
   const patch = <K extends keyof PrivateLibraryCardFilters>(key: K, value: PrivateLibraryCardFilters[K]) => (
     setFilters((current) => ({ ...current, [key]: value }))
   );
