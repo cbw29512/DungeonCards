@@ -4,7 +4,7 @@ import { dndVaultBarbarianProfiles } from "./dndVaultBarbarianProfiles";
 import { dndVaultFighterProfiles } from "./dndVaultFighterProfiles";
 
 export const dndVaultReadyBuilds: DndOptimizedBuildProfile[] = [
-  ...dndBarbarianProfiles,
+  ...dndVaultBarbarianProfiles,
   ...dndVaultFighterProfiles
 ];
 
