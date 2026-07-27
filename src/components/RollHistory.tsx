@@ -1,11 +1,11 @@
-import type { RollHistoryEntry } from "../types/cards";
+import type { DiceRollHistoryEntry } from "../types/diceDeckState";
 
 type RollHistoryProps = {
-  entries: RollHistoryEntry[];
+  entries: DiceRollHistoryEntry[];
   onClear?: () => void;
 };
 
-const formatDiceBreakdown = (entry: RollHistoryEntry): string => {
+const formatDiceBreakdown = (entry: DiceRollHistoryEntry): string => {
   const diceText = entry.result.dice
     .map((die) => `${die.results.length}d${die.sides}: ${die.results.join(", ")}`)
     .join(" | ");
