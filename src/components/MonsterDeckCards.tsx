@@ -10,7 +10,7 @@ type Props = {
   pinnedCardIds: string[];
   view: WorkspaceView;
   onAdd(cardId: string): void;
-  onDeleteHomebrew(monsterId: string): void;
+  onDeleteHomebrew(monsterId: string): boolean;
   onMove(cardId: string, direction: "earlier" | "later"): void;
   onRemove(cardId: string): void;
   onTogglePin(cardId: string): void;
