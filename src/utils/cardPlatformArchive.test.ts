@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { cocPreviewWeapon } from "../data/cocPreviewCatalog";
+import { cocRuleSources } from "../data/cocRuleSources";
 import { dndVaultReadyBuilds } from "../data/dndVaultReadyBuilds";
 import {
   buildCardPlatformArchive,
@@ -10,8 +12,9 @@ import {
   privateArchiveCard,
   publicArchiveCard,
   validArchiveFixture
-} from "./cardPlatformArchiveFixtures.test";
+} from "./cardPlatformArchiveFixtures";
 import { MAX_CARD_PLATFORM_ARCHIVE_BYTES } from "./cardPlatformArchiveLimits";
+import { adaptCocWeapon } from "./cardPlatformCocWeaponAdapter";
 import { generateDndCharacterCardBundle } from "./dndCharacterCardGeneration";
 
 const cloneFixture = () => structuredClone(validArchiveFixture());
@@ -76,5 +79,20 @@ describe("Card Platform versioned import and export", () => {
     expect(parsed.definitions).toEqual([...bundle.definitions].sort((a, b) => a.id.localeCompare(b.id)));
     expect(parsed.decks[0]?.cardDefinitionIds).toEqual(bundle.deck.cardDefinitionIds);
     expect(parsed.definitions.every((card) => card.print.sizeId === "poker-2.5x3.5")).toBe(true);
+  });
+
+  it("round-trips exact-system Call of Cthulhu cards", () => {
+    const source = cocRuleSources.find((record) => record.id === "coc-original-weapon-preview");
+    expect(source).toBeDefined();
+    const definition = adaptCocWeapon(cocPreviewWeapon, { source });
+    const archive = buildCardPlatformArchive({
+      gameSystemId: "coc-7e",
+      exportedAt: "2026-07-27T16:00:00.000Z",
+      definitions: [definition]
+    });
+    const parsed = parseCardPlatformArchive(serializeCardPlatformArchive(archive), "coc-7e");
+    expect(parsed.definitions[0]).toEqual(definition);
+    expect(() => parseCardPlatformArchive(serializeCardPlatformArchive(archive), "dnd-2024"))
+      .toThrow(/Expected dnd-2024 archive/i);
   });
 });
