@@ -46,6 +46,9 @@
   body.printing-playable-deck .playable-deck-table__missing,
   body.printing-playable-deck .playable-card-runtime__origin,
   body.printing-playable-deck .playable-card-runtime__controls,
+  body.printing-playable-deck .playable-card-actions,
+  body.printing-playable-deck .playable-card-action__result,
+  body.printing-playable-deck .card-action-history,
   body.printing-playable-deck .playable-deck-table__missing-card {
     display: none !important;
   }
