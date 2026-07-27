@@ -1,7 +1,12 @@
-import type { GameSystemId } from "../types/cardPlatform";
+import type {
+  DndGameSystemId,
+  GameSystemId
+} from "../types/cardPlatform";
 import type { RulesetId } from "../types/ruleCards";
 
-export const gameSystemIdForRuleset = (ruleset: RulesetId): GameSystemId => (
+export const gameSystemIdForRuleset = (
+  ruleset: RulesetId
+): DndGameSystemId => (
   ruleset === "srd-5.1-2014" ? "dnd-2014" : "dnd-2024"
 );
 
