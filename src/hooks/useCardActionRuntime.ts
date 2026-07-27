@@ -8,7 +8,7 @@ import { executeCardAction } from "../utils/cardActionExecution";
 import { clearCardActionHistory, createEmptyCardActionHistory, loadCardActionHistory } from "../utils/cardActionHistoryStorage";
 import { commitCardActionTransaction } from "../utils/cardActionTransaction";
 
-type ResultMap = Record<string, CardActionExecutionResult>;
+type ResultMap = Partial<Record<string, CardActionExecutionResult>>;
 const resultKey = (instanceId: string, actionId: string): string => `${instanceId}:${actionId}`;
 
 export const useCardActionRuntime = (
