@@ -11,6 +11,7 @@ export const adaptSrdSpell = (spell: SrdSpellRecord): CardDefinition => {
   const gameSystemId = gameSystemIdForRuleset(spell.edition);
   const manifest = srdManifest.sources.find((source) => source.edition === spell.edition);
   const levelLabel = spell.level === 0 ? "Cantrip" : `Level ${spell.level}`;
+  const concentration = /\bconcentration\b/i.test(spell.duration);
   return {
     schemaVersion: 2,
     id: `srd-spell:${gameSystemId}:${safeId(spell.id)}`,
@@ -27,8 +28,7 @@ export const adaptSrdSpell = (spell: SrdSpellRecord): CardDefinition => {
         spell.school,
         `level-${spell.level}`,
         ...spell.classes,
-        ...(spell.ritual ? ["ritual"] : []),
-        ...(spell.concentration ? ["concentration"] : [])
+        ...(concentration ? ["concentration"] : [])
       ]
     },
     source: {
