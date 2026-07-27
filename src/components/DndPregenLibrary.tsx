@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DndPregenCharacterSheet } from "./DndPregenCharacterSheet";
 import { DndPregenReleasePanel } from "./dndCharacterVault/DndPregenReleasePanel";
 import { DndPregenSelectorControls } from "./dndCharacterVault/DndPregenSelectorControls";
+import { DndSavedCharacterPlayMode } from "./dndCharacterVault/DndSavedCharacterPlayMode";
 import { DndVaultAccountPanel } from "./dndCharacterVault/DndVaultAccountPanel";
 import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
 import {
@@ -10,7 +11,8 @@ import {
 } from "../data/dndReadyPregens";
 import {
   countDndVaultReadyBuilds,
-  getDndVaultReadyBuild
+  getDndVaultReadyBuild,
+  getDndVaultReadyBuildById
 } from "../data/dndVaultReadyBuilds";
 import {
   dndPregenDefinitionPath,
@@ -26,6 +28,9 @@ export const DndPregenLibrary = () => {
   const [pathId, setPathId] = useState("fighter:champion");
   const [level, setLevel] = useState(1);
   const vault = useDndCharacterVault();
+  const activeProfile = vault.activeCharacter
+    ? getDndVaultReadyBuildById(vault.activeCharacter.baseBuildId)
+    : undefined;
   const definitions = dndPregenClassDefinitions.filter((definition) => definition.ruleset === ruleset);
   const selectedDefinition = definitions.find((definition) => dndPregenDefinitionPath(definition) === pathId) ?? definitions[0];
   const selectedSlot = selectedDefinition
@@ -70,53 +75,77 @@ export const DndPregenLibrary = () => {
       </header>
 
       <DndVaultAccountPanel vault={vault} />
-      <DndPregenSelectorControls
-        definitions={definitions}
-        level={level}
-        onChangeLevel={setLevel}
-        onChangePath={setPathId}
-        onChangeRuleset={changeRuleset}
-        pathId={selectedDefinition ? dndPregenDefinitionPath(selectedDefinition) : ""}
-        ruleset={ruleset}
-      />
 
-      {selectedDefinition && selectedSlot && readiness && (
-        <DndPregenReleasePanel
-          definition={selectedDefinition}
-          level={level}
-          profile={selectedVaultBuild}
-          readiness={readiness}
-          ruleset={ruleset}
-          slot={selectedSlot}
+      {vault.activeCharacter && activeProfile && (
+        <DndSavedCharacterPlayMode
+          busy={vault.busy}
+          error={vault.error}
+          feedback={vault.feedback}
+          onClose={vault.closeCharacter}
+          onSave={vault.updateCharacter}
+          profile={activeProfile}
+          savedState={vault.activeCharacter}
         />
       )}
-
-      {selectedRecord && readiness?.ready && (
-        <DndPregenCharacterSheet
-          onSave={selectedVaultBuild ? () => { void vault.saveProfile(selectedVaultBuild); } : undefined}
-          profile={selectedVaultBuild}
-          record={selectedRecord}
-          signedIn={Boolean(vault.session)}
-        />
-      )}
-
-      <div className="pregen-library__columns">
-        <section>
-          <h3>Release gates</h3>
-          <ol className="pregen-library__requirements">
-            {dndPregenReadyRequirements.map((requirement) => <li key={requirement}>{requirement}</li>)}
-          </ol>
+      {vault.activeCharacter && !activeProfile && (
+        <section className="saved-character-editor__issues" role="alert">
+          <h2>Saved build unavailable</h2>
+          <p>This saved character references a Vault build that is no longer registered.</p>
+          <button onClick={vault.closeCharacter} type="button">Close Play Mode</button>
         </section>
-        <aside className="pregen-library__boundary">
-          <h3>Publishing boundary</h3>
-          <p>Public releases use SRD, free-rules, or original material. Paid-book subclasses and feats require a private user-owned import layer or separate licensing.</p>
-          <dl>
-            <div><dt>Public blueprints</dt><dd>{summary.total - releasedCount}</dd></div>
-            <div><dt>Ready to play</dt><dd>{releasedCount}</dd></div>
-            <div><dt>Vault Ready</dt><dd>{vaultReadyCount}</dd></div>
-          </dl>
-        </aside>
-      </div>
+      )}
+
+      {!vault.activeCharacter && (
+        <>
+          <DndPregenSelectorControls
+            definitions={definitions}
+            level={level}
+            onChangeLevel={setLevel}
+            onChangePath={setPathId}
+            onChangeRuleset={changeRuleset}
+            pathId={selectedDefinition ? dndPregenDefinitionPath(selectedDefinition) : ""}
+            ruleset={ruleset}
+          />
+
+          {selectedDefinition && selectedSlot && readiness && (
+            <DndPregenReleasePanel
+              definition={selectedDefinition}
+              level={level}
+              profile={selectedVaultBuild}
+              readiness={readiness}
+              ruleset={ruleset}
+              slot={selectedSlot}
+            />
+          )}
+
+          {selectedRecord && readiness?.ready && (
+            <DndPregenCharacterSheet
+              onSave={selectedVaultBuild ? () => { void vault.saveProfile(selectedVaultBuild); } : undefined}
+              profile={selectedVaultBuild}
+              record={selectedRecord}
+              signedIn={Boolean(vault.session)}
+            />
+          )}
+
+          <div className="pregen-library__columns">
+            <section>
+              <h3>Release gates</h3>
+              <ol className="pregen-library__requirements">
+                {dndPregenReadyRequirements.map((requirement) => <li key={requirement}>{requirement}</li>)}
+              </ol>
+            </section>
+            <aside className="pregen-library__boundary">
+              <h3>Publishing boundary</h3>
+              <p>Public releases use SRD, free-rules, or original material. Paid-book subclasses and feats require a private user-owned import layer or separate licensing.</p>
+              <dl>
+                <div><dt>Public blueprints</dt><dd>{summary.total - releasedCount}</dd></div>
+                <div><dt>Ready to play</dt><dd>{releasedCount}</dd></div>
+                <div><dt>Vault Ready</dt><dd>{vaultReadyCount}</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </>
+      )}
     </section>
   );
 };
