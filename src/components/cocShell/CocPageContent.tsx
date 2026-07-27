@@ -19,6 +19,7 @@ import { CocRulesGuide } from "../CocRulesGuide";
 import { CocSanityCard } from "../CocSanityCard";
 import { CocSpellCard } from "../CocSpellCard";
 import { CocWeaponCard } from "../CocWeaponCard";
+import { PrivateCardLibraryWorkspace } from "../cardPlatform/PrivateCardLibraryWorkspace";
 import { CocHome } from "./CocHome";
 import { CocQuickReferenceGrid, CocReferenceGrid } from "./CocReferenceGrid";
 
@@ -38,6 +39,7 @@ export const CocPageContent = ({
 }) => {
   if (activePage === "home") return <CocHome onNavigate={onNavigate} />;
   if (activePage === "rules") return <CocRulesGuide />;
+  if (activePage === "library") return <PrivateCardLibraryWorkspace gameSystemId="coc-7e" />;
   if (activePage === "investigator") return (
     <Page eyebrow="Investigator workspace" title="Keep pressure procedures in one card library." summary="Resolve the roll, apply the cost, and record what changed without opening Keeper notes.">
       <div className="coc-procedure-grid"><CocPercentileCard eyebrow="Investigator skill file" title="Active Skill Check" /><CocSanityCard /><CocInjuryCard /><CocHealingCard /><CocImprovementCard /></div>
