@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { CocPreview } from "./components/CocPreview";
-import { DeckGrid } from "./components/DeckGrid";
 import { DndArmorLoadout } from "./components/DndArmorLoadout";
 import { DndConditionsLibrary } from "./components/DndConditionsLibrary";
 import { DndEncounterTracker } from "./components/DndEncounterTracker";
 import { DndHealthTracker } from "./components/DndHealthTracker";
+import { DndHomebrewWorkspace } from "./components/DndHomebrewWorkspace";
 import { DndMovementLibrary } from "./components/DndMovementLibrary";
 import { DndPregenLibrary } from "./components/DndPregenLibrary";
 import { DndRulesGuide } from "./components/DndRulesGuide";
 import { DndWeaponMasteryLibrary } from "./components/DndWeaponMasteryLibrary";
 import { GameSystemGateway, type GameSystemId } from "./components/GameSystemGateway";
-import { HomebrewBuilder } from "./components/HomebrewBuilder";
 import { MonsterDeck } from "./components/MonsterDeck";
 import { MonsterHomebrewBuilder } from "./components/MonsterHomebrewBuilder";
 import { RulesCoverageDashboard } from "./components/RulesCoverageDashboard";
@@ -87,7 +86,13 @@ const focusMainContent = (id: string) => {
 const DndApp = ({ onChangeSystem }: DndAppProps) => {
   const [activePage, setActivePage] = useState<DndAppPage>(() => parseDndPage(initialSearch()));
   const [navigationOpen, setNavigationOpen] = useState(false);
-  const { cards: homebrewCards, storageError, createCard, deleteCard } = useHomebrewCards();
+  const {
+    cards: homebrewCards,
+    storageError,
+    migrationNotice,
+    createCard,
+    deleteCard
+  } = useHomebrewCards();
   const {
     monsters: homebrewMonsters,
     storageError: homebrewMonsterError,
@@ -157,7 +162,7 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
             <div className="hero__content">
               <p className="hero__eyebrow">DM Forge · Rules Compendium &amp; Roll Cards</p>
               <h1>Choose the card. Run the encounter. Keep playing.</h1>
-              <p>Verified 5e and 5.5e references, executable roll cards, personal tables, encounter folios, and homebrew tools—all local and account-free.</p>
+              <p>Verified 5e and 5.5e references, executable roll cards, personal tables, encounter folios, and homebrew tools—local-first with optional private accounts.</p>
               <div className="role-card-grid">
                 <button className="role-card" type="button" onClick={() => navigate("rules")}>
                   <span aria-hidden="true">📖</span><strong>Rules Guide</strong>
@@ -264,18 +269,13 @@ const DndApp = ({ onChangeSystem }: DndAppProps) => {
         )}
 
         {activePage === "homebrew" && (
-          <>
-            <HomebrewBuilder onCreate={createCard} storageError={storageError} />
-            {homebrewCards.length > 0 ? (
-              <DeckGrid
-                cards={homebrewCards}
-                eyebrow="Homebrew Deck"
-                title="Your custom cards are ready to roll."
-                description="These cards are stored locally in this browser and remain separate from SRD cards."
-                onDeleteCard={deleteCard}
-              />
-            ) : <p className="homebrew-empty">No homebrew cards yet. Build your first card above.</p>}
-          </>
+          <DndHomebrewWorkspace
+            cards={homebrewCards}
+            migrationNotice={migrationNotice}
+            onCreate={createCard}
+            onDelete={deleteCard}
+            storageError={storageError}
+          />
         )}
 
         {activePage === "monster-homebrew" && (

@@ -1,3 +1,5 @@
+import type { DndGameSystemId } from "./cardPlatform";
+
 export type CardCategory =
   | "attack"
   | "damage"
@@ -19,7 +21,15 @@ export type DiceCard = {
   isFavorite: boolean;
 };
 
-export type HomebrewCardDraft = Omit<DiceCard, "id" | "category">;
+export type HomebrewDiceCard = DiceCard & {
+  schemaVersion: 2;
+  gameSystemId: DndGameSystemId;
+};
+
+export type HomebrewCardDraft = Omit<
+  HomebrewDiceCard,
+  "id" | "category" | "schemaVersion"
+>;
 
 export type DieRoll = {
   sides: number;
