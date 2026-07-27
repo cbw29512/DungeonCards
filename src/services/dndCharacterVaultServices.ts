@@ -8,6 +8,7 @@ import {
   getDndVaultSupabaseConfig,
   type DndVaultSupabaseConfig
 } from "./supabase/supabaseConfig";
+import { DND_VAULT_SESSION_KEY } from "./supabase/supabaseSessionStore";
 
 export type DndCharacterVaultServices = {
   auth: DndCharacterVaultAuthGateway;
@@ -26,7 +27,9 @@ export const createDndCharacterVaultServices = (
     clearHash: () => window.history.replaceState(null, document.title, `${window.location.pathname}${window.location.search}`),
     navigate: (url) => window.location.assign(url),
     subscribeStorage: (listener) => {
-      const handler = (event: StorageEvent) => { if (event.storageArea === window.localStorage) listener(); };
+      const handler = (event: StorageEvent) => {
+        if (event.storageArea === window.localStorage && event.key === DND_VAULT_SESSION_KEY) listener();
+      };
       window.addEventListener("storage", handler);
       return () => window.removeEventListener("storage", handler);
     }
