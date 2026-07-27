@@ -87,3 +87,5 @@ export const useCardDeckLibrary = (gameSystemId: GameSystemId) => {
     exportDeck
   };
 };
+
+export type CardDeckLibraryController = ReturnType<typeof useCardDeckLibrary>;
