@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getDndVaultCardBundleByBuildId } from "../../data/dndVaultCardLibrary";
 import type { DndOptimizedBuildProfile } from "../../types/dndCharacterVault";
 import { buildDndVaultCardArchiveDownload } from "../../utils/dndVaultCardArchive";
@@ -22,6 +22,12 @@ export const DndVaultCardDeck = ({ profile }: { profile: DndOptimizedBuildProfil
     () => filterDndVaultCards(cards, filter, query),
     [cards, filter, query]
   );
+
+  useEffect(() => {
+    setFilter("all");
+    setQuery("");
+    setStatus(null);
+  }, [profile.id]);
 
   const exportDeck = () => {
     try {
