@@ -1,21 +1,23 @@
 import { useState } from "react";
-import { DndVaultActions } from "./dndCharacterVault/DndVaultActions";
-import { DndVaultBuildGuide } from "./dndCharacterVault/DndVaultBuildGuide";
-import { DndVaultFeatures } from "./dndCharacterVault/DndVaultFeatures";
-import { DndVaultInventory } from "./dndCharacterVault/DndVaultInventory";
-import { DndVaultSpells } from "./dndCharacterVault/DndVaultSpells";
-import { DndVaultSummary } from "./dndCharacterVault/DndVaultSummary";
 import type { DndCharacterRecord } from "../types/dndCharacter";
 import type {
   DndOptimizedBuildProfile,
   DndSavedCharacterState
 } from "../types/dndCharacterVault";
 import { isDndCharacterVaultReady } from "../utils/dndCharacterVaultValidation";
+import { DndVaultActions } from "./dndCharacterVault/DndVaultActions";
+import { DndVaultBuildGuide } from "./dndCharacterVault/DndVaultBuildGuide";
+import { DndVaultCardDeck } from "./dndCharacterVault/DndVaultCardDeck";
+import { DndVaultFeatures } from "./dndCharacterVault/DndVaultFeatures";
+import { DndVaultInventory } from "./dndCharacterVault/DndVaultInventory";
+import { DndVaultSpells } from "./dndCharacterVault/DndVaultSpells";
+import { DndVaultSummary } from "./dndCharacterVault/DndVaultSummary";
 
-type VaultTabId = "actions" | "spells" | "features" | "inventory" | "notes" | "build";
+type VaultTabId = "actions" | "cards" | "spells" | "features" | "inventory" | "notes" | "build";
 
 const tabs: Array<{ id: VaultTabId; label: string }> = [
   { id: "actions", label: "Actions" },
+  { id: "cards", label: "Cards" },
   { id: "spells", label: "Spells" },
   { id: "features", label: "Features" },
   { id: "inventory", label: "Inventory" },
@@ -93,6 +95,7 @@ export const DndPregenCharacterSheet = ({
       </nav>
 
       <section aria-hidden={activeTab !== "actions"} aria-labelledby="vault-tab-actions" className={panelClass("actions")} id="vault-panel-actions" role="tabpanel"><DndVaultActions record={record} savedState={savedState} /></section>
+      <section aria-hidden={activeTab !== "cards"} aria-labelledby="vault-tab-cards" className={panelClass("cards")} id="vault-panel-cards" role="tabpanel">{profile ? <DndVaultCardDeck profile={profile} /> : <p>Generated cards require a Vault Ready build profile.</p>}</section>
       <section aria-hidden={activeTab !== "spells"} aria-labelledby="vault-tab-spells" className={panelClass("spells")} id="vault-panel-spells" role="tabpanel"><DndVaultSpells record={record} savedState={savedState} /></section>
       <section aria-hidden={activeTab !== "features"} aria-labelledby="vault-tab-features" className={panelClass("features")} id="vault-panel-features" role="tabpanel"><DndVaultFeatures record={record} /></section>
       <section aria-hidden={activeTab !== "inventory"} aria-labelledby="vault-tab-inventory" className={panelClass("inventory")} id="vault-panel-inventory" role="tabpanel"><DndVaultInventory profile={profile} record={record} savedState={savedState} /></section>
