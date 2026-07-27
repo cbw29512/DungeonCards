@@ -23,6 +23,7 @@ describe("D&D structured character record engine", () => {
   it("calculates fixed Hit Points with a minimum one-point increase", () => {
     expect(dndFixedHitPoints(10, 1, 14)).toBe(12);
     expect(dndFixedHitPoints(10, 5, 14)).toBe(44);
+    expect(dndFixedHitPoints(10, 20, 18)).toBe(204);
     expect(dndFixedHitPoints(6, 3, 1)).toBe(3);
   });
 
@@ -119,6 +120,16 @@ describe("D&D structured character record engine", () => {
 
     expect(validateDndCharacterRecord(record)).toMatchObject({ ready: true, issues: [] });
 
+    record.savingThrowProficiencies = ["str", "con", "wis"];
+    expect(validateDndCharacterRecord(record)).toMatchObject({ ready: true, issues: [] });
+
+    record.savingThrowProficiencies = ["str"];
+    expect(validateDndCharacterRecord(record).issues.some((issue) => issue.message.includes("at least two"))).toBe(true);
+
+    record.savingThrowProficiencies = ["str", "str"];
+    expect(validateDndCharacterRecord(record).issues.some((issue) => issue.message.includes("unique"))).toBe(true);
+
+    record.savingThrowProficiencies = ["str", "con"];
     record.subclassId = "wrong-subclass";
     const invalid = validateDndCharacterRecord(record);
     expect(invalid.ready).toBe(false);
