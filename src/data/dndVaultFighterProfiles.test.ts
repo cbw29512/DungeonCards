@@ -8,11 +8,7 @@ import {
   dndVaultFighterProfiles,
   getDndVaultFighterProfile
 } from "./dndVaultFighterProfiles";
-import {
-  countDndVaultReadyBuilds,
-  dndVaultReadyBuilds,
-  getDndVaultReadyBuild
-} from "./dndVaultReadyBuilds";
+import { getDndVaultReadyBuild } from "./dndVaultReadyBuilds";
 
 describe("Fighter Champion Character Vault profiles", () => {
   it("publishes one optimized profile for every Fighter level in both editions", () => {
@@ -86,10 +82,9 @@ describe("Fighter Champion Character Vault profiles", () => {
     ]));
   });
 
-  it("registers all Fighter profiles through the central live lookup", () => {
-    expect(dndVaultReadyBuilds).toHaveLength(40);
-    expect(countDndVaultReadyBuilds("srd-5.1-2014")).toBe(20);
-    expect(countDndVaultReadyBuilds("srd-5.2.1-2024")).toBe(20);
-    expect(getDndVaultReadyBuild("srd-5.2.1-2024", "fighter", "champion", 20)?.character.name).toBe("Rowan Ironmark");
+  it("registers every Fighter slot through the central live lookup", () => {
+    for (const profile of dndVaultFighterProfiles) {
+      expect(getDndVaultReadyBuild(profile.ruleset, profile.classId, profile.subclassId, profile.level)).toBe(profile);
+    }
   });
 });
