@@ -1,0 +1,9 @@
+export const CARD_PLATFORM_ARCHIVE_FORMAT = "dm-forge-card-platform" as const;
+export const CARD_PLATFORM_ARCHIVE_SCHEMA_VERSION = 2 as const;
+export const MAX_CARD_PLATFORM_ARCHIVE_BYTES = 5 * 1024 * 1024;
+export const MAX_ARCHIVE_DEFINITIONS = 5_000;
+export const MAX_ARCHIVE_INSTANCES = 10_000;
+export const MAX_ARCHIVE_DECKS = 1_000;
+export const MAX_ARCHIVE_DECK_STATES = 1_000;
+export const MAX_ARCHIVE_STRING_LENGTH = 100_000;
+export const MAX_ARCHIVE_JSON_DEPTH = 32;
