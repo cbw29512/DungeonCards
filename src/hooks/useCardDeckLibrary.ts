@@ -23,7 +23,9 @@ export const useCardDeckLibrary = (gameSystemId: GameSystemId) => {
     setState({ ...loaded, error: null });
   }, [gameSystemId]);
 
-  const commit = useCallback((mutate: (library: CardDeckLibraryEnvelope) => CardDeckLibraryEnvelope) => {
+  const commit = useCallback((
+    mutate: (library: CardDeckLibraryEnvelope) => CardDeckLibraryEnvelope
+  ): boolean => {
     if (typeof window === "undefined") return false;
     let success = false;
     setState((current) => {
