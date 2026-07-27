@@ -1,0 +1,148 @@
+.private-library-workspace,
+.dnd-private-library {
+  display: grid;
+  width: min(100% - 2rem, 1180px);
+  margin: 0 auto;
+  padding: 2rem 0 5rem;
+  gap: 1.25rem;
+}
+
+.dnd-private-library {
+  width: min(100% - 2rem, 1240px);
+}
+
+.private-library-workspace__header,
+.dnd-private-library__edition,
+.private-library-preview > header,
+.private-library-browser > header {
+  display: flex;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 0.9rem;
+  background: rgb(10 14 25 / 66%);
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.private-library-workspace__header h1,
+.dnd-private-library__edition h2,
+.private-library-preview h2,
+.private-library-browser h2 {
+  margin: 0.2rem 0;
+}
+
+.private-library-workspace__header small,
+.dnd-private-library__edition small,
+.private-library-preview header small,
+.private-library-browser header small {
+  color: #e3b65c;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.private-library-workspace__header > span,
+.private-library-preview > header > span,
+.private-library-browser > header > span {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(227 182 92 / 15%);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.private-library-workspace__actions {
+  display: flex;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 11%);
+  border-radius: 0.9rem;
+  background: rgb(7 10 18 / 58%);
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.private-library-workspace__file {
+  display: grid;
+  min-width: min(100%, 340px);
+  flex: 1 1 340px;
+  gap: 0.4rem;
+}
+
+.private-library-workspace__file span {
+  font-weight: 800;
+}
+
+.private-library-workspace__file input {
+  width: 100%;
+  padding: 0.55rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 24%);
+  color: inherit;
+}
+
+.private-library-workspace__actions button,
+.private-library-preview__actions button,
+.dnd-private-library__edition button {
+  min-height: 2.65rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 7%);
+  color: inherit;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.private-library-workspace__actions button:disabled,
+.private-library-preview__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.private-library-workspace__message {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(114 211 158 / 35%);
+  border-radius: 0.7rem;
+  background: rgb(44 130 83 / 15%);
+}
+
+.private-library-workspace__message.is-error {
+  border-color: rgb(238 116 116 / 45%);
+  background: rgb(149 48 48 / 17%);
+}
+
+.private-library-workspace__empty {
+  padding: 3rem 1rem;
+  border: 1px dashed rgb(255 255 255 / 20%);
+  border-radius: 0.9rem;
+  text-align: center;
+}
+
+.private-library-workspace__empty span {
+  font-size: 2.5rem;
+}
+
+.dnd-private-library__edition > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.dnd-private-library__edition button[aria-pressed="true"] {
+  border-color: #e3b65c;
+  background: rgb(227 182 92 / 18%);
+}
+
+@media (max-width: 680px) {
+  .private-library-workspace__header,
+  .dnd-private-library__edition,
+  .private-library-preview > header,
+  .private-library-browser > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

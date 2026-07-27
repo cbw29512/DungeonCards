@@ -1,7 +1,7 @@
+import { dmRuleCards, playerRuleCards } from "../../data/ruleCardCatalog";
+import type { DndAppPage } from "../../integration/dmForgeRoute";
 import type { HomebrewCardDraft, HomebrewDiceCard } from "../../types/cards";
 import type { MonsterCardData } from "../../types/monsters";
-import type { DndAppPage } from "../../integration/dmForgeRoute";
-import { dmRuleCards, playerRuleCards } from "../../data/ruleCardCatalog";
 import { DndArmorLoadout } from "../DndArmorLoadout";
 import { DndConditionsLibrary } from "../DndConditionsLibrary";
 import { DndEncounterTracker } from "../DndEncounterTracker";
@@ -9,6 +9,7 @@ import { DndHealthTracker } from "../DndHealthTracker";
 import { DndHomebrewWorkspace } from "../DndHomebrewWorkspace";
 import { DndMovementLibrary } from "../DndMovementLibrary";
 import { DndPregenLibrary } from "../DndPregenLibrary";
+import { DndPrivateCardLibrary } from "../DndPrivateCardLibrary";
 import { DndRulesGuide } from "../DndRulesGuide";
 import { DndWeaponMasteryLibrary } from "../DndWeaponMasteryLibrary";
 import { MonsterDeck } from "../MonsterDeck";
@@ -45,6 +46,7 @@ export const DndPageContent = (props: DndPageContentProps) => {
   if (activePage === "mastery") return <DndWeaponMasteryLibrary />;
   if (activePage === "armor") return <DndArmorLoadout />;
   if (activePage === "compendium") return <SrdCompendium />;
+  if (activePage === "library") return <DndPrivateCardLibrary />;
 
   if (activePage === "player") {
     return <RulesDeck cards={playerRuleCards} description="Add independent copies for one character and keep only the cards used at the table." eyebrow="player" role="player" title="Your personal cards, ready when initiative starts." />;

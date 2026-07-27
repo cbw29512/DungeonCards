@@ -16,13 +16,14 @@ export const cocPageLabels: Record<CocAppPage, string> = {
   spells: "Spells & Rituals",
   creatures: "Creatures & NPCs",
   encounters: "Encounters",
+  library: "Private Card Library",
   builders: "Builders",
   sources: "Sources & Licensing"
 };
 
 export const cocNavigationPages: CocAppPage[] = [
   "home", "investigator", "keeper", "rules", "equipment", "spells",
-  "creatures", "encounters", "builders", "sources"
+  "creatures", "encounters", "library", "builders", "sources"
 ];
 
 export const cocHomeCards: CocHomeCard[] = [
@@ -33,6 +34,7 @@ export const cocHomeCards: CocHomeCard[] = [
   { page: "spells", eyebrow: "Occult cost", title: "Spells & Rituals", description: "Track casting, pushed attempts, Magic Points, time, and original rituals." },
   { page: "creatures", eyebrow: "Keeper folio", title: "Creatures & NPCs", description: "Open combat-ready dossiers with private Keeper-facing information." },
   { page: "encounters", eyebrow: "Danger desk", title: "Encounters", description: "Run DEX order, contested actions, firearms, wounds, escape, and aftermath." },
+  { page: "library", eyebrow: "Private archive", title: "Private Card Library", description: "Validate, import, search, print, and export exact CoC 7e card archives." },
   { page: "builders", eyebrow: "Private creation", title: "Builders", description: "Create a rules-grounded Investigator without importing paid-book catalogs." },
   { page: "sources", eyebrow: "Trust boundary", title: "Sources & Licensing", description: "See what is verified, original, public, licensed, or deliberately excluded." }
 ];

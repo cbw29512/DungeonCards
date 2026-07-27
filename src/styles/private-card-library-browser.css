@@ -1,0 +1,118 @@
+.private-library-browser {
+  display: grid;
+  gap: 1rem;
+}
+
+.private-library-browser__filters {
+  display: grid;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 11%);
+  border-radius: 0.9rem;
+  background: rgb(7 10 18 / 50%);
+  gap: 0.75rem;
+  grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(140px, 1fr));
+}
+
+.private-library-browser__filters label {
+  display: grid;
+  font-size: 0.76rem;
+  font-weight: 800;
+  gap: 0.35rem;
+}
+
+.private-library-browser__filters input,
+.private-library-browser__filters select {
+  width: 100%;
+  min-height: 2.55rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 0.6rem;
+  background: #111522;
+  color: inherit;
+}
+
+.private-library-browser__decks {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.private-library-browser__decks article {
+  display: grid;
+  min-height: 110px;
+  padding: 0.85rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.75rem;
+  background: rgb(16 20 31 / 68%);
+  align-content: center;
+  gap: 0.3rem;
+}
+
+.private-library-browser__decks small {
+  color: #e3b65c;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.private-library-browser__decks strong {
+  font-size: 1.05rem;
+}
+
+.private-library-browser__decks span,
+.private-library-browser__result,
+.private-library-browser__empty {
+  color: #cfc4d8;
+}
+
+.private-library-browser__result,
+.private-library-browser__empty {
+  margin: 0;
+}
+
+@media (max-width: 860px) {
+  .private-library-browser__filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .private-library-browser__filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .private-library-workspace,
+  .dnd-private-library {
+    width: 100%;
+    padding: 0;
+  }
+
+  .private-library-workspace__actions,
+  .private-library-workspace__message,
+  .private-library-preview,
+  .private-library-browser__filters,
+  .private-library-browser__result,
+  .dnd-private-library__edition {
+    display: none !important;
+  }
+
+  .private-library-workspace__header,
+  .private-library-browser > header,
+  .private-library-browser__decks article {
+    border-color: #000;
+    background: #fff;
+    color: #000;
+  }
+
+  .private-library-browser__decks {
+    break-after: page;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .private-library-browser .card-platform-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, var(--dm-card-print-width)) !important;
+    gap: 0.18in;
+  }
+}

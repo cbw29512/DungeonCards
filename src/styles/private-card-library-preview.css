@@ -1,0 +1,102 @@
+.private-library-preview {
+  display: grid;
+  padding: 1rem;
+  border: 1px solid rgb(227 182 92 / 38%);
+  border-radius: 0.9rem;
+  background: rgb(74 50 15 / 14%);
+  gap: 1rem;
+}
+
+.private-library-preview > header {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.private-library-preview__counts {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+}
+
+.private-library-preview__counts span {
+  display: grid;
+  min-height: 82px;
+  padding: 0.7rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.7rem;
+  background: rgb(0 0 0 / 20%);
+  align-content: center;
+  gap: 0.25rem;
+}
+
+.private-library-preview__counts small {
+  color: #cfc0db;
+  font-size: 0.7rem;
+}
+
+.private-library-preview__counts strong {
+  font-size: 1.35rem;
+}
+
+.private-library-preview__details {
+  display: grid;
+  margin: 0;
+  gap: 0.5rem;
+}
+
+.private-library-preview__details div {
+  display: grid;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgb(255 255 255 / 9%);
+  gap: 0.2rem;
+  grid-template-columns: minmax(130px, 0.25fr) 1fr;
+}
+
+.private-library-preview__details dt {
+  font-weight: 800;
+}
+
+.private-library-preview__details dd {
+  margin: 0;
+  color: #d4cadd;
+}
+
+.private-library-preview__confirm {
+  display: flex;
+  padding: 0.8rem;
+  border: 1px solid rgb(234 117 117 / 38%);
+  border-radius: 0.7rem;
+  background: rgb(151 44 44 / 14%);
+  align-items: flex-start;
+  gap: 0.6rem;
+  line-height: 1.4;
+}
+
+.private-library-preview__confirm input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  flex: 0 0 auto;
+}
+
+.private-library-preview__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.private-library-preview__actions button:last-child {
+  border-color: #e3b65c;
+  background: rgb(227 182 92 / 17%);
+}
+
+@media (max-width: 560px) {
+  .private-library-preview__details div {
+    grid-template-columns: 1fr;
+  }
+
+  .private-library-preview__actions {
+    flex-direction: column;
+  }
+}

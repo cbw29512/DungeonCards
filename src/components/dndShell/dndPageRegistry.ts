@@ -22,6 +22,7 @@ export const dndPageLabels: Record<DndAppPage, string> = {
   player: "Player Workspace",
   dm: "DM Workspace",
   monster: "Monster Encounter",
+  library: "Private Card Library",
   homebrew: "Card Builder",
   "monster-homebrew": "Monster Builder"
 };
@@ -41,6 +42,7 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
   player: "Player",
   dm: "DM",
   monster: "Encounter",
+  library: "Private Library",
   homebrew: "Card Builder",
   "monster-homebrew": "Monster Builder"
 };
@@ -48,7 +50,7 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
 export const dndNavigationPages: DndAppPage[] = [
   "home", "rules", "coverage", "conditions", "movement", "health", "combat",
   "pregens", "mastery", "armor", "compendium", "player", "dm", "monster",
-  "homebrew", "monster-homebrew"
+  "library", "homebrew", "monster-homebrew"
 ];
 
 export const dndHomeCards: DndHomeCard[] = [
@@ -65,6 +67,7 @@ export const dndHomeCards: DndHomeCard[] = [
   { page: "player", icon: "🧙", title: "Player Workspace", description: "Keep attacks, spells, checks, saves, and resources on My Table." },
   { page: "dm", icon: "🎲", title: "DM Workspace", description: "Prepare checks, traps, items, generators, and random tables." },
   { page: "monster", icon: "🐉", title: "Monster Encounter", description: "Build separate 2014 and 2024 encounter-card tables." },
+  { page: "library", icon: "🗃️", title: "Private Card Library", description: "Validate, import, search, print, and export exact-edition private card archives." },
   { page: "homebrew", icon: "🛠️", title: "Card Builder", description: "Build exact-edition cards beside a universal-size live preview." },
   { page: "monster-homebrew", icon: "🧌", title: "Monster Builder", description: "Create, save, and print private custom monster folios." }
 ];

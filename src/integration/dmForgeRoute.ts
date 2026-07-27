@@ -13,6 +13,7 @@ export type DndAppPage =
   | "player"
   | "dm"
   | "monster"
+  | "library"
   | "homebrew"
   | "monster-homebrew";
 
@@ -25,6 +26,7 @@ export type CocAppPage =
   | "spells"
   | "creatures"
   | "encounters"
+  | "library"
   | "builders"
   | "sources";
 
@@ -33,12 +35,12 @@ export type DungeonCardsSystem = "dnd-5e" | "coc-7e";
 const DND_PAGES = new Set<DndAppPage>([
   "home", "rules", "coverage", "conditions", "movement", "health", "combat",
   "pregens", "mastery", "armor", "compendium", "player", "dm", "monster",
-  "homebrew", "monster-homebrew"
+  "library", "homebrew", "monster-homebrew"
 ]);
 
 const COC_PAGES = new Set<CocAppPage>([
   "home", "investigator", "keeper", "rules", "equipment", "spells",
-  "creatures", "encounters", "builders", "sources"
+  "creatures", "encounters", "library", "builders", "sources"
 ]);
 
 export const DM_FORGE_HOME = "https://cbw29512.github.io/monstercardforge/";
