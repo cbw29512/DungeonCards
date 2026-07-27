@@ -32,6 +32,7 @@ export type CardActionExecutionResult = {
   roll?: CardActionRollDetails;
   procedureSteps?: string[];
   targetCardIds?: string[];
+  missingTargetCardIds?: string[];
 };
 
 export type CardActionExecutionOptions = {
@@ -40,6 +41,7 @@ export type CardActionExecutionOptions = {
   percentileDifficulty?: CocDifficulty;
   bonusDice?: number;
   penaltyDice?: number;
+  availableDefinitionIds?: ReadonlySet<string>;
   randomInteger?: (minimum: number, maximum: number) => number;
 };
 
