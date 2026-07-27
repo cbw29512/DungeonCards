@@ -1,0 +1,130 @@
+.vault-card-deck {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.vault-card-deck__header {
+  display: flex;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.85rem;
+  background: rgb(8 12 22 / 62%);
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.vault-card-deck__header h4,
+.vault-card-deck__header p {
+  margin: 0.25rem 0 0;
+}
+
+.vault-card-deck__header small {
+  color: #e4b75e;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.vault-card-deck__header button,
+.vault-card-deck__filters button {
+  min-height: 2.55rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 7%);
+  color: inherit;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.vault-card-deck__header button {
+  padding: 0.65rem 0.9rem;
+  flex: 0 0 auto;
+}
+
+.vault-card-deck__controls {
+  display: grid;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.85rem;
+  background: rgb(8 12 22 / 42%);
+  gap: 0.8rem;
+}
+
+.vault-card-deck__controls label {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.vault-card-deck__controls label span {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.vault-card-deck__controls input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 24%);
+  color: inherit;
+}
+
+.vault-card-deck__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.vault-card-deck__filters button {
+  padding: 0.5rem 0.7rem;
+}
+
+.vault-card-deck__filters button[aria-pressed="true"] {
+  border-color: #e4b75e;
+  background: rgb(228 183 94 / 18%);
+}
+
+.vault-card-deck__filters button span {
+  display: inline-grid;
+  min-width: 1.35rem;
+  min-height: 1.35rem;
+  margin-left: 0.25rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 28%);
+  font-size: 0.7rem;
+  place-items: center;
+}
+
+.vault-card-deck__result,
+.vault-card-deck__empty {
+  margin: 0;
+  color: #cfc4d7;
+}
+
+@media (max-width: 620px) {
+  .vault-card-deck__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media print {
+  .vault-card-deck__header button,
+  .vault-card-deck__controls,
+  .vault-card-deck__result {
+    display: none !important;
+  }
+
+  .vault-card-deck__header {
+    border: 0;
+    background: transparent;
+    color: #000;
+  }
+
+  .card-platform-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, var(--dm-card-print-width)) !important;
+    gap: 0.18in;
+  }
+}
