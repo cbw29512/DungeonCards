@@ -64,6 +64,8 @@ export const parseSupabaseImplicitSession = (
 ): SupabaseStoredSession | null => {
   try {
     const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
+    const callbackError = params.get("error_description") || params.get("error");
+    if (callbackError) throw new Error(callbackError);
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
     if (!accessToken || !refreshToken) return null;
