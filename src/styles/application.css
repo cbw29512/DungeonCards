@@ -1,6 +1,8 @@
 @import "./base.css";
 @import "./cards.css";
 @import "./card-platform-card.css";
+@import "./card-catalog.css";
+@import "./card-catalog-responsive-print.css";
 @import "./deck-actions.css";
 @import "./history.css";
 @import "./homebrew.css";
