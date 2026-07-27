@@ -45,11 +45,14 @@ describe("Card Platform versioned import and export", () => {
     expect(() => serializeCardPlatformArchive(archive)).toThrow(/missing card/i);
   });
 
-  it("rejects malformed, oversized, and prototype-pollution JSON", () => {
+  it("rejects malformed, oversized, polluted, and lossy JSON", () => {
     expect(() => parseCardPlatformArchive("not-json")).toThrow(/not valid JSON/i);
     expect(() => parseCardPlatformArchive('{"__proto__":{"polluted":true}}')).toThrow(/forbidden object key/i);
     const oversized = JSON.stringify({ value: "x".repeat(MAX_CARD_PLATFORM_ARCHIVE_BYTES) });
     expect(() => parseCardPlatformArchive(oversized)).toThrow(/5 MB import limit/i);
+    const lossy = cloneFixture();
+    lossy.definitions[0]!.source.page = Number.NaN;
+    expect(() => serializeCardPlatformArchive(lossy)).toThrow(/not JSON-safe/i);
   });
 
   it("never trusts archived owners during import preparation", () => {
