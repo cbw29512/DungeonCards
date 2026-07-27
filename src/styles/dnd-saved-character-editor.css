@@ -1,0 +1,156 @@
+@import "./dnd-saved-character-editor-responsive.css";
+
+.saved-character-play {
+  display: grid;
+  margin-top: 1.25rem;
+  gap: 1.25rem;
+}
+
+.saved-character-play__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 5%);
+  gap: 1rem;
+}
+
+.saved-character-play__header p,
+.saved-character-play__header h2,
+.saved-character-play__header small {
+  margin: 0;
+}
+
+.saved-character-play__header p,
+.saved-character-editor legend {
+  color: #f7c76b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.saved-character-play__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.saved-character-play button,
+.saved-character-play__missing button {
+  min-height: 2.6rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.saved-character-play button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.saved-character-play__errors,
+.saved-character-play__missing {
+  padding: 1rem;
+  border: 1px solid #e3a065;
+  border-radius: 0.85rem;
+  background: rgb(133 53 35 / 18%);
+}
+
+.saved-character-play__errors ul,
+.saved-character-play__missing p {
+  margin-bottom: 0;
+}
+
+.saved-character-editor {
+  display: grid;
+  align-items: start;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.saved-character-editor__section {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 4%);
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.saved-character-editor__section label,
+.saved-character-editor__item label {
+  display: grid;
+  min-width: 0;
+  gap: 0.3rem;
+}
+
+.saved-character-editor__section label > span,
+.saved-character-editor__static strong {
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.saved-character-editor input,
+.saved-character-editor textarea {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.65rem;
+  color: inherit;
+  border: 1px solid var(--surface-border);
+  border-radius: 0.55rem;
+  background: rgb(0 0 0 / 22%);
+}
+
+.saved-character-editor textarea {
+  min-height: 10rem;
+  resize: vertical;
+}
+
+.saved-character-editor__wide,
+.saved-character-editor__empty,
+.saved-character-editor__item,
+.saved-character-editor__attunement,
+.saved-character-editor__notes label {
+  grid-column: 1 / -1;
+}
+
+.saved-character-editor__check {
+  display: flex !important;
+  align-items: center;
+  align-self: end;
+  min-height: 2.6rem;
+  flex-direction: row;
+}
+
+.saved-character-editor__check input {
+  width: 1.15rem;
+  min-height: 1.15rem;
+}
+
+.saved-character-editor__static,
+.saved-character-editor__item {
+  padding: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 14%);
+}
+
+.saved-character-editor__static,
+.saved-character-editor__item header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.saved-character-editor__item {
+  display: grid;
+  gap: 0.65rem;
+}
