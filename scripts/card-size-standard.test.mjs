@@ -9,17 +9,13 @@ const ruleCards = read("src/styles/rule-cards.css");
 const monsterCards = read("src/styles/monster-card-flip.css");
 const documentation = read("docs/CARD_SIZE_STANDARD.md");
 
-const expectToken = (name, value) => {
-  expect(standard).toMatch(new RegExp(`${name}:\\s*${value.replace("/", "\\/")}`));
-};
-
 describe("DM Forge universal card size", () => {
   it("locks the approved screen and print dimensions", () => {
-    expectToken("--dm-card-screen-width", "250px");
-    expectToken("--dm-card-screen-height", "350px");
-    expectToken("--dm-card-aspect-ratio", "5 \\/ 7");
-    expectToken("--dm-card-print-width", "2.5in");
-    expectToken("--dm-card-print-height", "3.5in");
+    expect(standard).toContain("--dm-card-screen-width: 250px;");
+    expect(standard).toContain("--dm-card-screen-height: 350px;");
+    expect(standard).toContain("--dm-card-aspect-ratio: 5 / 7;");
+    expect(standard).toContain("--dm-card-print-width: 2.5in;");
+    expect(standard).toContain("--dm-card-print-height: 3.5in;");
   });
 
   it("loads the standard after the other shared polish rules", () => {
