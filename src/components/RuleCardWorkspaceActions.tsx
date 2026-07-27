@@ -1,3 +1,4 @@
+import type { RulesetId } from "../types/ruleCards";
 import type { WorkspaceView } from "../types/workspaces";
 
 export type WorkspaceCardControls = {
@@ -9,7 +10,7 @@ export type WorkspaceCardControls = {
   allowDuplicates?: boolean;
   copyCount?: number;
   onRename?: () => void;
-  onToggleActive: () => void;
+  onToggleActive: (ruleset?: RulesetId) => void;
   onTogglePin: () => void;
   onMoveEarlier: () => void;
   onMoveLater: () => void;
@@ -33,7 +34,7 @@ export const RuleCardWorkspaceActions = ({
 
     return (
       <div className="rule-card__workspace-actions">
-        <button onClick={controls.onToggleActive} type="button">
+        <button onClick={() => controls.onToggleActive()} type="button">
           {controls.allowDuplicates
             ? duplicateLabel
             : controls.isActive
@@ -55,29 +56,11 @@ export const RuleCardWorkspaceActions = ({
         {controls.isPinned ? "Unpin" : "Pin"}
       </button>
       {controls.onRename && (
-        <button onClick={controls.onRename} title={`Rename ${cardName}`} type="button">
-          Name
-        </button>
+        <button onClick={controls.onRename} title={`Rename ${cardName}`} type="button">Name</button>
       )}
-      <button
-        aria-label={`Move ${cardName} earlier`}
-        disabled={!controls.canMoveEarlier}
-        onClick={controls.onMoveEarlier}
-        title="Move earlier"
-        type="button"
-      >
-        ←
-      </button>
-      <button
-        aria-label={`Move ${cardName} later`}
-        disabled={!controls.canMoveLater}
-        onClick={controls.onMoveLater}
-        title="Move later"
-        type="button"
-      >
-        →
-      </button>
-      <button onClick={controls.onToggleActive} type="button">Remove</button>
+      <button aria-label={`Move ${cardName} earlier`} disabled={!controls.canMoveEarlier} onClick={controls.onMoveEarlier} title="Move earlier" type="button">←</button>
+      <button aria-label={`Move ${cardName} later`} disabled={!controls.canMoveLater} onClick={controls.onMoveLater} title="Move later" type="button">→</button>
+      <button onClick={() => controls.onToggleActive()} type="button">Remove</button>
     </div>
   );
 };

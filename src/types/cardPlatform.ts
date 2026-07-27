@@ -4,6 +4,7 @@ import type {
 } from "./cardPlatformActions";
 
 export type GameSystemId = "dnd-2014" | "dnd-2024" | "coc-7e";
+export type DndGameSystemId = Extract<GameSystemId, "dnd-2014" | "dnd-2024">;
 
 export type CardFamily =
   | "rule"

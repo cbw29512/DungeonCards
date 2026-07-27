@@ -29,6 +29,10 @@ export const RuleCardFront = ({
     setModifier, setSecondaryModifier, roll
   } = controller;
   const scaling = mode.scaling ?? mode.secondaryRoll?.scaling;
+  const editionControls = workspaceControls ? {
+    ...workspaceControls,
+    onToggleActive: () => workspaceControls.onToggleActive(ruleset)
+  } : undefined;
 
   return (
     <section className="rule-card__face rule-card__front" aria-hidden={controller.isFlipped}>
@@ -41,8 +45,8 @@ export const RuleCardFront = ({
         <span className={`source-badge source-badge--${variant.source}`}>{variant.source}</span>
       </header>
 
-      {workspaceControls && (
-        <RuleCardWorkspaceActions cardName={card.name} controls={workspaceControls} />
+      {editionControls && (
+        <RuleCardWorkspaceActions cardName={card.name} controls={editionControls} />
       )}
 
       {rulesets.length > 1 && (
@@ -85,43 +89,19 @@ export const RuleCardFront = ({
       )}
 
       {scaling?.kind === "slot-dice" && (
-        <RuleCardStepper
-          label="Slot"
-          maximum={scaleBounds[1]}
-          minimum={scaleBounds[0]}
-          onChange={setSlotLevel}
-          value={slotLevel}
-        />
+        <RuleCardStepper label="Slot" maximum={scaleBounds[1]} minimum={scaleBounds[0]} onChange={setSlotLevel} value={slotLevel} />
       )}
 
       {scaling?.kind === "character-formula" && (
-        <RuleCardStepper
-          label="Level"
-          maximum={scaleBounds[1]}
-          minimum={scaleBounds[0]}
-          onChange={setCharacterLevel}
-          value={characterLevel}
-        />
+        <RuleCardStepper label="Level" maximum={scaleBounds[1]} minimum={scaleBounds[0]} onChange={setCharacterLevel} value={characterLevel} />
       )}
 
       {mode.modifierControl && (
-        <RuleCardStepper
-          label={mode.modifierControl.label}
-          maximum={mode.modifierControl.maximum}
-          minimum={mode.modifierControl.minimum}
-          onChange={setModifier}
-          value={modifier}
-        />
+        <RuleCardStepper label={mode.modifierControl.label} maximum={mode.modifierControl.maximum} minimum={mode.modifierControl.minimum} onChange={setModifier} value={modifier} />
       )}
 
       {mode.secondaryRoll && (
-        <RuleCardSecondaryControls
-          choiceId={secondaryChoiceId}
-          modifier={secondaryModifier}
-          onChoiceChange={setSecondaryChoiceId}
-          onModifierChange={setSecondaryModifier}
-          part={mode.secondaryRoll}
-        />
+        <RuleCardSecondaryControls choiceId={secondaryChoiceId} modifier={secondaryModifier} onChoiceChange={setSecondaryChoiceId} onModifierChange={setSecondaryModifier} part={mode.secondaryRoll} />
       )}
 
       <div className="rule-card__formula">

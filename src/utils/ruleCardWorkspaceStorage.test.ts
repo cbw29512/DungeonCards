@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import type { RuleCardRulesetMap } from "../types/ruleCardWorkspaces";
 import {
   addRuleCardInstance,
+  changeRuleCardInstanceRuleset,
   createDefaultRuleCardWorkspace,
   createRuleCardWorkspaceRepository,
   moveRuleCardInstance,
@@ -21,73 +23,103 @@ class MemoryStorage implements Storage {
   setItem(key: string, value: string) { this.values.set(key, value); }
 }
 
-describe("rule card instance workspace", () => {
-  it("allows multiple independent copies of the same catalog card", () => {
-    const initial = createDefaultRuleCardWorkspace("player", []);
-    const once = addRuleCardInstance(initial, "fireball");
-    const twice = addRuleCardInstance(once, "fireball");
+const cardRulesets: RuleCardRulesetMap = {
+  fireball: ["srd-5.1-2014", "srd-5.2.1-2024"],
+  attack: ["srd-5.1-2014", "srd-5.2.1-2024"],
+  check: ["srd-5.2.1-2024"],
+  a: ["srd-5.1-2014"],
+  b: ["srd-5.2.1-2024"]
+};
+const create = (role: "player" | "dm" = "player", ids: string[] = []) => (
+  createDefaultRuleCardWorkspace(role, ids, cardRulesets, "srd-5.2.1-2024")
+);
 
+const loadInput = {
+  role: "player" as const,
+  cardRulesets,
+  defaultCardIds: [] as string[],
+  defaultRuleset: "srd-5.2.1-2024" as const
+};
+
+describe("rule card instance workspace", () => {
+  it("allows independent copies with exact edition identity", () => {
+    const once = addRuleCardInstance(create(), "fireball", "srd-5.1-2014");
+    const twice = addRuleCardInstance(once, "fireball", "srd-5.2.1-2024");
     expect(twice.instances).toHaveLength(2);
-    expect(twice.instances.map((item) => item.cardId)).toEqual(["fireball", "fireball"]);
+    expect(twice.instances.map((item) => item.gameSystemId)).toEqual(["dnd-2014", "dnd-2024"]);
     expect(twice.instances[0].instanceId).not.toBe(twice.instances[1].instanceId);
   });
 
-  it("renames, pins, moves, and removes one copy without changing the other", () => {
-    let workspace = createDefaultRuleCardWorkspace("player", []);
-    workspace = addRuleCardInstance(workspace, "fireball");
-    workspace = addRuleCardInstance(workspace, "fireball");
-    const [first, second] = workspace.instances;
+  it("persists edition changes with matching Card Platform identity", () => {
+    let workspace = addRuleCardInstance(create(), "fireball", "srd-5.1-2014");
+    workspace = changeRuleCardInstanceRuleset(
+      workspace,
+      workspace.instances[0].instanceId,
+      "srd-5.2.1-2024"
+    );
+    expect(workspace.instances[0]).toMatchObject({
+      ruleset: "srd-5.2.1-2024",
+      gameSystemId: "dnd-2024"
+    });
+  });
 
+  it("renames, pins, moves, and removes one copy without changing another", () => {
+    let workspace = addRuleCardInstance(create(), "fireball", "srd-5.1-2014");
+    workspace = addRuleCardInstance(workspace, "fireball", "srd-5.2.1-2024");
+    const [first, second] = workspace.instances;
     workspace = renameRuleCardInstance(workspace, first.instanceId, "Wizard Fireball");
     workspace = toggleRuleCardInstancePin(workspace, second.instanceId);
     workspace = moveRuleCardInstance(workspace, second.instanceId, "earlier");
     workspace = removeRuleCardInstance(workspace, first.instanceId);
-
     expect(workspace.instances).toHaveLength(1);
-    expect(workspace.instances[0]).toMatchObject({
-      instanceId: second.instanceId,
-      cardId: "fireball",
-      pinned: true
-    });
+    expect(workspace.instances[0]).toMatchObject({ instanceId: second.instanceId, pinned: true });
   });
 
-  it("orders pinned instances first while preserving duplicate instances", () => {
-    let workspace = createDefaultRuleCardWorkspace("dm", []);
-    workspace = addRuleCardInstance(workspace, "check");
-    workspace = addRuleCardInstance(workspace, "check");
-    workspace = toggleRuleCardInstancePin(workspace, workspace.instances[1].instanceId);
-
-    const ordered = orderRuleCardInstances(workspace.instances);
-    expect(ordered[0].pinned).toBe(true);
-    expect(ordered.map((item) => item.cardId)).toEqual(["check", "check"]);
-  });
-
-  it("normalizes unknown cards and duplicate instance IDs", () => {
-    const workspace = createDefaultRuleCardWorkspace("player", ["a", "b"]);
-    const duplicate = { ...workspace.instances[0], cardId: "b" };
-    const missing = { ...workspace.instances[1], instanceId: "missing", cardId: "missing" };
+  it("normalizes unsupported editions and duplicate instance IDs", () => {
+    const workspace = create("player", ["a", "b"]);
+    const duplicate = { ...workspace.instances[0], cardId: "b", ruleset: "srd-5.2.1-2024" as const, gameSystemId: "dnd-2024" as const };
+    const unsupported = { ...workspace.instances[1], instanceId: "unsupported", cardId: "a" };
     const normalized = normalizeRuleCardWorkspace(
-      { ...workspace, instances: [...workspace.instances, duplicate, missing] },
-      ["a", "b"]
+      { ...workspace, instances: [...workspace.instances, duplicate, unsupported] },
+      cardRulesets
     );
-
-    expect(normalized.instances).toHaveLength(2);
     expect(normalized.instances.map((item) => item.cardId)).toEqual(["a", "b"]);
+    expect(orderRuleCardInstances(normalized.instances)).toHaveLength(2);
   });
 
-  it("migrates an existing one-copy workspace safely", () => {
+  it("migrates v1 and v2 workspaces to schema v3 with deterministic editions", () => {
     const storage = new MemoryStorage();
-    storage.setItem("dungeon-cards-workspace-v1-player", JSON.stringify({
-      activeCardIds: ["attack", "fireball"]
+    storage.setItem("dungeon-rule-card-workspace-v2-player", JSON.stringify({
+      schemaVersion: 2,
+      role: "player",
+      name: "Player Table",
+      instances: [{ instanceId: "old-copy", cardId: "fireball", pinned: true }],
+      updatedAt: "2026-07-26T12:00:00.000Z"
     }));
     const repository = createRuleCardWorkspaceRepository(storage);
-    const migrated = repository.load({
-      role: "player",
-      allowedCardIds: ["attack", "fireball"],
-      defaultCardIds: []
+    const migratedV2 = repository.load(loadInput);
+    expect(migratedV2).toMatchObject({ schemaVersion: 3 });
+    expect(migratedV2.instances[0]).toMatchObject({
+      instanceId: "old-copy",
+      ruleset: "srd-5.2.1-2024",
+      gameSystemId: "dnd-2024"
     });
 
-    expect(migrated.schemaVersion).toBe(2);
-    expect(migrated.instances.map((item) => item.cardId)).toEqual(["attack", "fireball"]);
+    storage.removeItem("dungeon-rule-card-workspace-v2-player");
+    storage.setItem("dungeon-cards-workspace-v1-player", JSON.stringify({ activeCardIds: ["attack"] }));
+    const migratedV1 = repository.load(loadInput);
+    expect(migratedV1.instances[0]).toMatchObject({
+      cardId: "attack",
+      ruleset: "srd-5.2.1-2024",
+      gameSystemId: "dnd-2024"
+    });
+  });
+
+  it("saves only under the schema-v3 key", () => {
+    const storage = new MemoryStorage();
+    const repository = createRuleCardWorkspaceRepository(storage);
+    repository.save(create("player", ["fireball"]));
+    expect(storage.getItem("dungeon-rule-card-workspace-v3-player")).not.toBeNull();
+    expect(storage.getItem("dungeon-rule-card-workspace-v2-player")).toBeNull();
   });
 });

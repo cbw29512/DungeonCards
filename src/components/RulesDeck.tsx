@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { useRuleCardWorkspace } from "../hooks/useRuleCardWorkspace";
-import type { RuleCard as RuleCardType, RuleRollHistoryEntry } from "../types/ruleCards";
+import type {
+  RuleCard as RuleCardType,
+  RuleRollHistoryEntry,
+  RulesetId
+} from "../types/ruleCards";
 import type { RuleCardWorkspaceRole } from "../types/ruleCardWorkspaces";
 import type { WorkspaceView } from "../types/workspaces";
 import { RuleCard } from "./RuleCard";
@@ -15,6 +19,8 @@ type RulesDeckProps = {
   description: string;
 };
 
+const rulesetsFor = (card: RuleCardType): RulesetId[] => Object.keys(card.variants) as RulesetId[];
+
 export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDeckProps) => {
   const [query, setQuery] = useState("");
   const [view, setView] = useState<WorkspaceView>("table");
@@ -26,15 +32,12 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
     const text = `${entry.label ?? ""} ${entry.card.name} ${entry.card.kind}`.toLowerCase();
     return !normalizedQuery || text.includes(normalizedQuery);
   }), [normalizedQuery, workspace.activeCards]);
-
   const libraryCards = useMemo(() => cards.filter((card) =>
     !normalizedQuery || `${card.name} ${card.kind}`.toLowerCase().includes(normalizedQuery)
   ), [cards, normalizedQuery]);
-
   const addHistory = (entry: RuleRollHistoryEntry) => {
     setHistory((current) => [entry, ...current].slice(0, 30));
   };
-
   const renameCard = (instanceId: string, currentName: string) => {
     try {
       const label = window.prompt("Give this card copy its own name:", currentName);
@@ -47,26 +50,11 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
   return (
     <section className="rules-deck" aria-labelledby={`${eyebrow}-rules-title`}>
       <div className="section-heading rules-deck__heading">
-        <p>{eyebrow}</p>
-        <h2 id={`${eyebrow}-rules-title`}>{title}</h2>
-        <span>{description}</span>
-        <WorkspaceToolbar
-          activeCount={workspace.workspace.instances.length}
-          onChangeView={setView}
-          onReset={workspace.resetWorkspace}
-          role={role}
-          storageError={workspace.storageError}
-          totalCount={cards.length}
-          view={view}
-        />
+        <p>{eyebrow}</p><h2 id={`${eyebrow}-rules-title`}>{title}</h2><span>{description}</span>
+        <WorkspaceToolbar activeCount={workspace.workspace.instances.length} onChangeView={setView} onReset={workspace.resetWorkspace} role={role} storageError={workspace.storageError} totalCount={cards.length} view={view} />
         <label className="rules-deck__search">
           <span className="sr-only">Search cards</span>
-          <input
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={view === "table" ? "Search My Table…" : "Search the full Library…"}
-            type="search"
-            value={query}
-          />
+          <input onChange={(event) => setQuery(event.target.value)} placeholder={view === "table" ? "Search My Table…" : "Search the full Library…"} type="search" value={query} />
         </label>
       </div>
 
@@ -74,8 +62,7 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
         <div>
           {view === "table" && workspace.activeCards.length === 0 ? (
             <div className="workspace-empty">
-              <span aria-hidden="true">🃏</span>
-              <h3>Your table is empty.</h3>
+              <span aria-hidden="true">🃏</span><h3>Your table is empty.</h3>
               <p>Open the Library and add the cards you want ready during play.</p>
               <button onClick={() => setView("library")} type="button">Open Library</button>
             </div>
@@ -85,20 +72,18 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
                 ? tableCards.map((entry) => {
                     const displayName = entry.label || entry.card.name;
                     const displayCard = entry.label ? { ...entry.card, name: entry.label } : entry.card;
-                    const activeIndex = workspace.activeCards.findIndex(
-                      (item) => item.instanceId === entry.instanceId
-                    );
+                    const activeIndex = workspace.activeCards.findIndex((item) => item.instanceId === entry.instanceId);
                     const previous = workspace.activeCards[activeIndex - 1];
                     const next = workspace.activeCards[activeIndex + 1];
                     return (
                       <RuleCard
                         card={displayCard}
+                        initialRuleset={entry.ruleset}
                         key={entry.instanceId}
                         onRoll={addHistory}
+                        onRulesetChange={(ruleset) => workspace.changeRuleset(entry.instanceId, ruleset)}
                         workspaceControls={{
-                          view,
-                          isActive: true,
-                          isPinned: entry.pinned,
+                          view, isActive: true, isPinned: entry.pinned,
                           canMoveEarlier: Boolean(previous && previous.pinned === entry.pinned),
                           canMoveLater: Boolean(next && next.pinned === entry.pinned),
                           onRename: () => renameCard(entry.instanceId, displayName),
@@ -112,23 +97,18 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
                   })
                 : libraryCards.map((card) => {
                     const copyCount = workspace.countCopies(card.id);
+                    const defaultRuleset = rulesetsFor(card)[0];
                     return (
                       <RuleCard
                         card={card}
+                        initialRuleset={defaultRuleset}
                         key={`library-${card.id}`}
                         onRoll={addHistory}
                         workspaceControls={{
-                          view,
-                          isActive: copyCount > 0,
-                          isPinned: false,
-                          canMoveEarlier: false,
-                          canMoveLater: false,
-                          allowDuplicates: true,
-                          copyCount,
-                          onToggleActive: () => workspace.addCard(card.id),
-                          onTogglePin: () => undefined,
-                          onMoveEarlier: () => undefined,
-                          onMoveLater: () => undefined
+                          view, isActive: copyCount > 0, isPinned: false,
+                          canMoveEarlier: false, canMoveLater: false, allowDuplicates: true, copyCount,
+                          onToggleActive: (ruleset) => workspace.addCard(card.id, ruleset ?? defaultRuleset),
+                          onTogglePin: () => undefined, onMoveEarlier: () => undefined, onMoveLater: () => undefined
                         }}
                       />
                     );

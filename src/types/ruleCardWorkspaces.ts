@@ -1,16 +1,21 @@
+import type { DndGameSystemId } from "./cardPlatform";
+import type { RulesetId } from "./ruleCards";
 import type { WorkspaceMoveDirection } from "./workspaces";
 
 export type RuleCardWorkspaceRole = "player" | "dm";
+export type RuleCardRulesetMap = Record<string, RulesetId[]>;
 
 export type RuleCardInstance = {
   instanceId: string;
   cardId: string;
+  ruleset: RulesetId;
+  gameSystemId: DndGameSystemId;
   label?: string;
   pinned: boolean;
 };
 
 export type RuleCardWorkspace = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   role: RuleCardWorkspaceRole;
   name: string;
   instances: RuleCardInstance[];
@@ -19,8 +24,9 @@ export type RuleCardWorkspace = {
 
 export type RuleCardWorkspaceLoadInput = {
   role: RuleCardWorkspaceRole;
-  allowedCardIds: string[];
+  cardRulesets: RuleCardRulesetMap;
   defaultCardIds: string[];
+  defaultRuleset: RulesetId;
 };
 
 export type ResolvedRuleCardInstance<T> = RuleCardInstance & {
