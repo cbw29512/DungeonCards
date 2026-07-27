@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { privateArchiveCard, publicArchiveCard } from "./cardPlatformArchiveFixtures";
 import { parseCardPlatformArchive } from "./cardPlatformArchive";
-import { addCardToPlayableDeck, updatePlayableCardText } from "./cardDeckLibraryCards";
+import { addCardToPlayableDeck, removeCardFromPlayableDeck, updatePlayableCardText } from "./cardDeckLibraryCards";
 import { createPlayableDeck } from "./cardDeckLibraryDecks";
 import { duplicatePlayableDeck } from "./cardDeckLibraryDuplicate";
 import { buildPlayableDeckArchive } from "./cardDeckLibraryExport";
@@ -32,6 +32,10 @@ describe("playable Card Platform decks", () => {
     expect(view.instances.find((instance) => instance.id === "instance:first")?.customName).toBe("My Procedure");
     expect(publicArchiveCard.content.title).toBe("Public Test Card");
     expect(view.deck.cardDefinitionIds).toEqual([publicArchiveCard.id]);
+    const oneLeft = removeCardFromPlayableDeck(renamed, "deck:adventure", "instance:first");
+    expect(getCardDeckLibraryDeckView(oneLeft, "deck:adventure")?.deck.cardDefinitionIds).toEqual([publicArchiveCard.id]);
+    const empty = removeCardFromPlayableDeck(oneLeft, "deck:adventure", "instance:second");
+    expect(getCardDeckLibraryDeckView(empty, "deck:adventure")?.deck.cardDefinitionIds).toEqual([]);
   });
 
   it("requires ownership for private cards and tracks bounded resources", () => {
