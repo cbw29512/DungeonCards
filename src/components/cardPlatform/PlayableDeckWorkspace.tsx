@@ -1,10 +1,8 @@
-import type { useCardDeckLibrary } from "../../hooks/useCardDeckLibrary";
+import type { CardDeckLibraryController } from "../../hooks/useCardDeckLibrary";
 import { getActiveCardDeckLibraryView } from "../../utils/cardDeckLibraryView";
 import { printCardSurface } from "../../utils/printCardSurface";
 import { PlayableCardRuntimePanel } from "./PlayableCardRuntimePanel";
 import { PlayableDeckManager } from "./PlayableDeckManager";
-
-export type CardDeckLibraryController = ReturnType<typeof useCardDeckLibrary>;
 
 export const PlayableDeckWorkspace = ({ controller }: { controller: CardDeckLibraryController }) => {
   const view = getActiveCardDeckLibraryView(controller.library);
