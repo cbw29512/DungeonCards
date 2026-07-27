@@ -1,0 +1,51 @@
+.coc-card {
+  display: flex;
+  padding: 0.85rem;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.coc-card h2 {
+  font-size: 1.25rem;
+}
+
+.coc-card__header {
+  gap: 0.5rem;
+}
+
+.coc-card__summary,
+.coc-card__note {
+  font-size: 0.68rem;
+  line-height: 1.3;
+}
+
+.coc-card .coc-control-grid,
+.coc-card .coc-control-grid--two {
+  margin: 0.5rem 0;
+  gap: 0.4rem;
+  grid-template-columns: 1fr;
+}
+
+.coc-card .coc-control-grid label,
+.coc-card .coc-single-control {
+  font-size: 0.58rem;
+  gap: 0.2rem;
+}
+
+.coc-card .coc-control-grid input,
+.coc-card .coc-control-grid select,
+.coc-card .coc-single-control input {
+  padding: 0.42rem;
+}
+
+.coc-card .coc-thresholds span,
+.coc-card .coc-record-grid span,
+.coc-card .coc-resource-ledger span,
+.coc-card .coc-characteristics div {
+  padding: 0.35rem;
+}
+
+.coc-card .coc-roll-button {
+  margin-top: 0.5rem;
+  padding: 0.55rem;
+}
