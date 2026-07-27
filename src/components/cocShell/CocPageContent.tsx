@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { cocPreviewCreature, cocPreviewSpell, cocPreviewWeapon } from "../../data/cocPreviewCatalog";
 import { cocCombatRunSheet } from "../../data/cocCombatRunSheet";
 import { cocInvestigationRunSheet } from "../../data/cocInvestigationRunSheet";
@@ -21,7 +22,7 @@ import { CocWeaponCard } from "../CocWeaponCard";
 import { CocHome } from "./CocHome";
 import { CocQuickReferenceGrid, CocReferenceGrid } from "./CocReferenceGrid";
 
-const Page = ({ eyebrow, title, summary, children }: { eyebrow: string; title: string; summary: string; children: React.ReactNode }) => (
+const Page = ({ eyebrow, title, summary, children }: { eyebrow: string; title: string; summary: string; children: ReactNode }) => (
   <section className="coc-section coc-section--page">
     <header className="coc-section__heading"><small>{eyebrow}</small><h1>{title}</h1><p>{summary}</p></header>
     {children}
