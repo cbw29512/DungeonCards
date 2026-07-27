@@ -3,12 +3,12 @@ import type {
   DndCharacterVaultRepository
 } from "./dndCharacterVaultGateway";
 import { SupabaseDndVaultAuthGateway } from "./supabase/supabaseAuthGateway";
+import { createBrowserDndVaultAuthRuntime } from "./supabase/supabaseBrowserRuntime";
 import { SupabaseDndCharacterRepository } from "./supabase/supabaseCharacterRepository";
 import {
   getDndVaultSupabaseConfig,
   type DndVaultSupabaseConfig
 } from "./supabase/supabaseConfig";
-import { DND_VAULT_SESSION_KEY } from "./supabase/supabaseSessionStore";
 
 export type DndCharacterVaultServices = {
   auth: DndCharacterVaultAuthGateway;
@@ -19,21 +19,10 @@ export const createDndCharacterVaultServices = (
   config: DndVaultSupabaseConfig,
   fetcher: typeof fetch = window.fetch.bind(window)
 ): DndCharacterVaultServices => {
-  const auth = new SupabaseDndVaultAuthGateway(config, {
-    fetcher,
-    storage: window.localStorage,
-    now: () => Date.now(),
-    getHash: () => window.location.hash,
-    clearHash: () => window.history.replaceState(null, document.title, `${window.location.pathname}${window.location.search}`),
-    navigate: (url) => window.location.assign(url),
-    subscribeStorage: (listener) => {
-      const handler = (event: StorageEvent) => {
-        if (event.storageArea === window.localStorage && event.key === DND_VAULT_SESSION_KEY) listener();
-      };
-      window.addEventListener("storage", handler);
-      return () => window.removeEventListener("storage", handler);
-    }
-  });
+  const auth = new SupabaseDndVaultAuthGateway(
+    config,
+    createBrowserDndVaultAuthRuntime(fetcher)
+  );
   return {
     auth,
     repository: new SupabaseDndCharacterRepository(config, auth, fetcher)
