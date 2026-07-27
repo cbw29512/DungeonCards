@@ -2,7 +2,7 @@
 
 Status: required design-system contract  
 Master epic: #67  
-Reviewed: 2026-07-27
+Reviewed: 2026-07-26
 
 ## Core size
 

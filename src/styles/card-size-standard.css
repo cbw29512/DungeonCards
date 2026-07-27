@@ -1,0 +1,107 @@
+@import "./card-size-coc.css";
+
+:root {
+  --dm-card-screen-width: 250px;
+  --dm-card-screen-height: 350px;
+  --dm-card-aspect-ratio: 5 / 7;
+  --dm-card-print-width: 2.5in;
+  --dm-card-print-height: 3.5in;
+  --dm-card-radius: 0.9rem;
+  --dm-card-grid-gap: 1rem;
+}
+
+.deck-grid,
+.rules-card-grid,
+.monster-grid {
+  justify-content: center;
+  align-items: start;
+  gap: var(--dm-card-grid-gap);
+  grid-template-columns: repeat(auto-fill, var(--dm-card-screen-width));
+}
+
+.dice-card,
+.rule-card,
+.monster-card-flip,
+.srd-reference-card,
+.coc-card {
+  width: var(--dm-card-screen-width);
+  height: var(--dm-card-screen-height);
+  min-width: var(--dm-card-screen-width);
+  min-height: var(--dm-card-screen-height);
+  max-width: var(--dm-card-screen-width);
+  max-height: var(--dm-card-screen-height);
+  aspect-ratio: var(--dm-card-aspect-ratio);
+  border-radius: var(--dm-card-radius);
+  box-sizing: border-box;
+}
+
+.dice-card__inner,
+.dice-card__face,
+.rule-card__inner,
+.rule-card__face,
+.monster-card-flip__inner,
+.monster-card-flip__face {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.monster-card-flip .monster-card,
+.monster-card-flip .monster-portrait-card {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: var(--dm-card-aspect-ratio);
+  border-radius: var(--dm-card-radius);
+}
+
+.srd-reference-card,
+.coc-card {
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+@media (max-width: 290px) {
+  .dice-card,
+  .rule-card,
+  .monster-card-flip,
+  .srd-reference-card,
+  .coc-card {
+    width: calc(100vw - 2rem);
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: var(--dm-card-aspect-ratio);
+  }
+}
+
+@media print {
+  .dice-card,
+  .rule-card,
+  .monster-card-flip,
+  .srd-reference-card,
+  .coc-card,
+  .monster-folio__panel {
+    width: var(--dm-card-print-width) !important;
+    height: var(--dm-card-print-height) !important;
+    min-width: var(--dm-card-print-width) !important;
+    min-height: var(--dm-card-print-height) !important;
+    max-width: var(--dm-card-print-width) !important;
+    max-height: var(--dm-card-print-height) !important;
+    aspect-ratio: auto;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .monster-reference--printing.monster-reference--print-card,
+  .monster-reference--print-card > .monster-card-flip,
+  .monster-reference--print-card .monster-card-flip__back > .monster-card {
+    width: var(--dm-card-print-width) !important;
+    height: var(--dm-card-print-height) !important;
+  }
+}

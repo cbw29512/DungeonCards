@@ -1,4 +1,5 @@
 @import "./professional-polish.css";
+@import "./card-size-standard.css";
 
 .sr-only {
   position: absolute;
