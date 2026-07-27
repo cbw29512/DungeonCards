@@ -29,7 +29,7 @@ describe("Card Catalog workspace", () => {
     expect(html).toContain("source-health warning");
     expect(html).toContain("Private import");
     expect(html).toContain(`Showing ${CARD_CATALOG_PAGE_SIZE} of 40 matching cards`);
-    expect((html.match(/card-platform-card/g) ?? []).length).toBe(CARD_CATALOG_PAGE_SIZE);
+    expect((html.match(/class="card-platform-card"/g) ?? []).length).toBe(CARD_CATALOG_PAGE_SIZE);
     expect(html).toContain("Print current page");
     expect(html).toContain("Page 1 of 2");
   });
