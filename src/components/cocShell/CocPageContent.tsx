@@ -4,6 +4,7 @@ import { cocCombatRunSheet } from "../../data/cocCombatRunSheet";
 import { cocInvestigationRunSheet } from "../../data/cocInvestigationRunSheet";
 import { cocKeeperRunSheet } from "../../data/cocKeeperRunSheet";
 import type { CocAppPage } from "../../integration/dmForgeRoute";
+import { CocCardCatalog } from "../CocCardCatalog";
 import { CocCombatProcedureCard } from "../CocCombatProcedureCard";
 import { CocCreatureDossier } from "../CocCreatureDossier";
 import { CocFirearmProcedureCard } from "../CocFirearmProcedureCard";
@@ -39,6 +40,7 @@ export const CocPageContent = ({
 }) => {
   if (activePage === "home") return <CocHome onNavigate={onNavigate} />;
   if (activePage === "rules") return <CocRulesGuide />;
+  if (activePage === "catalog") return <CocCardCatalog onNavigate={onNavigate} />;
   if (activePage === "library") return <PrivateCardLibraryWorkspace gameSystemId="coc-7e" />;
   if (activePage === "investigator") return (
     <Page eyebrow="Investigator workspace" title="Keep pressure procedures in one card library." summary="Resolve the roll, apply the cost, and record what changed without opening Keeper notes.">
