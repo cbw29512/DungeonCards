@@ -7,6 +7,7 @@ import type {
   RuleRollResult,
   RulesetId
 } from "../types/ruleCards";
+import { gameSystemIdForRuleset } from "../utils/cardPlatformGameSystem";
 import { createClientId } from "../utils/createId";
 import { executeRuleCardRoll } from "../utils/executeRuleCardRoll";
 import {
@@ -98,7 +99,8 @@ export const useRuleCardState = ({
       setIsFlipped(true);
       onRoll({
         id: createClientId("rule-roll"), cardId: card.id, cardName: card.name,
-        ruleset, modeLabel: mode.label, result: nextResult, rolledAt: new Date().toISOString()
+        ruleset, gameSystemId: gameSystemIdForRuleset(ruleset),
+        modeLabel: mode.label, result: nextResult, rolledAt: new Date().toISOString()
       });
     } catch (error) {
       console.error("Rolling an interactive rule card failed", {

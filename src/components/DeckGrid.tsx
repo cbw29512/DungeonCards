@@ -1,95 +1,39 @@
-import { useEffect, useRef, useState } from "react";
-import type { DeckState, DiceCard as DiceCardType, RollHistoryEntry } from "../types/cards";
-import { createClientId } from "../utils/createId";
-import { rollDiceFormula } from "../utils/rollDice";
+import type { GameSystemId } from "../types/cardPlatform";
+import type { DiceCard as DiceCardType } from "../types/cards";
+import { useDiceDeckState } from "../hooks/useDiceDeckState";
 import { DiceCard } from "./DiceCard";
 import { RollHistory } from "./RollHistory";
 
-const CARD_RESET_DELAY_MS = 3500;
-const MAX_HISTORY_ITEMS = 25;
-
-const initialDeckState: DeckState = {
-  activeFlippedCardId: null,
-  rollResults: {},
-  rollHistory: []
-};
-
 type DeckGridProps = {
   cards: DiceCardType[];
+  deckId: string;
+  gameSystemId: GameSystemId;
   eyebrow: string;
   title: string;
   description: string;
   onDeleteCard?: (cardId: string) => boolean;
 };
 
-const buildHistoryEntry = (
-  card: DiceCardType,
-  result: RollHistoryEntry["result"]
-): RollHistoryEntry => ({
-  id: createClientId("roll"),
-  cardId: card.id,
-  cardName: card.name,
-  category: card.category,
-  formula: card.formula,
-  result,
-  rolledAt: new Date().toISOString()
-});
-
-export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: DeckGridProps) => {
-  const [deckState, setDeckState] = useState<DeckState>(initialDeckState);
-  const resetTimerRef = useRef<number | null>(null);
+export const DeckGrid = ({
+  cards,
+  deckId,
+  gameSystemId,
+  eyebrow,
+  title,
+  description,
+  onDeleteCard
+}: DeckGridProps) => {
+  const deck = useDiceDeckState(cards, gameSystemId, deckId);
   const sectionTitleId = `${eyebrow.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`;
-
-  const clearResetTimer = () => {
-    if (resetTimerRef.current !== null) {
-      window.clearTimeout(resetTimerRef.current);
-      resetTimerRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    return () => clearResetTimer();
-  }, []);
-
-  const scheduleCardReset = () => {
-    clearResetTimer();
-    resetTimerRef.current = window.setTimeout(() => {
-      setDeckState((currentState) => ({
-        ...currentState,
-        activeFlippedCardId: null
-      }));
-    }, CARD_RESET_DELAY_MS);
-  };
-
-  const handleFlip = (card: DiceCardType) => {
-    try {
-      const result = rollDiceFormula(card.formula, {
-        critOn: card.critOn,
-        failOn: card.failOn
-      });
-      const historyEntry = buildHistoryEntry(card, result);
-
-      setDeckState((currentState) => ({
-        activeFlippedCardId: card.id,
-        rollResults: {
-          ...currentState.rollResults,
-          [card.id]: result
-        },
-        rollHistory: [historyEntry, ...currentState.rollHistory].slice(0, MAX_HISTORY_ITEMS)
-      }));
-      scheduleCardReset();
-    } catch (error) {
-      console.error("Card flip failed", { cardId: card.id, error });
-    }
-  };
 
   const handleDelete = (cardId: string) => {
     try {
       const deleted = onDeleteCard?.(cardId);
-
       if (deleted === false) {
         console.error("Card deletion was not persisted", { cardId });
+        return;
       }
+      deck.removeCardState(cardId);
     } catch (error) {
       console.error("Card deletion failed", { cardId, error });
     }
@@ -101,32 +45,46 @@ export const DeckGrid = ({ cards, eyebrow, title, description, onDeleteCard }: D
         <p>{eyebrow}</p>
         <h2 id={sectionTitleId}>{title}</h2>
         <span>{description}</span>
+        {deck.storageError && <p className="workspace-error" role="alert">{deck.storageError}</p>}
       </div>
 
       <div className="deck-layout">
         <div className="deck-grid">
-          {cards.map((card) => (
-            <div className="deck-card-item" key={card.id}>
-              <DiceCard
-                card={card}
-                isFlipped={deckState.activeFlippedCardId === card.id}
-                onFlip={handleFlip}
-                result={deckState.rollResults[card.id]}
-              />
-              {onDeleteCard && (
-                <button
-                  className="delete-card-button"
-                  onClick={() => handleDelete(card.id)}
-                  type="button"
-                >
-                  Delete {card.name}
-                </button>
-              )}
-            </div>
-          ))}
+          {cards.map((card) => {
+            const favorite = deck.favoriteCardIds.includes(card.id);
+            return (
+              <div className="deck-card-item" key={card.id}>
+                <DiceCard
+                  card={card}
+                  isFlipped={deck.activeFlippedCardId === card.id}
+                  onFlip={deck.rollCard}
+                  result={deck.rollResults[card.id]}
+                />
+                <div className="deck-card-actions">
+                  <button
+                    aria-pressed={favorite}
+                    className="favorite-card-button"
+                    onClick={() => deck.toggleFavorite(card.id)}
+                    type="button"
+                  >
+                    {favorite ? "★ Favorited" : "☆ Favorite"} {card.name}
+                  </button>
+                  {onDeleteCard && (
+                    <button
+                      className="delete-card-button"
+                      onClick={() => handleDelete(card.id)}
+                      type="button"
+                    >
+                      Delete {card.name}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        <RollHistory entries={deckState.rollHistory} />
+        <RollHistory entries={deck.rollHistory} onClear={() => deck.clearHistory()} />
       </div>
     </section>
   );

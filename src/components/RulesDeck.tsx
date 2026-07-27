@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useRuleCardWorkspace } from "../hooks/useRuleCardWorkspace";
+import { useRuleRollHistory } from "../hooks/useRuleRollHistory";
 import type {
   RuleCard as RuleCardType,
-  RuleRollHistoryEntry,
   RulesetId
 } from "../types/ruleCards";
 import type { RuleCardWorkspaceRole } from "../types/ruleCardWorkspaces";
@@ -24,7 +24,7 @@ const rulesetsFor = (card: RuleCardType): RulesetId[] => Object.keys(card.varian
 export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDeckProps) => {
   const [query, setQuery] = useState("");
   const [view, setView] = useState<WorkspaceView>("table");
-  const [history, setHistory] = useState<RuleRollHistoryEntry[]>([]);
+  const history = useRuleRollHistory(role);
   const workspace = useRuleCardWorkspace(role, cards);
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -35,9 +35,6 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
   const libraryCards = useMemo(() => cards.filter((card) =>
     !normalizedQuery || `${card.name} ${card.kind}`.toLowerCase().includes(normalizedQuery)
   ), [cards, normalizedQuery]);
-  const addHistory = (entry: RuleRollHistoryEntry) => {
-    setHistory((current) => [entry, ...current].slice(0, 30));
-  };
   const renameCard = (instanceId: string, currentName: string) => {
     try {
       const label = window.prompt("Give this card copy its own name:", currentName);
@@ -52,6 +49,7 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
       <div className="section-heading rules-deck__heading">
         <p>{eyebrow}</p><h2 id={`${eyebrow}-rules-title`}>{title}</h2><span>{description}</span>
         <WorkspaceToolbar activeCount={workspace.workspace.instances.length} onChangeView={setView} onReset={workspace.resetWorkspace} role={role} storageError={workspace.storageError} totalCount={cards.length} view={view} />
+        {history.storageError && <p className="workspace-error" role="alert">{history.storageError}</p>}
         <label className="rules-deck__search">
           <span className="sr-only">Search cards</span>
           <input onChange={(event) => setQuery(event.target.value)} placeholder={view === "table" ? "Search My Table…" : "Search the full Library…"} type="search" value={query} />
@@ -80,7 +78,7 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
                         card={displayCard}
                         initialRuleset={entry.ruleset}
                         key={entry.instanceId}
-                        onRoll={addHistory}
+                        onRoll={history.addEntry}
                         onRulesetChange={(ruleset) => workspace.changeRuleset(entry.instanceId, ruleset)}
                         workspaceControls={{
                           view, isActive: true, isPinned: entry.pinned,
@@ -103,7 +101,7 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
                         card={card}
                         initialRuleset={defaultRuleset}
                         key={`library-${card.id}`}
-                        onRoll={addHistory}
+                        onRoll={history.addEntry}
                         workspaceControls={{
                           view, isActive: copyCount > 0, isPinned: false,
                           canMoveEarlier: false, canMoveLater: false, allowDuplicates: true, copyCount,
@@ -116,7 +114,7 @@ export const RulesDeck = ({ cards, role, eyebrow, title, description }: RulesDec
             </div>
           )}
         </div>
-        <RuleRollHistory entries={history} onClear={() => setHistory([])} />
+        <RuleRollHistory entries={history.entries} onClear={() => history.clear()} />
       </div>
     </section>
   );

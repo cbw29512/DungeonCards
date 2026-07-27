@@ -1,0 +1,39 @@
+.deck-card-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.favorite-card-button,
+.roll-history__heading button {
+  padding: 0.7rem 0.9rem;
+  color: #fff0c2;
+  border: 1px solid rgb(247 199 107 / 36%);
+  border-radius: 999px;
+  background: rgb(67 42 15 / 52%);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.favorite-card-button[aria-pressed="true"] {
+  color: #1a1005;
+  background: linear-gradient(135deg, #ffe08a, #f7b65f);
+}
+
+.favorite-card-button:hover,
+.favorite-card-button:focus-visible,
+.roll-history__heading button:hover,
+.roll-history__heading button:focus-visible {
+  border-color: #f7c76b;
+  transform: translateY(-1px);
+}
+
+.roll-history__heading button {
+  justify-self: start;
+}
+
+@media print {
+  .deck-card-actions,
+  .roll-history__heading button {
+    display: none !important;
+  }
+}
