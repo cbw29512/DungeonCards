@@ -71,10 +71,11 @@ export const buildVaultCard = (
     actions?: CardActionDefinition[];
     resources?: CardResourceDefinition[];
     source?: DndCharacterSource;
+    sourceReference?: CardSourceReference;
     visibility?: CardVisibility;
   }
 ): CardDefinition => {
-  const source = vaultSource(profile, input.source);
+  const source = input.sourceReference ?? vaultSource(profile, input.source);
   return {
     schemaVersion: 2,
     id: `vault:${vaultGameSystemId(profile)}:${safeVaultCardId(profile.id)}:${input.id}`,
