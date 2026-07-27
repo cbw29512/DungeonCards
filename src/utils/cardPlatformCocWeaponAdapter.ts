@@ -32,6 +32,9 @@ export const adaptCocWeapon = (
       kind: "roll",
       label: `Roll ${weapon.skillName}`,
       rollSystem: "percentile",
+      percentileTarget: weapon.defaultSkill,
+      percentileDifficulty: "regular",
+      resourceCosts: [{ resourceId: "ammunition", amount: 1 }],
       notes: `Default demonstration skill value: ${weapon.defaultSkill}%.`
     },
     {

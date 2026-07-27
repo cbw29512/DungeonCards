@@ -1,0 +1,90 @@
+.card-action-history {
+  background: var(--surface-raised, rgba(12, 19, 32, 0.92));
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.28));
+  border-radius: 1rem;
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+}
+
+.card-action-history > header,
+.card-action-history__entries li > header,
+.card-action-history__pagination,
+.card-action-history__result {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.card-action-history h2 {
+  margin: 0.15rem 0 0;
+}
+
+.card-action-history__warning {
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  border-radius: 0.65rem;
+  padding: 0.65rem;
+}
+
+.card-action-history__filters {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.card-action-history__filters label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.card-action-history__filters input,
+.card-action-history__filters select {
+  min-width: 0;
+  width: 100%;
+}
+
+.card-action-history__entries {
+  display: grid;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card-action-history__entries li {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.card-action-history__entries li > header > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.card-action-history__entries p {
+  margin: 0.45rem 0 0;
+}
+
+.card-action-history__entries time {
+  font-size: 0.78rem;
+}
+
+.card-action-history__pagination {
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .card-action-history > header,
+  .card-action-history__entries li > header,
+  .card-action-history__result {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .playable-card-action__options,
+  .playable-card-action__navigation {
+    grid-template-columns: 1fr;
+  }
+}

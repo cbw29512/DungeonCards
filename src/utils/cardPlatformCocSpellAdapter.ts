@@ -32,6 +32,8 @@ export const adaptCocSpell = (
       kind: "roll",
       label: `Roll ${spell.castingSkillName}`,
       rollSystem: "percentile",
+      percentileTarget: spell.defaultCastingSkill,
+      percentileDifficulty: "regular",
       notes: `Default demonstration casting value: ${spell.defaultCastingSkill}%.`
     },
     {

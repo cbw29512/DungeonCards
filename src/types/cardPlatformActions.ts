@@ -1,28 +1,35 @@
 export type CardRollSystem = "dice-formula" | "d20" | "percentile";
 
-export type CardRollActionDefinition = {
+export type CardActionResourceCost = {
+  resourceId: string;
+  amount: number;
+};
+
+type CardActionBase = {
   id: string;
-  kind: "roll";
   label: string;
+  resourceCosts?: CardActionResourceCost[];
+};
+
+export type CardRollActionDefinition = CardActionBase & {
+  kind: "roll";
   rollSystem: CardRollSystem;
   formula?: string;
   allowsAdvantage?: boolean;
   criticalAt?: number;
   failureAt?: number;
+  percentileTarget?: number;
+  percentileDifficulty?: "regular" | "hard" | "extreme";
   notes?: string;
 };
 
-export type CardProcedureActionDefinition = {
-  id: string;
+export type CardProcedureActionDefinition = CardActionBase & {
   kind: "procedure";
-  label: string;
   steps: string[];
 };
 
-export type CardLinkActionDefinition = {
-  id: string;
+export type CardLinkActionDefinition = CardActionBase & {
   kind: "link";
-  label: string;
   targetCardIds: string[];
 };
 
