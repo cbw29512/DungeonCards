@@ -1,3 +1,4 @@
+import type { DndGameSystemId } from "./cardPlatform";
 import type { RollResult } from "./cards";
 
 export type RulesetId = "srd-5.1-2014" | "srd-5.2.1-2024";
@@ -123,6 +124,7 @@ export type RuleRollHistoryEntry = {
   cardId: string;
   cardName: string;
   ruleset: RulesetId;
+  gameSystemId: DndGameSystemId;
   modeLabel: string;
   result: RuleRollResult;
   rolledAt: string;
