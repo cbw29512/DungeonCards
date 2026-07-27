@@ -1,0 +1,165 @@
+.saved-character-editor {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.saved-character-editor__header {
+  align-items: center;
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.saved-character-editor__header p {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+}
+
+.saved-character-editor__header h2,
+.saved-character-editor__header span {
+  margin: 0;
+}
+
+.saved-character-editor__header > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.saved-character-editor button,
+.saved-character-editor input,
+.saved-character-editor textarea {
+  font: inherit;
+}
+
+.saved-character-editor button {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.9rem;
+}
+
+.saved-character-editor button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.saved-character-editor__controls {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.saved-character-editor__card,
+.saved-character-editor__issues {
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  display: grid;
+  gap: 0.9rem;
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+
+.saved-character-editor__card h3,
+.saved-character-editor__card h4,
+.saved-character-editor__issues h3 {
+  margin: 0;
+}
+
+.saved-character-editor__card label {
+  display: grid;
+  font-weight: 800;
+  gap: 0.4rem;
+}
+
+.saved-character-editor__card input,
+.saved-character-editor__card textarea {
+  border: 1px solid currentColor;
+  border-radius: 0.65rem;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.saved-character-editor__card textarea {
+  min-height: 12rem;
+  resize: vertical;
+}
+
+.saved-character-editor__field-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.saved-character-editor__check {
+  align-items: center;
+  display: flex !important;
+  gap: 0.6rem;
+}
+
+.saved-character-editor__check input {
+  min-height: 1.2rem;
+  width: 1.2rem;
+}
+
+.saved-character-editor__tracker-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.saved-character-editor__tracker-list > label,
+.saved-character-editor__tracker-list > article {
+  border-top: 1px solid currentColor;
+  padding-top: 0.75rem;
+}
+
+.saved-character-editor__tracker-list article {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.saved-character-editor__tracker-list header {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.saved-character-editor__feedback {
+  min-height: 1.2rem;
+}
+
+.saved-character-editor__feedback span {
+  display: block;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .saved-character-editor__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .saved-character-editor__controls,
+  .saved-character-editor__field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .saved-character-editor__header,
+  .saved-character-editor__controls,
+  .saved-character-editor__issues,
+  .saved-character-editor__feedback {
+    display: none !important;
+  }
+
+  .saved-character-editor {
+    display: block;
+  }
+}
