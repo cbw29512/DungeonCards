@@ -68,12 +68,11 @@ export const executeCardAction = (
   if (instance.definitionId !== definition.id || instance.gameSystemId !== definition.gameSystemId) {
     throw new Error("Card action execution requires a matching exact-system definition and runtime instance.");
   }
-  if (!definition.actions.some((candidate) => candidate.id === action.id)) {
-    throw new Error(`Action ${action.id} does not belong to ${definition.content.title}.`);
-  }
-  const costs = calculateCardActionCosts(definition, instance, action);
-  if (action.kind === "roll") {
-    const executed = executeRoll(action, options);
+  const canonicalAction = definition.actions.find((candidate) => candidate.id === action.id);
+  if (!canonicalAction) throw new Error(`Action ${action.id} does not belong to ${definition.content.title}.`);
+  const costs = calculateCardActionCosts(definition, instance, canonicalAction);
+  if (canonicalAction.kind === "roll") {
+    const executed = executeRoll(canonicalAction, options);
     return {
       actionKind: "roll",
       summary: executed.summary,
@@ -82,26 +81,26 @@ export const executeCardAction = (
       roll: executed.roll
     };
   }
-  if (action.kind === "procedure") {
+  if (canonicalAction.kind === "procedure") {
     return {
       actionKind: "procedure",
-      summary: `${action.label} completed (${action.steps.length} step${action.steps.length === 1 ? "" : "s"}).`,
+      summary: `${canonicalAction.label} completed (${canonicalAction.steps.length} step${canonicalAction.steps.length === 1 ? "" : "s"}).`,
       resourceState: costs.resourceState,
       resourceChanges: costs.changes,
-      procedureSteps: [...action.steps]
+      procedureSteps: [...canonicalAction.steps]
     };
   }
   const available = options.availableDefinitionIds;
   const targetCardIds = available
-    ? action.targetCardIds.filter((id) => available.has(id))
-    : [...action.targetCardIds];
+    ? canonicalAction.targetCardIds.filter((id) => available.has(id))
+    : [...canonicalAction.targetCardIds];
   const missingTargetCardIds = available
-    ? action.targetCardIds.filter((id) => !available.has(id))
+    ? canonicalAction.targetCardIds.filter((id) => !available.has(id))
     : [];
-  if (targetCardIds.length === 0) throw new Error(`${action.label} has no linked cards in the active deck.`);
+  if (targetCardIds.length === 0) throw new Error(`${canonicalAction.label} has no linked cards in the active deck.`);
   return {
     actionKind: "link",
-    summary: `${action.label}: ${targetCardIds.length} linked card${targetCardIds.length === 1 ? "" : "s"} available.`,
+    summary: `${canonicalAction.label}: ${targetCardIds.length} linked card${targetCardIds.length === 1 ? "" : "s"} available.`,
     resourceState: costs.resourceState,
     resourceChanges: costs.changes,
     targetCardIds,
