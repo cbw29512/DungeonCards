@@ -9,13 +9,14 @@ import type { MonsterCardData } from "../types/monsters";
 import type { RulesetId } from "../types/ruleCards";
 import type { WorkspaceView } from "../types/workspaces";
 import { gameSystemIdForRuleset } from "../utils/cardPlatformGameSystem";
+import {
+  filterMonsterWorkspaceEntries,
+  monstersForEncounterRuleset,
+  monsterTypesForWorkspace
+} from "../utils/monsterWorkspaceCatalog";
 import { MonsterDeckCards } from "./MonsterDeckCards";
 import { MonsterDeckFilters } from "./MonsterDeckFilters";
 import { WorkspaceToolbar } from "./WorkspaceToolbar";
-
-const normalizedType = (value: string): string => (
-  value.trim().replace(/\s+/g, " ").toLowerCase()
-);
 
 const editionLabel = (ruleset: RulesetId): string => (
   ruleset === "srd-5.1-2014" ? "2014 / SRD 5.1" : "2024 / SRD 5.2.1"
@@ -41,25 +42,24 @@ export const MonsterDeck = ({
     ...encounterMonsterCatalog,
     ...homebrewMonsters.map(createHomebrewEncounterEntry)
   ], [homebrewMonsters]);
-  const compatibleMonsters = useMemo(() => allMonsters.filter((monster) => (
-    monster.ruleset === ruleset || monster.ruleset === "homebrew"
-  )), [allMonsters, ruleset]);
-  const gameSystemId = gameSystemIdForRuleset(ruleset);
-  const workspace = useCardWorkspace("monster", compatibleMonsters, gameSystemId);
+  const compatibleMonsters = useMemo(
+    () => monstersForEncounterRuleset(allMonsters, ruleset),
+    [allMonsters, ruleset]
+  );
+  const workspace = useCardWorkspace(
+    "monster",
+    compatibleMonsters,
+    gameSystemIdForRuleset(ruleset)
+  );
   const visible = view === "table" ? workspace.activeCards : compatibleMonsters;
-  const types = useMemo(() => [
-    "all",
-    ...new Set(compatibleMonsters.map((monster) => normalizedType(monster.type)).filter(Boolean))
-  ], [compatibleMonsters]);
-  const filtered = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    return visible.filter((monster) => {
-      const matchesQuery = !normalized
-        || `${monster.name} ${monster.type} ${monster.cr}`.toLowerCase().includes(normalized);
-      const matchesType = type === "all" || normalizedType(monster.type) === type;
-      return matchesQuery && matchesType;
-    });
-  }, [query, type, visible]);
+  const types = useMemo(
+    () => monsterTypesForWorkspace(compatibleMonsters),
+    [compatibleMonsters]
+  );
+  const filtered = useMemo(
+    () => filterMonsterWorkspaceEntries(visible, query, type),
+    [query, type, visible]
+  );
 
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
