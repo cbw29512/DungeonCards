@@ -79,21 +79,39 @@ describe("saved Character Vault state", () => {
     expect(validateDndSavedCharacterState(state, profile)).toEqual([]);
   });
 
-  it("rejects invalid HP, attunement, resource, and charge state", () => {
+  it("rejects invalid HP, attunement, resource, slot, and charge state", () => {
     const state = createDndSavedCharacterState(profile, "user-1", "save-1");
+    const firstResource = character.resources[0];
+    const resourceState: Record<string, number> = { ...state.resourceState, unknown: 1 };
+    if (firstResource) delete resourceState[firstResource.id];
     const invalid = {
       ...state,
       currentHitPoints: character.maximumHitPoints + 1,
-      resourceState: { ...state.resourceState, unknown: 1 },
+      resourceState,
+      spellSlotState: { 1: 1 },
       attunedItemIds: ["guardian-token", "warding-emblem", "warding-emblem", "missing-item"],
       itemChargeState: { "warding-emblem": 4 }
     };
     const issues = validateDndSavedCharacterState(invalid, profile);
     expect(issues).toContain("Current Hit Points are outside the valid range.");
+    if (firstResource) expect(issues).toContain(`Missing tracked resource: ${firstResource.name}`);
     expect(issues).toContain("Unknown tracked resource: unknown");
+    expect(issues).toContain("Unknown spell-slot level: 1");
     expect(issues).toContain("Guardian Token does not require attunement.");
     expect(issues).toContain("Attuned magic-item IDs must be unique.");
     expect(issues).toContain("A character cannot be attuned to more than three magic items.");
     expect(issues).toContain("Warding Emblem charges are outside the valid range.");
+  });
+
+  it("rejects missing item charges and oversized notes", () => {
+    const state = createDndSavedCharacterState(profile, "user-1", "save-1");
+    expect(validateDndSavedCharacterState({
+      ...state,
+      itemChargeState: {},
+      customNotes: "x".repeat(10001)
+    }, profile)).toEqual(expect.arrayContaining([
+      "Missing charge state for Warding Emblem.",
+      "Character notes cannot exceed 10,000 characters."
+    ]));
   });
 });

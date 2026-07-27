@@ -1,0 +1,31 @@
+.saved-character-editor__item label {
+  display: grid;
+  min-width: 0;
+  gap: 0.3rem;
+}
+
+.saved-character-editor__static strong {
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.saved-character-editor__static,
+.saved-character-editor__item {
+  padding: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 14%);
+}
+
+.saved-character-editor__static,
+.saved-character-editor__item header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.saved-character-editor__item {
+  display: grid;
+  gap: 0.65rem;
+}

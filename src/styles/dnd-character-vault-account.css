@@ -1,4 +1,5 @@
 @import "./dnd-character-vault-saved-list.css";
+@import "./dnd-saved-character-editor.css";
 
 .vault-account {
   border: 1px solid currentColor;
