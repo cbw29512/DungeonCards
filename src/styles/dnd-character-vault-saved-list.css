@@ -1,0 +1,55 @@
+.vault-account__identity,
+.vault-account__saved-heading,
+.vault-account__saved-list li,
+.vault-account__saved-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.vault-account__saved-heading,
+.vault-account__saved-list li {
+  justify-content: space-between;
+}
+
+.vault-account__identity > span,
+.vault-account__identity img {
+  align-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  display: flex;
+  height: 2.8rem;
+  justify-content: center;
+  object-fit: cover;
+  width: 2.8rem;
+}
+
+.vault-account__identity div,
+.vault-account__saved-list li > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.vault-account__saved-list {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vault-account__saved-list li {
+  border-top: 1px solid currentColor;
+  padding-top: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .vault-account__saved-list li {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vault-account__saved-actions {
+    flex-wrap: wrap;
+  }
+}
