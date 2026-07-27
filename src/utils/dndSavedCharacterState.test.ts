@@ -82,7 +82,7 @@ describe("saved Character Vault state", () => {
   it("rejects invalid HP, attunement, resource, slot, and charge state", () => {
     const state = createDndSavedCharacterState(profile, "user-1", "save-1");
     const firstResource = character.resources[0];
-    const resourceState = { ...state.resourceState, unknown: 1 };
+    const resourceState: Record<string, number> = { ...state.resourceState, unknown: 1 };
     if (firstResource) delete resourceState[firstResource.id];
     const invalid = {
       ...state,
