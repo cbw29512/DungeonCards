@@ -33,7 +33,9 @@ export const dndVaultBarbarianProfiles: DndOptimizedBuildProfile[] = dndBarbaria
         : "Frenzy is reserved for decisive encounters because each use causes one Exhaustion level when Rage ends."
     ],
     tactics: [
-      "Use Adrenaline Rush or movement before Rage when distance would otherwise prevent an attack this turn.",
+      is2024
+        ? "Use Adrenaline Rush before Rage when a Bonus Action Dash is needed to reach a target; otherwise enter Rage immediately."
+        : "Close distance before entering Rage whenever possible so the first Rage turn includes a qualifying attack.",
       "Use Reckless Attack when the extra hit chance is worth granting attackers Advantage until the next turn.",
       is2024
         ? "After Reckless Attack, place Frenzy damage on the first Strength-based hit and use Brutal Strike only when its control effect matters more than Advantage."
