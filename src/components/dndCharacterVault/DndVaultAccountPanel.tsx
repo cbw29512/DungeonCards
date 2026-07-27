@@ -78,13 +78,15 @@ export const DndVaultAccountPanel = ({ vault }: { vault: DndCharacterVaultState 
           ) : (
             <ul className="vault-account__saved-list">
               {vault.savedCharacters.map((character) => (
-                <li key={character.id}>
+                <li aria-current={vault.activeCharacter?.id === character.id ? "true" : undefined} key={character.id}>
                   <div>
                     <strong>{character.displayName}</strong>
                     <span>{editionLabel(character)} · Level {character.level} · HP {character.currentHitPoints}</span>
                     <small>Updated {new Date(character.updatedAt).toLocaleString()}</small>
                   </div>
                   <div className="vault-account__saved-actions">
+                    <button disabled={vault.busy} onClick={() => void vault.openCharacter(character)} type="button">Open</button>
+                    <button disabled={vault.busy} onClick={() => void vault.duplicateCharacter(character)} type="button">Duplicate</button>
                     <button disabled={vault.busy} onClick={() => void vault.archiveCharacter(character)} type="button">Archive</button>
                     <button className="danger" disabled={vault.busy} onClick={() => permanentlyDelete(character)} type="button">Delete</button>
                   </div>
