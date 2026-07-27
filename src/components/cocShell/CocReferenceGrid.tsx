@@ -1,12 +1,6 @@
 import { cocQuickReferenceCards } from "../../data/cocRuleSources";
+import type { CocReferenceItem } from "../../types/cocShell";
 import { CocRuleStatus } from "../CocRuleStatus";
-
-export type CocReferenceItem = {
-  eyebrow: string;
-  title: string;
-  summary: string;
-  steps: string[];
-};
 
 export const CocReferenceGrid = ({
   items,
