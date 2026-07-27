@@ -1,0 +1,125 @@
+.card-catalog,
+.dnd-card-catalog {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0 auto;
+  max-width: 1500px;
+  width: 100%;
+}
+.card-catalog__header,
+.card-catalog__sources > header,
+.dnd-card-catalog__edition {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+.card-catalog__header,
+.dnd-card-catalog__edition,
+.card-catalog__sources,
+.card-catalog__controls,
+.card-catalog__empty {
+  background: var(--surface-raised, rgba(12, 19, 32, 0.92));
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.28));
+  border-radius: 1rem;
+  padding: 1rem;
+}
+.card-catalog__header h1,
+.dnd-card-catalog__edition h1,
+.card-catalog__sources h2 {
+  margin: 0.2rem 0;
+}
+.card-catalog__header p,
+.dnd-card-catalog__edition p,
+.card-catalog__sources p {
+  margin: 0;
+  max-width: 70ch;
+}
+.dnd-card-catalog__edition [role="group"] {
+  display: flex;
+  gap: 0.6rem;
+}
+.dnd-card-catalog__edition button[aria-pressed="true"] {
+  outline: 3px solid var(--focus-ring, #93c5fd);
+  outline-offset: 2px;
+}
+.card-catalog__source-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  margin-top: 1rem;
+}
+.card-catalog__source-grid article,
+.card-catalog__source-grid button {
+  align-items: flex-start;
+  display: grid;
+  gap: 0.25rem;
+  min-height: 88px;
+  padding: 0.8rem;
+  text-align: left;
+}
+.card-catalog__source-grid strong,
+.card-catalog__source-grid span,
+.card-catalog__source-grid small {
+  display: block;
+}
+.card-catalog__health {
+  border-top: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.28));
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+}
+.card-catalog__health ul {
+  max-height: 18rem;
+  overflow: auto;
+}
+.card-catalog__controls {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.card-catalog__controls label {
+  display: grid;
+  gap: 0.35rem;
+}
+.card-catalog__controls input,
+.card-catalog__controls select {
+  min-width: 0;
+  width: 100%;
+}
+.card-catalog__family-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.card-catalog__family-counts span,
+.card-catalog__origin {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+}
+.card-catalog__result,
+.card-catalog__pagination {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+.card-catalog__grid { align-items: start; }
+.card-catalog__item {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  width: var(--dm-card-screen-width);
+}
+.card-catalog__origin {
+  align-items: center;
+  display: flex;
+  font-size: 0.75rem;
+  gap: 0.4rem;
+  justify-content: space-between;
+  width: 100%;
+}
+.card-catalog__item.is-private-import .card-catalog__origin { border-style: dashed; }
+.card-catalog__pagination { justify-content: center; }

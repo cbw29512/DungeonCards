@@ -3,6 +3,7 @@ import type { DndAppPage } from "../../integration/dmForgeRoute";
 import type { HomebrewCardDraft, HomebrewDiceCard } from "../../types/cards";
 import type { MonsterCardData } from "../../types/monsters";
 import { DndArmorLoadout } from "../DndArmorLoadout";
+import { DndCardCatalog } from "../DndCardCatalog";
 import { DndConditionsLibrary } from "../DndConditionsLibrary";
 import { DndEncounterTracker } from "../DndEncounterTracker";
 import { DndHealthTracker } from "../DndHealthTracker";
@@ -46,6 +47,7 @@ export const DndPageContent = (props: DndPageContentProps) => {
   if (activePage === "mastery") return <DndWeaponMasteryLibrary />;
   if (activePage === "armor") return <DndArmorLoadout />;
   if (activePage === "compendium") return <SrdCompendium />;
+  if (activePage === "catalog") return <DndCardCatalog homebrewCards={props.homebrewCards} homebrewMonsters={props.homebrewMonsters} onNavigate={props.onNavigate} />;
   if (activePage === "library") return <DndPrivateCardLibrary />;
 
   if (activePage === "player") {
