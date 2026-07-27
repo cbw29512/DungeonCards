@@ -13,6 +13,8 @@ const [
   monsterFace,
   monsterParser,
   builder,
+  builderDraft,
+  builderPreview,
   diceCard,
   homebrewCss,
   baseCss,
@@ -31,6 +33,8 @@ const [
   readFile(new URL("../../src/components/SrdMonsterEncounterFace.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/utils/monsterCombatReference.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/HomebrewBuilder.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../../src/hooks/useHomebrewCardDraft.ts", import.meta.url), "utf8"),
+  readFile(new URL("../../src/components/HomebrewCardPreview.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/DiceCard.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/styles/homebrew.css", import.meta.url), "utf8"),
   readFile(new URL("../../src/styles/base.css", import.meta.url), "utf8"),
@@ -77,10 +81,12 @@ describe("DM Forge multi-system operating system", () => {
   });
 
   it("renders the homebrew card as the user types", () => {
-    expect(builder).toContain("previewCard");
-    expect(builder).toContain("Updates as you type");
-    expect(builder).toContain("<DiceCard");
-    expect(builder).toContain("previewOnly");
+    expect(builder).toContain("useHomebrewCardDraft");
+    expect(builder).toContain("<HomebrewCardPreview");
+    expect(builderDraft).toContain("previewCard");
+    expect(builderPreview).toContain("Updates as you type");
+    expect(builderPreview).toContain("<DiceCard");
+    expect(builderPreview).toContain("previewOnly");
     expect(diceCard).toContain("previewOnly?: boolean");
     expect(homebrewCss).toContain("homebrew-builder__workspace");
     expect(homebrewCss).toContain("homebrew-live-preview");
@@ -94,7 +100,7 @@ describe("DM Forge multi-system operating system", () => {
     expect(app).toContain("prefers-reduced-motion: reduce");
     expect(cthulhu).toContain('className="skip-link skip-link--coc"');
     expect(cthulhu).toContain('aria-controls="coc-primary-navigation"');
-    expect(cthulhu).toContain('navigation-toggle navigation-toggle--coc');
+    expect(cthulhu).toContain("navigation-toggle navigation-toggle--coc");
     expect(cthulhu).toContain('id="coc-main-content"');
     expect(baseCss).toContain(".navigation-toggle");
     expect(baseCss).toContain(".top-nav__actions.is-open");
