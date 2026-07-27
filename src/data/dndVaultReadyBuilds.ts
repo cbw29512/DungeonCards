@@ -10,6 +10,12 @@ export const dndVaultReadyBuilds: DndOptimizedBuildProfile[] = [
   ...dndVaultFighterProfiles
 ];
 
+export const getDndVaultReadyBuildById = (
+  profileId: string
+): DndOptimizedBuildProfile | undefined => dndVaultReadyBuilds.find((profile) => (
+  profile.id === profileId
+));
+
 export const getDndVaultReadyBuild = (
   ruleset: RulesetId,
   classId: string,
