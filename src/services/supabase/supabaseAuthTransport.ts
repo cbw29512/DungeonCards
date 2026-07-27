@@ -13,6 +13,18 @@ type AuthUserPayload = {
   user_metadata?: { full_name?: string; name?: string; avatar_url?: string };
 };
 
+type SupabaseAuthErrorPayload = {
+  message?: string;
+  msg?: string;
+  error_description?: string;
+};
+
+const authErrorDetail = (payload: unknown, status: number): string => {
+  if (!payload || typeof payload !== "object") return `HTTP ${status}`;
+  const error = payload as SupabaseAuthErrorPayload;
+  return error.error_description || error.message || error.msg || `HTTP ${status}`;
+};
+
 export class SupabaseAuthTransport {
   constructor(
     private readonly config: DndVaultSupabaseConfig,
@@ -31,14 +43,9 @@ export class SupabaseAuthTransport {
     try {
       const response = await this.fetcher(`${this.config.url}${path}`, init);
       const raw = await response.text();
-      const payload = raw
-        ? JSON.parse(raw) as T & { message?: string; msg?: string; error_description?: string }
-        : {} as T;
-      if (!response.ok) {
-        const detail = payload.error_description || payload.message || payload.msg || `HTTP ${response.status}`;
-        throw new Error(detail);
-      }
-      return payload;
+      const payload: unknown = raw ? JSON.parse(raw) : {};
+      if (!response.ok) throw new Error(authErrorDetail(payload, response.status));
+      return payload as T;
     } catch (error) {
       console.error("Supabase Auth request failed", { path, error });
       throw error;
