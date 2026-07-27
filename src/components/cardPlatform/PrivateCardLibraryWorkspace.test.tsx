@@ -21,6 +21,6 @@ describe("private Card Platform library workspaces", () => {
     expect(html).toContain("D&amp;D 2014");
     expect(html).toContain("D&amp;D 2024");
     expect(html).toContain('aria-pressed="true"');
-    expect(html).toContain("dnd-2024");
+    expect(html).toContain("D&amp;D 2024 · local-first");
   });
 });
