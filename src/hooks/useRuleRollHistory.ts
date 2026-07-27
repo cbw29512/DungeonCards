@@ -3,6 +3,7 @@ import type { DndGameSystemId } from "../types/cardPlatform";
 import type { RuleRollHistoryEntry } from "../types/ruleCards";
 import type { RuleCardWorkspaceRole } from "../types/ruleCardWorkspaces";
 import type { RuleRollHistoryEnvelope } from "../types/ruleRollHistoryStorage";
+import { mergeRuleRollHistory } from "../utils/ruleRollHistoryModel";
 import {
   clearRuleRollHistory,
   createEmptyRuleHistory,
@@ -11,7 +12,6 @@ import {
   saveRuleRollHistory
 } from "../utils/ruleRollHistoryStorage";
 
-const SYSTEM_IDS: DndGameSystemId[] = ["dnd-2014", "dnd-2024"];
 type HistoryBySystem = Record<DndGameSystemId, RuleRollHistoryEnvelope>;
 
 const emptyHistories = (role: RuleCardWorkspaceRole): HistoryBySystem => ({
@@ -48,10 +48,10 @@ export const useRuleRollHistory = (role: RuleCardWorkspaceRole) => {
     }
   }, [role]);
 
-  const entries = useMemo(() => (
-    SYSTEM_IDS.flatMap((systemId) => bySystem[systemId].entries)
-      .sort((left, right) => Date.parse(right.rolledAt) - Date.parse(left.rolledAt))
-  ), [bySystem]);
+  const entries = useMemo(() => mergeRuleRollHistory([
+    bySystem["dnd-2014"],
+    bySystem["dnd-2024"]
+  ]), [bySystem]);
 
   const addEntry = (entry: RuleRollHistoryEntry): boolean => {
     const current = bySystem[entry.gameSystemId];
