@@ -19,6 +19,7 @@ export const dndPageLabels: Record<DndAppPage, string> = {
   mastery: "Weapon Mastery",
   armor: "Armor & Loadout",
   compendium: "SRD Compendium",
+  catalog: "Card Catalog",
   player: "Player Workspace",
   dm: "DM Workspace",
   monster: "Monster Encounter",
@@ -39,6 +40,7 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
   mastery: "Mastery",
   armor: "Armor",
   compendium: "Compendium",
+  catalog: "Card Catalog",
   player: "Player",
   dm: "DM",
   monster: "Encounter",
@@ -49,11 +51,12 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
 
 export const dndNavigationPages: DndAppPage[] = [
   "home", "rules", "coverage", "conditions", "movement", "health", "combat",
-  "pregens", "mastery", "armor", "compendium", "player", "dm", "monster",
+  "pregens", "mastery", "armor", "compendium", "catalog", "player", "dm", "monster",
   "library", "homebrew", "monster-homebrew"
 ];
 
 export const dndHomeCards: DndHomeCard[] = [
+  { page: "catalog", icon: "🗂️", title: "Card Catalog", description: "Search rules, spells, monsters, Character Vault, homebrew, and private cards inside one exact edition." },
   { page: "rules", icon: "📖", title: "Rules Guide", description: "Learn the table procedure first, then open the matching card." },
   { page: "coverage", icon: "🧭", title: "Rules Coverage", description: "See what is complete, automated, missing, or requires an owned source." },
   { page: "conditions", icon: "⚠️", title: "Conditions & Exhaustion", description: "Search every condition without mixing edition rules." },
