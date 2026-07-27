@@ -1,0 +1,111 @@
+@import "./dnd-character-vault-saved-list.css";
+
+.vault-account {
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.vault-account__header {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.vault-account__header p,
+.vault-account--local p {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+}
+
+.vault-account h3,
+.vault-account h4,
+.vault-account p {
+  margin-top: 0;
+}
+
+.vault-account button,
+.vault-account input {
+  font: inherit;
+}
+
+.vault-account button {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.9rem;
+}
+
+.vault-account button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.vault-account button.danger {
+  border-style: dashed;
+}
+
+.vault-account__signin {
+  align-items: end;
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: minmax(16rem, 1fr) auto minmax(12rem, 0.6fr);
+}
+
+.vault-account__signin form,
+.vault-account__signin label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.vault-account__signin form {
+  grid-template-columns: minmax(12rem, 1fr) auto;
+}
+
+.vault-account__signin label {
+  font-weight: 800;
+}
+
+.vault-account__signin input {
+  border: 1px solid currentColor;
+  border-radius: 0.7rem;
+  min-height: 2.7rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.vault-account__signin > small {
+  grid-column: 1 / -1;
+}
+
+.vault-account__feedback {
+  min-height: 1.25rem;
+}
+
+.vault-account__feedback span {
+  display: block;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .vault-account__signin,
+  .vault-account__signin form {
+    grid-template-columns: 1fr;
+  }
+
+  .vault-account__signin > span {
+    text-align: center;
+  }
+}
+
+@media print {
+  .vault-account {
+    display: none;
+  }
+}

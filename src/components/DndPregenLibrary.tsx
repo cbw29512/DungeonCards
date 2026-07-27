@@ -1,23 +1,22 @@
 import { useState } from "react";
 import { DndPregenCharacterSheet } from "./DndPregenCharacterSheet";
-import { DndPregenValidationPanel } from "./DndPregenValidationPanel";
+import { DndPregenReleasePanel } from "./dndCharacterVault/DndPregenReleasePanel";
+import { DndPregenSelectorControls } from "./dndCharacterVault/DndPregenSelectorControls";
+import { DndVaultAccountPanel } from "./dndCharacterVault/DndVaultAccountPanel";
 import { dndPregenClassDefinitions } from "../data/dndPregenCatalog";
 import {
   countDndReadyPregens,
-  dndReadyPregenRecords,
   getDndReadyPregenRecord
 } from "../data/dndReadyPregens";
 import {
   countDndVaultReadyBuilds,
-  dndVaultReadyBuilds,
   getDndVaultReadyBuild
 } from "../data/dndVaultReadyBuilds";
 import {
   dndPregenDefinitionPath,
-  dndPregenLevels,
-  dndPregenReadyRequirements,
-  dndPregenRulesets
+  dndPregenReadyRequirements
 } from "../data/dndPregenUi";
+import { useDndCharacterVault } from "../hooks/useDndCharacterVault";
 import type { RulesetId } from "../types/ruleCards";
 import { createDndCharacterBlueprint, validateDndCharacterRecord } from "../utils/dndCharacterRecord";
 import { getDndPregenBuildSlot, summarizeDndPregenBuilds } from "../utils/dndPregenCatalog";
@@ -26,6 +25,7 @@ export const DndPregenLibrary = () => {
   const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
   const [pathId, setPathId] = useState("fighter:champion");
   const [level, setLevel] = useState(1);
+  const vault = useDndCharacterVault();
   const definitions = dndPregenClassDefinitions.filter((definition) => definition.ruleset === ruleset);
   const selectedDefinition = definitions.find((definition) => dndPregenDefinitionPath(definition) === pathId) ?? definitions[0];
   const selectedSlot = selectedDefinition
@@ -53,19 +53,12 @@ export const DndPregenLibrary = () => {
     }
   };
 
-  const releaseStatus = selectedVaultBuild
-    ? "Vault Ready"
-    : readiness?.ready
-      ? "Ready to play"
-      : "Blueprint · validation incomplete";
-  const statusId = selectedVaultBuild ? "vault-ready" : readiness?.ready ? "ready-to-play" : "blueprint";
-
   return (
     <section className="pregen-library" aria-labelledby="pregen-library-title">
       <header className="pregen-library__hero">
         <div>
           <p className="pregen-library__eyebrow">Character Vault · licensed build matrix</p>
-          <h2 id="pregen-library-title">Pick an edition, class path, and level. Print. Play.</h2>
+          <h2 id="pregen-library-title">Pick an edition, class path, and level. Save. Print. Play.</h2>
           <p>
             Every slot is keyed by edition, class, subclass, and level. <strong>Vault Ready</strong> adds optimized advancement, tactics, and tier-appropriate magic items to the complete playable sheet.
           </p>
@@ -76,69 +69,35 @@ export const DndPregenLibrary = () => {
         </div>
       </header>
 
-      <div className="pregen-library__edition" role="group" aria-label="Pregen rules edition">
-        {dndPregenRulesets.map((option) => (
-          <button aria-pressed={ruleset === option.id} key={option.id} onClick={() => changeRuleset(option.id)} type="button">
-            {option.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="pregen-library__controls">
-        <label>
-          Class and public subclass path
-          <select value={selectedDefinition ? dndPregenDefinitionPath(selectedDefinition) : ""} onChange={(event) => setPathId(event.target.value)}>
-            {definitions.map((definition) => {
-              const pathVaultReady = dndVaultReadyBuilds.some((profile) => (
-                profile.ruleset === ruleset
-                && profile.classId === definition.classId
-                && profile.subclassId === definition.subclassId
-              ));
-              const pathReleased = dndReadyPregenRecords.some((record) => (
-                record.ruleset === ruleset
-                && record.classId === definition.classId
-                && record.subclassId === definition.subclassId
-              ));
-              const pathStatus = pathVaultReady ? "Vault Ready" : pathReleased ? "Ready" : "Blueprint";
-              return (
-                <option key={dndPregenDefinitionPath(definition)} value={dndPregenDefinitionPath(definition)}>
-                  {definition.className} · {definition.subclassName} · {pathStatus}
-                </option>
-              );
-            })}
-          </select>
-        </label>
-        <label>
-          Character level
-          <select value={level} onChange={(event) => setLevel(Number(event.target.value))}>
-            {dndPregenLevels.map((candidate) => <option key={candidate} value={candidate}>Level {candidate}</option>)}
-          </select>
-        </label>
-      </div>
+      <DndVaultAccountPanel vault={vault} />
+      <DndPregenSelectorControls
+        definitions={definitions}
+        level={level}
+        onChangeLevel={setLevel}
+        onChangePath={setPathId}
+        onChangeRuleset={changeRuleset}
+        pathId={selectedDefinition ? dndPregenDefinitionPath(selectedDefinition) : ""}
+        ruleset={ruleset}
+      />
 
       {selectedDefinition && selectedSlot && readiness && (
-        <article className="pregen-library__selection">
-          <div className="pregen-library__selection-heading">
-            <div>
-              <p>{ruleset === "srd-5.1-2014" ? "2014" : "2024"} {selectedVaultBuild ? "optimized Vault build" : readiness.ready ? "playable release" : "blueprint"}</p>
-              <h3>Level {level} {selectedDefinition.className}</h3>
-              <span>{selectedDefinition.subclassName}</span>
-            </div>
-            <span className="pregen-library__status" data-status={statusId}>{releaseStatus}</span>
-          </div>
-          <dl className="pregen-library__facts">
-            <div><dt>Build ID</dt><dd><code>{selectedSlot.id}</code></dd></div>
-            <div><dt>Subclass starts</dt><dd>Level {selectedDefinition.subclassUnlockLevel}</dd></div>
-            <div><dt>At this level</dt><dd>{selectedSlot.subclassActive ? "Subclass features are active" : "Class features only; subclass path is reserved"}</dd></div>
-            <div><dt>Optimization</dt><dd>{selectedVaultBuild ? `${selectedVaultBuild.role} · ${selectedVaultBuild.complexity}` : "Vault migration pending"}</dd></div>
-          </dl>
-          <DndPregenValidationPanel readiness={readiness} />
-          <a href={selectedDefinition.sourceUrl} rel="noreferrer" target="_blank">Open {selectedDefinition.sourceLabel}</a>
-        </article>
+        <DndPregenReleasePanel
+          definition={selectedDefinition}
+          level={level}
+          profile={selectedVaultBuild}
+          readiness={readiness}
+          ruleset={ruleset}
+          slot={selectedSlot}
+        />
       )}
 
       {selectedRecord && readiness?.ready && (
-        <DndPregenCharacterSheet record={selectedRecord} profile={selectedVaultBuild} />
+        <DndPregenCharacterSheet
+          onSave={selectedVaultBuild ? () => { void vault.saveProfile(selectedVaultBuild); } : undefined}
+          profile={selectedVaultBuild}
+          record={selectedRecord}
+          signedIn={Boolean(vault.session)}
+        />
       )}
 
       <div className="pregen-library__columns">
