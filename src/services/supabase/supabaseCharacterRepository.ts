@@ -8,6 +8,17 @@ import {
 } from "./supabaseCharacterRows";
 import type { DndVaultSupabaseConfig } from "./supabaseConfig";
 
+type SupabaseRestErrorPayload = {
+  message?: string;
+  details?: string;
+};
+
+const restErrorDetail = (payload: unknown, status: number): string => {
+  if (!payload || typeof payload !== "object") return `HTTP ${status}`;
+  const error = payload as SupabaseRestErrorPayload;
+  return error.message || error.details || `HTTP ${status}`;
+};
+
 export class SupabaseDndCharacterRepository implements DndCharacterVaultRepository {
   constructor(
     private readonly config: DndVaultSupabaseConfig,
@@ -33,9 +44,9 @@ export class SupabaseDndCharacterRepository implements DndCharacterVaultReposito
         }
       });
       const raw = await response.text();
-      const payload = raw ? JSON.parse(raw) as T & { message?: string; details?: string } : {} as T;
-      if (!response.ok) throw new Error(payload.message || payload.details || `HTTP ${response.status}`);
-      return payload;
+      const payload: unknown = raw ? JSON.parse(raw) : {};
+      if (!response.ok) throw new Error(restErrorDetail(payload, response.status));
+      return payload as T;
     } catch (error) {
       console.error("Saved character request failed", { path, error });
       throw new Error("The saved character request failed.", { cause: error });
