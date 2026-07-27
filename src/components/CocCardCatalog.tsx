@@ -21,7 +21,7 @@ export const CocCardCatalog = ({
     { sourceId: "coc-equipment" as const, label: "Equipment", onOpen: () => onNavigate("equipment") },
     { sourceId: "coc-rituals" as const, label: "Spells & Rituals", onOpen: () => onNavigate("spells") },
     { sourceId: "coc-creatures" as const, label: "Creatures & NPCs", onOpen: () => onNavigate("creatures") },
-    { sourceId: "private" as const, label: "Private Library", onOpen: () => onNavigate("private-library") }
+    { sourceId: "private" as const, label: "Private Library", onOpen: () => onNavigate("library") }
   ];
   return <CardCatalogWorkspace catalog={catalog} sourceActions={actions} />;
 };
