@@ -5,6 +5,7 @@ import { privateArchiveCard } from "../../utils/cardPlatformArchiveFixtures";
 import { addCardToPlayableDeck } from "../../utils/cardDeckLibraryCards";
 import { createPlayableDeck } from "../../utils/cardDeckLibraryDecks";
 import { createEmptyCardDeckLibrary } from "../../utils/cardDeckLibraryStorage";
+import { createEmptyCardActionHistory } from "../../utils/cardActionHistoryStorage";
 import { PlayableDeckWorkspace } from "./PlayableDeckWorkspace";
 
 const controller = (): CardDeckLibraryController => {
@@ -21,6 +22,13 @@ const controller = (): CardDeckLibraryController => {
     library,
     issues: [],
     error: null,
+    history: createEmptyCardActionHistory("dnd-2024"),
+    historyError: null,
+    actionError: null,
+    actionResults: {},
+    executeAction: action,
+    clearHistory: action,
+    getActionResult: () => undefined,
     createDeck: action,
     addCard: action,
     setActiveDeck: action,
@@ -40,7 +48,7 @@ const controller = (): CardDeckLibraryController => {
 };
 
 describe("playable Card Platform deck workspace", () => {
-  it("renders lifecycle, print, resource, and copy controls outside the card shell", () => {
+  it("renders actions, history, resources, and copy controls outside the card shell", () => {
     const html = renderToStaticMarkup(<PlayableDeckWorkspace controller={controller()} />);
     expect(html).toContain("Playable Decks");
     expect(html).toContain("Test Adventure");
@@ -51,7 +59,11 @@ describe("playable Card Platform deck workspace", () => {
     expect(html).toContain("3 / 3");
     expect(html).toContain("Move earlier");
     expect(html).toContain("Remove copy");
-    expect((html.match(/class="card-platform-card"/g) ?? []).length).toBe(1);
+    expect(html).toContain("Executable actions");
+    expect(html).toContain("Action History");
+    expect((html.match(/class="card-platform-card/g) ?? []).length).toBe(1);
     expect(html.indexOf("playable-card-runtime__controls")).toBeGreaterThan(html.indexOf("card-platform-card"));
+    expect(html.indexOf("playable-card-actions")).toBeGreaterThan(html.indexOf("card-platform-card"));
+    expect(html.indexOf("card-action-history")).toBeGreaterThan(html.indexOf("card-platform-card"));
   });
 });
