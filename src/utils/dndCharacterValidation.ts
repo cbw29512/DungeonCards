@@ -41,7 +41,12 @@ export const validateDndCharacterRecord = (record: DndCharacterRecord): DndChara
   addIssue(issues, "defenses", !Number.isInteger(record.armorClass) || record.armorClass < 1, "Armor Class must be at least 1.");
   addIssue(issues, "defenses", !Number.isInteger(record.speedFeet) || record.speedFeet < 0, "Speed must be a nonnegative whole number.");
 
-  addIssue(issues, "proficiencies", record.savingThrowProficiencies.length !== 2, "Exactly two saving throw proficiencies are required for a single-class pregen.");
+  addIssue(
+    issues,
+    "proficiencies",
+    record.savingThrowProficiencies.length < 2 || record.savingThrowProficiencies.length > dndAbilityIds.length,
+    "A character needs at least two and no more than six saving throw proficiencies."
+  );
   addIssue(issues, "proficiencies", new Set(record.savingThrowProficiencies).size !== record.savingThrowProficiencies.length, "Saving throw proficiencies must be unique.");
   addIssue(issues, "proficiencies", record.skillProficiencies.length === 0, "At least one skill proficiency is required.");
   addIssue(issues, "proficiencies", record.languages.length === 0, "At least one language is required.");
