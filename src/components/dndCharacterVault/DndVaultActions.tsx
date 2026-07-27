@@ -1,15 +1,27 @@
 import type { DndCharacterRecord } from "../../types/dndCharacter";
+import type { DndSavedCharacterState } from "../../types/dndCharacterVault";
 import {
   dndAttackBonus,
   dndAbilityModifier
 } from "../../utils/dndCharacterRecord";
 
 const signed = (value: number): string => `${value >= 0 ? "+" : ""}${value}`;
-const resourceMarks = (maximum: number | "unlimited"): string => (
-  maximum === "unlimited" ? "Unlimited" : Array.from({ length: maximum }, () => "○").join(" ")
-);
 
-export const DndVaultActions = ({ record }: { record: DndCharacterRecord }) => (
+const resourceStatus = (
+  maximum: number | "unlimited",
+  remaining?: number
+): string => {
+  if (maximum === "unlimited") return "Unlimited";
+  return `${remaining ?? maximum} / ${maximum}`;
+};
+
+export const DndVaultActions = ({
+  record,
+  savedState
+}: {
+  record: DndCharacterRecord;
+  savedState?: DndSavedCharacterState;
+}) => (
   <div className="character-vault__panel-grid">
     <section className="character-vault__card">
       <h4>Attacks &amp; actions</h4>
@@ -33,7 +45,10 @@ export const DndVaultActions = ({ record }: { record: DndCharacterRecord }) => (
         {record.resources.length === 0 && <p>No limited-use class resources at this level.</p>}
         {record.resources.map((resource) => (
           <article key={resource.id}>
-            <header><strong>{resource.name}</strong><span>{resourceMarks(resource.maximum)}</span></header>
+            <header>
+              <strong>{resource.name}</strong>
+              <span>{resourceStatus(resource.maximum, savedState?.resourceState[resource.id])}</span>
+            </header>
             <small>{resource.refresh === "none" ? "No refresh required" : `Refresh: ${resource.refresh.replace("-", " ")}`}{resource.notes ? ` · ${resource.notes}` : ""}</small>
           </article>
         ))}
