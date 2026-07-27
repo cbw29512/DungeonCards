@@ -88,7 +88,13 @@ export const generateDndSpellSlotCards = (
       subtitle: "Long-rest resource",
       summary: `Track ${maximum} level ${level} spell slots for this build.`,
       tags: ["resource", "spell-slot", `level-${level}`],
-      actions: [{ id: "spend-slot", kind: "procedure", label: `Spend a level ${level} slot`, steps: [`Reduce remaining level ${level} slots by one.`] }],
+      actions: [{
+        id: "spend-slot",
+        kind: "procedure",
+        label: `Spend a level ${level} slot`,
+        steps: [`Reduce remaining level ${level} slots by one.`],
+        resourceCosts: [{ resourceId: "slots", amount: 1 }]
+      }],
       resources: [{ id: "slots", label: `Level ${level} Slots`, maximum, initial: maximum, refresh: "long-rest", unit: "slots" }]
     })];
   });
