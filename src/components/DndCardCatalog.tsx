@@ -30,7 +30,7 @@ export const DndCardCatalog = ({
     { sourceId: "monsters" as const, label: "SRD Monsters", onOpen: () => onNavigate("monster") },
     { sourceId: "characters" as const, label: "Character Vault", onOpen: () => onNavigate("pregens") },
     { sourceId: "homebrew" as const, label: "Homebrew", onOpen: () => onNavigate("homebrew") },
-    { sourceId: "private" as const, label: "Private Library", onOpen: () => onNavigate("private-library") }
+    { sourceId: "private" as const, label: "Private Library", onOpen: () => onNavigate("library") }
   ];
   return (
     <div className="dnd-card-catalog">
