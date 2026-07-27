@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import "./styles/rule-roll-impact.css";
+import "./styles/application.css";
 
 const rootElement = document.getElementById("root");
 
