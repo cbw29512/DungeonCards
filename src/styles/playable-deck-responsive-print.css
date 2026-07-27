@@ -1,0 +1,69 @@
+@media (max-width: 760px) {
+  .playable-deck-manager > header,
+  .playable-deck-table > header,
+  .playable-deck-manager__list article {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .playable-deck-manager > header,
+  .playable-deck-table > header {
+    flex-direction: column;
+  }
+
+  .playable-deck-manager__create {
+    grid-template-columns: 1fr;
+  }
+
+  .playable-deck-table__actions {
+    align-items: stretch;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .playable-card-runtime__origin,
+  .card-catalog__add {
+    max-width: 100%;
+  }
+}
+
+@media print {
+  body.printing-playable-deck * { visibility: hidden; }
+  body.printing-playable-deck .playable-deck-table,
+  body.printing-playable-deck .playable-deck-table * { visibility: visible; }
+
+  body.printing-playable-deck .playable-deck-table {
+    border: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  body.printing-playable-deck .playable-deck-table > header,
+  body.printing-playable-deck .playable-deck-table__missing,
+  body.printing-playable-deck .playable-card-runtime__origin,
+  body.printing-playable-deck .playable-card-runtime__controls,
+  body.printing-playable-deck .playable-deck-table__missing-card {
+    display: none !important;
+  }
+
+  body.printing-playable-deck .playable-deck-table__grid {
+    display: grid !important;
+    gap: 0.18in;
+    grid-template-columns: repeat(3, var(--dm-card-print-width)) !important;
+    justify-content: center;
+    margin: 0;
+  }
+
+  body.printing-playable-deck .playable-card-runtime {
+    break-inside: avoid;
+    display: block;
+    page-break-inside: avoid;
+    width: var(--dm-card-print-width) !important;
+  }
+
+  body.printing-card-catalog .playable-deck-workspace { display: none !important; }
+}

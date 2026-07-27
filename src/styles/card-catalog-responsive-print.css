@@ -17,17 +17,15 @@
     text-align: center;
   }
 
-  .card-catalog__item {
-    max-width: 100%;
-  }
+  .card-catalog__item { max-width: 100%; }
 }
 
 @media print {
-  body * { visibility: hidden; }
-  .card-catalog,
-  .card-catalog * { visibility: visible; }
+  body.printing-card-catalog * { visibility: hidden; }
+  body.printing-card-catalog .card-catalog,
+  body.printing-card-catalog .card-catalog * { visibility: visible; }
 
-  .card-catalog {
+  body.printing-card-catalog .card-catalog {
     display: block;
     left: 0;
     margin: 0;
@@ -37,28 +35,31 @@
     width: 100%;
   }
 
-  .dnd-card-catalog__edition,
-  .card-catalog__header,
-  .card-catalog__sources,
-  .card-catalog__controls,
-  .card-catalog__family-counts,
-  .card-catalog__result,
-  .card-catalog__pagination,
-  .card-catalog__origin {
+  body.printing-card-catalog .dnd-card-catalog__edition,
+  body.printing-card-catalog .card-catalog__header,
+  body.printing-card-catalog .card-catalog__sources,
+  body.printing-card-catalog .card-catalog__controls,
+  body.printing-card-catalog .card-catalog__family-counts,
+  body.printing-card-catalog .card-catalog__result,
+  body.printing-card-catalog .card-catalog__pagination,
+  body.printing-card-catalog .card-catalog__origin,
+  body.printing-card-catalog .card-catalog__add {
     display: none !important;
   }
 
-  .card-catalog__grid {
+  body.printing-card-catalog .card-catalog__grid {
     display: grid !important;
     gap: 0.18in;
     grid-template-columns: repeat(3, var(--dm-card-print-width)) !important;
     justify-content: center;
   }
 
-  .card-catalog__item {
+  body.printing-card-catalog .card-catalog__item {
     break-inside: avoid;
     display: block;
     page-break-inside: avoid;
     width: var(--dm-card-print-width) !important;
   }
+
+  body.printing-playable-deck .card-catalog { display: none !important; }
 }

@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CardCatalog, CardCatalogFilters } from "../../types/cardCatalog";
+import type { CardDefinition } from "../../types/cardPlatform";
 import {
   cardCatalogFilterOptions,
   EMPTY_CARD_CATALOG_FILTERS,
   filterCardCatalogEntries,
   paginateCardCatalogEntries
 } from "../../utils/cardCatalogQuery";
-import { CardPlatformDefinitionCard } from "./CardPlatformDefinitionCard";
+import { printCardSurface } from "../../utils/printCardSurface";
 import { CardCatalogControls } from "./CardCatalogControls";
+import { CardCatalogItem } from "./CardCatalogItem";
 import { CardCatalogSourceSummary, type CardCatalogSourceAction } from "./CardCatalogSourceSummary";
 
 const systemLabel = (system: CardCatalog["gameSystemId"]): string => {
@@ -18,10 +20,14 @@ const systemLabel = (system: CardCatalog["gameSystemId"]): string => {
 
 export const CardCatalogWorkspace = ({
   catalog,
-  sourceActions
+  sourceActions,
+  activeDeckName,
+  onAddCard
 }: {
   catalog: CardCatalog;
   sourceActions: CardCatalogSourceAction[];
+  activeDeckName?: string;
+  onAddCard?(definition: CardDefinition): void;
 }) => {
   const [filters, setFilters] = useState<CardCatalogFilters>(EMPTY_CARD_CATALOG_FILTERS);
   const [page, setPage] = useState(1);
@@ -32,58 +38,21 @@ export const CardCatalogWorkspace = ({
   const options = useMemo(() => cardCatalogFilterOptions(catalog.entries), [catalog.entries]);
   const filtered = useMemo(() => filterCardCatalogEntries(catalog.entries, filters), [catalog.entries, filters]);
   const paginated = useMemo(() => paginateCardCatalogEntries(filtered, page), [filtered, page]);
-  const sourceLabels = useMemo(() => Object.fromEntries(
-    sourceActions.map((action) => [action.sourceId, action.label])
-  ), [sourceActions]);
-  const updateFilters = (next: CardCatalogFilters) => {
-    setFilters(next);
-    setPage(1);
-  };
+  const sourceLabels = useMemo(() => Object.fromEntries(sourceActions.map((action) => [action.sourceId, action.label])), [sourceActions]);
+  const updateFilters = (next: CardCatalogFilters) => { setFilters(next); setPage(1); };
   return (
     <section className="card-catalog" aria-labelledby="card-catalog-title">
       <header className="card-catalog__header">
-        <div>
-          <small>{systemLabel(catalog.gameSystemId)} · exact-system Card Platform v2</small>
-          <h1 id="card-catalog-title">Card Catalog</h1>
-          <p>Search built-in and private cards together without mixing editions or changing the universal card size.</p>
-        </div>
-        <button onClick={() => window.print()} type="button">Print current page</button>
+        <div><small>{systemLabel(catalog.gameSystemId)} · exact-system Card Platform v2</small><h1 id="card-catalog-title">Card Catalog</h1><p>Search built-in and private cards together, then add independent runtime copies to the active deck.</p></div>
+        <button onClick={() => printCardSurface("card-catalog")} type="button">Print current page</button>
       </header>
-
       <CardCatalogSourceSummary actions={sourceActions} catalog={catalog} />
-      <CardCatalogControls
-        families={options.families}
-        filters={filters}
-        onChange={updateFilters}
-        reviews={options.reviews}
-        sourceLabels={sourceLabels}
-        sources={options.sources}
-      />
-
-      <div className="card-catalog__family-counts" aria-label="Card counts by family">
-        {Object.entries(catalog.familyCounts).map(([family, count]) => (
-          <span key={family}>{family.replaceAll("-", " ")} <strong>{count}</strong></span>
-        ))}
-      </div>
-
-      <div className="card-catalog__result" aria-live="polite">
-        <span>Showing {paginated.entries.length} of {paginated.total} matching cards.</span>
-        <span>Page {paginated.page} of {paginated.pageCount}</span>
-      </div>
-
-      {paginated.entries.length === 0 ? (
-        <p className="card-catalog__empty">No cards match the current search and filters.</p>
-      ) : (
-        <div className="card-platform-grid card-catalog__grid">
-          {paginated.entries.map((entry) => (
-            <div className={`card-catalog__item${entry.privateImported ? " is-private-import" : ""}`} key={entry.definition.id}>
-              <div className="card-catalog__origin"><span>{entry.sourceLabel}</span>{entry.privateImported && <strong>Private import</strong>}</div>
-              <CardPlatformDefinitionCard card={entry.definition} />
-            </div>
-          ))}
-        </div>
+      <CardCatalogControls families={options.families} filters={filters} onChange={updateFilters} reviews={options.reviews} sourceLabels={sourceLabels} sources={options.sources} />
+      <div className="card-catalog__family-counts" aria-label="Card counts by family">{Object.entries(catalog.familyCounts).map(([family, count]) => <span key={family}>{family.replaceAll("-", " ")} <strong>{count}</strong></span>)}</div>
+      <div className="card-catalog__result" aria-live="polite"><span>Showing {paginated.entries.length} of {paginated.total} matching cards.</span><span>{activeDeckName ? `Active deck: ${activeDeckName}.` : "Create a playable deck to add cards."}</span><span>Page {paginated.page} of {paginated.pageCount}</span></div>
+      {paginated.entries.length === 0 ? <p className="card-catalog__empty">No cards match the current search and filters.</p> : (
+        <div className="card-platform-grid card-catalog__grid">{paginated.entries.map((entry) => <CardCatalogItem activeDeckName={activeDeckName} entry={entry} key={entry.definition.id} onAddCard={onAddCard} />)}</div>
       )}
-
       <nav className="card-catalog__pagination" aria-label="Catalog pages">
         <button disabled={paginated.page <= 1} onClick={() => setPage(1)} type="button">First</button>
         <button disabled={paginated.page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))} type="button">Previous</button>

@@ -7,6 +7,7 @@ const dnd = read("src/utils/dndCardCatalogSources.ts");
 const coc = read("src/utils/cocCardCatalogSources.ts");
 const query = read("src/utils/cardCatalogQuery.ts");
 const workspace = read("src/components/cardPlatform/CardCatalogWorkspace.tsx");
+const item = read("src/components/cardPlatform/CardCatalogItem.tsx");
 const styles = read("src/styles/card-catalog.css");
 const print = read("src/styles/card-catalog-responsive-print.css");
 
@@ -37,8 +38,10 @@ describe("unified exact-system Card Catalog architecture", () => {
 
   it("keeps controls and source metadata outside universal cards", () => {
     expect(workspace).toContain("<CardCatalogControls");
-    expect(workspace).toContain("card-catalog__origin");
-    expect(workspace).toContain("<CardPlatformDefinitionCard");
+    expect(workspace).toContain("<CardCatalogItem");
+    expect(item).toContain("card-catalog__origin");
+    expect(item).toContain("<CardPlatformDefinitionCard");
+    expect(item.indexOf("card-catalog__add")).toBeGreaterThan(item.indexOf("CardPlatformDefinitionCard"));
     expect(styles).not.toMatch(/250px|350px|2\.5in|3\.5in/);
   });
 

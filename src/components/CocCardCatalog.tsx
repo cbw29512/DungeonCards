@@ -1,8 +1,11 @@
 import { useMemo } from "react";
+import { useCardDeckLibrary } from "../hooks/useCardDeckLibrary";
 import type { CocAppPage } from "../integration/dmForgeRoute";
+import { getActiveCardDeckLibraryView } from "../utils/cardDeckLibraryView";
 import { buildCocCardCatalog } from "../utils/cocCardCatalogSources";
 import { loadCatalogPrivateLibrary } from "../utils/cardCatalogPrivateLibrary";
 import { CardCatalogWorkspace } from "./cardPlatform/CardCatalogWorkspace";
+import { PlayableDeckWorkspace } from "./cardPlatform/PlayableDeckWorkspace";
 
 export const CocCardCatalog = ({
   onNavigate
@@ -10,6 +13,8 @@ export const CocCardCatalog = ({
   onNavigate(page: CocAppPage): void;
 }) => {
   const loaded = useMemo(() => loadCatalogPrivateLibrary("coc-7e"), []);
+  const decks = useCardDeckLibrary("coc-7e");
+  const activeDeck = getActiveCardDeckLibraryView(decks.library)?.deck;
   const catalog = useMemo(() => {
     const built = buildCocCardCatalog(loaded.archive);
     return loaded.issue
@@ -23,5 +28,10 @@ export const CocCardCatalog = ({
     { sourceId: "coc-creatures" as const, label: "Creatures & NPCs", onOpen: () => onNavigate("creatures") },
     { sourceId: "private" as const, label: "Private Library", onOpen: () => onNavigate("library") }
   ];
-  return <CardCatalogWorkspace catalog={catalog} sourceActions={actions} />;
+  return (
+    <div className="coc-card-catalog-runtime">
+      <PlayableDeckWorkspace controller={decks} />
+      <CardCatalogWorkspace activeDeckName={activeDeck?.name} catalog={catalog} onAddCard={decks.addCard} sourceActions={actions} />
+    </div>
+  );
 };
