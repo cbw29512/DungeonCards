@@ -1,11 +1,10 @@
-import type { GameSystemId } from "../types/cardPlatform";
+import type { CardDefinition, GameSystemId } from "../types/cardPlatform";
 import type {
   CardPlatformExportEnvelope,
   CardRuntimeInstance,
   DeckDefinition,
   DeckRuntimeState
 } from "../types/cardPlatformRuntime";
-import type { CardDefinition } from "../types/cardPlatform";
 import {
   CARD_PLATFORM_ARCHIVE_FORMAT,
   CARD_PLATFORM_ARCHIVE_SCHEMA_VERSION,
@@ -37,6 +36,12 @@ const assertValidArchive = (archive: CardPlatformExportEnvelope): void => {
   if (issues.length > 0) throw new Error(`Card Platform archive is invalid: ${issues.join(" ")}`);
 };
 
+const validatedParsedValue = (value: unknown): CardPlatformExportEnvelope => {
+  if (!isArchiveEnvelopeShape(value)) throw new Error("Card Platform archive does not match schema version 2.");
+  assertValidArchive(value);
+  return value;
+};
+
 export const buildCardPlatformArchive = (
   input: CardPlatformArchiveInput
 ): CardPlatformExportEnvelope => {
@@ -62,6 +67,12 @@ export const serializeCardPlatformArchive = (
   if (new TextEncoder().encode(text).byteLength > MAX_CARD_PLATFORM_ARCHIVE_BYTES) {
     throw new Error("Card Platform archive exceeds the 5 MB export limit.");
   }
+  try {
+    validatedParsedValue(parseSafeArchiveJson(text));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown serialization error";
+    throw new Error(`Card Platform archive is not JSON-safe: ${message}`);
+  }
   return text;
 };
 
@@ -69,13 +80,11 @@ export const parseCardPlatformArchive = (
   text: string,
   expectedGameSystemId?: GameSystemId
 ): CardPlatformExportEnvelope => {
-  const value = parseSafeArchiveJson(text);
-  if (!isArchiveEnvelopeShape(value)) throw new Error("Card Platform archive does not match schema version 2.");
-  if (expectedGameSystemId && value.gameSystemId !== expectedGameSystemId) {
-    throw new Error(`Expected ${expectedGameSystemId} archive but received ${value.gameSystemId}.`);
+  const archive = validatedParsedValue(parseSafeArchiveJson(text));
+  if (expectedGameSystemId && archive.gameSystemId !== expectedGameSystemId) {
+    throw new Error(`Expected ${expectedGameSystemId} archive but received ${archive.gameSystemId}.`);
   }
-  assertValidArchive(value);
-  return canonical(value);
+  return canonical(archive);
 };
 
 const SAFE_OWNER_ID = /^[A-Za-z0-9._:@-]{1,200}$/;
