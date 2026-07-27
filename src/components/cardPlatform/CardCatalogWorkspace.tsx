@@ -7,6 +7,7 @@ import {
   filterCardCatalogEntries,
   paginateCardCatalogEntries
 } from "../../utils/cardCatalogQuery";
+import { printCardSurface } from "../../utils/printCardSurface";
 import { CardCatalogControls } from "./CardCatalogControls";
 import { CardCatalogItem } from "./CardCatalogItem";
 import { CardCatalogSourceSummary, type CardCatalogSourceAction } from "./CardCatalogSourceSummary";
@@ -43,7 +44,7 @@ export const CardCatalogWorkspace = ({
     <section className="card-catalog" aria-labelledby="card-catalog-title">
       <header className="card-catalog__header">
         <div><small>{systemLabel(catalog.gameSystemId)} · exact-system Card Platform v2</small><h1 id="card-catalog-title">Card Catalog</h1><p>Search built-in and private cards together, then add independent runtime copies to the active deck.</p></div>
-        <button onClick={() => window.print()} type="button">Print current page</button>
+        <button onClick={() => printCardSurface("card-catalog")} type="button">Print current page</button>
       </header>
       <CardCatalogSourceSummary actions={sourceActions} catalog={catalog} />
       <CardCatalogControls families={options.families} filters={filters} onChange={updateFilters} reviews={options.reviews} sourceLabels={sourceLabels} sources={options.sources} />
