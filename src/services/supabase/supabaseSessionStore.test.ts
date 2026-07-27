@@ -28,6 +28,16 @@ describe("Supabase Character Vault session storage", () => {
     expect(parseSupabaseImplicitSession("#rules", 1_000)).toBeNull();
   });
 
+  it("surfaces provider callback failures", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    expect(() => parseSupabaseImplicitSession(
+      "#error=access_denied&error_description=Google+sign-in+was+cancelled",
+      1_000
+    )).toThrow("callback could not be processed");
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
   it("round-trips a hydrated session", () => {
     const storage = memoryStorage();
     const session = {
