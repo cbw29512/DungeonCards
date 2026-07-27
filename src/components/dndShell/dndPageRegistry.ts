@@ -26,6 +26,25 @@ export const dndPageLabels: Record<DndAppPage, string> = {
   "monster-homebrew": "Monster Builder"
 };
 
+export const dndNavigationLabels: Record<DndAppPage, string> = {
+  home: "Home",
+  rules: "Rules Guide",
+  coverage: "Coverage",
+  conditions: "Conditions",
+  movement: "Movement",
+  health: "Health",
+  combat: "Combat",
+  pregens: "Pregens",
+  mastery: "Mastery",
+  armor: "Armor",
+  compendium: "Compendium",
+  player: "Player",
+  dm: "DM",
+  monster: "Encounter",
+  homebrew: "Card Builder",
+  "monster-homebrew": "Monster Builder"
+};
+
 export const dndNavigationPages: DndAppPage[] = [
   "home", "rules", "coverage", "conditions", "movement", "health", "combat",
   "pregens", "mastery", "armor", "compendium", "player", "dm", "monster",
