@@ -48,8 +48,10 @@ export const DndHomebrewWorkspace = ({
       {visibleCards.length > 0 ? (
         <DeckGrid
           cards={visibleCards}
+          deckId="homebrew"
           description={`These private cards belong only to the D&D ${editionLabel(ruleset)} library and retain the universal card size.`}
           eyebrow={`D&D ${editionLabel(ruleset)} Homebrew Deck`}
+          gameSystemId={gameSystemId}
           onDeleteCard={onDelete}
           title="Your custom cards are ready to roll."
         />
