@@ -1,8 +1,10 @@
 import type { DndOptimizedBuildProfile } from "../types/dndCharacterVault";
 import type { RulesetId } from "../types/ruleCards";
+import { dndVaultBarbarianProfiles } from "./dndVaultBarbarianProfiles";
 import { dndVaultFighterProfiles } from "./dndVaultFighterProfiles";
 
 export const dndVaultReadyBuilds: DndOptimizedBuildProfile[] = [
+  ...dndBarbarianProfiles,
   ...dndVaultFighterProfiles
 ];
 
