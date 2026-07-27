@@ -60,6 +60,7 @@ export type DeckRuntimeState = {
 };
 
 export type CardPlatformExportEnvelope = {
+  format: "dm-forge-card-platform";
   schemaVersion: 2;
   gameSystemId: GameSystemId;
   exportedAt: string;
