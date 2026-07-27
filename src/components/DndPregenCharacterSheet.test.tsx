@@ -12,13 +12,14 @@ describe("Character Vault sheet", () => {
     if (!fighter) throw new Error("Expected a released Fighter fixture.");
     const html = renderToStaticMarkup(<DndPregenCharacterSheet record={fighter} />);
 
-    for (const label of ["Actions", "Spells", "Features", "Inventory", "Notes", "Build Guide"]) {
+    for (const label of ["Actions", "Cards", "Spells", "Features", "Inventory", "Notes", "Build Guide"]) {
       expect(html).toContain(label);
     }
     expect(html).toContain("Sign in to save");
     expect(html).toContain("Print packet");
     expect(html).toContain("No spellcasting profile");
     expect(html).toContain("Build migration pending");
+    expect(html).toContain("Generated cards require a Vault Ready build profile");
   });
 
   it("renders spellcasting numbers, slots, cantrips, and prepared spells", () => {
@@ -33,7 +34,7 @@ describe("Character Vault sheet", () => {
     expect(html).toContain("Prepared spells");
   });
 
-  it("overlays current saved health, slots, resources, and notes on the print packet", () => {
+  it("overlays saved state and exposes its exact-edition generated card deck", () => {
     const profile = dndVaultReadyBuilds.find((entry) => (
       entry.ruleset === "srd-5.2.1-2024" && entry.classId === "cleric" && entry.level === 5
     ));
@@ -64,6 +65,9 @@ describe("Character Vault sheet", () => {
     expect(html).toContain("1 success · 2 failure");
     expect(html).toContain("Protect the lantern bearer.");
     expect(html).toContain("Save changes");
+    expect(html).toContain("Download card deck");
+    expect(html).toContain("card-platform-card");
+    expect(html).toContain("D&amp;D 2024 · Card Platform v2");
     if (firstResource) expect(html).toContain(`0 / ${firstResource.maximum}`);
     if (firstSlot) expect(html).toContain(`0 / ${profile.character.spellcasting.kind === "none" ? 0 : profile.character.spellcasting.slotsByLevel[Number(firstSlot) as keyof typeof profile.character.spellcasting.slotsByLevel]}`);
   });

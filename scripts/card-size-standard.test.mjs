@@ -7,6 +7,7 @@ const accessibility = read("src/styles/accessibility.css");
 const diceCards = read("src/styles/cards.css");
 const ruleCards = read("src/styles/rule-cards.css");
 const monsterCards = read("src/styles/monster-card-flip.css");
+const platformCards = read("src/styles/card-platform-card.css");
 const documentation = read("docs/CARD_SIZE_STANDARD.md");
 
 describe("DM Forge universal card size", () => {
@@ -31,7 +32,8 @@ describe("DM Forge universal card size", () => {
     ".rule-card",
     ".monster-card-flip",
     ".srd-reference-card",
-    ".coc-card"
+    ".coc-card",
+    ".card-platform-card"
   ])("covers the %s card family", (selector) => {
     expect(standard).toContain(selector);
   });
@@ -42,6 +44,7 @@ describe("DM Forge universal card size", () => {
     expect(diceCards).toContain("var(--dm-card-screen-width)");
     expect(ruleCards).toContain("var(--dm-card-screen-height)");
     expect(monsterCards).toContain("var(--dm-card-aspect-ratio)");
+    expect(platformCards).not.toMatch(/width:\s*\d+px|height:\s*\d+px/);
   });
 
   it("uses the shared print dimensions instead of a separate card size", () => {
