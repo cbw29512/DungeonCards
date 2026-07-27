@@ -13,11 +13,19 @@ const optionalString = (value: unknown): boolean => value === undefined || typeo
 const optionalNumber = (value: unknown): boolean => value === undefined || typeof value === "number";
 const system = (value: unknown): value is GameSystemId => typeof value === "string" && SYSTEMS.has(value as GameSystemId);
 
+const resourceCosts = (value: unknown): boolean => value === undefined || (
+  Array.isArray(value) && value.every((cost) => isPlainArchiveRecord(cost)
+    && typeof cost.resourceId === "string"
+    && typeof cost.amount === "number")
+);
+
 const action = (value: unknown): boolean => {
-  if (!isPlainArchiveRecord(value) || typeof value.id !== "string" || typeof value.label !== "string") return false;
+  if (!isPlainArchiveRecord(value) || typeof value.id !== "string" || typeof value.label !== "string" || !resourceCosts(value.resourceCosts)) return false;
   if (value.kind === "roll") return ["dice-formula", "d20", "percentile"].includes(String(value.rollSystem))
     && optionalString(value.formula) && optionalString(value.notes) && optionalNumber(value.criticalAt)
-    && optionalNumber(value.failureAt) && (value.allowsAdvantage === undefined || typeof value.allowsAdvantage === "boolean");
+    && optionalNumber(value.failureAt) && optionalNumber(value.percentileTarget)
+    && (value.percentileDifficulty === undefined || ["regular", "hard", "extreme"].includes(String(value.percentileDifficulty)))
+    && (value.allowsAdvantage === undefined || typeof value.allowsAdvantage === "boolean");
   if (value.kind === "procedure") return stringArray(value.steps);
   if (value.kind === "link") return stringArray(value.targetCardIds);
   return false;
