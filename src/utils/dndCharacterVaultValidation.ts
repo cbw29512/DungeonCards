@@ -2,6 +2,7 @@ import type {
   DndMagicItemRarity,
   DndOptimizedBuildProfile
 } from "../types/dndCharacterVault";
+import { validateDndCharacterRecord } from "./dndCharacterValidation";
 
 export type DndMagicItemBudget = Record<DndMagicItemRarity, number>;
 
@@ -43,6 +44,9 @@ export const validateDndOptimizedBuild = (profile: DndOptimizedBuildProfile): st
   const issues: string[] = [];
 
   try {
+    const characterValidation = validateDndCharacterRecord(profile.character);
+    issues.push(...characterValidation.issues.map((issue) => `Base character ${issue.category}: ${issue.message}`));
+
     if (profile.sheetVersion !== 2) issues.push("Character Vault records must use sheet version 2.");
     if (profile.buildSlotId !== expectedBuildSlotId(profile)) issues.push("Build slot identity does not match edition, class, subclass, and level.");
     if (profile.character.buildSlotId !== profile.buildSlotId) issues.push("Character record and optimized profile reference different build slots.");
