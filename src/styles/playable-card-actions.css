@@ -1,0 +1,101 @@
+.playable-card-actions {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 0.85rem;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  width: min(100%, 360px);
+}
+
+.playable-card-actions > header h3 {
+  margin: 0.15rem 0 0;
+}
+
+.playable-card-action {
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.65rem;
+}
+
+.playable-card-action > header {
+  align-items: start;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.playable-card-action > header > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.playable-card-action__cost {
+  background: rgba(180, 83, 9, 0.25);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 999px;
+  padding: 0.25rem 0.45rem;
+  text-align: right;
+}
+
+.playable-card-action__options {
+  align-items: end;
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.playable-card-action__options label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.playable-card-action__options input,
+.playable-card-action__options select {
+  min-width: 0;
+  width: 100%;
+}
+
+.playable-card-action__options code {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+
+.playable-card-action ol {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.playable-card-action li {
+  border-radius: 0.45rem;
+  padding: 0.35rem;
+}
+
+.playable-card-action li.is-current {
+  background: rgba(59, 130, 246, 0.2);
+  outline: 2px solid rgba(96, 165, 250, 0.55);
+}
+
+.playable-card-action__navigation {
+  align-items: center;
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.playable-card-action__result {
+  background: rgba(22, 101, 52, 0.24);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  border-radius: 0.65rem;
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.55rem;
+}
+
+.playable-card-runtime.is-active {
+  outline: 3px solid var(--focus-ring, #93c5fd);
+  outline-offset: 0.45rem;
+}
