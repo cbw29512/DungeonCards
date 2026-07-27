@@ -23,8 +23,8 @@ export const createCardRuntimeInstance = (
     id,
     definitionId: definition.id,
     gameSystemId: definition.gameSystemId,
-    ownerId: options.ownerId,
-    customName: options.customName,
+    ...(options.ownerId ? { ownerId: options.ownerId } : {}),
+    ...(options.customName ? { customName: options.customName } : {}),
     resourceState: Object.fromEntries(definition.resources.map((resource) => [
       resource.id,
       resource.initial
