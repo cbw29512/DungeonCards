@@ -2,13 +2,21 @@ import { describe, expect, it } from "vitest";
 import { isDndCharacterVaultReady } from "../utils/dndCharacterVaultValidation";
 import {
   countDndVaultReadyBuilds,
-  dndVaultReadyBuilds
+  dndVaultReadyBuilds,
+  getDndVaultReadyBuildById
 } from "./dndVaultReadyBuilds";
 
 describe("Character Vault Ready registry", () => {
   it("keeps profile and build-slot identities collision safe", () => {
     expect(new Set(dndVaultReadyBuilds.map((profile) => profile.id)).size).toBe(dndVaultReadyBuilds.length);
     expect(new Set(dndVaultReadyBuilds.map((profile) => profile.buildSlotId)).size).toBe(dndVaultReadyBuilds.length);
+  });
+
+  it("resolves every profile by immutable saved-build identity", () => {
+    for (const profile of dndVaultReadyBuilds) {
+      expect(getDndVaultReadyBuildById(profile.id)).toBe(profile);
+    }
+    expect(getDndVaultReadyBuildById("missing-profile")).toBeUndefined();
   });
 
   it("contains only verified profiles that pass the complete release gate", () => {
