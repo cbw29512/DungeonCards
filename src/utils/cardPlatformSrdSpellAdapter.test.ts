@@ -17,4 +17,10 @@ describe("SRD spell Card Platform adapter", () => {
       expect(validateCardDefinition(card)).toEqual([]);
     }
   });
+
+  it("derives concentration only from canonical duration text", () => {
+    const spell = srdSpells.find((candidate) => /\bconcentration\b/i.test(candidate.duration));
+    expect(spell).toBeDefined();
+    expect(adaptSrdSpell(spell!).content.tags).toContain("concentration");
+  });
 });
