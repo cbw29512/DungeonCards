@@ -1,4 +1,4 @@
-import type { CocReferenceItem } from "../components/cocShell/CocReferenceGrid";
+import type { CocReferenceItem } from "../types/cocShell";
 
 export const cocInvestigationRunSheet: CocReferenceItem[] = [
   {
