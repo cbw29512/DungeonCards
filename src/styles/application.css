@@ -5,6 +5,8 @@
 @import "./card-catalog-responsive-print.css";
 @import "./playable-deck-manager.css";
 @import "./playable-card-runtime.css";
+@import "./playable-card-actions.css";
+@import "./card-action-history.css";
 @import "./playable-deck-responsive-print.css";
 @import "./deck-actions.css";
 @import "./history.css";
