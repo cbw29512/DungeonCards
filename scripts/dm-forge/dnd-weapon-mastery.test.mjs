@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
-const [app, component, definitions, weaponCards, coverage, route, css] = await Promise.all([
-  readFile(new URL("../../src/App.tsx", import.meta.url), "utf8"),
+const [shellContent, registry, component, definitions, weaponCards, coverage, route, css] = await Promise.all([
+  readFile(new URL("../../src/components/dndShell/DndPageContent.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../../src/components/dndShell/dndPageRegistry.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/DndWeaponMasteryLibrary.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/weaponMastery2024.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/weaponRuleCards.ts", import.meta.url), "utf8"),
@@ -14,8 +15,8 @@ const [app, component, definitions, weaponCards, coverage, route, css] = await P
 describe("D&D 2024 Weapon Mastery product integration", () => {
   it("exposes a first-class direct workspace", () => {
     expect(route).toContain('| "mastery"');
-    expect(app).toContain("<DndWeaponMasteryLibrary");
-    expect(app).toContain("Weapon Mastery");
+    expect(shellContent).toContain("<DndWeaponMasteryLibrary");
+    expect(registry).toContain("Weapon Mastery");
   });
 
   it("keeps mastery explicitly 2024-only", () => {

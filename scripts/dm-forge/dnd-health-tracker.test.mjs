@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
-const [app, component, engine, sources, coverage, route, css] = await Promise.all([
-  readFile(new URL("../../src/App.tsx", import.meta.url), "utf8"),
+const [shellContent, registry, component, engine, sources, coverage, route, css] = await Promise.all([
+  readFile(new URL("../../src/components/dndShell/DndPageContent.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../../src/components/dndShell/dndPageRegistry.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/DndHealthTracker.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/utils/dndHealth.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/dndHealthRules.ts", import.meta.url), "utf8"),
@@ -14,8 +15,8 @@ const [app, component, engine, sources, coverage, route, css] = await Promise.al
 describe("D&D health and death tracker product integration", () => {
   it("exposes a direct, first-class health workspace", () => {
     expect(route).toContain('| "health"');
-    expect(app).toContain("<DndHealthTracker");
-    expect(app).toContain("HP &amp; Death Saves");
+    expect(shellContent).toContain("<DndHealthTracker");
+    expect(registry).toContain("HP & Death Saves");
     expect(component).toContain("Hit Points, Temporary HP &amp; Death Saves");
   });
 

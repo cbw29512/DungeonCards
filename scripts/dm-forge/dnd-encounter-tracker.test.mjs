@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
-const [app, component, engine, sources, coverage, route, css] = await Promise.all([
-  readFile(new URL("../../src/App.tsx", import.meta.url), "utf8"),
+const [shellContent, registry, component, engine, sources, coverage, route, css] = await Promise.all([
+  readFile(new URL("../../src/components/dndShell/DndPageContent.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../../src/components/dndShell/dndPageRegistry.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/DndEncounterTracker.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/utils/dndEncounter.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/dndEncounterRules.ts", import.meta.url), "utf8"),
@@ -14,8 +15,8 @@ const [app, component, engine, sources, coverage, route, css] = await Promise.al
 describe("D&D live encounter tracker integration", () => {
   it("exposes a direct first-class combat workspace", () => {
     expect(route).toContain('| "combat"');
-    expect(app).toContain("<DndEncounterTracker");
-    expect(app).toContain("Initiative &amp; Concentration");
+    expect(shellContent).toContain("<DndEncounterTracker");
+    expect(registry).toContain("Initiative & Concentration");
   });
 
   it("separates 2014 and 2024 surprise procedures", () => {

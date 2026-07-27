@@ -16,25 +16,29 @@ export type DndAppPage =
   | "homebrew"
   | "monster-homebrew";
 
+export type CocAppPage =
+  | "home"
+  | "investigator"
+  | "keeper"
+  | "rules"
+  | "equipment"
+  | "spells"
+  | "creatures"
+  | "encounters"
+  | "builders"
+  | "sources";
+
 export type DungeonCardsSystem = "dnd-5e" | "coc-7e";
 
 const DND_PAGES = new Set<DndAppPage>([
-  "home",
-  "rules",
-  "coverage",
-  "conditions",
-  "movement",
-  "health",
-  "combat",
-  "pregens",
-  "mastery",
-  "armor",
-  "compendium",
-  "player",
-  "dm",
-  "monster",
-  "homebrew",
-  "monster-homebrew"
+  "home", "rules", "coverage", "conditions", "movement", "health", "combat",
+  "pregens", "mastery", "armor", "compendium", "player", "dm", "monster",
+  "homebrew", "monster-homebrew"
+]);
+
+const COC_PAGES = new Set<CocAppPage>([
+  "home", "investigator", "keeper", "rules", "equipment", "spells",
+  "creatures", "encounters", "builders", "sources"
 ]);
 
 export const DM_FORGE_HOME = "https://cbw29512.github.io/monstercardforge/";
@@ -51,17 +55,28 @@ export function parseDndPage(search: string): DndAppPage {
   return value && DND_PAGES.has(value) ? value : "home";
 }
 
-export function dndRoute(page: DndAppPage): string {
-  const parameters = new URLSearchParams({ system: "dnd", page });
-  return `?${parameters.toString()}`;
+export function parseCocPage(search: string): CocAppPage {
+  const value = new URLSearchParams(search).get("page") as CocAppPage | null;
+  return value && COC_PAGES.has(value) ? value : "home";
 }
 
-export function replaceDndRoute(page: DndAppPage): void {
+const route = (system: "dnd" | "coc", page: string): string => {
+  const parameters = new URLSearchParams({ system, page });
+  return `?${parameters.toString()}`;
+};
+
+export const dndRoute = (page: DndAppPage): string => route("dnd", page);
+export const cocRoute = (page: CocAppPage): string => route("coc", page);
+
+const replaceRoute = (system: "dnd" | "coc", page: string): void => {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);
-  url.search = new URLSearchParams({ system: "dnd", page }).toString();
+  url.search = new URLSearchParams({ system, page }).toString();
   window.history.replaceState(null, "", url);
-}
+};
+
+export const replaceDndRoute = (page: DndAppPage): void => replaceRoute("dnd", page);
+export const replaceCocRoute = (page: CocAppPage): void => replaceRoute("coc", page);
 
 export function clearSystemRoute(): void {
   if (typeof window === "undefined") return;
