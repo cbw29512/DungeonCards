@@ -12,6 +12,7 @@ import { duplicatePlayableDeck } from "../utils/cardDeckLibraryDuplicate";
 import { buildPlayableDeckArchive } from "../utils/cardDeckLibraryExport";
 import { adjustPlayableCardResource, refreshPlayableDeckResources, resetPlayableCard, resetPlayableCardResource } from "../utils/cardDeckLibraryResources";
 import { createEmptyCardDeckLibrary, loadCardDeckLibrary, saveCardDeckLibrary } from "../utils/cardDeckLibraryStorage";
+import { useCardActionRuntime } from "./useCardActionRuntime";
 
 type State = { library: CardDeckLibraryEnvelope; issues: CardDeckLibraryIssue[]; error: string | null };
 
@@ -22,6 +23,11 @@ export const useCardDeckLibrary = (gameSystemId: GameSystemId) => {
     const loaded = loadCardDeckLibrary(window.localStorage, gameSystemId);
     setState({ ...loaded, error: null });
   }, [gameSystemId]);
+
+  const replaceLibrary = useCallback((library: CardDeckLibraryEnvelope) => {
+    setState({ library, issues: [], error: null });
+  }, []);
+  const actionRuntime = useCardActionRuntime(state.library, replaceLibrary);
 
   const commit = useCallback((
     mutate: (library: CardDeckLibraryEnvelope) => CardDeckLibraryEnvelope
@@ -72,6 +78,7 @@ export const useCardDeckLibrary = (gameSystemId: GameSystemId) => {
 
   return {
     ...state,
+    ...actionRuntime,
     createDeck,
     addCard,
     setActiveDeck: (deckId: string) => commit((library) => setActivePlayableDeck(library, deckId)),
