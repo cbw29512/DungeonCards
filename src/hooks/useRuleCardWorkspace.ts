@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import type { RuleCard } from "../types/ruleCards";
+import type { RuleCard, RulesetId } from "../types/ruleCards";
 import type {
   ResolvedRuleCardInstance,
+  RuleCardRulesetMap,
   RuleCardWorkspaceRole
 } from "../types/ruleCardWorkspaces";
 import type { WorkspaceMoveDirection } from "../types/workspaces";
 import {
   addRuleCardInstance,
+  changeRuleCardInstanceRuleset,
   createDefaultRuleCardWorkspace,
   createRuleCardWorkspaceRepository,
   moveRuleCardInstance,
@@ -18,15 +20,18 @@ import {
 } from "../utils/ruleCardWorkspaceStorage";
 
 const STARTER_CARD_COUNT = 6;
+const DEFAULT_RULESET: RulesetId = "srd-5.2.1-2024";
 
 export const useRuleCardWorkspace = (
   role: RuleCardWorkspaceRole,
   cards: RuleCard[]
 ) => {
-  const allowedCardIds = useMemo(() => cards.map((card) => card.id), [cards]);
+  const cardRulesets = useMemo<RuleCardRulesetMap>(() => Object.fromEntries(
+    cards.map((card) => [card.id, Object.keys(card.variants) as RulesetId[]])
+  ), [cards]);
   const defaultCardIds = useMemo(
-    () => allowedCardIds.slice(0, STARTER_CARD_COUNT),
-    [allowedCardIds]
+    () => cards.map((card) => card.id).slice(0, STARTER_CARD_COUNT),
+    [cards]
   );
   const repository = useMemo(
     () => createRuleCardWorkspaceRepository(window.localStorage),
@@ -35,13 +40,14 @@ export const useRuleCardWorkspace = (
   const [storageError, setStorageError] = useState<string>();
   const [workspace, setWorkspace] = useState(() => repository.load({
     role,
-    allowedCardIds,
-    defaultCardIds
+    cardRulesets,
+    defaultCardIds,
+    defaultRuleset: DEFAULT_RULESET
   }));
 
   useEffect(() => {
-    setWorkspace((current) => normalizeRuleCardWorkspace(current, allowedCardIds));
-  }, [allowedCardIds]);
+    setWorkspace((current) => normalizeRuleCardWorkspace(current, cardRulesets));
+  }, [cardRulesets]);
 
   useEffect(() => {
     try {
@@ -66,9 +72,11 @@ export const useRuleCardWorkspace = (
   const countCopies = (cardId: string) => workspace.instances.filter(
     (instance) => instance.cardId === cardId
   ).length;
-
-  const addCard = (cardId: string) => setWorkspace((current) =>
-    addRuleCardInstance(current, cardId)
+  const addCard = (cardId: string, ruleset: RulesetId) => setWorkspace((current) =>
+    addRuleCardInstance(current, cardId, ruleset)
+  );
+  const changeRuleset = (instanceId: string, ruleset: RulesetId) => setWorkspace((current) =>
+    changeRuleCardInstanceRuleset(current, instanceId, ruleset)
   );
   const removeCard = (instanceId: string) => setWorkspace((current) =>
     removeRuleCardInstance(current, instanceId)
@@ -83,7 +91,12 @@ export const useRuleCardWorkspace = (
     setWorkspace((current) => moveRuleCardInstance(current, instanceId, direction));
   const resetWorkspace = () => {
     repository.clear(role);
-    setWorkspace(createDefaultRuleCardWorkspace(role, defaultCardIds));
+    setWorkspace(createDefaultRuleCardWorkspace(
+      role,
+      defaultCardIds,
+      cardRulesets,
+      DEFAULT_RULESET
+    ));
   };
 
   return {
@@ -92,6 +105,7 @@ export const useRuleCardWorkspace = (
     storageError,
     countCopies,
     addCard,
+    changeRuleset,
     removeCard,
     renameCard,
     togglePin,
