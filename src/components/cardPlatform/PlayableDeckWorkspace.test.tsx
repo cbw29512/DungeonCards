@@ -61,7 +61,7 @@ describe("playable Card Platform deck workspace", () => {
     expect(html).toContain("Remove copy");
     expect(html).toContain("Executable actions");
     expect(html).toContain("Action History");
-    expect((html.match(/class="card-platform-card/g) ?? []).length).toBe(1);
+    expect((html.match(/class="card-platform-card"/g) ?? []).length).toBe(1);
     expect(html.indexOf("playable-card-runtime__controls")).toBeGreaterThan(html.indexOf("card-platform-card"));
     expect(html.indexOf("playable-card-actions")).toBeGreaterThan(html.indexOf("card-platform-card"));
     expect(html.indexOf("card-action-history")).toBeGreaterThan(html.indexOf("card-platform-card"));
