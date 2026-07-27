@@ -39,6 +39,11 @@ export const generateDndSpellCards = (
   return selected.map((entry, index) => {
     const record = findSpell(profile, entry.name);
     const level = record?.level ?? (entry.cantrip ? 0 : undefined);
+    const slotStep = entry.cantrip
+      ? "Cantrips do not spend spell slots."
+      : level && level > 0
+        ? `Spend one level ${level} spell slot unless another feature changes the cost.`
+        : "Spend the spell slot required by the exact-edition source.";
     return buildVaultCard(profile, {
       id: `spell:${index}-${safeVaultCardId(entry.name)}`,
       family: "spell",
@@ -59,7 +64,7 @@ export const generateDndSpellCards = (
         label: `Cast ${entry.name}`,
         steps: [
           record ? `Use ${record.castingTime}, range ${record.range}, and components ${record.components}.` : "Use the exact-edition source rules for this selected spell.",
-          level && level > 0 ? `Spend one level ${level} spell slot unless another feature changes the cost.` : "Cantrips do not spend spell slots.",
+          slotStep,
           record?.duration ? `Track duration: ${record.duration}.` : "Resolve and track the spell's duration."
         ]
       }],
@@ -75,7 +80,7 @@ export const generateDndSpellSlotCards = (
   if (casting.kind === "none") return [];
   return Object.entries(casting.slotsByLevel).flatMap(([levelText, maximum]) => {
     const level = Number(levelText);
-    if (!Number.isInteger(maximum) || !Number.isInteger(level) || maximum <= 0) return [];
+    if (typeof maximum !== "number" || !Number.isInteger(maximum) || !Number.isInteger(level) || maximum <= 0) return [];
     return [buildVaultCard(profile, {
       id: `spell-slot:${level}`,
       family: "character-action",
