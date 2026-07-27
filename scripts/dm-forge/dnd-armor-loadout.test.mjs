@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
-const [app, component, data, coverage, route, css] = await Promise.all([
-  readFile(new URL("../../src/App.tsx", import.meta.url), "utf8"),
+const [shellContent, registry, component, data, coverage, route, css] = await Promise.all([
+  readFile(new URL("../../src/components/dndShell/DndPageContent.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../../src/components/dndShell/dndPageRegistry.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/DndArmorLoadout.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/dndArmor.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/rulesCoverageDnd.ts", import.meta.url), "utf8"),
@@ -13,8 +14,8 @@ const [app, component, data, coverage, route, css] = await Promise.all([
 describe("D&D Armor and Loadout product integration", () => {
   it("exposes a first-class direct workspace", () => {
     expect(route).toContain('| "armor"');
-    expect(app).toContain("<DndArmorLoadout");
-    expect(app).toContain("Armor &amp; Loadout");
+    expect(shellContent).toContain("<DndArmorLoadout");
+    expect(registry).toContain("Armor & Loadout");
   });
 
   it("keeps edition selection and source links visible", () => {
