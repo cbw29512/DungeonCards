@@ -1,0 +1,111 @@
+.playable-deck-workspace {
+  display: grid;
+  gap: 1rem;
+}
+
+.playable-deck-manager,
+.playable-deck-table,
+.playable-deck-workspace__warning,
+.playable-deck-workspace__empty {
+  background: var(--surface-raised, rgba(12, 19, 32, 0.92));
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.28));
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.playable-deck-manager > header,
+.playable-deck-table > header {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.playable-deck-manager h2,
+.playable-deck-table h2 {
+  margin: 0.2rem 0;
+}
+
+.playable-deck-manager__create {
+  align-items: end;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(220px, 2fr) minmax(170px, 1fr) auto;
+  margin-top: 1rem;
+}
+
+.playable-deck-manager__create label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.playable-deck-manager__list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.playable-deck-manager__list article {
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.8rem;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: minmax(200px, 1fr) auto;
+  padding: 0.65rem;
+}
+
+.playable-deck-manager__list article.is-active {
+  border-color: var(--focus-ring, #93c5fd);
+  box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.2);
+}
+
+.playable-deck-manager__list article > button {
+  align-items: flex-start;
+  display: grid;
+  gap: 0.25rem;
+  text-align: left;
+}
+
+.playable-deck-manager__list article > div,
+.playable-deck-manager__refresh {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.playable-deck-manager__refresh {
+  align-items: center;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+}
+
+.playable-deck-manager__refresh strong {
+  margin-right: auto;
+}
+
+.playable-deck-workspace__warning {
+  border-color: rgba(251, 191, 36, 0.6);
+}
+
+.playable-deck-workspace__warning ul {
+  max-height: 12rem;
+  overflow: auto;
+}
+
+.playable-deck-table__missing {
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  border-radius: 0.75rem;
+  margin: 0.8rem 0;
+  padding: 0.75rem;
+}
+
+.playable-deck-table__grid {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(var(--dm-card-screen-width), 1fr));
+  justify-content: center;
+  margin-top: 1rem;
+}
