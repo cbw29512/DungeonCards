@@ -24,7 +24,7 @@ export const PrivateCardLibraryBrowser = ({
     [library.definitions]
   );
 
-  useEffect(() => setFilters(EMPTY_PRIVATE_LIBRARY_FILTERS), [library.gameSystemId]);
+  useEffect(() => setFilters(EMPTY_PRIVATE_LIBRARY_FILTERS), [library]);
 
   const patch = <K extends keyof PrivateLibraryCardFilters>(key: K, value: PrivateLibraryCardFilters[K]) => (
     setFilters((current) => ({ ...current, [key]: value }))
