@@ -10,10 +10,20 @@ const unique = (values: string[]): boolean => new Set(values).size === values.le
 const validAction = (action: CardActionDefinition): string[] => {
   const issues: string[] = [];
   if (!safeId.test(action.id) || !action.label.trim()) issues.push("Every card action needs a safe ID and label.");
+  if (action.resourceCosts) {
+    if (!unique(action.resourceCosts.map((cost) => cost.resourceId))) issues.push(`${action.label} has duplicate resource costs.`);
+    for (const cost of action.resourceCosts) {
+      if (!safeId.test(cost.resourceId)) issues.push(`${action.label} has an unsafe resource-cost ID.`);
+      if (!Number.isSafeInteger(cost.amount) || cost.amount <= 0 || cost.amount > 1_000_000) issues.push(`${action.label} has an invalid resource cost.`);
+    }
+  }
   if (action.kind === "roll") {
-    if (action.rollSystem === "dice-formula" && !action.formula?.trim()) issues.push(`${action.label} needs a dice formula.`);
-    if (action.criticalAt !== undefined && !Number.isInteger(action.criticalAt)) issues.push(`${action.label} has an invalid critical threshold.`);
-    if (action.failureAt !== undefined && !Number.isInteger(action.failureAt)) issues.push(`${action.label} has an invalid failure threshold.`);
+    if (["dice-formula", "d20"].includes(action.rollSystem) && !action.formula?.trim()) issues.push(`${action.label} needs a dice formula.`);
+    const maximumThreshold = action.rollSystem === "d20" ? 20 : 100;
+    if (action.criticalAt !== undefined && (!Number.isInteger(action.criticalAt) || action.criticalAt < 1 || action.criticalAt > maximumThreshold)) issues.push(`${action.label} has an invalid critical threshold.`);
+    if (action.failureAt !== undefined && (!Number.isInteger(action.failureAt) || action.failureAt < 1 || action.failureAt > maximumThreshold)) issues.push(`${action.label} has an invalid failure threshold.`);
+    if (action.percentileTarget !== undefined && (!Number.isInteger(action.percentileTarget) || action.percentileTarget < 1 || action.percentileTarget > 100)) issues.push(`${action.label} has an invalid percentile target.`);
+    if (action.rollSystem !== "percentile" && (action.percentileTarget !== undefined || action.percentileDifficulty !== undefined)) issues.push(`${action.label} has percentile settings on a non-percentile action.`);
   }
   if (action.kind === "procedure" && action.steps.length === 0) issues.push(`${action.label} needs at least one procedure step.`);
   if (action.kind === "link" && action.targetCardIds.length === 0) issues.push(`${action.label} needs at least one target card.`);
@@ -41,23 +51,21 @@ export const validateCardDefinition = (card: CardDefinition): string[] => {
     if (!unique(card.content.tags)) issues.push("Card tags must be unique.");
     if (!card.source.title.trim()) issues.push("Card source title is required.");
     if (card.source.url && !card.source.url.startsWith("https://")) issues.push("Card source URL must use HTTPS.");
-    if (["public", "player-safe"].includes(card.visibility) && !card.source.publicDistributionAllowed) {
-      issues.push("Public or player-safe cards require a distributable source.");
-    }
-    if (card.source.kind === "user-owned-private" && card.source.publicDistributionAllowed) {
-      issues.push("User-owned private sources cannot be marked distributable.");
-    }
+    if (["public", "player-safe"].includes(card.visibility) && !card.source.publicDistributionAllowed) issues.push("Public or player-safe cards require a distributable source.");
+    if (card.source.kind === "user-owned-private" && card.source.publicDistributionAllowed) issues.push("User-owned private sources cannot be marked distributable.");
     if (card.review.status === "verified" && !card.review.reviewedAt) issues.push("Verified cards require a review date.");
     if (card.review.reviewedAt && Number.isNaN(Date.parse(card.review.reviewedAt))) issues.push("Card review date is invalid.");
     if (!unique(card.actions.map((action) => action.id))) issues.push("Card action IDs must be unique.");
     if (!unique(card.resources.map((resource) => resource.id))) issues.push("Card resource IDs must be unique.");
     if (!unique(card.linkedCardIds)) issues.push("Linked card IDs must be unique.");
     if (card.linkedCardIds.includes(card.id)) issues.push("A card cannot link to itself.");
-    for (const action of card.actions) issues.push(...validAction(action));
-    for (const resource of card.resources) issues.push(...validResource(resource));
-    if (card.print.format !== "workspace-panel" && card.print.sizeId !== "poker-2.5x3.5") {
-      issues.push("Standard cards and folio panels must use the universal poker-card size.");
+    const resourceIds = new Set(card.resources.map((resource) => resource.id));
+    for (const action of card.actions) {
+      issues.push(...validAction(action));
+      action.resourceCosts?.filter((cost) => !resourceIds.has(cost.resourceId)).forEach((cost) => issues.push(`${action.label} references unknown resource ${cost.resourceId}.`));
     }
+    for (const resource of card.resources) issues.push(...validResource(resource));
+    if (card.print.format !== "workspace-panel" && card.print.sizeId !== "poker-2.5x3.5") issues.push("Standard cards and folio panels must use the universal poker-card size.");
   } catch (error) {
     console.error("Unexpected Card Platform definition validation failure", { cardId: card.id, error });
     issues.push("Card definition validation failed unexpectedly.");
