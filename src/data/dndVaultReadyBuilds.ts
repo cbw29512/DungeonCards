@@ -6,7 +6,7 @@ import { dndVaultFighterProfiles } from "./dndVaultFighterProfiles";
 
 export const dndVaultReadyBuilds: DndOptimizedBuildProfile[] = [
   ...dndVaultBarbarianProfiles,
-  ...dndClericProfiles,
+  ...dndVaultClericProfiles,
   ...dndVaultFighterProfiles
 ];
 
