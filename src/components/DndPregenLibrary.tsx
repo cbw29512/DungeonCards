@@ -138,7 +138,7 @@ export const DndPregenLibrary = () => {
       )}
 
       {selectedRecord && readiness?.ready && (
-        <DndPregenCharacterSheet record={selectedRecord} build={selectedVaultBuild} />
+        <DndPregenCharacterSheet record={selectedRecord} profile={selectedVaultBuild} />
       )}
 
       <div className="pregen-library__columns">
