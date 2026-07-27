@@ -55,10 +55,17 @@ export const removeCardFromPlayableDeck = (
   instanceId: string,
   now = new Date().toISOString()
 ): CardDeckLibraryEnvelope => {
-  const { state } = deckParts(library, deckId);
+  const { deck, state } = deckParts(library, deckId);
+  const removed = library.instances.find((instance) => instance.id === instanceId);
+  const remainingIds = state.cardInstanceIds.filter((id) => id !== instanceId);
+  const instancesById = new Map(library.instances.map((instance) => [instance.id, instance]));
+  const remainingDefinitionIds = new Set(remainingIds.flatMap((id) => {
+    const instance = instancesById.get(id);
+    return instance ? [instance.definitionId] : [];
+  }));
   const remainingStates = library.deckStates.map((candidate) => candidate.id === state.id ? {
     ...candidate,
-    cardInstanceIds: candidate.cardInstanceIds.filter((id) => id !== instanceId),
+    cardInstanceIds: remainingIds,
     activeCardInstanceId: candidate.activeCardInstanceId === instanceId ? undefined : candidate.activeCardInstanceId,
     updatedAt: now
   } : candidate);
@@ -67,6 +74,12 @@ export const removeCardFromPlayableDeck = (
     ...library,
     updatedAt: now,
     instances: library.instances.filter((instance) => instance.id !== instanceId || referenced.has(instance.id)),
+    decks: library.decks.map((candidate) => candidate.id === deck.id ? {
+      ...candidate,
+      cardDefinitionIds: removed && !remainingDefinitionIds.has(removed.definitionId)
+        ? candidate.cardDefinitionIds.filter((id) => id !== removed.definitionId)
+        : candidate.cardDefinitionIds
+    } : candidate),
     deckStates: remainingStates
   };
   assertValidCardDeckLibrary(next);
