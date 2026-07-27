@@ -1,15 +1,12 @@
 import { useCallback, useState } from "react";
-import { getDndVaultReadyBuildById } from "../data/dndVaultReadyBuilds";
 import type { DndVaultSession } from "../services/dndCharacterVaultGateway";
 import type {
   DndOptimizedBuildProfile,
   DndSavedCharacterState
 } from "../types/dndCharacterVault";
-import {
-  createDndSavedCharacterState,
-  validateDndSavedCharacterState
-} from "../utils/dndSavedCharacterState";
 import { useDndCharacterVaultSession } from "./useDndCharacterVaultSession";
+import { useDndSavedCharacterActions } from "./useDndSavedCharacterActions";
+import { useDndVaultAuthActions } from "./useDndVaultAuthActions";
 
 export type DndCharacterVaultState = {
   configured: boolean;
@@ -64,73 +61,25 @@ export const useDndCharacterVault = (): DndCharacterVaultState => {
     }
   }, []);
 
-  const signInWithMagicLink = useCallback(async (email: string) => run(async () => {
-    if (!services) throw new Error("Account services are not configured.");
-    await services.auth.signInWithMagicLink(email);
-    setFeedback("Check your email for the secure Character Vault sign-in link.");
-  }), [run, services]);
-
-  const signInWithGoogle = useCallback(async () => run(async () => {
-    if (!services) throw new Error("Account services are not configured.");
-    await services.auth.signInWithGoogle();
-  }), [run, services]);
-
-  const signOut = useCallback(async () => run(async () => {
-    if (!services) return;
-    await services.auth.signOut();
-    setSession(null);
-    setSavedCharacters([]);
-    setActiveCharacter(null);
-    setFeedback("Signed out of Character Vault.");
-  }), [run, services, setActiveCharacter, setSavedCharacters, setSession]);
-
-  const saveProfile = useCallback(async (profile: DndOptimizedBuildProfile) => run(async () => {
-    if (!services || !session) throw new Error("Sign in before saving a character.");
-    const state = createDndSavedCharacterState(profile, session.user.id, crypto.randomUUID());
-    const issues = validateDndSavedCharacterState(state, profile);
-    if (issues.length) throw new Error(`Character save failed validation: ${issues.join(" ")}`);
-    const created = await services.repository.create(state);
-    setSavedCharacters((current) => [created, ...current]);
-    setActiveCharacter(created);
-    setFeedback(`${created.displayName} was saved and opened in Play Mode.`);
-  }), [run, services, session, setActiveCharacter, setSavedCharacters]);
-
-  const openCharacter = useCallback((character: DndSavedCharacterState) => {
-    setOperationError("");
-    setFeedback(`${character.displayName} opened in Play Mode.`);
-    setActiveCharacter(character);
-  }, [setActiveCharacter]);
-
-  const closeCharacter = useCallback(() => setActiveCharacter(null), [setActiveCharacter]);
-
-  const updateCharacter = useCallback(async (character: DndSavedCharacterState) => run(async () => {
-    if (!services || !session) throw new Error("Sign in before saving changes.");
-    if (character.ownerId !== session.user.id) throw new Error("This saved character belongs to another account.");
-    const profile = getDndVaultReadyBuildById(character.baseBuildId);
-    if (!profile) throw new Error("The optimized build for this saved character is unavailable.");
-    const issues = validateDndSavedCharacterState(character, profile);
-    if (issues.length) throw new Error(`Saved character failed validation: ${issues.join(" ")}`);
-    const updated = await services.repository.update(character);
-    setSavedCharacters((current) => current.map((entry) => entry.id === updated.id ? updated : entry));
-    setActiveCharacter(updated);
-    setFeedback(`${updated.displayName} was updated.`);
-  }), [run, services, session, setActiveCharacter, setSavedCharacters]);
-
-  const archiveCharacter = useCallback(async (character: DndSavedCharacterState) => run(async () => {
-    if (!services) throw new Error("Account services are not configured.");
-    const updated = await services.repository.update({ ...character, isArchived: true, updatedAt: new Date().toISOString() });
-    setSavedCharacters((current) => current.filter((entry) => entry.id !== updated.id));
-    if (activeCharacter?.id === updated.id) setActiveCharacter(null);
-    setFeedback(`${updated.displayName} was archived.`);
-  }), [activeCharacter, run, services, setActiveCharacter, setSavedCharacters]);
-
-  const deleteCharacter = useCallback(async (character: DndSavedCharacterState) => run(async () => {
-    if (!services) throw new Error("Account services are not configured.");
-    await services.repository.remove(character.ownerId, character.id);
-    setSavedCharacters((current) => current.filter((entry) => entry.id !== character.id));
-    if (activeCharacter?.id === character.id) setActiveCharacter(null);
-    setFeedback(`${character.displayName} was deleted.`);
-  }), [activeCharacter, run, services, setActiveCharacter, setSavedCharacters]);
+  const authActions = useDndVaultAuthActions({
+    services,
+    session,
+    run,
+    setSession,
+    setSavedCharacters,
+    setActiveCharacter,
+    setFeedback
+  });
+  const savedActions = useDndSavedCharacterActions({
+    services,
+    session,
+    activeCharacter,
+    run,
+    setSavedCharacters,
+    setActiveCharacter,
+    setFeedback,
+    setOperationError
+  });
 
   return {
     configured: Boolean(services),
@@ -140,14 +89,7 @@ export const useDndCharacterVault = (): DndCharacterVaultState => {
     busy: initializing || operationBusy,
     feedback,
     error: operationError || initializationError,
-    signInWithMagicLink,
-    signInWithGoogle,
-    signOut,
-    saveProfile,
-    openCharacter,
-    closeCharacter,
-    updateCharacter,
-    archiveCharacter,
-    deleteCharacter
+    ...authActions,
+    ...savedActions
   };
 };
