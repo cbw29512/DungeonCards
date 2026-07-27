@@ -6,7 +6,10 @@ import { DndVaultInventory } from "./dndCharacterVault/DndVaultInventory";
 import { DndVaultSpells } from "./dndCharacterVault/DndVaultSpells";
 import { DndVaultSummary } from "./dndCharacterVault/DndVaultSummary";
 import type { DndCharacterRecord } from "../types/dndCharacter";
-import type { DndOptimizedBuildProfile } from "../types/dndCharacterVault";
+import type {
+  DndOptimizedBuildProfile,
+  DndSavedCharacterState
+} from "../types/dndCharacterVault";
 import { isDndCharacterVaultReady } from "../utils/dndCharacterVaultValidation";
 
 type VaultTabId = "actions" | "spells" | "features" | "inventory" | "notes" | "build";
@@ -20,20 +23,27 @@ const tabs: Array<{ id: VaultTabId; label: string }> = [
   { id: "build", label: "Build Guide" }
 ];
 
+type Props = {
+  record: DndCharacterRecord;
+  profile?: DndOptimizedBuildProfile;
+  savedState?: DndSavedCharacterState;
+  signedIn?: boolean;
+  saveLabel?: string;
+  onSave?: () => void;
+};
+
 export const DndPregenCharacterSheet = ({
   record,
   profile,
+  savedState,
   signedIn = false,
+  saveLabel = "Save character",
   onSave
-}: {
-  record: DndCharacterRecord;
-  profile?: DndOptimizedBuildProfile;
-  signedIn?: boolean;
-  onSave?: () => void;
-}) => {
+}: Props) => {
   const [activeTab, setActiveTab] = useState<VaultTabId>("actions");
   const vaultReady = profile ? isDndCharacterVaultReady(profile) : false;
   const panelClass = (tab: VaultTabId): string => `character-vault__panel${activeTab === tab ? " is-active" : ""}`;
+  const displayName = savedState?.displayName ?? record.name;
 
   const moveTab = (direction: number) => {
     const current = tabs.findIndex((tab) => tab.id === activeTab);
@@ -44,20 +54,20 @@ export const DndPregenCharacterSheet = ({
   return (
     <article className="character-vault" aria-labelledby={`character-vault-${record.id}`}>
       <header className="character-vault__header">
-        <div className="character-vault__portrait" aria-hidden="true"><span>{record.name.slice(0, 1).toUpperCase()}</span></div>
+        <div className="character-vault__portrait" aria-hidden="true"><span>{displayName.slice(0, 1).toUpperCase()}</span></div>
         <div className="character-vault__identity">
-          <p>{record.ruleset === "srd-5.1-2014" ? "2014 / SRD 5.1" : "2024 / SRD 5.2.1"} · {vaultReady ? "Vault Ready" : "Ready to play"}</p>
-          <h3 id={`character-vault-${record.id}`}>{record.name}</h3>
+          <p>{record.ruleset === "srd-5.1-2014" ? "2014 / SRD 5.1" : "2024 / SRD 5.2.1"} · {savedState ? "Saved Play Mode" : vaultReady ? "Vault Ready" : "Ready to play"}</p>
+          <h3 id={`character-vault-${record.id}`}>{displayName}</h3>
           <span>Level {record.level} {record.species} {record.className} · {record.subclassName}</span>
           <small>{record.background}</small>
         </div>
         <div className="character-vault__header-actions">
-          <button disabled={!signedIn || !onSave} onClick={onSave} type="button">{signedIn ? "Save character" : "Sign in to save"}</button>
+          <button disabled={!signedIn || !onSave} onClick={onSave} type="button">{signedIn ? saveLabel : "Sign in to save"}</button>
           <button onClick={() => window.print()} type="button">Print packet</button>
         </div>
       </header>
 
-      <DndVaultSummary record={record} />
+      <DndVaultSummary record={record} savedState={savedState} />
 
       <nav className="character-vault__tabs" aria-label="Character sheet sections" role="tablist">
         {tabs.map((tab) => (
@@ -82,12 +92,16 @@ export const DndPregenCharacterSheet = ({
         ))}
       </nav>
 
-      <section aria-hidden={activeTab !== "actions"} aria-labelledby="vault-tab-actions" className={panelClass("actions")} id="vault-panel-actions" role="tabpanel"><DndVaultActions record={record} /></section>
-      <section aria-hidden={activeTab !== "spells"} aria-labelledby="vault-tab-spells" className={panelClass("spells")} id="vault-panel-spells" role="tabpanel"><DndVaultSpells record={record} /></section>
+      <section aria-hidden={activeTab !== "actions"} aria-labelledby="vault-tab-actions" className={panelClass("actions")} id="vault-panel-actions" role="tabpanel"><DndVaultActions record={record} savedState={savedState} /></section>
+      <section aria-hidden={activeTab !== "spells"} aria-labelledby="vault-tab-spells" className={panelClass("spells")} id="vault-panel-spells" role="tabpanel"><DndVaultSpells record={record} savedState={savedState} /></section>
       <section aria-hidden={activeTab !== "features"} aria-labelledby="vault-tab-features" className={panelClass("features")} id="vault-panel-features" role="tabpanel"><DndVaultFeatures record={record} /></section>
-      <section aria-hidden={activeTab !== "inventory"} aria-labelledby="vault-tab-inventory" className={panelClass("inventory")} id="vault-panel-inventory" role="tabpanel"><DndVaultInventory profile={profile} record={record} /></section>
+      <section aria-hidden={activeTab !== "inventory"} aria-labelledby="vault-tab-inventory" className={panelClass("inventory")} id="vault-panel-inventory" role="tabpanel"><DndVaultInventory profile={profile} record={record} savedState={savedState} /></section>
       <section aria-hidden={activeTab !== "notes"} aria-labelledby="vault-tab-notes" className={panelClass("notes")} id="vault-panel-notes" role="tabpanel">
-        <section className="character-vault__card"><h4>Quick-play notes</h4><ul>{record.notes.map((note) => <li key={note}>{note}</li>)}</ul></section>
+        <section className="character-vault__card">
+          <h4>Quick-play notes</h4>
+          <ul>{record.notes.map((note) => <li key={note}>{note}</li>)}</ul>
+          {savedState?.customNotes && <><h4>Custom play notes</h4><p>{savedState.customNotes}</p></>}
+        </section>
       </section>
       <section aria-hidden={activeTab !== "build"} aria-labelledby="vault-tab-build" className={panelClass("build")} id="vault-panel-build" role="tabpanel"><DndVaultBuildGuide profile={profile} record={record} /></section>
 
