@@ -20,81 +20,102 @@ class MemoryStorage implements Storage {
   setItem(key: string, value: string) { this.values.set(key, value); }
 }
 
-describe("workspace storage", () => {
-  it("keeps Player, DM, and Monster workspaces isolated", () => {
+const load = (
+  role: "player" | "dm" | "monster",
+  gameSystemId: "dnd-2014" | "dnd-2024" | "coc-7e",
+  allowedCardIds: string[],
+  defaultCardIds: string[] = []
+) => ({ role, gameSystemId, allowedCardIds, defaultCardIds });
+
+const create = (
+  role: "player" | "dm" | "monster",
+  system: "dnd-2014" | "dnd-2024" | "coc-7e",
+  ids: string[]
+) => createDefaultWorkspace(role, system, ids);
+
+describe("exact-system workspace storage", () => {
+  it("keeps roles and game systems isolated", () => {
     const storage = new MemoryStorage();
     const repository = createLocalWorkspaceRepository(storage);
-    const player = addWorkspaceCard(createDefaultWorkspace("player", ["sword"]), "fireball");
-    const dm = addWorkspaceCard(createDefaultWorkspace("dm", ["pit"]), "wand");
-    const monster = addWorkspaceCard(createDefaultWorkspace("monster", ["goblin"]), "lich");
+    repository.save(addWorkspaceCard(create("monster", "dnd-2014", ["goblin-2014"]), "lich-2014"));
+    repository.save(addWorkspaceCard(create("monster", "dnd-2024", ["goblin-2024"]), "lich-2024"));
+    repository.save(addWorkspaceCard(create("dm", "coc-7e", ["sanity"]), "chase"));
 
-    repository.save(player);
-    repository.save(dm);
-    repository.save(monster);
-
-    expect(repository.load({ role: "player", allowedCardIds: ["sword", "fireball"], defaultCardIds: [] }).activeCardIds)
-      .toEqual(["sword", "fireball"]);
-    expect(repository.load({ role: "dm", allowedCardIds: ["pit", "wand"], defaultCardIds: [] }).activeCardIds)
-      .toEqual(["pit", "wand"]);
-    expect(repository.load({ role: "monster", allowedCardIds: ["goblin", "lich"], defaultCardIds: [] }).activeCardIds)
-      .toEqual(["goblin", "lich"]);
+    expect(repository.load(load("monster", "dnd-2014", ["goblin-2014", "lich-2014"])).activeCardIds)
+      .toEqual(["goblin-2014", "lich-2014"]);
+    expect(repository.load(load("monster", "dnd-2024", ["goblin-2024", "lich-2024"])).activeCardIds)
+      .toEqual(["goblin-2024", "lich-2024"]);
+    expect(repository.load(load("dm", "coc-7e", ["sanity", "chase"])).activeCardIds)
+      .toEqual(["sanity", "chase"]);
   });
 
-  it("adds and removes cards without changing the catalog", () => {
+  it("adds, removes, pins, and orders without changing the catalog", () => {
     const catalog = [{ id: "a" }, { id: "b" }, { id: "c" }];
-    const initial = createDefaultWorkspace("player", ["a"]);
+    const initial = create("player", "dnd-2024", ["a"]);
     const added = addWorkspaceCard(initial, "b");
-    const removed = removeWorkspaceCard(added, "a");
-
+    const pinned = toggleWorkspacePin(added, "b");
+    const removed = removeWorkspaceCard(pinned, "a");
     expect(added.activeCardIds).toEqual(["a", "b"]);
+    expect(orderWorkspaceCards(catalog, pinned).map((card) => card.id)).toEqual(["b", "a"]);
     expect(removed.activeCardIds).toEqual(["b"]);
     expect(catalog.map((card) => card.id)).toEqual(["a", "b", "c"]);
   });
 
-  it("pins cards and orders pinned cards first", () => {
-    const cards = [{ id: "a" }, { id: "b" }, { id: "c" }];
-    const workspace = toggleWorkspacePin(createDefaultWorkspace("dm", ["a", "b", "c"]), "c");
-
-    expect(orderWorkspaceCards(cards, workspace).map((card) => card.id)).toEqual(["c", "a", "b"]);
-  });
-
-  it("moves a card only within its pinned or unpinned group", () => {
-    let workspace = createDefaultWorkspace("player", ["a", "b", "c", "d"]);
+  it("moves cards only within pinned or unpinned groups", () => {
+    let workspace = create("monster", "dnd-2014", ["a", "b", "c", "d"]);
     workspace = toggleWorkspacePin(workspace, "a");
     workspace = toggleWorkspacePin(workspace, "c");
     workspace = moveWorkspaceCard(workspace, "c", "earlier");
-
     expect(workspace.cardOrder).toEqual(["c", "b", "a", "d"]);
-    expect(orderWorkspaceCards(
-      [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }],
-      workspace
-    ).map((card) => card.id)).toEqual(["c", "a", "b", "d"]);
   });
 
-  it("normalizes unknown, duplicate, and removed card IDs", () => {
+  it("normalizes unknown IDs and rejects another game system", () => {
     const workspace = {
-      ...createDefaultWorkspace("player", []),
+      ...create("monster", "dnd-2014", []),
       activeCardIds: ["a", "a", "missing", "b"],
       pinnedCardIds: ["missing", "b", "b"],
       cardOrder: ["missing", "b"]
     };
-
-    expect(normalizeWorkspace(workspace, ["a", "b"])).toMatchObject({
-      activeCardIds: ["a", "b"],
-      pinnedCardIds: ["b"],
-      cardOrder: ["b", "a"]
+    expect(normalizeWorkspace(workspace, "dnd-2014", ["a", "b"])).toMatchObject({
+      activeCardIds: ["a", "b"], pinnedCardIds: ["b"], cardOrder: ["b", "a"]
+    });
+    expect(normalizeWorkspace(workspace, "dnd-2024", ["a", "b"])).toMatchObject({
+      gameSystemId: "dnd-2024", activeCardIds: []
     });
   });
 
-  it("falls back safely when saved workspace data is malformed", () => {
+  it("migrates a mixed v1 workspace through the selected system catalog", () => {
     const storage = new MemoryStorage();
-    storage.setItem("dungeon-cards-workspace-v1-player", "not-json");
+    storage.setItem("dungeon-cards-workspace-v1-monster", JSON.stringify({
+      activeCardIds: ["goblin-2014", "goblin-2024", "homebrew-wolf"],
+      pinnedCardIds: ["goblin-2014", "goblin-2024"],
+      cardOrder: ["goblin-2024", "homebrew-wolf", "goblin-2014"]
+    }));
     const repository = createLocalWorkspaceRepository(storage);
+    const migrated = repository.load(load(
+      "monster",
+      "dnd-2014",
+      ["goblin-2014", "homebrew-wolf"]
+    ));
+    expect(migrated).toMatchObject({
+      schemaVersion: 2,
+      gameSystemId: "dnd-2014",
+      activeCardIds: ["goblin-2014", "homebrew-wolf"],
+      pinnedCardIds: ["goblin-2014"],
+      cardOrder: ["homebrew-wolf", "goblin-2014"]
+    });
+  });
 
-    expect(repository.load({
-      role: "player",
-      allowedCardIds: ["starter"],
-      defaultCardIds: ["starter"]
-    }).activeCardIds).toEqual(["starter"]);
+  it("falls back safely and clears only one exact workspace key", () => {
+    const storage = new MemoryStorage();
+    storage.setItem("dungeon-cards-workspace-v2-monster-dnd-2014", "not-json");
+    const repository = createLocalWorkspaceRepository(storage);
+    expect(repository.load(load("monster", "dnd-2014", ["starter"], ["starter"])).activeCardIds)
+      .toEqual(["starter"]);
+    repository.save(create("monster", "dnd-2014", ["a"]));
+    repository.save(create("monster", "dnd-2024", ["b"]));
+    repository.clear("monster", "dnd-2014");
+    expect(storage.getItem("dungeon-cards-workspace-v2-monster-dnd-2014")).toBeNull();
+    expect(storage.getItem("dungeon-cards-workspace-v2-monster-dnd-2024")).not.toBeNull();
   });
 });
