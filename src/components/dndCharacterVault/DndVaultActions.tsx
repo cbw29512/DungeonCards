@@ -1,4 +1,5 @@
 import type { DndCharacterRecord } from "../../types/dndCharacter";
+import type { DndSavedCharacterState } from "../../types/dndCharacterVault";
 import {
   dndAttackBonus,
   dndAbilityModifier
@@ -9,7 +10,13 @@ const resourceMarks = (maximum: number | "unlimited"): string => (
   maximum === "unlimited" ? "Unlimited" : Array.from({ length: maximum }, () => "○").join(" ")
 );
 
-export const DndVaultActions = ({ record }: { record: DndCharacterRecord }) => (
+export const DndVaultActions = ({
+  record,
+  savedState
+}: {
+  record: DndCharacterRecord;
+  savedState?: DndSavedCharacterState;
+}) => (
   <div className="character-vault__panel-grid">
     <section className="character-vault__card">
       <h4>Attacks &amp; actions</h4>
@@ -31,12 +38,18 @@ export const DndVaultActions = ({ record }: { record: DndCharacterRecord }) => (
       <h4>Trackable resources</h4>
       <div className="character-vault__resource-list">
         {record.resources.length === 0 && <p>No limited-use class resources at this level.</p>}
-        {record.resources.map((resource) => (
-          <article key={resource.id}>
-            <header><strong>{resource.name}</strong><span>{resourceMarks(resource.maximum)}</span></header>
-            <small>{resource.refresh === "none" ? "No refresh required" : `Refresh: ${resource.refresh.replace("-", " ")}`}{resource.notes ? ` · ${resource.notes}` : ""}</small>
-          </article>
-        ))}
+        {record.resources.map((resource) => {
+          const remaining = savedState?.resourceState[resource.id];
+          const status = resource.maximum === "unlimited"
+            ? "Unlimited"
+            : remaining === undefined ? resourceMarks(resource.maximum) : `${remaining} / ${resource.maximum}`;
+          return (
+            <article key={resource.id}>
+              <header><strong>{resource.name}</strong><span>{status}</span></header>
+              <small>{resource.refresh === "none" ? "No refresh required" : `Refresh: ${resource.refresh.replace("-", " ")}`}{resource.notes ? ` · ${resource.notes}` : ""}</small>
+            </article>
+          );
+        })}
       </div>
     </section>
 
