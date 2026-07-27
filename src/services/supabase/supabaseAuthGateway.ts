@@ -2,46 +2,24 @@ import type {
   DndCharacterVaultAuthGateway,
   DndVaultSession
 } from "../dndCharacterVaultGateway";
+import {
+  createBrowserDndVaultAuthRuntime,
+  type DndVaultAuthRuntime
+} from "./supabaseBrowserRuntime";
 import { SupabaseAuthTransport } from "./supabaseAuthTransport";
 import type { DndVaultSupabaseConfig } from "./supabaseConfig";
 import {
   clearSupabaseStoredSession,
-  DND_VAULT_SESSION_KEY,
   parseSupabaseImplicitSession,
   readSupabaseStoredSession,
-  type DndVaultStorage,
   type SupabaseStoredSession,
   writeSupabaseStoredSession
 } from "./supabaseSessionStore";
-
-export type DndVaultAuthRuntime = {
-  fetcher: typeof fetch;
-  storage: DndVaultStorage;
-  now: () => number;
-  getHash: () => string;
-  clearHash: () => void;
-  navigate: (url: string) => void;
-  subscribeStorage?: (listener: () => void) => () => void;
-};
 
 export type DndVaultAuthenticatedClient = DndCharacterVaultAuthGateway & {
   getAccessToken(): Promise<string>;
   getCurrentUserId(): Promise<string>;
 };
-
-const browserRuntime = (): DndVaultAuthRuntime => ({
-  fetcher: window.fetch.bind(window),
-  storage: window.localStorage,
-  now: () => Date.now(),
-  getHash: () => window.location.hash,
-  clearHash: () => window.history.replaceState(null, document.title, `${window.location.pathname}${window.location.search}`),
-  navigate: (url) => window.location.assign(url),
-  subscribeStorage: (listener) => {
-    const handler = (event: StorageEvent) => { if (event.key === DND_VAULT_SESSION_KEY) listener(); };
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
-  }
-});
 
 export class SupabaseDndVaultAuthGateway implements DndVaultAuthenticatedClient {
   private readonly listeners = new Set<(session: DndVaultSession | null) => void>();
@@ -50,7 +28,7 @@ export class SupabaseDndVaultAuthGateway implements DndVaultAuthenticatedClient 
 
   constructor(
     config: DndVaultSupabaseConfig,
-    private readonly runtime: DndVaultAuthRuntime = browserRuntime()
+    private readonly runtime: DndVaultAuthRuntime = createBrowserDndVaultAuthRuntime()
   ) {
     this.transport = new SupabaseAuthTransport(config, runtime.fetcher);
     runtime.subscribeStorage?.(() => this.emit(this.toPublic(readSupabaseStoredSession(runtime.storage))));
