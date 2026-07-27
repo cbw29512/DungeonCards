@@ -1,10 +1,11 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+import type { CardDeckLibraryController } from "../../hooks/useCardDeckLibrary";
 import { privateArchiveCard } from "../../utils/cardPlatformArchiveFixtures";
 import { addCardToPlayableDeck } from "../../utils/cardDeckLibraryCards";
 import { createPlayableDeck } from "../../utils/cardDeckLibraryDecks";
 import { createEmptyCardDeckLibrary } from "../../utils/cardDeckLibraryStorage";
-import { PlayableDeckWorkspace, type CardDeckLibraryController } from "./PlayableDeckWorkspace";
+import { PlayableDeckWorkspace } from "./PlayableDeckWorkspace";
 
 const controller = (): CardDeckLibraryController => {
   const created = createPlayableDeck(createEmptyCardDeckLibrary("dnd-2024"), {
