@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { isDndCharacterVaultReady } from "../utils/dndCharacterVaultValidation";
 import {
   countDndVaultReadyBuilds,
-  dndVaultReadyBuilds
+  dndVaultReadyBuilds,
+  getDndVaultReadyBuildById
 } from "./dndVaultReadyBuilds";
 
 describe("Character Vault Ready registry", () => {
@@ -24,5 +25,12 @@ describe("Character Vault Ready registry", () => {
         dndVaultReadyBuilds.filter((profile) => profile.ruleset === ruleset).length
       );
     }
+  });
+
+  it("reopens every saved build by its immutable profile ID", () => {
+    for (const profile of dndVaultReadyBuilds) {
+      expect(getDndVaultReadyBuildById(profile.id)).toBe(profile);
+    }
+    expect(getDndVaultReadyBuildById("missing-build")).toBeUndefined();
   });
 });
