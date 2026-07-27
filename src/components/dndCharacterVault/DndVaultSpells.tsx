@@ -1,12 +1,20 @@
 import type { DndCharacterRecord } from "../../types/dndCharacter";
+import type { DndSavedCharacterState } from "../../types/dndCharacterVault";
 import {
   dndSpellAttackBonus,
   dndSpellSaveDc
 } from "../../utils/dndCharacterRecord";
 
 const signed = (value: number): string => `${value >= 0 ? "+" : ""}${value}`;
+type SpellLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
-export const DndVaultSpells = ({ record }: { record: DndCharacterRecord }) => {
+export const DndVaultSpells = ({
+  record,
+  savedState
+}: {
+  record: DndCharacterRecord;
+  savedState?: DndSavedCharacterState;
+}) => {
   if (record.spellcasting.kind === "none") {
     return (
       <section className="character-vault__card character-vault__empty-panel">
@@ -35,9 +43,16 @@ export const DndVaultSpells = ({ record }: { record: DndCharacterRecord }) => {
       <section className="character-vault__card">
         <h4>Spell slots</h4>
         <div className="character-vault__slot-grid">
-          {Object.entries(record.spellcasting.slotsByLevel).map(([level, slots]) => (
-            <article key={level}><span>Level {level}</span><strong>{Array.from({ length: slots ?? 0 }, () => "○").join(" ")}</strong></article>
-          ))}
+          {Object.entries(record.spellcasting.slotsByLevel).map(([level, slots]) => {
+            const spellLevel = Number(level) as SpellLevel;
+            const remaining = savedState?.spellSlotState[spellLevel] ?? slots ?? 0;
+            return (
+              <article key={level}>
+                <span>Level {level}</span>
+                <strong>{remaining} / {slots ?? 0}</strong>
+              </article>
+            );
+          })}
         </div>
       </section>
 
