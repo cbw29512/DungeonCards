@@ -20,7 +20,7 @@ describe("DM Forge route contract", () => {
   });
 
   it("opens edition-separated D&D workspaces directly", () => {
-    for (const page of ["conditions", "movement", "health", "combat", "pregens", "mastery", "armor"] as const) {
+    for (const page of ["conditions", "movement", "health", "combat", "pregens", "mastery", "armor", "library"] as const) {
       expect(parseSystem(`?system=dnd&page=${page}`)).toBe("dnd-5e");
       expect(parseDndPage(`?system=dnd&page=${page}`)).toBe(page);
       expect(dndRoute(page)).toBe(`?system=dnd&page=${page}`);
@@ -30,7 +30,7 @@ describe("DM Forge route contract", () => {
   it("opens every independent Call of Cthulhu shell area directly", () => {
     for (const page of [
       "investigator", "keeper", "rules", "equipment", "spells",
-      "creatures", "encounters", "builders", "sources"
+      "creatures", "encounters", "library", "builders", "sources"
     ] as const) {
       expect(parseSystem(`?system=coc&page=${page}`)).toBe("coc-7e");
       expect(parseCocPage(`?system=coc&page=${page}`)).toBe(page);
@@ -51,7 +51,7 @@ describe("DM Forge route contract", () => {
   });
 
   it("generates encoded, deterministic links", () => {
-    expect(dndRoute("monster-homebrew")).toBe("?system=dnd&page=monster-homebrew");
-    expect(cocRoute("builders")).toBe("?system=coc&page=builders");
+    expect(dndRoute("library")).toBe("?system=dnd&page=library");
+    expect(cocRoute("library")).toBe("?system=coc&page=library");
   });
 });
