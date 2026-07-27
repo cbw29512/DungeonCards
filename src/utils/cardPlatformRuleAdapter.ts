@@ -2,19 +2,15 @@ import type {
   CardActionDefinition,
   CardRollActionDefinition
 } from "../types/cardPlatformActions";
-import type {
-  CardDefinition,
-  GameSystemId
-} from "../types/cardPlatform";
+import type { CardDefinition } from "../types/cardPlatform";
 import type {
   RuleCard,
   RuleRollMode,
   RulesetId
 } from "../types/ruleCards";
+import { gameSystemIdForRuleset } from "./cardPlatformGameSystem";
 
-export const gameSystemIdForRuleset = (ruleset: RulesetId): GameSystemId => (
-  ruleset === "srd-5.1-2014" ? "dnd-2014" : "dnd-2024"
-);
+export { gameSystemIdForRuleset } from "./cardPlatformGameSystem";
 
 const actionForMode = (
   mode: RuleRollMode,
