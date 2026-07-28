@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 const route = read("src/integration/dmForgeRoute.ts");
 const dnd = read("src/utils/dndCardCatalogSources.ts");
+const conditionAdapter = read("src/utils/cardPlatformDndConditionAdapter.ts");
+const dndCatalog = read("src/components/DndCardCatalog.tsx");
 const coc = read("src/utils/cocCardCatalogSources.ts");
 const query = read("src/utils/cardCatalogQuery.ts");
 const workspace = read("src/components/cardPlatform/CardCatalogWorkspace.tsx");
@@ -19,7 +21,7 @@ describe("unified exact-system Card Catalog architecture", () => {
   });
 
   it("assembles every required source through Card Platform validation", () => {
-    for (const token of ["ruleCardCatalog", "srdSpells", "encounterMonsterCatalog", "generateDndVaultCardLibrary", "homebrewCards", "homebrewMonsters", "privateLibrary.definitions"]) {
+    for (const token of ["ruleCardCatalog", "getDndConditions", "adaptDndCondition", "srdSpells", "encounterMonsterCatalog", "generateDndVaultCardLibrary", "homebrewCards", "homebrewMonsters", "privateLibrary.definitions"]) {
       expect(dnd).toContain(token);
     }
     for (const token of ["cocQuickReferenceCards", "cocPreviewWeapon", "cocPreviewSpell", "cocPreviewCreature", "privateLibrary.definitions"]) {
@@ -27,6 +29,16 @@ describe("unified exact-system Card Catalog architecture", () => {
     }
     expect(dnd).toContain("buildCardCatalog");
     expect(coc).toContain("buildCardCatalog");
+  });
+
+  it("keeps D&D condition cards exact-edition, procedural, and universally printable", () => {
+    expect(conditionAdapter).toContain("gameSystemIdForRuleset(condition.edition)");
+    expect(conditionAdapter).toContain('family: "condition"');
+    expect(conditionAdapter).toContain('kind: "procedure"');
+    expect(conditionAdapter).toContain("steps: [...condition.effects]");
+    expect(conditionAdapter).toContain('sizeId: "poker-2.5x3.5"');
+    expect(dndCatalog).toContain('sourceId: "conditions"');
+    expect(dndCatalog).toContain('onNavigate("conditions")');
   });
 
   it("keeps the DOM pagination boundary at 36 cards", () => {
