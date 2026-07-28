@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
 import {
   DM_FORGE_ENCOUNTER_HANDOFF_KEY,
+  DM_FORGE_ENCOUNTER_HANDOFF_MAX_COMBATANTS,
   DM_FORGE_ENCOUNTER_HANDOFF_VERSION,
   buildDmForgeEncounterHandoff
 } from "./dmForgeEncounterHandoff";
@@ -67,6 +68,24 @@ describe("DM Forge encounter handoff", () => {
       { sourceRecordId: "srd51-goblin", name: "Goblin", ruleset: "2014", quantity: 3 },
       { sourceRecordId: "srd51-ogre", name: "Ogre", ruleset: "2014", quantity: 1 }
     ]);
+  });
+
+  it("rejects empty encounters instead of producing an undefined ruleset payload", () => {
+    installWindow();
+    expect(() => buildDmForgeEncounterHandoff([])).toThrow(/at least one monster/i);
+  });
+
+  it("rejects encounters above the transfer limit instead of silently truncating combatants", () => {
+    installWindow();
+    const entries = Array.from({ length: DM_FORGE_ENCOUNTER_HANDOFF_MAX_COMBATANTS + 1 }, (_, index) => (
+      entry({ id: `srd51-goblin-${index}`, name: `Goblin ${index + 1}` })
+    ));
+    expect(() => buildDmForgeEncounterHandoff(entries)).toThrow(/up to 100 combatants/i);
+  });
+
+  it("rejects records without stable source identity", () => {
+    installWindow();
+    expect(() => buildDmForgeEncounterHandoff([entry({ id: "", name: "" })])).toThrow(/stable source id and display name/i);
   });
 
   it("rejects mixed-edition encounters before encounter math is selected", () => {
