@@ -31,7 +31,6 @@ export type DndPageContentProps = {
   onCreateMonster(draft: MonsterCardData): boolean;
   onDeleteCard(cardId: string): boolean;
   onDeleteMonster(monsterId: string): boolean;
-  onNavigate(page: DndAppPage): void;
 };
 
 export const DndPageContent = (props: DndPageContentProps) => {
@@ -47,7 +46,7 @@ export const DndPageContent = (props: DndPageContentProps) => {
   if (activePage === "mastery") return <DndWeaponMasteryLibrary />;
   if (activePage === "armor") return <DndArmorLoadout />;
   if (activePage === "compendium") return <SrdCompendium />;
-  if (activePage === "catalog") return <DndCardCatalog homebrewCards={props.homebrewCards} homebrewMonsters={props.homebrewMonsters} onNavigate={props.onNavigate} />;
+  if (activePage === "catalog") return <DndCardCatalog homebrewCards={props.homebrewCards} homebrewMonsters={props.homebrewMonsters} />;
   if (activePage === "library") return <DndPrivateCardLibrary />;
 
   if (activePage === "player") {
