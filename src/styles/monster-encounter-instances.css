@@ -121,22 +121,18 @@
 }
 
 .monster-instance-controls__vitals {
-  grid-template-columns: minmax(90px, 0.55fr) minmax(115px, 0.75fr) minmax(0, 1fr);
+  grid-template-columns: repeat(3, minmax(90px, 1fr));
   align-items: end;
 }
 
 .monster-instance-controls__vitals label {
-  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-}
-
-.monster-instance-controls__vitals label > span {
-  grid-column: 1 / -1;
 }
 
 .monster-instance-controls__hp-buttons {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
 }
 
@@ -185,7 +181,8 @@
   .monster-instance-controls__identity,
   .monster-instance-controls__vitals,
   .monster-instance-controls__conditions,
-  .monster-instance-controls__economy {
+  .monster-instance-controls__economy,
+  .monster-instance-controls__hp-buttons {
     grid-template-columns: 1fr;
   }
 
@@ -193,6 +190,7 @@
     display: grid;
   }
 
+  .monster-instance-controls__hp-buttons,
   .monster-instance-controls__condition-list,
   .monster-instance-controls__economy > small {
     grid-column: auto;
