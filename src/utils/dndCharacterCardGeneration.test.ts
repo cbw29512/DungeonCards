@@ -5,7 +5,7 @@ import { generateDndCharacterCardBundle } from "./dndCharacterCardGeneration";
 
 describe("Character Vault Card Platform generation", () => {
   it("generates a valid exact-edition deck for every Vault Ready build", () => {
-    expect(dndVaultReadyBuilds).toHaveLength(160);
+    expect(dndVaultReadyBuilds).toHaveLength(200);
     const allIds: string[] = [];
     let generatedCount = 0;
     for (const profile of dndVaultReadyBuilds) {

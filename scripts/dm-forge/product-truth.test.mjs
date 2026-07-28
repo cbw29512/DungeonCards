@@ -11,9 +11,10 @@ describe("DM Forge product-truth source contracts", () => {
   it("documents the current Character Vault and Card Platform baseline", () => {
     expect(readme).toContain("## Current Card Platform v2");
     expect(readme).toContain("**480 planned builds**");
-    expect(readme).toContain("**160 verified printable builds**");
-    expect(readme).toContain("remaining **320 builds**");
+    expect(readme).toContain("**200 verified printable builds**");
+    expect(readme).toContain("remaining **280 builds**");
     expect(readme).toContain("- Rogue / Thief");
+    expect(readme).toContain("- Wizard / Evocation");
     expect(readme).not.toContain("Saved Character Play Mode remains an active milestone");
     expect(readme).not.toContain("The shared card domain is being upgraded");
   });
