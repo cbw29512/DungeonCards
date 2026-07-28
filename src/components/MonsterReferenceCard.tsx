@@ -18,12 +18,14 @@ type MonsterReferenceCardProps = {
   monster: MonsterCardData;
   onDelete?: () => boolean;
   workspaceControls: WorkspaceCardControls;
+  workspaceLabel?: string;
 };
 
 export const MonsterReferenceCard = ({
   monster,
   onDelete,
-  workspaceControls
+  workspaceControls,
+  workspaceLabel
 }: MonsterReferenceCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
@@ -74,10 +76,10 @@ export const MonsterReferenceCard = ({
             type={monster.type}
           />
         )}
-        monsterName={monster.name}
+        monsterName={workspaceLabel ?? monster.name}
       />
       <RuleCardWorkspaceActions
-        cardName={monster.name}
+        cardName={workspaceLabel ?? monster.name}
         collectionLabel="My Encounter"
         controls={workspaceControls}
       />
