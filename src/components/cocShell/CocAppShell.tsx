@@ -42,7 +42,7 @@ export const CocAppShell = ({ onChangeSystem }: Props) => {
         open={navigationOpen}
       />
       <main id="coc-main-content" tabIndex={-1}>
-        <CocPageContent activePage={activePage} />
+        <CocPageContent activePage={activePage} onNavigate={navigate} />
         <footer className="coc-footer">
           <strong>Unofficial independent tabletop toolkit.</strong>
           <span>Call of Cthulhu is a trademark of Chaosium Inc. DM Forge provides original public-safe game content and concise source-audited procedures; protected official catalogs, scenarios, logos, artwork, and sourcebook prose are not reproduced.</span>
