@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cocCreatureCatalog } from "../data/cocCreatureCatalog";
+import { cocWeaponCatalog } from "../data/cocWeaponCatalog";
 import { dndConditions2014 } from "../data/dndConditions2014";
 import { dndConditions2024 } from "../data/dndConditions2024";
 import { createEmptyPrivateCardLibrary } from "./privateCardLibraryStorage";
@@ -33,10 +34,10 @@ describe("unified exact-system Card Catalog sources", () => {
 
   it("assembles verified and original CoC 7e sources without crossing systems", () => {
     const catalog = buildCocCardCatalog(createEmptyPrivateCardLibrary("coc-7e"));
-    expect(catalog.entries).toHaveLength(11 + cocCreatureCatalog.length);
+    expect(catalog.entries).toHaveLength(10 + cocCreatureCatalog.length + cocWeaponCatalog.length);
     expect(catalog.entries.every((entry) => entry.definition.gameSystemId === "coc-7e")).toBe(true);
     expect(catalog.sourceCounts["coc-procedures"]).toBe(9);
-    expect(catalog.sourceCounts["coc-equipment"]).toBe(1);
+    expect(catalog.sourceCounts["coc-equipment"]).toBe(cocWeaponCatalog.length);
     expect(catalog.sourceCounts["coc-rituals"]).toBe(1);
     expect(catalog.sourceCounts["coc-creatures"]).toBe(cocCreatureCatalog.length);
     expect(catalog.issues).toHaveLength(0);
