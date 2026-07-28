@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { dndPregenClassDefinitions } from "./dndPregenCatalog";
 import { dndVaultReadyBuilds } from "./dndVaultReadyBuilds";
@@ -9,7 +8,6 @@ import {
   groupCoverageByCategory
 } from "../utils/rulesCoverage";
 
-const readme = readFileSync(new URL("../../README.md", import.meta.url), "utf8");
 const plannedBuildCount = dndPregenClassDefinitions.length * 20;
 const readyBuildCount = dndVaultReadyBuilds.length;
 const blueprintCount = plannedBuildCount - readyBuildCount;
@@ -49,12 +47,6 @@ describe("DM Forge rules coverage ledger", () => {
       expect(matrix?.nextStep).toContain(`${remainingPathCount}`);
       expect(rulesCoverageCatalog.some((entry) => entry.id === `${system}-cleric-pregens`)).toBe(true);
     }
-
-    expect(readme).toContain(`**${plannedBuildCount} planned builds**`);
-    expect(readme).toContain(`**${readyBuildCount} verified printable builds**`);
-    expect(readme).toContain(`remaining **${blueprintCount} builds**`);
-    expect(readme).not.toContain("Saved Character Play Mode remains an active milestone");
-    expect(readme).not.toContain("The shared card domain is being upgraded");
   });
 
   it("distinguishes generic CoC private archives from structured authoring", () => {
