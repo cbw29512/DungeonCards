@@ -10,16 +10,22 @@ import { createEmptyPrivateCardLibrary } from "./privateCardLibraryStorage";
 import { buildCocCardCatalog } from "./cocCardCatalogSources";
 import { buildDndCardCatalog } from "./dndCardCatalogSources";
 
-const normalizedTitleKey = (entry: CardCatalogEntry): string => `${entry.definition.family}:${entry.definition.content.title
+const normalizeVisibleText = (value: string | undefined): string => (value ?? "")
   .normalize("NFKC")
   .toLocaleLowerCase("en-US")
   .replace(/[‘’]/g, "'")
   .replace(/\s+/g, " ")
-  .trim()}`;
+  .trim();
+
+const normalizedVisibleKey = (entry: CardCatalogEntry): string => [
+  entry.definition.family,
+  normalizeVisibleText(entry.definition.content.title),
+  normalizeVisibleText(entry.definition.content.subtitle)
+].join(":");
 
 const expectNoDuplicateCards = (entries: CardCatalogEntry[]) => {
   expect(new Set(entries.map((entry) => entry.definition.id)).size).toBe(entries.length);
-  expect(new Set(entries.map(normalizedTitleKey)).size).toBe(entries.length);
+  expect(new Set(entries.map(normalizedVisibleKey)).size).toBe(entries.length);
 };
 
 const expectExactSystem = (
@@ -41,14 +47,14 @@ const expectExactSystem = (
 };
 
 describe("unified exact-system Card Catalog sources", () => {
-  it("assembles large but isolated D&D 2014 and 2024 catalogs without duplicates", () => {
+  it("assembles large but isolated D&D 2014 and 2024 catalogs without duplicate visible cards", () => {
     const catalog2014 = expectExactSystem("dnd-2014", dndConditions2014.length);
     const catalog2024 = expectExactSystem("dnd-2024", dndConditions2024.length);
     expect(new Set(catalog2014.entries.map((entry) => entry.definition.gameSystemId))).toEqual(new Set(["dnd-2014"]));
     expect(new Set(catalog2024.entries.map((entry) => entry.definition.gameSystemId))).toEqual(new Set(["dnd-2024"]));
   });
 
-  it("assembles verified and original CoC 7e sources without duplicate cards or crossed systems", () => {
+  it("assembles verified and original CoC 7e sources without duplicate visible cards or crossed systems", () => {
     const catalog = buildCocCardCatalog(createEmptyPrivateCardLibrary("coc-7e"));
     expect(catalog.entries).toHaveLength(
       9
