@@ -12,7 +12,11 @@ import { gameSystemIdForRuleset } from "../utils/cardPlatformGameSystem";
 import {
   filterMonsterWorkspaceEntries,
   monstersForEncounterRuleset,
-  monsterTypesForWorkspace
+  monsterSizesForWorkspace,
+  monsterTypesForWorkspace,
+  type MonsterFeatureFilter,
+  type MonsterWorkspaceFilterOptions,
+  type MonsterWorkspaceSort
 } from "../utils/monsterWorkspaceCatalog";
 import { MonsterDeckCards } from "./MonsterDeckCards";
 import { MonsterDeckFilters } from "./MonsterDeckFilters";
@@ -37,6 +41,11 @@ export const MonsterDeck = ({
   const [query, setQuery] = useState("");
   const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
   const [type, setType] = useState("all");
+  const [size, setSize] = useState("all");
+  const [feature, setFeature] = useState<MonsterFeatureFilter>("all");
+  const [minimumChallenge, setMinimumChallenge] = useState<number | null>(null);
+  const [maximumChallenge, setMaximumChallenge] = useState<number | null>(null);
+  const [sort, setSort] = useState<MonsterWorkspaceSort>("name-asc");
   const [handoffError, setHandoffError] = useState<string | null>(null);
   const allMonsters = useMemo(() => [
     ...encounterMonsterCatalog,
@@ -54,23 +63,58 @@ export const MonsterDeck = ({
     () => monsterTypesForWorkspace(compatibleMonsters),
     [compatibleMonsters]
   );
+  const sizes = useMemo(
+    () => monsterSizesForWorkspace(compatibleMonsters),
+    [compatibleMonsters]
+  );
+  const filterOptions = useMemo<MonsterWorkspaceFilterOptions>(() => ({
+    size,
+    feature,
+    minimumChallenge,
+    maximumChallenge,
+    sort
+  }), [feature, maximumChallenge, minimumChallenge, size, sort]);
   const filteredLibraryEntries = useMemo(
-    () => filterMonsterWorkspaceEntries(compatibleMonsters, query, type),
-    [compatibleMonsters, query, type]
+    () => filterMonsterWorkspaceEntries(compatibleMonsters, query, type, filterOptions),
+    [compatibleMonsters, filterOptions, query, type]
   );
   const matchingMonsterIds = useMemo(() => new Set(
-    filterMonsterWorkspaceEntries(compatibleMonsters, query, type).map((entry) => entry.id)
-  ), [compatibleMonsters, query, type]);
+    filterMonsterWorkspaceEntries(compatibleMonsters, query, type, {
+      ...filterOptions,
+      sort: "name-asc"
+    }).map((entry) => entry.id)
+  ), [compatibleMonsters, filterOptions, query, type]);
   const filteredInstances = useMemo(
     () => workspace.activeInstances.filter((instance) => matchingMonsterIds.has(instance.monsterId)),
     [matchingMonsterIds, workspace.activeInstances]
   );
   const filteredCount = view === "library" ? filteredLibraryEntries.length : filteredInstances.length;
 
+  const clearFilters = () => {
+    setQuery("");
+    setType("all");
+    setSize("all");
+    setFeature("all");
+    setMinimumChallenge(null);
+    setMaximumChallenge(null);
+    setSort("name-asc");
+  };
   const changeRuleset = (nextRuleset: RulesetId) => {
     setRuleset(nextRuleset);
-    setType("all");
+    clearFilters();
     setHandoffError(null);
+  };
+  const changeMinimumChallenge = (value: number | null) => {
+    setMinimumChallenge(value);
+    if (value !== null && maximumChallenge !== null && value > maximumChallenge) {
+      setMaximumChallenge(value);
+    }
+  };
+  const changeMaximumChallenge = (value: number | null) => {
+    setMaximumChallenge(value);
+    if (value !== null && minimumChallenge !== null && value < minimumChallenge) {
+      setMinimumChallenge(value);
+    }
   };
   const sendToDmForge = () => {
     setHandoffError(null);
@@ -89,7 +133,7 @@ export const MonsterDeck = ({
         <span>
           Add as many copies as the encounter needs. Goblin 1 and Goblin 2 keep separate names,
           HP, initiative, conditions, reactions, recharge state, and legendary-action budgets.
-          Each edition keeps its own saved encounter, and 2014 and 2024 monsters never silently mix.
+          Use the filters to find the right threat by exact edition, CR, size, capability, or source text.
         </span>
         <WorkspaceToolbar
           activeCount={workspace.activeInstances.length}
@@ -115,11 +159,23 @@ export const MonsterDeck = ({
         {handoffError && <p className="workspace-error" role="alert">{handoffError}</p>}
         {libraryError && <p className="workspace-error" role="alert">{libraryError}</p>}
         <MonsterDeckFilters
+          feature={feature}
+          maximumChallenge={maximumChallenge}
+          minimumChallenge={minimumChallenge}
+          onClear={clearFilters}
+          onFeatureChange={setFeature}
+          onMaximumChallengeChange={changeMaximumChallenge}
+          onMinimumChallengeChange={changeMinimumChallenge}
           onQueryChange={setQuery}
           onRulesetChange={changeRuleset}
+          onSizeChange={setSize}
+          onSortChange={setSort}
           onTypeChange={setType}
           query={query}
           ruleset={ruleset}
+          size={size}
+          sizes={sizes}
+          sort={sort}
           type={type}
           types={types}
           view={view}
@@ -135,7 +191,8 @@ export const MonsterDeck = ({
       ) : filteredCount === 0 ? (
         <div className="workspace-empty">
           <span aria-hidden="true">🔎</span><h3>No monsters match these filters.</h3>
-          <p>Clear the search or choose a different creature type.</p>
+          <p>Clear one or more filters, broaden the CR range, or search a different capability.</p>
+          <button onClick={clearFilters} type="button">Clear filters</button>
         </div>
       ) : (
         <MonsterDeckCards
