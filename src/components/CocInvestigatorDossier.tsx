@@ -106,18 +106,11 @@ export const CocInvestigatorDossier = ({ investigator }: { investigator: CocInve
         </section>
 
         <section>
-          <h3>Occupation package</h3>
-          <p>{occupation.summary}</p>
-          <dl>
-            <div><dt>Contacts</dt><dd>{occupation.contacts.join(" · ")}</dd></div>
-            <div><dt>Typical gear</dt><dd>{occupation.typicalGear.join(" · ")}</dd></div>
-            <div><dt>Complication</dt><dd>{occupation.complication}</dd></div>
-          </dl>
-
-          <h3>Carried weapons</h3>
+          <h3>Field loadout</h3>
           {weapons.length > 0 ? (
             <ul>{weapons.map((weapon) => weapon && <li key={weapon.id}>{weapon.name} · {weapon.damageFormula}{weapon.usesDamageBonus ? " + DB" : ""}</li>)}</ul>
           ) : <p>No weapon is listed. Use the Equipment library to add one if the scenario calls for it.</p>}
+          <p>The full {occupation.name} package appears once in the occupation directory below.</p>
         </section>
       </div>
 
