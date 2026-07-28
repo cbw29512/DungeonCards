@@ -22,8 +22,16 @@ const updateInstance = (
   ))
 });
 
+const normalizedLabel = (value: string): string => value
+  .normalize("NFKC")
+  .toLocaleLowerCase("en-US")
+  .replace(/\s+/g, " ")
+  .trim();
+
 const copyLabel = (workspace: MonsterEncounterWorkspace, entry: EncounterMonsterEntry): string => {
-  const copyNumber = workspace.instances.filter((instance) => instance.monsterId === entry.id).length + 1;
+  const used = new Set(workspace.instances.map((instance) => normalizedLabel(instance.label)));
+  let copyNumber = 1;
+  while (used.has(normalizedLabel(`${entry.name} ${copyNumber}`))) copyNumber += 1;
   return `${entry.name} ${copyNumber}`;
 };
 
@@ -67,6 +75,19 @@ export const setMonsterEncounterHitPoints = (
   ...instance,
   currentHitPoints: Math.max(0, Math.min(instance.maximumHitPoints, Math.trunc(currentHitPoints) || 0))
 }));
+
+export const setMonsterEncounterMaximumHitPoints = (
+  workspace: MonsterEncounterWorkspace,
+  instanceId: string,
+  maximumHitPoints: number
+): MonsterEncounterWorkspace => updateInstance(workspace, instanceId, (instance) => {
+  const maximum = Math.max(1, Math.min(100000, Math.trunc(maximumHitPoints) || 1));
+  return {
+    ...instance,
+    maximumHitPoints: maximum,
+    currentHitPoints: Math.min(instance.currentHitPoints, maximum)
+  };
+});
 
 export const setMonsterEncounterInitiative = (
   workspace: MonsterEncounterWorkspace,
