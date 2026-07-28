@@ -51,13 +51,20 @@ describe("duplicate-free routed pages", () => {
     expect(new Set(dndNavigationLabels).size).toBe(dndNavigationLabels.length);
   });
 
-  it("uses one canonical navigation bar instead of duplicate home-page destination grids", () => {
+  it("keeps landing pages to two primary role actions instead of duplicate sitemap grids", () => {
     expect(cocHome).not.toContain("cocHomeCards");
     expect(cocHome).not.toContain("coc-index-grid");
-    expect(cocHome).not.toContain("onNavigate(");
+    expect(occurrences(cocHome, "onClick={() => onNavigate(")).toBe(2);
+    expect(cocHome).toContain('onNavigate("investigator")');
+    expect(cocHome).toContain('onNavigate("keeper")');
+    expect(cocHome).not.toContain('onNavigate("catalog")');
+
     expect(dndHome).not.toContain("dndHomeCards");
     expect(dndHome).not.toContain("role-card-grid");
-    expect(dndHome).not.toContain("onNavigate(");
+    expect(occurrences(dndHome, "onClick={() => onNavigate(")).toBe(2);
+    expect(dndHome).toContain('onNavigate("player")');
+    expect(dndHome).toContain('onNavigate("dm")');
+    expect(dndHome).not.toContain('onNavigate("catalog")');
   });
 
   it("keeps catalog source summaries count-only rather than repeating workspace links", () => {

@@ -6,6 +6,7 @@ import type {
   RuleCardWorkspaceRole
 } from "../types/ruleCardWorkspaces";
 import type { WorkspaceMoveDirection } from "../types/workspaces";
+import { getRuntimeStorage } from "../utils/runtimeStorage";
 import {
   addRuleCardInstance,
   changeRuleCardInstanceRuleset,
@@ -34,7 +35,7 @@ export const useRuleCardWorkspace = (
     [cards]
   );
   const repository = useMemo(
-    () => createRuleCardWorkspaceRepository(window.localStorage),
+    () => createRuleCardWorkspaceRepository(getRuntimeStorage()),
     []
   );
   const [storageError, setStorageError] = useState<string>();
