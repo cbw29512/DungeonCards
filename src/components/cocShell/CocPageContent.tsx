@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cocPreviewCreature, cocPreviewSpell, cocPreviewWeapon } from "../../data/cocPreviewCatalog";
+import { cocPreviewCreature, cocPreviewSpell } from "../../data/cocPreviewCatalog";
 import { cocCombatRunSheet } from "../../data/cocCombatRunSheet";
 import { cocInvestigationRunSheet } from "../../data/cocInvestigationRunSheet";
 import { cocKeeperRunSheet } from "../../data/cocKeeperRunSheet";
@@ -8,6 +8,7 @@ import { CocCardCatalog } from "../CocCardCatalog";
 import { CocCombatProcedureCard } from "../CocCombatProcedureCard";
 import { CocCreatureDossier } from "../CocCreatureDossier";
 import { CocCreatureLibrary } from "../CocCreatureLibrary";
+import { CocEquipmentLibrary } from "../CocEquipmentLibrary";
 import { CocFirearmProcedureCard } from "../CocFirearmProcedureCard";
 import { CocHealingCard } from "../CocHealingCard";
 import { CocImprovementCard } from "../CocImprovementCard";
@@ -20,7 +21,6 @@ import { CocRulesAudit } from "../CocRulesAudit";
 import { CocRulesGuide } from "../CocRulesGuide";
 import { CocSanityCard } from "../CocSanityCard";
 import { CocSpellCard } from "../CocSpellCard";
-import { CocWeaponCard } from "../CocWeaponCard";
 import { PrivateCardLibraryWorkspace } from "../cardPlatform/PrivateCardLibraryWorkspace";
 import { CocHome } from "./CocHome";
 import { CocQuickReferenceGrid, CocReferenceGrid } from "./CocReferenceGrid";
@@ -60,8 +60,8 @@ export const CocPageContent = ({
     </Page>
   );
   if (activePage === "equipment") return (
-    <Page eyebrow="Equipment cards" title="Evidence that fires back." summary="Keep firearms, weapons, ammunition, wounds, treatment, and recovery in one routed library.">
-      <div className="coc-procedure-grid"><CocFirearmProcedureCard /><CocWeaponCard weapon={cocPreviewWeapon} /><CocInjuryCard /><CocHealingCard /></div>
+    <Page eyebrow="Original equipment library" title="An era-aware armory built for the table." summary="Search original melee, thrown, handgun, long-gun, and shotgun records. Open any card for percentile attacks, damage, Damage Bonus, remaining-use tracking, and print-ready reference.">
+      <CocEquipmentLibrary />
     </Page>
   );
   if (activePage === "spells") return (
