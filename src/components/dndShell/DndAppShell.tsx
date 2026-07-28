@@ -58,7 +58,6 @@ export const DndAppShell = ({ onChangeSystem }: Props) => {
           onCreateMonster={monsters.createMonster}
           onDeleteCard={homebrew.deleteCard}
           onDeleteMonster={monsters.deleteMonster}
-          onNavigate={navigate}
         />
       </main>
     </div>

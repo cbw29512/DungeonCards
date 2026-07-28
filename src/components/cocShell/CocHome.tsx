@@ -1,12 +1,6 @@
-import type { CocAppPage } from "../../integration/dmForgeRoute";
 import { CocPercentileCard } from "../CocPercentileCard";
-import { cocHomeCards } from "./cocPageRegistry";
 
-export const CocHome = ({
-  onNavigate
-}: {
-  onNavigate(page: CocAppPage): void;
-}) => (
+export const CocHome = () => (
   <>
     <section className="coc-hero">
       <div className="coc-hero__copy">
@@ -17,10 +11,9 @@ export const CocHome = ({
           A card-centered Investigator and Keeper library with procedures, dossiers,
           equipment, rituals, encounters, builders, and visible source boundaries.
         </span>
-        <div className="coc-button-row coc-button-row--hero">
-          <button className="coc-roll-button" type="button" onClick={() => onNavigate("keeper")}>Open Keeper desk</button>
-          <button type="button" onClick={() => onNavigate("encounters")}>Open encounter desk</button>
-        </div>
+        <p className="coc-home__navigation-note">
+          Use the single navigation bar above to open each workspace. Destinations are not repeated as a second button grid.
+        </p>
       </div>
       <div className="coc-hero__seal" aria-hidden="true"><span>◉</span><small>CASE FILE ACTIVE</small></div>
     </section>
@@ -32,20 +25,6 @@ export const CocHome = ({
         <p>Set the skill and difficulty, then apply any net Bonus or Penalty dice.</p>
       </header>
       <CocPercentileCard />
-    </section>
-
-    <section className="coc-section coc-section--index">
-      <header className="coc-section__heading">
-        <small>Card library and case desks</small>
-        <h2>Open the part of the investigation you need now.</h2>
-      </header>
-      <div className="coc-index-grid coc-index-grid--expanded">
-        {cocHomeCards.map((card) => (
-          <button key={card.page} type="button" onClick={() => onNavigate(card.page)}>
-            <small>{card.eyebrow}</small><strong>{card.title}</strong><span>{card.description}</span>
-          </button>
-        ))}
-      </div>
     </section>
   </>
 );

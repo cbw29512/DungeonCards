@@ -17,6 +17,7 @@ export type CardFamily =
   | "condition"
   | "creature"
   | "npc"
+  | "investigator"
   | "clue"
   | "handout"
   | "location"

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { cocInvestigatorRuleSources } from "../data/cocInvestigatorRuleSources";
+import { cocOccupationCatalog, getCocOccupation } from "../data/cocOccupationCatalog";
 import {
   COC_CHARACTERISTIC_NAMES,
   COC_OCCUPATION_VALUES,
@@ -43,6 +44,20 @@ const DEFAULT_OCCUPATION_ROWS: OccupationRow[] = [
   { id: "credit-rating", skill: "Credit Rating", value: 40, locked: true }
 ];
 
+const OCCUPATION_SKILL_VALUES = [70, 60, 60, 50, 50, 50, 40, 40] as const;
+
+const occupationRowsFor = (occupationId: string): OccupationRow[] => {
+  const occupation = getCocOccupation(occupationId);
+  return [
+    ...occupation.suggestedSkills.map((skill, index) => ({
+      id: `occupation-${index + 1}`,
+      skill,
+      value: OCCUPATION_SKILL_VALUES[index] ?? 40
+    })),
+    { id: "credit-rating", skill: "Credit Rating", value: 40, locked: true }
+  ];
+};
+
 const DEFAULT_INTEREST_ROWS: InterestRow[] = [
   { id: "interest-1", skill: "", baseValue: 20 },
   { id: "interest-2", skill: "", baseValue: 20 },
@@ -62,6 +77,7 @@ const normalizeSkillName = (skillName: string): string => skillName.trim().toLow
 export const CocInvestigatorBuilder = () => {
   const [name, setName] = useState("New Investigator");
   const [occupation, setOccupation] = useState("Custom occupation");
+  const [originalOccupationId, setOriginalOccupationId] = useState("");
   const [characteristics, setCharacteristics] = useState<CocCharacteristics>(DEFAULT_CHARACTERISTICS);
   const [occupationRows, setOccupationRows] = useState<OccupationRow[]>(DEFAULT_OCCUPATION_ROWS);
   const [interestRows, setInterestRows] = useState<InterestRow[]>(DEFAULT_INTEREST_ROWS);
@@ -89,6 +105,18 @@ export const CocInvestigatorBuilder = () => {
     setInterestRows((current) => current.map((row) => row.id === id ? { ...row, ...patch } : row));
   };
 
+  const chooseOriginalOccupation = (occupationId: string) => {
+    setOriginalOccupationId(occupationId);
+    if (!occupationId) {
+      setOccupation("Custom occupation");
+      setOccupationRows(DEFAULT_OCCUPATION_ROWS);
+      return;
+    }
+    const selected = getCocOccupation(occupationId);
+    setOccupation(selected.name);
+    setOccupationRows(occupationRowsFor(occupationId));
+  };
+
   const creationReady = allocationValid
     && occupationValuesValid
     && !duplicateOccupationSkills
@@ -105,7 +133,7 @@ export const CocInvestigatorBuilder = () => {
         <div>
           <small>Public simplified creation workflow</small>
           <h2 id="coc-investigator-builder-title">Build an Investigator</h2>
-          <p>Assign the fixed values, calculate the sheet, and build a custom occupation without importing paid-book catalogs.</p>
+          <p>Assign the fixed values, select an original occupation package or create your own, and prepare a printable sheet without importing paid-book catalogs.</p>
         </div>
         <span className={`coc-investigator-builder__status ${creationReady ? "is-ready" : ""}`}>
           {creationReady ? "Sheet ready" : "Finish required fields"}
@@ -114,7 +142,17 @@ export const CocInvestigatorBuilder = () => {
 
       <div className="coc-investigator-builder__identity">
         <label>Investigator name<input value={name} onChange={(event) => setName(event.target.value)} /></label>
-        <label>Occupation<input value={occupation} onChange={(event) => setOccupation(event.target.value)} /></label>
+        <label>
+          Original occupation package
+          <select value={originalOccupationId} onChange={(event) => chooseOriginalOccupation(event.target.value)}>
+            <option value="">Custom occupation</option>
+            {cocOccupationCatalog.map((record) => <option key={record.id} value={record.id}>{record.name}</option>)}
+          </select>
+        </label>
+        <label>Occupation name<input value={occupation} onChange={(event) => {
+          setOccupation(event.target.value);
+          setOriginalOccupationId("");
+        }} /></label>
       </div>
 
       <section className="coc-investigator-builder__section">
@@ -161,7 +199,7 @@ export const CocInvestigatorBuilder = () => {
 
       <section className="coc-investigator-builder__section">
         <header><div><small>Step 3</small><h3>Create the occupation skill package</h3></div></header>
-        <p>Name eight appropriate occupation skills. Credit Rating is the ninth entry. Assign one 70, two 60s, three 50s, and three 40s.</p>
+        <p>Name eight appropriate occupation skills. Credit Rating is the ninth entry. Assign one 70, two 60s, three 50s, and three 40s. Selecting an original package fills these skill names while leaving every value editable.</p>
         <div className="coc-occupation-grid">
           {occupationRows.map((row, index) => (
             <div key={row.id}>
@@ -216,7 +254,7 @@ export const CocInvestigatorBuilder = () => {
           })}
         </div>
         <p><strong>HP {derived.hitPoints}</strong> · MOV {derived.move} · SAN {derived.sanity} · MP {derived.magicPoints} · DB {derived.damageBonus} · Build {formatBuild(derived.build)}</p>
-        <small>Detailed age adjustments, expanded occupations, and alternate creation methods require the Keeper Rulebook or Investigator Handbook.</small>
+        <small>Detailed age adjustments, alternate creation methods, and user-owned official occupations remain outside this original public catalog.</small>
       </section>
     </section>
   );

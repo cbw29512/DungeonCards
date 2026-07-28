@@ -1,17 +1,12 @@
 import { useMemo } from "react";
 import { useCardDeckLibrary } from "../hooks/useCardDeckLibrary";
-import type { CocAppPage } from "../integration/dmForgeRoute";
 import { getActiveCardDeckLibraryView } from "../utils/cardDeckLibraryView";
 import { buildCocCardCatalog } from "../utils/cocCardCatalogSources";
 import { loadCatalogPrivateLibrary } from "../utils/cardCatalogPrivateLibrary";
 import { CardCatalogWorkspace } from "./cardPlatform/CardCatalogWorkspace";
 import { PlayableDeckWorkspace } from "./cardPlatform/PlayableDeckWorkspace";
 
-export const CocCardCatalog = ({
-  onNavigate
-}: {
-  onNavigate(page: CocAppPage): void;
-}) => {
+export const CocCardCatalog = () => {
   const loaded = useMemo(() => loadCatalogPrivateLibrary("coc-7e"), []);
   const decks = useCardDeckLibrary("coc-7e");
   const activeDeck = getActiveCardDeckLibraryView(decks.library)?.deck;
@@ -22,11 +17,12 @@ export const CocCardCatalog = ({
       : built;
   }, [loaded]);
   const actions = [
-    { sourceId: "coc-procedures" as const, label: "Verified Procedures", onOpen: () => onNavigate("rules") },
-    { sourceId: "coc-equipment" as const, label: "Equipment", onOpen: () => onNavigate("equipment") },
-    { sourceId: "coc-rituals" as const, label: "Spells & Rituals", onOpen: () => onNavigate("spells") },
-    { sourceId: "coc-creatures" as const, label: "Creatures & NPCs", onOpen: () => onNavigate("creatures") },
-    { sourceId: "private" as const, label: "Private Library", onOpen: () => onNavigate("library") }
+    { sourceId: "coc-procedures" as const, label: "Verified Procedures" },
+    { sourceId: "coc-investigators" as const, label: "Investigators" },
+    { sourceId: "coc-equipment" as const, label: "Equipment" },
+    { sourceId: "coc-rituals" as const, label: "Spells & Rituals" },
+    { sourceId: "coc-creatures" as const, label: "Creatures & NPCs" },
+    { sourceId: "private" as const, label: "Private Library" }
   ];
   return (
     <div className="coc-card-catalog-runtime">
