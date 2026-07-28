@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getCocOccupation } from "../data/cocOccupationCatalog";
 import { cocWeaponCatalog } from "../data/cocWeaponCatalog";
 import type { CocInvestigatorRecord } from "../types/cocInvestigatorCatalog";
@@ -7,8 +7,20 @@ import {
   calculateCocDerivedAttributes,
   calculateCocThresholds
 } from "../utils/cocInvestigator";
+import { calculateMaximumSanity } from "../utils/cocSanityCampaign";
 
 const formatBuild = (build: number): string => build > 0 ? `+${build}` : `${build}`;
+
+type InvestigatorResourceState = {
+  hitPoints: number;
+  sanity: number;
+  magicPoints: number;
+  luck: number;
+};
+
+const storageKey = (investigatorId: string) => `dm-forge-coc-investigator-state-v1:${investigatorId}`;
+
+const clamp = (value: number, maximum: number): number => Math.max(0, Math.min(maximum, Math.trunc(value) || 0));
 
 const ResourceInput = ({
   label,
@@ -27,7 +39,7 @@ const ResourceInput = ({
       aria-label={`Current ${label}`}
       max={maximum}
       min="0"
-      onChange={(event) => onChange(Math.max(0, Math.min(maximum, Math.trunc(Number(event.target.value) || 0))))}
+      onChange={(event) => onChange(clamp(Number(event.target.value), maximum))}
       type="number"
       value={value}
     />
@@ -38,13 +50,51 @@ const ResourceInput = ({
 export const CocInvestigatorDossier = ({ investigator }: { investigator: CocInvestigatorRecord }) => {
   const occupation = getCocOccupation(investigator.occupationId);
   const derived = useMemo(() => calculateCocDerivedAttributes(investigator.characteristics), [investigator.characteristics]);
-  const [hitPoints, setHitPoints] = useState(derived.hitPoints);
-  const [sanity, setSanity] = useState(investigator.characteristics.POW);
-  const [magicPoints, setMagicPoints] = useState(derived.magicPoints);
-  const [luck, setLuck] = useState(investigator.luck);
+  const mythosSkill = investigator.skills["Cthulhu Mythos"] ?? 0;
+  const maximumSanity = calculateMaximumSanity(mythosSkill);
+  const defaults = useMemo<InvestigatorResourceState>(() => ({
+    hitPoints: derived.hitPoints,
+    sanity: clamp(investigator.characteristics.POW, maximumSanity),
+    magicPoints: derived.magicPoints,
+    luck: investigator.luck
+  }), [derived.hitPoints, derived.magicPoints, investigator.characteristics.POW, investigator.luck, maximumSanity]);
+  const [resources, setResources] = useState<InvestigatorResourceState>(() => {
+    if (typeof window === "undefined") return defaults;
+    try {
+      const raw = window.localStorage.getItem(storageKey(investigator.id));
+      if (!raw) return defaults;
+      const saved = JSON.parse(raw) as Partial<InvestigatorResourceState>;
+      return {
+        hitPoints: clamp(saved.hitPoints ?? defaults.hitPoints, derived.hitPoints),
+        sanity: clamp(saved.sanity ?? defaults.sanity, maximumSanity),
+        magicPoints: clamp(saved.magicPoints ?? defaults.magicPoints, derived.magicPoints),
+        luck: clamp(saved.luck ?? defaults.luck, 99)
+      };
+    } catch {
+      return defaults;
+    }
+  });
   const sortedSkills = Object.entries(investigator.skills).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
   const weapons = investigator.weaponIds.map((weaponId) => cocWeaponCatalog.find((weapon) => weapon.id === weaponId)).filter(Boolean);
   const topSkill = sortedSkills[0];
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey(investigator.id), JSON.stringify(resources));
+    } catch {
+      // Browser storage can be unavailable in privacy-restricted sessions; live tracking still works.
+    }
+  }, [investigator.id, resources]);
+
+  const updateResource = (key: keyof InvestigatorResourceState, value: number) => {
+    setResources((current) => ({ ...current, [key]: value }));
+  };
+
+  const printDossier = () => {
+    document.body.classList.add("print-investigator-dossier");
+    window.print();
+    window.setTimeout(() => document.body.classList.remove("print-investigator-dossier"), 0);
+  };
 
   return (
     <article className="coc-investigator-dossier">
@@ -55,7 +105,7 @@ export const CocInvestigatorDossier = ({ investigator }: { investigator: CocInve
           <p>{occupation.name} · age {investigator.age} · {investigator.pronouns}</p>
           <span>{investigator.residence} · born in {investigator.birthplace}</span>
         </div>
-        <button type="button" onClick={() => window.print()}>Print dossier</button>
+        <button type="button" onClick={printDossier}>Print dossier</button>
       </header>
 
       <blockquote>{investigator.biography}</blockquote>
@@ -81,17 +131,13 @@ export const CocInvestigatorDossier = ({ investigator }: { investigator: CocInve
         <span><small>Top Skill</small><strong>{topSkill ? `${topSkill[0]} ${topSkill[1]}%` : "—"}</strong></span>
       </section>
 
-      <section className="coc-investigator-dossier__resources" aria-label="Live Investigator resources">
-        <ResourceInput label="Hit Points" maximum={derived.hitPoints} onChange={setHitPoints} value={hitPoints} />
-        <ResourceInput label="Sanity" maximum={investigator.characteristics.POW} onChange={setSanity} value={sanity} />
-        <ResourceInput label="Magic Points" maximum={derived.magicPoints} onChange={setMagicPoints} value={magicPoints} />
-        <ResourceInput label="Luck" maximum={99} onChange={setLuck} value={luck} />
-        <button type="button" onClick={() => {
-          setHitPoints(derived.hitPoints);
-          setSanity(investigator.characteristics.POW);
-          setMagicPoints(derived.magicPoints);
-          setLuck(investigator.luck);
-        }}>Reset resources</button>
+      <section className="coc-investigator-dossier__resources" aria-label="Saved Investigator resources">
+        <ResourceInput label="Hit Points" maximum={derived.hitPoints} onChange={(value) => updateResource("hitPoints", value)} value={resources.hitPoints} />
+        <ResourceInput label="Sanity" maximum={maximumSanity} onChange={(value) => updateResource("sanity", value)} value={resources.sanity} />
+        <ResourceInput label="Magic Points" maximum={derived.magicPoints} onChange={(value) => updateResource("magicPoints", value)} value={resources.magicPoints} />
+        <ResourceInput label="Luck" maximum={99} onChange={(value) => updateResource("luck", value)} value={resources.luck} />
+        <button type="button" onClick={() => setResources(defaults)}>Reset resources</button>
+        <small className="coc-investigator-dossier__save-note">Saved automatically in this browser. Maximum Sanity is 99 minus Cthulhu Mythos ({mythosSkill}).</small>
       </section>
 
       <div className="coc-investigator-dossier__columns">
@@ -123,7 +169,7 @@ export const CocInvestigatorDossier = ({ investigator }: { investigator: CocInve
         <section><h3>Play notes</h3><ul>{investigator.notes.map((entry) => <li key={entry}>{entry}</li>)}</ul></section>
       </div>
 
-      <footer>Original DM Forge Investigator · Public-safe character content · Complete private campaign state remains browser-local.</footer>
+      <footer>Original DM Forge Investigator · Public-safe character content · Resource state is saved in this browser.</footer>
     </article>
   );
 };
