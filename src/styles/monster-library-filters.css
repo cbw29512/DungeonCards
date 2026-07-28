@@ -31,6 +31,18 @@
   grid-column: span 2;
 }
 
+.monster-filter-note {
+  max-width: 62ch;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  align-self: end;
+  color: #d9c9b8;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 4%);
+  line-height: 1.45;
+}
+
 .monster-filter-clear {
   min-height: 40px;
   width: fit-content;
