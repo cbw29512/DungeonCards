@@ -3,11 +3,13 @@ import type { RulesetId } from "../types/ruleCards";
 import { dndVaultBarbarianProfiles } from "./dndVaultBarbarianProfiles";
 import { dndVaultClericProfiles } from "./dndVaultClericProfiles";
 import { dndVaultFighterProfiles } from "./dndVaultFighterProfiles";
+import { dndVaultRogueProfiles } from "./dndVaultRogueProfiles";
 
 export const dndVaultReadyBuilds: DndOptimizedBuildProfile[] = [
   ...dndVaultBarbarianProfiles,
   ...dndVaultClericProfiles,
-  ...dndVaultFighterProfiles
+  ...dndVaultFighterProfiles,
+  ...dndVaultRogueProfiles
 ];
 
 export const getDndVaultReadyBuildById = (
