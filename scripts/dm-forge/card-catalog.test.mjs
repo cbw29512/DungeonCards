@@ -24,7 +24,7 @@ describe("unified exact-system Card Catalog architecture", () => {
     for (const token of ["ruleCardCatalog", "getDndConditions", "adaptDndCondition", "srdSpells", "encounterMonsterCatalog", "generateDndVaultCardLibrary", "homebrewCards", "homebrewMonsters", "privateLibrary.definitions"]) {
       expect(dnd).toContain(token);
     }
-    for (const token of ["cocQuickReferenceCards", "cocPreviewWeapon", "cocPreviewSpell", "cocCreatureCatalog", "privateLibrary.definitions"]) {
+    for (const token of ["cocQuickReferenceCards", "cocWeaponCatalog", "cocPreviewSpell", "cocCreatureCatalog", "privateLibrary.definitions"]) {
       expect(coc).toContain(token);
     }
     expect(dnd).toContain("buildCardCatalog");
