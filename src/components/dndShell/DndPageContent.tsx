@@ -31,11 +31,12 @@ export type DndPageContentProps = {
   onCreateMonster(draft: MonsterCardData): boolean;
   onDeleteCard(cardId: string): boolean;
   onDeleteMonster(monsterId: string): boolean;
+  onNavigate(page: DndAppPage): void;
 };
 
 export const DndPageContent = (props: DndPageContentProps) => {
   const { activePage } = props;
-  if (activePage === "home") return <DndHome />;
+  if (activePage === "home") return <DndHome onNavigate={props.onNavigate} />;
   if (activePage === "rules") return <DndRulesGuide />;
   if (activePage === "coverage") return <RulesCoverageDashboard />;
   if (activePage === "conditions") return <DndConditionsLibrary />;
