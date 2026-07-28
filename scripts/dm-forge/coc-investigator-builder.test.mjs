@@ -20,7 +20,7 @@ describe("Cthulhu investigator creation product integration", () => {
 
   it("keeps paid-book creation details outside the public workflow", () => {
     expect(builder).toContain("paid-book catalogs");
-    expect(builder).toContain("Keeper Rulebook or Investigator Handbook");
+    expect(builder).toContain("user-owned official occupations remain outside this original public catalog");
     expect(coverage).toContain('id: "coc-7e-expanded-creation"');
     expect(coverage).toContain('status: "requires-owned-source"');
   });
