@@ -1,24 +1,31 @@
 import { describe, expect, it } from "vitest";
+import { dndConditions2014 } from "../data/dndConditions2014";
+import { dndConditions2024 } from "../data/dndConditions2024";
 import { createEmptyPrivateCardLibrary } from "./privateCardLibraryStorage";
 import { buildCocCardCatalog } from "./cocCardCatalogSources";
 import { buildDndCardCatalog } from "./dndCardCatalogSources";
 
-const expectExactSystem = (system: "dnd-2014" | "dnd-2024") => {
+const expectExactSystem = (
+  system: "dnd-2014" | "dnd-2024",
+  conditionCount: number
+) => {
   const catalog = buildDndCardCatalog(system, [], [], createEmptyPrivateCardLibrary(system));
   expect(catalog.entries.length).toBeGreaterThan(700);
   expect(catalog.entries.every((entry) => entry.definition.gameSystemId === system)).toBe(true);
   expect(catalog.sourceCounts.rules).toBeGreaterThan(0);
+  expect(catalog.sourceCounts.conditions).toBe(conditionCount);
   expect(catalog.sourceCounts.spells).toBeGreaterThan(300);
   expect(catalog.sourceCounts.monsters).toBeGreaterThan(300);
   expect(catalog.sourceCounts.characters).toBeGreaterThan(300);
+  expect(catalog.familyCounts.condition).toBe(conditionCount);
   expect(catalog.sourceCounts.private ?? 0).toBe(0);
   return catalog;
 };
 
 describe("unified exact-system Card Catalog sources", () => {
   it("assembles large but isolated D&D 2014 and 2024 catalogs", () => {
-    const catalog2014 = expectExactSystem("dnd-2014");
-    const catalog2024 = expectExactSystem("dnd-2024");
+    const catalog2014 = expectExactSystem("dnd-2014", dndConditions2014.length);
+    const catalog2024 = expectExactSystem("dnd-2024", dndConditions2024.length);
     expect(new Set(catalog2014.entries.map((entry) => entry.definition.gameSystemId))).toEqual(new Set(["dnd-2014"]));
     expect(new Set(catalog2024.entries.map((entry) => entry.definition.gameSystemId))).toEqual(new Set(["dnd-2024"]));
   });
