@@ -4,6 +4,7 @@ import type {
   WorkspaceMoveDirection,
   WorkspaceRole
 } from "../types/workspaces";
+import { getRuntimeStorage } from "../utils/runtimeStorage";
 import {
   addWorkspaceCard,
   createDefaultWorkspace,
@@ -29,7 +30,7 @@ export const useCardWorkspace = <T extends WorkspaceItem>(
     [allowedCardIds]
   );
   const repository = useMemo(
-    () => createLocalWorkspaceRepository(window.localStorage),
+    () => createLocalWorkspaceRepository(getRuntimeStorage()),
     []
   );
   const loadWorkspace = () => repository.load({
