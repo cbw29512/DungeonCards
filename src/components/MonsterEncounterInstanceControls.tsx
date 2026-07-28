@@ -2,8 +2,8 @@ import { useMemo, useState } from "react";
 import { getDndConditions } from "../data/dndConditions";
 import type { ResolvedMonsterEncounterInstance } from "../types/monsterEncounterWorkspace";
 import {
-  monsterHasReaction,
-  monsterHasRecharge
+  monsterHasRecharge,
+  monsterHasSpecialReaction
 } from "../utils/monsterEncounterWorkspaceModel";
 
 type Props = {
@@ -38,7 +38,7 @@ export const MonsterEncounterInstanceControls = ({
       : "srd-5.2.1-2024";
     return getDndConditions(ruleset).map((record) => record.name);
   }, [instance.monster.ruleset]);
-  const hasReaction = monsterHasReaction(instance.monster);
+  const hasSpecialReaction = monsterHasSpecialReaction(instance.monster);
   const hasRecharge = monsterHasRecharge(instance.monster);
 
   const addCondition = () => {
@@ -112,15 +112,14 @@ export const MonsterEncounterInstanceControls = ({
       </div>
 
       <div className="monster-instance-controls__economy">
-        {hasReaction && (
-          <button
-            aria-pressed={instance.reactionAvailable}
-            onClick={() => onSetReaction(!instance.reactionAvailable)}
-            type="button"
-          >
-            Reaction {instance.reactionAvailable ? "ready" : "spent"}
-          </button>
-        )}
+        <button
+          aria-pressed={instance.reactionAvailable}
+          onClick={() => onSetReaction(!instance.reactionAvailable)}
+          title={hasSpecialReaction ? "This stat block also lists a special reaction." : "Tracks the creature's normal once-per-round reaction budget."}
+          type="button"
+        >
+          Reaction {instance.reactionAvailable ? "ready" : "spent"}
+        </button>
         {hasRecharge && (
           <button
             aria-pressed={instance.rechargeReady}
