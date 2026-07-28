@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { getDndConditions } from "../data/dndConditions";
 import type { ResolvedMonsterEncounterInstance } from "../types/monsterEncounterWorkspace";
+import type { RulesetId } from "../types/ruleCards";
 import {
   monsterHasRecharge,
   monsterHasSpecialReaction
@@ -8,6 +9,7 @@ import {
 
 type Props = {
   instance: ResolvedMonsterEncounterInstance;
+  ruleset: RulesetId;
   onAddCondition(condition: string): void;
   onRemoveCondition(condition: string): void;
   onRename(label: string): void;
@@ -21,6 +23,7 @@ type Props = {
 
 export const MonsterEncounterInstanceControls = ({
   instance,
+  ruleset,
   onAddCondition,
   onRemoveCondition,
   onRename,
@@ -32,12 +35,10 @@ export const MonsterEncounterInstanceControls = ({
   onStartTurn
 }: Props) => {
   const [condition, setCondition] = useState("");
-  const conditionOptions = useMemo(() => {
-    const ruleset = instance.monster.ruleset === "srd-5.1-2014"
-      ? "srd-5.1-2014"
-      : "srd-5.2.1-2024";
-    return getDndConditions(ruleset).map((record) => record.name);
-  }, [instance.monster.ruleset]);
+  const conditionOptions = useMemo(
+    () => getDndConditions(ruleset).map((record) => record.name),
+    [ruleset]
+  );
   const hasSpecialReaction = monsterHasSpecialReaction(instance.monster);
   const hasRecharge = monsterHasRecharge(instance.monster);
 
@@ -95,7 +96,7 @@ export const MonsterEncounterInstanceControls = ({
 
       <div className="monster-instance-controls__conditions">
         <label>
-          <span>Add condition</span>
+          <span>Add {ruleset === "srd-5.1-2014" ? "2014" : "2024"} condition</span>
           <select onChange={(event) => setCondition(event.target.value)} value={condition}>
             <option value="">Choose condition…</option>
             {conditionOptions.map((name) => <option key={name} value={name}>{name}</option>)}
