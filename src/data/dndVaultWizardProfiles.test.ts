@@ -61,8 +61,10 @@ describe("Wizard Evocation Character Vault profiles", () => {
     expect(wizard2014Level1.character.spellcasting.kind).toBe("prepared");
     expect(wizard2014Level1.character.spellcasting.kind === "prepared" && wizard2014Level1.character.spellcasting.spells).toHaveLength(4);
     expect(wizard2014Level20.character.spellcasting.kind === "prepared" && wizard2014Level20.character.spellcasting.spells).toHaveLength(25);
-    expect(wizard2024Level1.character.spellcasting.kind === "prepared" && wizard2024Level1.character.spellcasting.spells.filter((name) => !name.includes("Magic Initiate"))).toHaveLength(4);
-    expect(wizard2024Level20.character.spellcasting.kind === "prepared" && wizard2024Level20.character.spellcasting.spells.filter((name) => !name.includes("Magic Initiate"))).toHaveLength(25);
+    expect(wizard2024Level1.character.spellcasting.kind === "prepared" && wizard2024Level1.character.spellcasting.spells).toHaveLength(4);
+    expect(wizard2024Level20.character.spellcasting.kind === "prepared" && wizard2024Level20.character.spellcasting.spells).toHaveLength(25);
+    expect(wizard2014Level20.character.spellcasting.kind === "prepared" && wizard2014Level20.character.spellcasting.spells).toContain("Scorching Ray");
+    expect(wizard2024Level20.character.spellcasting.kind === "prepared" && wizard2024Level20.character.spellcasting.spells).toContain("Scorching Ray");
     expect(wizard2014Level20.character.spellcasting.kind === "prepared" && wizard2014Level20.character.spellcasting.notes).toContain("44 leveled spells");
     expect(wizard2024Level20.character.spellcasting.kind === "prepared" && wizard2024Level20.character.spellcasting.notes).toContain("44 leveled spells");
   });
