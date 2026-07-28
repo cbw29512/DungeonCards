@@ -61,6 +61,24 @@ type Props = {
   onClear(): void;
 };
 
+const EditionControl = ({
+  ruleset,
+  onRulesetChange
+}: Pick<Props, "ruleset" | "onRulesetChange">) => (
+  <label className="monster-filter-field">
+    <span>Edition</span>
+    <select
+      aria-label="Encounter edition"
+      onChange={(event) => onRulesetChange(event.target.value as RulesetId)}
+      value={ruleset}
+    >
+      {(["srd-5.1-2014", "srd-5.2.1-2024"] as const).map((option) => (
+        <option key={option} value={option}>{editionLabel(option)}</option>
+      ))}
+    </select>
+  </label>
+);
+
 export const MonsterDeckFilters = ({
   query,
   ruleset,
@@ -82,88 +100,90 @@ export const MonsterDeckFilters = ({
   onMaximumChallengeChange,
   onSortChange,
   onClear
-}: Props) => (
-  <section className="monster-deck__filter-panel" aria-label="Monster filters">
-    <div className="monster-deck__filters">
-      <label className="monster-filter-field monster-filter-field--search">
-        <span>Search</span>
-        <input
-          aria-label="Search monsters"
-          onChange={(event) => onQueryChange(event.target.value)}
-          placeholder={view === "table" ? "Name, action, trait, source…" : "Name, action, trait, source…"}
-          type="search"
-          value={query}
-        />
-      </label>
-      <label className="monster-filter-field">
-        <span>Edition</span>
-        <select
-          aria-label="Encounter edition"
-          onChange={(event) => onRulesetChange(event.target.value as RulesetId)}
-          value={ruleset}
-        >
-          {(["srd-5.1-2014", "srd-5.2.1-2024"] as const).map((option) => (
-            <option key={option} value={option}>{editionLabel(option)}</option>
-          ))}
-        </select>
-      </label>
-      <label className="monster-filter-field">
-        <span>Creature type</span>
-        <select aria-label="Filter monster type" onChange={(event) => onTypeChange(event.target.value)} value={type}>
-          {types.map((option) => (
-            <option key={option} value={option}>
-              {option === "all" ? "All creature types" : displayType(option)}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="monster-filter-field">
-        <span>Size</span>
-        <select aria-label="Filter monster size" onChange={(event) => onSizeChange(event.target.value)} value={size}>
-          {sizes.map((option) => (
-            <option key={option} value={option}>{option === "all" ? "All sizes" : displayType(option)}</option>
-          ))}
-        </select>
-      </label>
-      <label className="monster-filter-field">
-        <span>Capability</span>
-        <select
-          aria-label="Filter monster capability"
-          onChange={(event) => onFeatureChange(event.target.value as MonsterFeatureFilter)}
-          value={feature}
-        >
-          {featureOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-        </select>
-      </label>
-      <label className="monster-filter-field">
-        <span>Minimum CR</span>
-        <select
-          aria-label="Minimum challenge rating"
-          onChange={(event) => onMinimumChallengeChange(event.target.value === "" ? null : Number(event.target.value))}
-          value={minimumChallenge ?? ""}
-        >
-          {challengeOptions.map((option) => <option key={`min-${option.value}`} value={option.value}>{option.label}</option>)}
-        </select>
-      </label>
-      <label className="monster-filter-field">
-        <span>Maximum CR</span>
-        <select
-          aria-label="Maximum challenge rating"
-          onChange={(event) => onMaximumChallengeChange(event.target.value === "" ? null : Number(event.target.value))}
-          value={maximumChallenge ?? ""}
-        >
-          {challengeOptions.map((option) => <option key={`max-${option.value}`} value={option.value}>{option.label}</option>)}
-        </select>
-      </label>
-      {view === "library" && (
+}: Props) => {
+  if (view === "table") {
+    return (
+      <section className="monster-deck__filter-panel" aria-label="Encounter edition">
+        <div className="monster-deck__filters">
+          <EditionControl ruleset={ruleset} onRulesetChange={onRulesetChange} />
+          <p className="monster-filter-note" role="note">
+            Monster Library search and filters are paused here so every saved combatant stays visible.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="monster-deck__filter-panel" aria-label="Monster Library filters">
+      <div className="monster-deck__filters">
+        <label className="monster-filter-field monster-filter-field--search">
+          <span>Search</span>
+          <input
+            aria-label="Search monsters"
+            onChange={(event) => onQueryChange(event.target.value)}
+            placeholder="Name, action, trait, source…"
+            type="search"
+            value={query}
+          />
+        </label>
+        <EditionControl ruleset={ruleset} onRulesetChange={onRulesetChange} />
+        <label className="monster-filter-field">
+          <span>Creature type</span>
+          <select aria-label="Filter monster type" onChange={(event) => onTypeChange(event.target.value)} value={type}>
+            {types.map((option) => (
+              <option key={option} value={option}>
+                {option === "all" ? "All creature types" : displayType(option)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="monster-filter-field">
+          <span>Size</span>
+          <select aria-label="Filter monster size" onChange={(event) => onSizeChange(event.target.value)} value={size}>
+            {sizes.map((option) => (
+              <option key={option} value={option}>{option === "all" ? "All sizes" : displayType(option)}</option>
+            ))}
+          </select>
+        </label>
+        <label className="monster-filter-field">
+          <span>Capability</span>
+          <select
+            aria-label="Filter monster capability"
+            onChange={(event) => onFeatureChange(event.target.value as MonsterFeatureFilter)}
+            value={feature}
+          >
+            {featureOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </select>
+        </label>
+        <label className="monster-filter-field">
+          <span>Minimum CR</span>
+          <select
+            aria-label="Minimum challenge rating"
+            onChange={(event) => onMinimumChallengeChange(event.target.value === "" ? null : Number(event.target.value))}
+            value={minimumChallenge ?? ""}
+          >
+            {challengeOptions.map((option) => <option key={`min-${option.value}`} value={option.value}>{option.label}</option>)}
+          </select>
+        </label>
+        <label className="monster-filter-field">
+          <span>Maximum CR</span>
+          <select
+            aria-label="Maximum challenge rating"
+            onChange={(event) => onMaximumChallengeChange(event.target.value === "" ? null : Number(event.target.value))}
+            value={maximumChallenge ?? ""}
+          >
+            {challengeOptions.map((option) => <option key={`max-${option.value}`} value={option.value}>{option.label}</option>)}
+          </select>
+        </label>
         <label className="monster-filter-field">
           <span>Sort library</span>
           <select aria-label="Sort monster library" onChange={(event) => onSortChange(event.target.value as MonsterWorkspaceSort)} value={sort}>
             {sortOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
-      )}
-    </div>
-    <button className="monster-filter-clear" onClick={onClear} type="button">Clear filters</button>
-  </section>
-);
+      </div>
+      <button className="monster-filter-clear" onClick={onClear} type="button">Clear filters</button>
+    </section>
+  );
+};
