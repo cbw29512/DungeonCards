@@ -4,9 +4,11 @@ import type { SrdMonsterRecord } from "../types/srdCompendium";
 import {
   addMonsterEncounterCondition,
   addMonsterEncounterInstance,
+  removeMonsterEncounterInstance,
   setMonsterEncounterHitPoints,
   setMonsterEncounterInitiative,
   setMonsterEncounterLegendaryRemaining,
+  setMonsterEncounterMaximumHitPoints,
   setMonsterEncounterReaction,
   setMonsterEncounterRecharge,
   sortMonsterEncounterByInitiative,
@@ -84,6 +86,33 @@ describe("monster encounter instances", () => {
     expect(workspace.instances.map(({ instanceId }) => instanceId)).toEqual(["goblin-1", "goblin-2", "goblin-3"]);
     expect(workspace.instances.map(({ label }) => label)).toEqual(["Goblin 1", "Goblin 2", "Goblin 3"]);
     expect(workspace.instances.every(({ currentHitPoints, reactionAvailable }) => currentHitPoints === 7 && reactionAvailable)).toBe(true);
+  });
+
+  it("reuses the first available generated copy number without colliding after a removal", () => {
+    let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-2");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-3");
+    workspace = removeMonsterEncounterInstance(workspace, "goblin-2");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-4");
+
+    expect(workspace.instances.map(({ label }) => label)).toEqual(["Goblin 1", "Goblin 3", "Goblin 2"]);
+    expect(new Set(workspace.instances.map(({ label }) => label)).size).toBe(workspace.instances.length);
+  });
+
+  it("supports rolled maximum HP and clamps current HP when the maximum drops", () => {
+    let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
+    workspace = setMonsterEncounterMaximumHitPoints(workspace, "goblin-1", 12);
+
+    expect(workspace.instances[0]).toMatchObject({ maximumHitPoints: 12, currentHitPoints: 7 });
+
+    workspace = setMonsterEncounterHitPoints(workspace, "goblin-1", 11);
+    workspace = setMonsterEncounterMaximumHitPoints(workspace, "goblin-1", 5);
+    expect(workspace.instances[0]).toMatchObject({ maximumHitPoints: 5, currentHitPoints: 5 });
+
+    workspace = setMonsterEncounterMaximumHitPoints(workspace, "goblin-1", 0);
+    expect(workspace.instances[0]).toMatchObject({ maximumHitPoints: 1, currentHitPoints: 1 });
   });
 
   it("keeps HP, initiative, and conditions independent and sorts initiative", () => {
@@ -183,6 +212,7 @@ describe("monster encounter persistence", () => {
     const repository = createMonsterEncounterWorkspaceRepository(storage);
     let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
     workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
+    workspace = setMonsterEncounterMaximumHitPoints(workspace, "goblin-1", 12);
     workspace = setMonsterEncounterHitPoints(workspace, "goblin-1", 3);
     repository.save(workspace);
 
@@ -190,7 +220,7 @@ describe("monster encounter persistence", () => {
       gameSystemId: "dnd-2014",
       entries: [goblin, dragon],
       createInstanceId: () => "unused"
-    }).instances[0]).toMatchObject({ instanceId: "goblin-1", currentHitPoints: 3 });
+    }).instances[0]).toMatchObject({ instanceId: "goblin-1", maximumHitPoints: 12, currentHitPoints: 3 });
     expect(repository.load({
       gameSystemId: "dnd-2024",
       entries: [],
