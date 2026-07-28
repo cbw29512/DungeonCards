@@ -34,7 +34,7 @@ export type CocInvestigatorRecord = {
   birthplace: string;
   characteristics: CocCharacteristics;
   luck: number;
-  cthulhuMythos: number;
+  cthulhuMythos?: number;
   skills: Record<string, number>;
   weaponIds: string[];
   biography: string;
