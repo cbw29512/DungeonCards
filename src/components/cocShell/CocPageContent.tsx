@@ -32,16 +32,10 @@ const Page = ({ eyebrow, title, summary, children }: { eyebrow: string; title: s
   </section>
 );
 
-export const CocPageContent = ({
-  activePage,
-  onNavigate
-}: {
-  activePage: CocAppPage;
-  onNavigate(page: CocAppPage): void;
-}) => {
+export const CocPageContent = ({ activePage }: { activePage: CocAppPage }) => {
   if (activePage === "home") return <CocHome />;
   if (activePage === "rules") return <CocRulesGuide />;
-  if (activePage === "catalog") return <CocCardCatalog onNavigate={onNavigate} />;
+  if (activePage === "catalog") return <CocCardCatalog />;
   if (activePage === "library") return <PrivateCardLibraryWorkspace gameSystemId="coc-7e" />;
   if (activePage === "investigator") return (
     <Page eyebrow="Original Investigator library" title="Choose a complete Investigator or build your own." summary="Search original 1920s and modern characters, open live printable dossiers, track HP, Sanity, Magic Points, and Luck, or borrow one of twenty-four occupation packages for the builder.">
