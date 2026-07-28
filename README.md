@@ -62,10 +62,11 @@ Vault Ready ladders currently include both editions at levels 1–20 for:
 - Barbarian / Berserker
 - Cleric / Life Domain
 - Rogue / Thief
+- Wizard / Evocation
 
-That is **160 verified printable builds**. Each includes legal advancement, tactics, class-specific magic items, attunement validation, a tabbed digital sheet, generated Card Platform deck, owner-scoped Saved Play Mode, and complete black-and-white print output.
+That is **200 verified printable builds**. Each includes legal advancement, tactics, class-specific magic items, attunement validation, a tabbed digital sheet, generated Card Platform deck, owner-scoped Saved Play Mode, and complete black-and-white print output.
 
-The remaining **320 builds** cover Bard/Lore, Druid/Land, Monk/Open Hand, Paladin/Devotion, Ranger/Hunter, Sorcerer/Draconic, Warlock/Fiend, and Wizard/Evocation. They remain visible only as blocked blueprints until the same release gate passes. See [#99](https://github.com/cbw29512/DungeonCards/issues/99).
+The remaining **280 builds** cover Bard/Lore, Druid/Land, Monk/Open Hand, Paladin/Devotion, Ranger/Hunter, Sorcerer/Draconic, and Warlock/Fiend. They remain visible only as blocked blueprints until the same release gate passes. See [#99](https://github.com/cbw29512/DungeonCards/issues/99).
 
 ### D&D completion boundary
 
