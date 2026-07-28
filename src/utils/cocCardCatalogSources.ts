@@ -1,5 +1,5 @@
 import { cocCreatureCatalog } from "../data/cocCreatureCatalog";
-import { cocPreviewSpell } from "../data/cocPreviewCatalog";
+import { cocRitualCatalog } from "../data/cocRitualCatalog";
 import { cocWeaponCatalog } from "../data/cocWeaponCatalog";
 import { cocQuickReferenceCards, getCocRuleSource } from "../data/cocRuleSources";
 import type { CardPlatformExportEnvelope } from "../types/cardPlatformRuntime";
@@ -22,8 +22,8 @@ export const buildCocCardCatalog = (privateLibrary: CardPlatformExportEnvelope) 
   );
   const rituals = collectCatalogDefinitions(
     "coc-rituals",
-    [cocPreviewSpell],
-    (spell) => adaptCocSpell(spell, { source: getCocRuleSource("coc-original-spell-preview") })
+    cocRitualCatalog,
+    (ritual) => adaptCocSpell(ritual)
   );
   const creatures = collectCatalogDefinitions(
     "coc-creatures",
@@ -33,7 +33,7 @@ export const buildCocCardCatalog = (privateLibrary: CardPlatformExportEnvelope) 
   const sources: CardCatalogSource[] = [
     { id: "coc-procedures", label: "Verified CoC procedures", ...procedures },
     { id: "coc-equipment", label: "Original weapon and equipment library", ...equipment },
-    { id: "coc-rituals", label: "Original ritual demonstrations", ...rituals },
+    { id: "coc-rituals", label: "Original ritual and unnatural-effect library", ...rituals },
     { id: "coc-creatures", label: "Original creature and NPC library", ...creatures },
     {
       id: "private",
