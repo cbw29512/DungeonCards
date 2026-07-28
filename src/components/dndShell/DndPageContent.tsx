@@ -36,7 +36,7 @@ export type DndPageContentProps = {
 
 export const DndPageContent = (props: DndPageContentProps) => {
   const { activePage } = props;
-  if (activePage === "home") return <DndHome onNavigate={props.onNavigate} />;
+  if (activePage === "home") return <DndHome />;
   if (activePage === "rules") return <DndRulesGuide />;
   if (activePage === "coverage") return <RulesCoverageDashboard />;
   if (activePage === "conditions") return <DndConditionsLibrary />;
