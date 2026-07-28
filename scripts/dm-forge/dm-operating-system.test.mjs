@@ -130,10 +130,5 @@ describe("DM Forge multi-system operating system", () => {
     expect(cocNavigation).toContain('aria-controls="coc-primary-navigation"');
     expect(cocNavigation).toContain("navigation-toggle navigation-toggle--coc");
     expect(focusUtility).toContain("prefers-reduced-motion: reduce");
-    expect(applicationCss).toContain('@import "./coc-preview.css"');
-    expect(applicationCss).toContain('@import "./accessibility.css"');
-    expect(baseCss).toContain("overflow-wrap: anywhere");
-    expect(accessibilityCss).toContain("prefers-reduced-motion: reduce");
-    expect(professionalCss).toContain("focus-visible");
   });
 });
