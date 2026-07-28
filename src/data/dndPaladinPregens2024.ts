@@ -89,7 +89,7 @@ const makeRecord = (level: number): DndCharacterRecord => {
     savingThrowProficiencies: ["wis", "cha"],
     skillProficiencies: ["Athletics", "Insight", "Intimidation", "Medicine", "Perception", "Persuasion"],
     languages: ["Common", "Celestial"],
-    toolProficiencies: ["Dice Set", "Vehicles (Land)", "Smith's Tools"],
+    toolProficiencies: ["Dice Set", "Smith's Tools"],
     senses: level >= 19 ? ["Truesight 60 ft."] : ["Normal vision"],
     attacks: [
       { id: "longsword", name: "Longsword", attackAbility: "str", proficient: true, damageFormula: `1d8+${strengthModifier + 2}`, damageType: "slashing", rangeOrReach: "5 ft.", notes: `Dueling style; Sap mastery; wielded with Shield. Attack action: ${paladinAttackCount(level)} attack${paladinAttackCount(level) === 1 ? "" : "s"}.${level >= 11 ? " Radiant Strikes adds 1d8 radiant to every hit." : ""}` },
@@ -108,7 +108,7 @@ const makeRecord = (level: number): DndCharacterRecord => {
     equipment: ["Chain Mail", "Shield", "Longsword", "5 Javelins", "Priest's Pack", "Holy Symbol", "Soldier Background Equipment", "Dice Set", "Smith's Tools"],
     currencyGp: 14,
     notes: [
-      "Soldier supplies Savage Attacker, Athletics, Intimidation, and the selected Strength and Constitution increases.",
+      "Soldier supplies Savage Attacker, Athletics, Intimidation, a gaming set, and the selected Strength and Constitution increases.",
       "Human grants Resourceful, Skillful (Insight), and Versatile; Skilled supplies Medicine, Perception, and Smith's Tools.",
       "Aura bonuses use the current Charisma modifier and expand to 30 feet at level 18.",
       "Divine Smite and Find Steed free casts are tracked separately from spell slots."
