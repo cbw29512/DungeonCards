@@ -4,7 +4,7 @@ DM Forge, developed in the `DungeonCards` repository, is a card-centered tableto
 
 - Dungeons & Dragons 2014 / SRD 5.1;
 - Dungeons & Dragons 2024 / SRD 5.2.1;
-- Call of Cthulhu 7th Edition.
+- Call of Cthulhu 7th Edition-compatible percentile-horror play.
 
 The goal is to reduce rulebook interruption during play. Verified libraries, characters, creatures, encounters, equipment, clues, and campaign tools feed concise, source-traceable, printable, executable cards and linked card sequences.
 
@@ -19,7 +19,7 @@ See master epic [#67](https://github.com/cbw29512/DungeonCards/issues/67) for th
 - **Rules transparent:** verified summaries link to source, edition, review status, and licensing boundary.
 - **System separated:** D&D 2014, D&D 2024, and Call of Cthulhu procedures and persistence never silently mix.
 - **State first:** source data, card definitions, runtime instances, saved state, and presentation remain separate.
-- **Local first:** public browsing, card use, homebrew, private imports, and printing work without login.
+- **Local first:** public browsing, card use, homebrew, private imports, encounters, and printing work without login.
 - **Optional private accounts:** signed-in players can save supported Character Vault copies across devices through owner-only database policies.
 - **Accessible:** keyboard, screen-reader, focus, reduced-motion, responsive, and touch behavior are release gates.
 - **Print ready:** cards, sheets, folios, and encounter references remove controls and avoid clipped content.
@@ -45,6 +45,8 @@ See master epic [#67](https://github.com/cbw29512/DungeonCards/issues/67) for th
 - Movement, jumping, cover, Grapple, Shove, Hide, Search, and Opportunity Attack tools
 - HP, Temporary HP, Death Saves, stabilization, and concentration tracking
 - Initiative, turns, movement, reactions, surprise, conditions, timed effects, positions, reach, and range
+- Versioned browser-local D&D 2014 and D&D 2024 encounter-session saves
+- Independent monster instances with editable HP, initiative, conditions, reactions, recharge, and legendary-action state
 - Weapon Mastery, armor, carrying capacity, tools, mounts, containers, vehicles, and equipment procedures
 - SRD 5.1 and SRD 5.2.1 spell and monster compendium
 - Structured monster quick-combat cards with complete source folios
@@ -73,21 +75,28 @@ The remaining **160 builds** cover Druid/Land, Monk/Open Hand, Sorcerer/Draconic
 
 ### D&D completion boundary
 
-Core combat resolution is strong, but the full-session program still includes exploration/survival, social procedures, rests/downtime, remaining adventuring gear, encounter budgets, hazards, objects, treasure, persistent campaign/session state, terrain/cover/area templates, and complete executable monster resolution. See [#100](https://github.com/cbw29512/DungeonCards/issues/100).
+Core combat resolution and browser-local encounter persistence are strong. The full-session program still includes exploration/survival, social procedures, rests/downtime, remaining adventuring gear, encounter budgets, hazards, objects, treasure, terrain/cover/area templates, complete executable monster actions, and persistent campaign/map/card linking. See [#100](https://github.com/cbw29512/DungeonCards/issues/100).
 
-## Call of Cthulhu 7th Edition workspaces
+## Percentile-horror / Call of Cthulhu-compatible workspaces
 
-- Top-level isolated CoC 7e shell and exact-system persistence
+- Top-level isolated `coc-7e` shell and exact-system persistence
 - Percentile, difficulty, opposed, Bonus/Penalty, Pushed, and Luck procedures
 - Sanity loss, temporary insanity, bouts, campaign effects, and reality checks
 - DEX order, close combat, Fighting Maneuvers, outnumbering, firearms, wounds, and healing
 - Magic Points, casting procedures, and skill improvement
-- Simplified source-audited Investigator builder with printable handoff
+- Searchable library of 24 original public-safe occupations
+- Twelve complete original premade Investigators split between 1920s and modern play
+- Versioned browser-local Investigator HP, Sanity, Magic Point, Luck, and Mythos state
+- Twenty-four original public-safe weapons across melee, thrown, handgun, long-gun, and shotgun families
+- Twenty-four original public-safe rituals across six ritual families and four risk tiers
+- Twenty-four original public-safe creatures and NPCs across human, animal, unnatural, and catastrophic groups
 - Keeper investigation procedures and run sheets
 - Routed Equipment, Spells & Rituals, Creatures & NPCs, Encounters, Builders, Sources, Catalog, and Private Library areas
 - Playable exact-system decks, action history, and private Card Platform archives
 
-The current public CoC Card Catalog contains nine verified procedure cards plus one original demonstration weapon, ritual, and creature. It is a useful core toolkit, not yet a complete Keeper library. The next program adds full Investigator Play Mode, original prebuilt Investigators, persistent case/encounter state, broad original/public-safe content, and structured private owned-content builders. See [#101](https://github.com/cbw29512/DungeonCards/issues/101).
+The current public `coc-7e` Card Catalog contains **93 definitions**: nine verified procedure cards, 24 original weapons, 24 original rituals, 24 original creatures/NPCs, and 12 original premade Investigators. The occupation directory contains 24 additional original packages used by the Investigator builder. These are substantial original libraries, not reproductions of Chaosium's official catalogs.
+
+Remaining complete-session work includes a persistent Keeper case board and encounter workspace, clue/location/handout libraries, broader mundane field gear and vehicles, original case frameworks, and structured private builders for user-owned material. See [#101](https://github.com/cbw29512/DungeonCards/issues/101).
 
 Official paid Call of Cthulhu catalogs, scenarios, artwork, logos, and substantial proprietary text remain excluded unless permission is obtained.
 
@@ -95,7 +104,7 @@ Official paid Call of Cthulhu catalogs, scenarios, artwork, logos, and substanti
 
 The shared card schema already supports scenes, clues, handouts, locations, visibility, linked cards, runtime copies, and campaign decks. Issue [#102](https://github.com/cbw29512/DungeonCards/issues/102) adds the missing adventure state machine: persistent player decisions, requirements, consequences, hidden GM/Keeper information, branching scenes, encounters, clues, multiple endings, save/resume, and separated print packets.
 
-First-party one-shots must be original or separately licensed. D&D adventures may reference public SRD assets with attribution. CoC adventures must use original cases, creatures, rituals, clues, locations, and handouts rather than copying official scenarios.
+First-party one-shots must be original or separately licensed. D&D adventures may reference public SRD assets with attribution. CoC-compatible adventures must use original cases, creatures, rituals, clues, locations, and handouts rather than copying official scenarios.
 
 ## Source catalogs
 
@@ -105,7 +114,7 @@ First-party one-shots must be original or separately licensed. D&D adventures ma
 | SRD 5.2.1 — 2024 | 339 | 328 |
 | **Combined** | **658** | **642** |
 
-Generated records retain official PDF URLs, SHA-256 digests, source versions, source pages, and required CC BY 4.0 attribution. Validation checks required fields, edition separation, duplicate IDs, extraction artifacts, and deterministic output.
+Generated records retain official PDF URLs, SHA-256 digests, source versions, source pages, and required CC BY 4.0 attribution. Validation checks exact reviewed counts, required fields, edition separation, duplicate IDs, extraction artifacts, complete monster source text, and deterministic output.
 
 ## Local development
 
@@ -139,8 +148,8 @@ The synchronization pipeline downloads configured official PDFs, extracts page r
 
 ## Storage and publishing boundaries
 
-- Anonymous browsing, card use, homebrew, private archive import, and printing remain available.
-- Local browser storage remains the default for personal cards, decks, history, homebrew, imports, and temporary workspaces.
+- Anonymous browsing, card use, homebrew, private archive import, encounter state, and printing remain available.
+- Local browser storage is the default for personal cards, decks, history, homebrew, imports, monster encounters, full D&D encounter sessions, and Investigator play state.
 - Optional Supabase accounts support private Character Vault saves when configured.
 - Row Level Security restricts saved-character rows to their owner.
 - Browser builds may use only Supabase publishable or legacy anon keys; secret and service-role keys are server-only.
