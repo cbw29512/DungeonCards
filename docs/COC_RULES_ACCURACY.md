@@ -1,16 +1,16 @@
-# Call of Cthulhu 7e Rules Accuracy Gate
+# Call of Cthulhu 7e-Compatible Rules Accuracy Gate
 
-Last updated: 2026-07-14
+Last updated: 2026-07-28
 
 ## Priority
 
-Rules accuracy is the primary acceptance criterion for the Call of Cthulhu 7th Edition expansion.
+Rules accuracy is the primary acceptance criterion for the `coc-7e` percentile-horror expansion.
 
-Visual polish, atmosphere, animation, and content volume cannot compensate for an incorrect rule. No Call of Cthulhu card, calculator, creature action, weapon interaction, spell procedure, Sanity procedure, chase procedure, or encounter automation may be presented as rules-complete until it passes this gate.
+Visual polish, atmosphere, animation, and content volume cannot compensate for an incorrect rule. No card, calculator, creature action, weapon interaction, ritual procedure, Sanity procedure, chase procedure, or encounter automation may be presented as rules-complete until it passes this gate.
 
 ## Shared UI, separate rules
 
-Dungeon Cards should use one consistent product UI across supported game systems:
+DM Forge uses one consistent product UI across supported game systems:
 
 - the same system gateway;
 - the same navigation hierarchy;
@@ -21,9 +21,9 @@ Dungeon Cards should use one consistent product UI across supported game systems
 The information and execution logic must remain system-specific:
 
 - D&D uses its own d20, damage, saving throw, spell, and monster schemas;
-- Call of Cthulhu uses its own percentile, success-level, Bonus/Penalty die, Sanity, weapon, spell, creature, and encounter schemas;
+- `coc-7e` uses its own percentile, success-level, Bonus/Penalty die, Sanity, weapon, ritual, creature, and encounter schemas;
 - presentation components may be shared, but rules calculations may not be generalized by silently treating one system like another;
-- D&D and Call of Cthulhu persistence, history, workspaces, and runtime state must remain isolated.
+- D&D and `coc-7e` persistence, history, workspaces, and runtime state must remain isolated.
 
 ## Authoritative source order
 
@@ -89,7 +89,7 @@ Each card must clearly distinguish:
 - rulings made by the Keeper;
 - optional rules;
 - reminders that are descriptive rather than executable;
-- derived values versus values supplied by a creature, weapon, spell, or investigator record.
+- derived values versus values supplied by a creature, weapon, ritual, or Investigator record.
 
 A card must not imply that a Keeper-discretion rule is automatic. A card must not invent a consequence, modifier, damage value, range, cost, or threshold to fill missing information.
 
@@ -104,11 +104,11 @@ Combat-ready creature and NPC cards require verification of:
 - Dodge and combat-response behavior;
 - special powers and resource costs;
 - Sanity loss;
-- spells and opposed rolls;
+- rituals and opposed rolls;
 - wound, unconsciousness, dying, and defeat handling;
 - any exception to standard combat rules.
 
-Original prototype creatures may be used for interface development, but they must be labeled as original prototypes and must not be used as evidence that official creature implementation is accurate.
+Original creatures may be used as public playable content when their statistics and prose are original, their source metadata says so, and their executable mechanics pass repository validation. They must not be presented as official Chaosium creatures or used as evidence that an official creature catalog has been implemented.
 
 ## Weapon accuracy
 
@@ -124,9 +124,11 @@ Weapon cards require verification of:
 - point-blank, multiple-shot, automatic-fire, and burst behavior when implemented;
 - era-specific or optional data clearly labeled.
 
-## Spell and ritual accuracy
+Original weapons may be public playable records when their mechanics use reviewed procedures and their data does not reproduce a protected official table.
 
-Spell and ritual cards require verification of:
+## Ritual accuracy
+
+Ritual cards require verification of:
 
 - casting requirements;
 - casting time;
@@ -138,27 +140,36 @@ Spell and ritual cards require verification of:
 - combat timing;
 - Keeper-only information separation.
 
-Original prototype spells remain interface demonstrations and are not rules-source substitutes.
+Original rituals are playable original content, not substitutes for or reproductions of an official spell catalog. Their own invented effects must remain distinguishable from source-backed generic casting procedures.
 
-## Current preview status
+## Current implementation status
 
-The current preview demonstrates architecture and interaction. It contains:
+The current public `coc-7e` Card Catalog contains:
 
-- a tested percentile engine;
-- original demonstration weapon, spell, and creature content;
-- original short-form procedure summaries;
-- no official creature or spell catalog.
+- 9 verified procedure cards;
+- 24 original weapon cards;
+- 24 original ritual cards;
+- 24 original creature/NPC cards;
+- 12 original premade Investigator cards.
 
-It is not yet rules-certified. Before expanding the catalog, the project must complete a card-by-card audit against the current official Quick-Start Rules and Keeper Rulebook.
+That is **93 public Card Platform definitions**.
+
+The Investigator builder additionally offers 24 original occupation packages. Current browser-local Investigator state tracks HP, Sanity, Magic Points, Luck, and Mythos with correct maximum-Sanity handling.
+
+This content depth does not mean every Call of Cthulhu rule is certified or that official catalogs are included. Each source-backed rule retains its own review status. Original records are validated as original product content and remain subject to mechanical tests, source-boundary tests, and playtesting.
 
 ## Release blockers
 
-The Call of Cthulhu expansion cannot be marked release-ready until:
+The `coc-7e` expansion cannot be marked fully release-ready until:
 
-- every included rule has a completed source record;
+- every included source-backed rule has a completed source record;
 - every executable rule has boundary tests;
-- every included card has passed two-review verification;
+- every rule claimed as verified has passed the required review gate;
 - optional rules are labeled and isolated;
-- all known disputes are resolved or the affected card is removed;
-- a full session is run using the cards while a reviewer checks each ruling against the rulebook;
-- the licensing path permits the intended distribution.
+- all known disputes are resolved or the affected automation is removed;
+- a complete session is run while a reviewer checks each rules claim against the applicable source;
+- persistent Keeper case and encounter state are implemented and tested;
+- structured private owned-content builders preserve the publishing boundary;
+- the licensing path permits the intended distribution and branding.
+
+Original library records may ship incrementally when they are accurately labeled, mechanically validated, and do not overstate official rules or catalog coverage.
