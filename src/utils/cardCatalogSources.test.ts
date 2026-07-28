@@ -5,7 +5,9 @@ import { cocRitualCatalog } from "../data/cocRitualCatalog";
 import { cocWeaponCatalog } from "../data/cocWeaponCatalog";
 import { dndConditions2014 } from "../data/dndConditions2014";
 import { dndConditions2024 } from "../data/dndConditions2024";
+import { generateDndVaultCardLibrary } from "../data/dndVaultCardLibrary";
 import type { CardCatalog, CardCatalogEntry } from "../types/cardCatalog";
+import type { CardDefinition } from "../types/cardPlatform";
 import { createEmptyPrivateCardLibrary } from "./privateCardLibraryStorage";
 import { buildCocCardCatalog } from "./cocCardCatalogSources";
 import { buildDndCardCatalog } from "./dndCardCatalogSources";
@@ -17,11 +19,33 @@ const normalizeVisibleText = (value: string | undefined): string => (value ?? ""
   .replace(/\s+/g, " ")
   .trim();
 
-const normalizedVisibleKey = (entry: CardCatalogEntry): string => [
-  entry.definition.family,
-  normalizeVisibleText(entry.definition.content.title),
-  normalizeVisibleText(entry.definition.content.subtitle)
+const normalizedDefinitionVisibleKey = (definition: CardDefinition): string => [
+  definition.family,
+  normalizeVisibleText(definition.content.title),
+  normalizeVisibleText(definition.content.subtitle)
 ].join(":");
+
+const normalizedVisibleKey = (entry: CardCatalogEntry): string => normalizedDefinitionVisibleKey(entry.definition);
+
+const semanticLoadoutKey = (definition: CardDefinition): string => JSON.stringify({
+  gameSystemId: definition.gameSystemId,
+  family: definition.family,
+  visibility: definition.visibility,
+  content: {
+    title: normalizeVisibleText(definition.content.title),
+    subtitle: normalizeVisibleText(definition.content.subtitle),
+    summary: normalizeVisibleText(definition.content.summary),
+    detail: normalizeVisibleText(definition.content.detail),
+    tags: definition.content.tags
+      .filter((tag) => tag !== "character-vault" && !tag.startsWith("vault-"))
+      .sort()
+  },
+  source: definition.source,
+  actions: definition.actions,
+  resources: definition.resources,
+  linkedCardIds: [...definition.linkedCardIds].sort(),
+  print: definition.print
+});
 
 const expectNoDuplicateCards = (entries: CardCatalogEntry[]) => {
   expect(new Set(entries.map((entry) => entry.definition.id)).size).toBe(entries.length);
@@ -53,6 +77,24 @@ const rageMaximums = (catalog: CardCatalog): Set<number | "unlimited"> => new Se
     .flatMap((entry) => entry.definition.resources.map((resource) => resource.maximum))
 );
 
+const repeatedExactLoadoutVisibleKey = (system: "dnd-2014" | "dnd-2024"): string => {
+  const loadouts = generateDndVaultCardLibrary()
+    .filter((bundle) => bundle.gameSystemId === system)
+    .flatMap((bundle) => bundle.definitions)
+    .filter((definition) => definition.family === "item" && definition.source.title === "DM Forge Character Vault loadout");
+  const visibleGroups = new Map<string, CardDefinition[]>();
+  loadouts.forEach((definition) => {
+    const key = normalizedDefinitionVisibleKey(definition);
+    visibleGroups.set(key, [...(visibleGroups.get(key) ?? []), definition]);
+  });
+  const repeated = [...visibleGroups.entries()].find(([, definitions]) => (
+    definitions.length > 1
+    && new Set(definitions.map(semanticLoadoutKey)).size === 1
+  ));
+  if (!repeated) throw new Error(`No exact repeated Character Vault loadout was found for ${system}.`);
+  return repeated[0];
+};
+
 describe("unified exact-system Card Catalog sources", () => {
   it("assembles large but isolated D&D 2014 and 2024 catalogs without duplicate visible cards", () => {
     const catalog2014 = expectExactSystem("dnd-2014", dndConditions2014.length);
@@ -69,15 +111,15 @@ describe("unified exact-system Card Catalog sources", () => {
     expect(rageMaximums(catalog2024)).toEqual(new Set([2, 3, 4, 5, 6]));
   });
 
-  it("collapses identical Character Vault loadout cards into one reusable definition per edition", () => {
+  it("collapses exact repeated Character Vault loadouts into one reusable definition per edition", () => {
     for (const system of ["dnd-2014", "dnd-2024"] as const) {
+      const repeatedVisibleKey = repeatedExactLoadoutVisibleKey(system);
       const catalog = buildDndCardCatalog(system, [], [], createEmptyPrivateCardLibrary(system));
-      const parchment = catalog.entries.filter((entry) => (
+      const accepted = catalog.entries.filter((entry) => (
         entry.sourceId === "characters"
-        && entry.definition.family === "item"
-        && entry.definition.content.title === "10 Sheets of Parchment"
+        && normalizedVisibleKey(entry) === repeatedVisibleKey
       ));
-      expect(parchment).toHaveLength(1);
+      expect(accepted).toHaveLength(1);
     }
   });
 
