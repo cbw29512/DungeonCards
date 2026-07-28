@@ -5,6 +5,7 @@ import { dndVaultBardProfiles } from "./dndVaultBardProfiles";
 import { dndVaultClericProfiles } from "./dndVaultClericProfiles";
 import { dndVaultFighterProfiles } from "./dndVaultFighterProfiles";
 import { dndVaultPaladinProfiles } from "./dndVaultPaladinProfiles";
+import { dndVaultRangerProfiles } from "./dndVaultRangerProfiles";
 import { dndVaultRogueProfiles } from "./dndVaultRogueProfiles";
 import { dndVaultWizardProfiles } from "./dndVaultWizardProfiles";
 
@@ -14,6 +15,7 @@ export const dndVaultReadyBuilds: DndOptimizedBuildProfile[] = [
   ...dndVaultClericProfiles,
   ...dndVaultFighterProfiles,
   ...dndVaultPaladinProfiles,
+  ...dndVaultRangerProfiles,
   ...dndVaultRogueProfiles,
   ...dndVaultWizardProfiles
 ];

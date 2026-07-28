@@ -5,7 +5,7 @@ import { generateDndCharacterCardBundle } from "./dndCharacterCardGeneration";
 
 describe("Character Vault Card Platform generation", () => {
   it("generates a valid exact-edition deck for every Vault Ready build", () => {
-    expect(dndVaultReadyBuilds).toHaveLength(280);
+    expect(dndVaultReadyBuilds).toHaveLength(320);
     const allIds: string[] = [];
     let generatedCount = 0;
     for (const profile of dndVaultReadyBuilds) {
@@ -25,6 +25,21 @@ describe("Character Vault Card Platform generation", () => {
     }
     expect(new Set(allIds).size).toBe(allIds.length);
     expect(generatedCount).toBeGreaterThan(1_000);
+  });
+
+  it("links every released spell card to the matching exact-edition SRD record", () => {
+    const unresolved = dndVaultReadyBuilds.flatMap((profile) => (
+      generateDndCharacterCardBundle(profile).definitions
+        .filter((card) => card.family === "spell")
+        .filter((card) => !(
+          card.source.kind === "srd"
+          && card.source.edition === profile.ruleset
+          && typeof card.source.page === "number"
+          && card.source.publicDistributionAllowed === true
+        ))
+        .map((card) => ({ buildId: profile.id, ruleset: profile.ruleset, title: card.content.title }))
+    ));
+    expect(unresolved).toEqual([]);
   });
 
   it("calculates attack rolls and keeps the output deterministic", () => {

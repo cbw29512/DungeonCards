@@ -13,17 +13,17 @@ export const paladinAttackCount = (level: number): number => level >= 5 ? 2 : 1;
 const preparedPool2014: Array<[number, string]> = [
   [2, "Bless"], [2, "Cure Wounds"], [2, "Shield of Faith"], [2, "Command"],
   [5, "Aid"], [5, "Find Steed"], [5, "Magic Weapon"], [5, "Protection from Poison"],
-  [9, "Aura of Vitality"], [9, "Blinding Smite"], [9, "Create Food and Water"],
-  [13, "Aura of Life"], [13, "Banishment"], [13, "Death Ward"],
-  [17, "Banishing Smite"], [17, "Circle of Power"], [17, "Dispel Evil and Good"]
+  [9, "Daylight"], [9, "Magic Circle"], [9, "Create Food and Water"],
+  [13, "Locate Creature"], [13, "Banishment"], [13, "Death Ward"],
+  [17, "Geas"], [17, "Raise Dead"], [17, "Dispel Evil and Good"]
 ];
 
 const preparedPool2024: Array<[number, string]> = [
   [1, "Bless"], [1, "Cure Wounds"], [1, "Divine Favor"], [1, "Command"],
   [5, "Lesser Restoration"], [5, "Magic Weapon"], [5, "Protection from Poison"],
-  [9, "Aura of Vitality"], [9, "Blinding Smite"], [9, "Create Food and Water"],
+  [9, "Daylight"], [9, "Magic Circle"], [9, "Create Food and Water"],
   [13, "Aura of Life"], [13, "Banishment"], [13, "Death Ward"],
-  [17, "Banishing Smite"], [17, "Circle of Power"], [17, "Dispel Evil and Good"]
+  [17, "Geas"], [17, "Raise Dead"], [17, "Dispel Evil and Good"]
 ];
 
 export const paladinPreparedSpells = (

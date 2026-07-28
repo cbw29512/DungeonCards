@@ -4,12 +4,23 @@ import type { SrdSpellRecord } from "../types/srdCompendium";
 import type { DndOptimizedBuildProfile } from "../types/dndCharacterVault";
 import { buildVaultCard, safeVaultCardId } from "./dndCharacterCardShared";
 
+const normalizeSpellName = (name: string): string => name
+  .normalize("NFKC")
+  .replace(/[‘’]/g, "'")
+  .replace(/[“”]/g, '"')
+  .replace(/\s+/g, " ")
+  .trim()
+  .toLowerCase();
+
 const findSpell = (
   profile: DndOptimizedBuildProfile,
   name: string
-): SrdSpellRecord | undefined => srdSpells.find((spell) => (
-  spell.edition === profile.ruleset && spell.name.toLowerCase() === name.toLowerCase()
-));
+): SrdSpellRecord | undefined => {
+  const normalizedName = normalizeSpellName(name);
+  return srdSpells.find((spell) => (
+    spell.edition === profile.ruleset && normalizeSpellName(spell.name) === normalizedName
+  ));
+};
 
 const spellSource = (record: SrdSpellRecord): CardSourceReference => {
   const manifest = srdManifest.sources.find((source) => source.edition === record.edition);
@@ -34,7 +45,7 @@ export const generateDndSpellCards = (
     ...casting.cantrips.map((name) => ({ name, cantrip: true })),
     ...casting.spells.map((name) => ({ name, cantrip: false }))
   ].filter((entry, index, entries) => entries.findIndex((candidate) => (
-    candidate.name.toLowerCase() === entry.name.toLowerCase()
+    normalizeSpellName(candidate.name) === normalizeSpellName(entry.name)
   )) === index);
   return selected.map((entry, index) => {
     const record = findSpell(profile, entry.name);
