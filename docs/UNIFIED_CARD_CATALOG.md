@@ -10,7 +10,7 @@ A catalog contains exactly one of:
 - `dnd-2024`;
 - `coc-7e`.
 
-The D&D route requires an explicit edition selection. The Call of Cthulhu route is permanently scoped to 7e. Definitions whose `gameSystemId` does not match the active catalog are rejected and reported as source-health warnings.
+The D&D route requires an explicit edition selection. The percentile-horror route is permanently scoped to `coc-7e`. Definitions whose `gameSystemId` does not match the active catalog are rejected and reported as source-health warnings.
 
 ## D&D source groups
 
@@ -29,17 +29,21 @@ Condition cards retain their canonical ordered effects as one executable procedu
 
 The catalog does not copy or replace the source databases. It builds deterministic Card Platform projections from their current immutable records.
 
-## Call of Cthulhu source groups
+## Percentile-horror source groups
 
-The CoC 7e catalog assembles:
+The public `coc-7e` catalog assembles exactly:
 
-- verified free-rule quick-reference procedures;
-- the original demonstration weapon;
-- the original demonstration ritual;
-- the original demonstration creature dossier card;
-- definitions from the CoC 7e private library.
+- nine verified free-rule quick-reference procedure cards;
+- 24 original public-safe weapon cards;
+- 24 original public-safe ritual cards;
+- 24 original public-safe creature and NPC dossier cards;
+- 12 original public-safe premade Investigator cards.
 
-Verified procedures retain official free-rule source records and review dates. Demonstration records remain clearly marked as original prototype content.
+That is **93 public definitions** before any private import. The separate occupation directory contains 24 original occupation packages used by the Investigator builder; occupations are not currently projected as standalone Card Platform definitions.
+
+Verified procedures retain source records and review dates. Original records retain public-safe source metadata and do not reproduce official paid catalogs, scenarios, protected statistics, artwork, or substantial rulebook prose.
+
+Definitions from the exact-system `coc-7e` private library may be added locally without publishing their contents.
 
 ## Validation and source health
 
@@ -55,11 +59,13 @@ The source-health panel reports:
 
 Warnings are visible to the user, while valid definitions remain searchable.
 
-## Stable-ID precedence
+## Stable-ID and equivalence handling
 
 Built-in definitions are immutable inside the catalog. A private import with the same ID cannot replace built-in content.
 
 When multiple private sources provide the same private ID, the later private definition may replace the earlier private definition. No cross-system replacement is possible.
+
+Cards are not discarded merely because their family, title, and subtitle look alike. Mechanically different actions, formulas, resources, links, source records, and level-scaled payloads remain separate. Only fully canonical-equivalent reusable definitions may coalesce.
 
 ## Search and filters
 
@@ -94,12 +100,12 @@ Print mode prints only the currently filtered page. Temporary flip state does no
 
 ## Relationship to other workspaces
 
-Source-group controls open the corresponding specialized workspace:
+The Card Catalog complements the corresponding specialized workspaces:
 
 - D&D Rules, Conditions & Exhaustion, Compendium, Monster Encounter, Character Vault, Homebrew, and Private Library;
-- CoC Rules, Equipment, Spells & Rituals, Creatures & NPCs, and Private Library.
+- percentile-horror Rules, Equipment, Spells & Rituals, Creatures & NPCs, Investigators, and Private Library.
 
-The Card Catalog is an index and operating surface, not a replacement for those deeper tools.
+Source summaries are count-only to avoid duplicating the primary navigation. The Card Catalog is an index and operating surface, not a replacement for the deeper tools.
 
 ## Publishing boundary
 
