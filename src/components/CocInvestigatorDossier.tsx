@@ -7,7 +7,6 @@ import {
   calculateCocDerivedAttributes,
   calculateCocThresholds
 } from "../utils/cocInvestigator";
-import { CocPercentileCard } from "./CocPercentileCard";
 
 const formatBuild = (build: number): string => build > 0 ? `+${build}` : `${build}`;
 
@@ -130,13 +129,6 @@ export const CocInvestigatorDossier = ({ investigator }: { investigator: CocInve
         <section><h3>Traits</h3><p>{investigator.traits.join(" · ")}</p></section>
         <section><h3>Play notes</h3><ul>{investigator.notes.map((entry) => <li key={entry}>{entry}</li>)}</ul></section>
       </div>
-
-      {topSkill && (
-        <section className="coc-investigator-dossier__roller">
-          <CocPercentileCard eyebrow={`${investigator.name} quick roll`} title={topSkill[0]} />
-          <p>Set the card's skill value to {topSkill[1]} for this Investigator's listed top skill.</p>
-        </section>
-      )}
 
       <footer>Original DM Forge Investigator · Public-safe character content · Complete private campaign state remains browser-local.</footer>
     </article>
