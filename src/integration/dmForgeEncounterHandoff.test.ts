@@ -55,6 +55,20 @@ describe("DM Forge encounter handoff", () => {
     expect(payload.monsters).toEqual([{ sourceRecordId: "srd51-goblin", name: "Goblin", ruleset: "2014", quantity: 1 }]);
   });
 
+  it("aggregates independent repeated instances into an accurate transfer quantity", () => {
+    installWindow();
+    const payload = buildDmForgeEncounterHandoff([
+      entry(),
+      entry(),
+      entry(),
+      entry({ id: "srd51-ogre", name: "Ogre", cr: "2", size: "Large" })
+    ]);
+    expect(payload.monsters).toEqual([
+      { sourceRecordId: "srd51-goblin", name: "Goblin", ruleset: "2014", quantity: 3 },
+      { sourceRecordId: "srd51-ogre", name: "Ogre", ruleset: "2014", quantity: 1 }
+    ]);
+  });
+
   it("rejects mixed-edition encounters before encounter math is selected", () => {
     installWindow();
     expect(() => buildDmForgeEncounterHandoff([

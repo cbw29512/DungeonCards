@@ -1,76 +1,147 @@
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
-import type { WorkspaceView } from "../types/workspaces";
+import type { ResolvedMonsterEncounterInstance } from "../types/monsterEncounterWorkspace";
+import type { RulesetId } from "../types/ruleCards";
+import type { WorkspaceMoveDirection, WorkspaceView } from "../types/workspaces";
+import { MonsterEncounterInstanceControls } from "./MonsterEncounterInstanceControls";
 import { MonsterReferenceCard } from "./MonsterReferenceCard";
+import type { WorkspaceCardControls } from "./RuleCardWorkspaceActions";
 import { SrdMonsterEncounterCard } from "./SrdMonsterEncounterCard";
+
+const renderMonsterCard = (
+  entry: EncounterMonsterEntry,
+  workspaceControls: WorkspaceCardControls,
+  options: {
+    key: string;
+    label?: string;
+    onDeleteHomebrew?: () => boolean;
+  }
+) => entry.kind === "reference" ? (
+  <SrdMonsterEncounterCard
+    key={options.key}
+    monster={entry.monster}
+    workspaceControls={workspaceControls}
+    workspaceLabel={options.label}
+  />
+) : (
+  <MonsterReferenceCard
+    key={options.key}
+    monster={entry.monster}
+    onDelete={options.onDeleteHomebrew}
+    workspaceControls={workspaceControls}
+    workspaceLabel={options.label}
+  />
+);
 
 type Props = {
   entries: EncounterMonsterEntry[];
-  activeEntries: EncounterMonsterEntry[];
-  activeCardIds: string[];
-  pinnedCardIds: string[];
+  activeInstances: ResolvedMonsterEncounterInstance[];
+  ruleset: RulesetId;
   view: WorkspaceView;
-  onAdd(cardId: string): void;
+  countCopies(monsterId: string): number;
+  onAdd(monsterId: string): void;
   onDeleteHomebrew(monsterId: string): boolean;
-  onMove(cardId: string, direction: "earlier" | "later"): void;
-  onRemove(cardId: string): void;
-  onTogglePin(cardId: string): void;
+  onMove(instanceId: string, direction: WorkspaceMoveDirection): void;
+  onRemove(instanceId: string): void;
+  onTogglePin(instanceId: string): void;
+  onRename(instanceId: string, label: string): void;
+  onSetHitPoints(instanceId: string, value: number): void;
+  onSetInitiative(instanceId: string, value: number | null): void;
+  onAddCondition(instanceId: string, condition: string): void;
+  onRemoveCondition(instanceId: string, condition: string): void;
+  onSetReaction(instanceId: string, available: boolean): void;
+  onSetRecharge(instanceId: string, ready: boolean): void;
+  onSetLegendaryRemaining(instanceId: string, remaining: number): void;
+  onStartTurn(instanceId: string): void;
 };
 
 export const MonsterDeckCards = ({
   entries,
-  activeEntries,
-  activeCardIds,
-  pinnedCardIds,
+  activeInstances,
+  ruleset,
   view,
+  countCopies,
   onAdd,
   onDeleteHomebrew,
   onMove,
   onRemove,
-  onTogglePin
-}: Props) => (
-  <div className="monster-grid">
-    {entries.map((entry) => {
-      const isActive = activeCardIds.includes(entry.id);
-      const isPinned = pinnedCardIds.includes(entry.id);
-      const tableIndex = activeEntries.findIndex((item) => item.id === entry.id);
-      const previous = activeEntries[tableIndex - 1];
-      const next = activeEntries[tableIndex + 1];
-      const previousMatches = previous !== undefined
-        && pinnedCardIds.includes(previous.id) === isPinned;
-      const nextMatches = next !== undefined
-        && pinnedCardIds.includes(next.id) === isPinned;
-      const workspaceControls = {
-        view,
-        isActive,
-        isPinned,
-        canMoveEarlier: view === "table" && previousMatches,
-        canMoveLater: view === "table" && nextMatches,
-        onToggleActive: () => isActive ? onRemove(entry.id) : onAdd(entry.id),
-        onTogglePin: () => onTogglePin(entry.id),
-        onMoveEarlier: () => onMove(entry.id, "earlier" as const),
-        onMoveLater: () => onMove(entry.id, "later" as const)
-      };
+  onTogglePin,
+  onRename,
+  onSetHitPoints,
+  onSetInitiative,
+  onAddCondition,
+  onRemoveCondition,
+  onSetReaction,
+  onSetRecharge,
+  onSetLegendaryRemaining,
+  onStartTurn
+}: Props) => {
+  if (view === "library") {
+    return (
+      <div className="monster-grid monster-grid--library">
+        {entries.map((entry) => {
+          const copyCount = countCopies(entry.id);
+          return renderMonsterCard(entry, {
+            view,
+            isActive: copyCount > 0,
+            isPinned: false,
+            canMoveEarlier: false,
+            canMoveLater: false,
+            allowDuplicates: true,
+            copyCount,
+            onToggleActive: () => onAdd(entry.id),
+            onTogglePin: () => {},
+            onMoveEarlier: () => {},
+            onMoveLater: () => {}
+          }, {
+            key: entry.id,
+            onDeleteHomebrew: entry.ruleset === "homebrew"
+              ? () => onDeleteHomebrew(entry.id)
+              : undefined
+          });
+        })}
+      </div>
+    );
+  }
 
-      if (entry.kind === "reference") {
+  return (
+    <div className="monster-instance-grid">
+      {activeInstances.map((instance, index) => {
+        const previous = activeInstances[index - 1];
+        const next = activeInstances[index + 1];
+        const workspaceControls: WorkspaceCardControls = {
+          view,
+          isActive: true,
+          isPinned: instance.pinned,
+          canMoveEarlier: previous !== undefined && previous.pinned === instance.pinned,
+          canMoveLater: next !== undefined && next.pinned === instance.pinned,
+          onToggleActive: () => onRemove(instance.instanceId),
+          onTogglePin: () => onTogglePin(instance.instanceId),
+          onMoveEarlier: () => onMove(instance.instanceId, "earlier"),
+          onMoveLater: () => onMove(instance.instanceId, "later")
+        };
+
         return (
-          <SrdMonsterEncounterCard
-            key={entry.id}
-            monster={entry.monster}
-            workspaceControls={workspaceControls}
-          />
+          <article className="monster-instance" key={instance.instanceId}>
+            <MonsterEncounterInstanceControls
+              instance={instance}
+              ruleset={ruleset}
+              onAddCondition={(condition) => onAddCondition(instance.instanceId, condition)}
+              onRemoveCondition={(condition) => onRemoveCondition(instance.instanceId, condition)}
+              onRename={(label) => onRename(instance.instanceId, label)}
+              onSetHitPoints={(value) => onSetHitPoints(instance.instanceId, value)}
+              onSetInitiative={(value) => onSetInitiative(instance.instanceId, value)}
+              onSetLegendaryRemaining={(value) => onSetLegendaryRemaining(instance.instanceId, value)}
+              onSetReaction={(available) => onSetReaction(instance.instanceId, available)}
+              onSetRecharge={(ready) => onSetRecharge(instance.instanceId, ready)}
+              onStartTurn={() => onStartTurn(instance.instanceId)}
+            />
+            {renderMonsterCard(instance.monster, workspaceControls, {
+              key: `${instance.instanceId}-card`,
+              label: instance.label
+            })}
+          </article>
         );
-      }
-
-      return (
-        <MonsterReferenceCard
-          key={entry.id}
-          monster={entry.monster}
-          onDelete={view === "library" && entry.ruleset === "homebrew"
-            ? () => onDeleteHomebrew(entry.id)
-            : undefined}
-          workspaceControls={workspaceControls}
-        />
-      );
-    })}
-  </div>
-);
+      })}
+    </div>
+  );
+};
