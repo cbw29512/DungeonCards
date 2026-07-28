@@ -21,6 +21,8 @@ const exportBlock = (source, name) => {
 };
 
 const quotedValues = (source) => [...source.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+const objectValues = (source) => [...source.matchAll(/(?:^|\n)\s*(?:"[^"]+"|[A-Za-z0-9_-]+)\s*:\s*"([^"]+)"/g)]
+  .map((match) => match[1]);
 
 const cocRegistry = read("src/components/cocShell/cocPageRegistry.ts");
 const dndRegistry = read("src/components/dndShell/dndPageRegistry.ts");
@@ -37,10 +39,10 @@ const ritualLibrary = read("src/components/CocRitualLibrary.tsx");
 describe("duplicate-free routed pages", () => {
   it("keeps every navigation destination and label unique", () => {
     const cocPagesList = quotedValues(exportBlock(cocRegistry, "cocNavigationPages"));
-    const cocLabels = quotedValues(exportBlock(cocRegistry, "cocPageLabels")).filter((_, index) => index % 2 === 1);
+    const cocLabels = objectValues(exportBlock(cocRegistry, "cocPageLabels"));
     const dndPagesList = quotedValues(exportBlock(dndRegistry, "dndNavigationPages"));
-    const dndPageLabels = quotedValues(exportBlock(dndRegistry, "dndPageLabels")).filter((_, index) => index % 2 === 1);
-    const dndNavigationLabels = quotedValues(exportBlock(dndRegistry, "dndNavigationLabels")).filter((_, index) => index % 2 === 1);
+    const dndPageLabels = objectValues(exportBlock(dndRegistry, "dndPageLabels"));
+    const dndNavigationLabels = objectValues(exportBlock(dndRegistry, "dndNavigationLabels"));
 
     expect(new Set(cocPagesList).size).toBe(cocPagesList.length);
     expect(new Set(cocLabels).size).toBe(cocLabels.length);
