@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cocWeaponCatalog } from "../data/cocWeaponCatalog";
+import type { CardCatalogEntry } from "../types/cardCatalog";
 import type { CardDefinition } from "../types/cardPlatform";
 import { buildCardCatalog } from "./cardCatalogBuild";
 import { adaptCocWeapon } from "./cardPlatformCocWeaponAdapter";
@@ -20,7 +21,13 @@ const cloneWith = (
   }
 });
 
-describe("Card Catalog duplicate rejection", () => {
+const visibleKey = (entry: CardCatalogEntry): string => [
+  entry.definition.family,
+  entry.definition.content.title.normalize("NFKC").toLowerCase().replace(/[‘’]/g, "'").replace(/\s+/g, " ").trim(),
+  (entry.definition.content.subtitle ?? "").normalize("NFKC").toLowerCase().replace(/[‘’]/g, "'").replace(/\s+/g, " ").trim()
+].join(":");
+
+describe("Card Catalog duplicate handling", () => {
   it("excludes duplicate IDs from immutable public sources", () => {
     const original = adaptCocWeapon(cocWeaponCatalog[0]!);
     const conflicting = cloneWith(adaptCocWeapon(cocWeaponCatalog[1]!), {
@@ -37,10 +44,24 @@ describe("Card Catalog duplicate rejection", () => {
     expect(catalog.issues.some((issue) => issue.message.includes("conflicts with immutable"))).toBe(true);
   });
 
-  it("excludes duplicate visible identities within the same card family", () => {
+  it("collapses exact-equivalent immutable definitions without creating a warning", () => {
     const original = adaptCocWeapon(cocWeaponCatalog[0]!);
-    const duplicateVisibleCard = cloneWith(adaptCocWeapon(cocWeaponCatalog[1]!), {
-      id: "legacy-coc:weapon:duplicate-visible-test",
+    const equivalent = cloneWith(original, { id: "legacy-coc:weapon:equivalent-copy" });
+    const catalog = buildCardCatalog("coc-7e", [{
+      id: "coc-equipment",
+      label: "Original equipment",
+      definitions: [original, equivalent]
+    }]);
+
+    expect(catalog.entries).toHaveLength(1);
+    expect(catalog.entries[0]?.definition.id).toBe(original.id);
+    expect(catalog.issues).toHaveLength(0);
+  });
+
+  it("preserves mechanically different cards and gives visible collisions clear context", () => {
+    const original = adaptCocWeapon(cocWeaponCatalog[0]!);
+    const differentMechanics = cloneWith(adaptCocWeapon(cocWeaponCatalog[1]!), {
+      id: "legacy-coc:weapon:different-mechanics",
       content: {
         title: original.content.title,
         subtitle: original.content.subtitle
@@ -49,31 +70,32 @@ describe("Card Catalog duplicate rejection", () => {
     const catalog = buildCardCatalog("coc-7e", [{
       id: "coc-equipment",
       label: "Original equipment",
-      definitions: [original, duplicateVisibleCard]
+      definitions: [original, differentMechanics]
     }]);
 
-    expect(catalog.entries).toHaveLength(1);
-    expect(catalog.entries[0]?.definition.content.title).toBe(original.content.title);
-    expect(catalog.issues.some((issue) => issue.message.includes("duplicates an existing visible weapon card"))).toBe(true);
+    expect(catalog.entries).toHaveLength(2);
+    expect(new Set(catalog.entries.map(visibleKey)).size).toBe(2);
+    expect(catalog.entries.every((entry) => entry.definition.content.subtitle?.includes("Original Equipment"))).toBe(true);
+    expect(catalog.issues).toHaveLength(0);
   });
 
-  it("normalizes curly apostrophes, case, and whitespace before comparing visible identities", () => {
+  it("normalizes curly apostrophes, case, and whitespace when identifying exact equivalents", () => {
     const original = cloneWith(adaptCocWeapon(cocWeaponCatalog[0]!), {
       id: "legacy-coc:weapon:keepers-blade-one",
       content: { title: "Keeper’s Blade", subtitle: "Archive Test" }
     });
-    const duplicateVisibleCard = cloneWith(adaptCocWeapon(cocWeaponCatalog[1]!), {
+    const equivalent = cloneWith(original, {
       id: "legacy-coc:weapon:keepers-blade-two",
       content: { title: "  KEEPER'S   BLADE  ", subtitle: " archive   test " }
     });
     const catalog = buildCardCatalog("coc-7e", [{
       id: "coc-equipment",
       label: "Original equipment",
-      definitions: [original, duplicateVisibleCard]
+      definitions: [original, equivalent]
     }]);
 
     expect(catalog.entries).toHaveLength(1);
-    expect(catalog.issues).toHaveLength(1);
+    expect(catalog.issues).toHaveLength(0);
   });
 
   it("keeps cards with the same generic title when their visible context differs", () => {
