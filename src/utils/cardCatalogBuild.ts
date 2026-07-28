@@ -112,12 +112,12 @@ const disambiguateVisibleCollisions = (catalogEntries: CardCatalogEntry[]): Card
     const group = groups.get(normalizedVisibleKey(entry.definition)) ?? [];
     if (group.length <= 1) return entry;
 
-    const contexts = group.map(visibleContext);
-    let context = visibleContext(entry);
-    if (contexts.filter((candidate) => candidate === context).length > 1) {
-      const stableSuffix = entry.definition.id.split(":").slice(-2).join(":");
-      context = `${context} · ${titleCaseSlug(stableSuffix)}`;
-    }
+    const context = visibleContext(entry);
+    const sameContextEntries = group.filter((candidate) => visibleContext(candidate) === context);
+    const variantIndex = sameContextEntries.findIndex((candidate) => candidate.definition.id === entry.definition.id);
+    const resolvedContext = sameContextEntries.length > 1
+      ? `${context} · Variant ${variantIndex + 1}`
+      : context;
     const baseSubtitle = entry.definition.content.subtitle?.trim();
     return {
       ...entry,
@@ -125,7 +125,7 @@ const disambiguateVisibleCollisions = (catalogEntries: CardCatalogEntry[]): Card
         ...entry.definition,
         content: {
           ...entry.definition.content,
-          subtitle: baseSubtitle ? `${baseSubtitle} · ${context}` : context
+          subtitle: baseSubtitle ? `${baseSubtitle} · ${resolvedContext}` : resolvedContext
         }
       }
     };
