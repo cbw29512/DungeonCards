@@ -54,14 +54,14 @@ describe("duplicate-free routed pages", () => {
   it("keeps landing pages to two primary role actions instead of duplicate sitemap grids", () => {
     expect(cocHome).not.toContain("cocHomeCards");
     expect(cocHome).not.toContain("coc-index-grid");
-    expect(occurrences(cocHome, "onNavigate(")).toBe(2);
+    expect(occurrences(cocHome, "onClick={() => onNavigate(")).toBe(2);
     expect(cocHome).toContain('onNavigate("investigator")');
     expect(cocHome).toContain('onNavigate("keeper")');
     expect(cocHome).not.toContain('onNavigate("catalog")');
 
     expect(dndHome).not.toContain("dndHomeCards");
     expect(dndHome).not.toContain("role-card-grid");
-    expect(occurrences(dndHome, "onNavigate(")).toBe(2);
+    expect(occurrences(dndHome, "onClick={() => onNavigate(")).toBe(2);
     expect(dndHome).toContain('onNavigate("player")');
     expect(dndHome).toContain('onNavigate("dm")');
     expect(dndHome).not.toContain('onNavigate("catalog")');
