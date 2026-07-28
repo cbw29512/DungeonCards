@@ -1,0 +1,61 @@
+.monster-deck__filter-panel {
+  display: grid;
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid rgb(247 199 107 / 18%);
+  border-radius: 0.85rem;
+  background: rgb(255 255 255 / 4%);
+  gap: 0.65rem;
+}
+
+.monster-deck__filter-panel .monster-deck__filters {
+  margin-top: 0;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.monster-filter-field {
+  display: grid;
+  min-width: 0;
+  gap: 0.3rem;
+}
+
+.monster-filter-field > span {
+  color: #f7c76b;
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monster-filter-field--search {
+  grid-column: span 2;
+}
+
+.monster-filter-clear {
+  min-height: 40px;
+  width: fit-content;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 6%);
+  cursor: pointer;
+  font-weight: 800;
+  justify-self: end;
+}
+
+.monster-filter-clear:hover,
+.monster-filter-clear:focus-visible {
+  border-color: rgb(247 199 107 / 48%);
+  background: rgb(247 199 107 / 10%);
+}
+
+@media (max-width: 680px) {
+  .monster-filter-field--search {
+    grid-column: auto;
+  }
+
+  .monster-filter-clear {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
