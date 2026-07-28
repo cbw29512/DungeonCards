@@ -12,8 +12,8 @@ export const rangerAttackCount = (level: number): number => level >= 5 ? 2 : 1;
 
 const rangerSpellPool2014: Array<[number, string]> = [
   [2, "Hunter's Mark"], [2, "Cure Wounds"], [3, "Goodberry"], [5, "Pass without Trace"],
-  [7, "Spike Growth"], [9, "Conjure Barrage"], [11, "Lightning Arrow"], [13, "Freedom of Movement"],
-  [15, "Conjure Woodland Beings"], [17, "Swift Quiver"], [19, "Conjure Volley"]
+  [7, "Spike Growth"], [9, "Conjure Animals"], [11, "Plant Growth"], [13, "Freedom of Movement"],
+  [15, "Stoneskin"], [17, "Commune with Nature"], [19, "Tree Stride"]
 ];
 
 const rangerSpellPool2024: Array<[number, string]> = [
