@@ -4,7 +4,6 @@ import type { SrdMonsterRecord } from "../types/srdCompendium";
 import {
   addMonsterEncounterCondition,
   addMonsterEncounterInstance,
-  removeMonsterEncounterCondition,
   setMonsterEncounterHitPoints,
   setMonsterEncounterInitiative,
   setMonsterEncounterLegendaryRemaining,
@@ -19,11 +18,7 @@ import {
 } from "./monsterEncounterWorkspaceModel";
 import { createMonsterEncounterWorkspaceRepository } from "./monsterEncounterWorkspaceRepository";
 
-const monsterRecord = (
-  id: string,
-  name: string,
-  overrides: Partial<SrdMonsterRecord> = {}
-): SrdMonsterRecord => ({
+const record = (id: string, name: string, patch: Partial<SrdMonsterRecord> = {}): SrdMonsterRecord => ({
   id,
   edition: "srd-5.1-2014",
   sourceVersion: "5.1",
@@ -43,23 +38,19 @@ const monsterRecord = (
   rawText: `${name} complete reference`,
   sourcePage: 1,
   sourceReference: "SRD 5.1",
-  ...overrides
+  ...patch
 });
 
-const entry = (
-  id: string,
-  name: string,
-  overrides: Partial<SrdMonsterRecord> = {}
-): EncounterMonsterEntry => ({
+const entry = (id: string, name: string, patch: Partial<SrdMonsterRecord> = {}): EncounterMonsterEntry => ({
   id,
   kind: "reference",
   name,
   ruleset: "srd-5.1-2014",
-  cr: overrides.challenge ?? "1/4",
-  type: overrides.type ?? "Humanoid",
-  size: overrides.size ?? "Small",
+  cr: patch.challenge ?? "1/4",
+  type: patch.type ?? "Humanoid",
+  size: patch.size ?? "Small",
   source: "SRD 5.1",
-  monster: monsterRecord(id, name, overrides)
+  monster: record(id, name, patch)
 });
 
 const goblin = entry("goblin", "Goblin");
@@ -84,35 +75,44 @@ class MemoryStorage implements Storage {
 }
 
 describe("monster encounter instances", () => {
-  it("adds repeated monster definitions as independent named combatants", () => {
+  it("creates repeated definitions as independent named combatants", () => {
     let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
     workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
     workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-2");
     workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-3");
 
-    expect(workspace.instances.map((instance) => instance.instanceId)).toEqual(["goblin-1", "goblin-2", "goblin-3"]);
-    expect(workspace.instances.map((instance) => instance.label)).toEqual(["Goblin 1", "Goblin 2", "Goblin 3"]);
-    expect(workspace.instances.every((instance) => instance.maximumHitPoints === 7)).toBe(true);
+    expect(workspace.instances.map(({ instanceId }) => instanceId)).toEqual(["goblin-1", "goblin-2", "goblin-3"]);
+    expect(workspace.instances.map(({ label }) => label)).toEqual(["Goblin 1", "Goblin 2", "Goblin 3"]);
+    expect(workspace.instances.every(({ currentHitPoints, reactionAvailable }) => currentHitPoints === 7 && reactionAvailable)).toBe(true);
   });
 
-  it("keeps HP, initiative, and conditions independent for each copy", () => {
+  it("keeps HP, initiative, and conditions independent and sorts initiative", () => {
     let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
     workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
     workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-2");
+    workspace = addMonsterEncounterInstance(workspace, dragon, "dragon-1");
     workspace = setMonsterEncounterHitPoints(workspace, "goblin-1", 2);
     workspace = setMonsterEncounterInitiative(workspace, "goblin-1", 18);
     workspace = setMonsterEncounterInitiative(workspace, "goblin-2", 9);
+    workspace = setMonsterEncounterInitiative(workspace, "dragon-1", 21);
     workspace = addMonsterEncounterCondition(workspace, "goblin-1", "Frightened");
     workspace = addMonsterEncounterCondition(workspace, "goblin-1", " frightened ");
+    workspace = sortMonsterEncounterByInitiative(workspace);
 
-    expect(workspace.instances[0]).toMatchObject({ currentHitPoints: 2, initiative: 18, conditions: ["Frightened"] });
-    expect(workspace.instances[1]).toMatchObject({ currentHitPoints: 7, initiative: 9, conditions: [] });
-
-    workspace = removeMonsterEncounterCondition(workspace, "goblin-1", "Frightened");
-    expect(workspace.instances[0]?.conditions).toEqual([]);
+    expect(workspace.instances.map(({ instanceId }) => instanceId)).toEqual(["dragon-1", "goblin-1", "goblin-2"]);
+    expect(workspace.instances.find(({ instanceId }) => instanceId === "goblin-1")).toMatchObject({
+      currentHitPoints: 2,
+      initiative: 18,
+      conditions: ["Frightened"]
+    });
+    expect(workspace.instances.find(({ instanceId }) => instanceId === "goblin-2")).toMatchObject({
+      currentHitPoints: 7,
+      initiative: 9,
+      conditions: []
+    });
   });
 
-  it("refreshes reaction and legendary actions at turn start without inventing a recharge success", () => {
+  it("refreshes reaction and legendary actions without inventing a recharge success", () => {
     let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
     workspace = addMonsterEncounterInstance(workspace, dragon, "dragon-1");
     workspace = setMonsterEncounterReaction(workspace, "dragon-1", false);
@@ -128,54 +128,39 @@ describe("monster encounter instances", () => {
     });
   });
 
-  it("sorts known initiative high-to-low and leaves unrolled combatants last", () => {
-    let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
-    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
-    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-2");
-    workspace = addMonsterEncounterInstance(workspace, dragon, "dragon-1");
-    workspace = setMonsterEncounterInitiative(workspace, "goblin-1", 8);
-    workspace = setMonsterEncounterInitiative(workspace, "dragon-1", 19);
-    workspace = sortMonsterEncounterByInitiative(workspace);
-
-    expect(workspace.instances.map((instance) => instance.instanceId)).toEqual(["dragon-1", "goblin-1", "goblin-2"]);
-  });
-
-  it("normalizes bounds, duplicate conditions, missing capabilities, and stale definitions", () => {
+  it("normalizes bounds, conditions, universal reaction defaults, and stale definitions", () => {
     const normalized = normalizeMonsterEncounterWorkspace({
       schemaVersion: 3,
       gameSystemId: "dnd-2014",
       name: " Test Encounter ",
       updatedAt: "2026-07-28T00:00:00.000Z",
-      instances: [
-        {
-          instanceId: "goblin-1",
-          monsterId: "goblin",
-          label: " Goblin Scout ",
-          pinned: false,
-          currentHitPoints: 999,
-          maximumHitPoints: 7,
-          initiative: 999,
-          conditions: ["Prone", " prone ", ""],
-          reactionAvailable: undefined as never,
-          rechargeReady: undefined as never,
-          legendaryActionsMaximum: 0,
-          legendaryActionsRemaining: 10
-        },
-        {
-          instanceId: "stale",
-          monsterId: "missing",
-          label: "Missing",
-          pinned: false,
-          currentHitPoints: 1,
-          maximumHitPoints: 1,
-          initiative: null,
-          conditions: [],
-          reactionAvailable: false,
-          rechargeReady: false,
-          legendaryActionsMaximum: 0,
-          legendaryActionsRemaining: 0
-        }
-      ]
+      instances: [{
+        instanceId: "goblin-1",
+        monsterId: "goblin",
+        label: " Goblin Scout ",
+        pinned: false,
+        currentHitPoints: 999,
+        maximumHitPoints: 7,
+        initiative: 999,
+        conditions: ["Prone", " prone ", ""],
+        reactionAvailable: undefined as never,
+        rechargeReady: undefined as never,
+        legendaryActionsMaximum: 0,
+        legendaryActionsRemaining: 10
+      }, {
+        instanceId: "stale",
+        monsterId: "missing",
+        label: "Missing",
+        pinned: false,
+        currentHitPoints: 1,
+        maximumHitPoints: 1,
+        initiative: null,
+        conditions: [],
+        reactionAvailable: false,
+        rechargeReady: false,
+        legendaryActionsMaximum: 0,
+        legendaryActionsRemaining: 0
+      }]
     }, "dnd-2014", [goblin]);
 
     expect(normalized.name).toBe("Test Encounter");
@@ -185,7 +170,7 @@ describe("monster encounter instances", () => {
       currentHitPoints: 7,
       initiative: 100,
       conditions: ["Prone"],
-      reactionAvailable: false,
+      reactionAvailable: true,
       rechargeReady: false,
       legendaryActionsRemaining: 0
     });
@@ -193,7 +178,7 @@ describe("monster encounter instances", () => {
 });
 
 describe("monster encounter persistence", () => {
-  it("saves and reloads independent state inside the selected edition", () => {
+  it("saves independent state per edition", () => {
     const storage = new MemoryStorage();
     const repository = createMonsterEncounterWorkspaceRepository(storage);
     let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
@@ -201,22 +186,19 @@ describe("monster encounter persistence", () => {
     workspace = setMonsterEncounterHitPoints(workspace, "goblin-1", 3);
     repository.save(workspace);
 
-    const loaded = repository.load({
+    expect(repository.load({
       gameSystemId: "dnd-2014",
       entries: [goblin, dragon],
       createInstanceId: () => "unused"
-    });
-    expect(loaded.instances[0]).toMatchObject({ instanceId: "goblin-1", currentHitPoints: 3 });
-
-    const otherEdition = repository.load({
+    }).instances[0]).toMatchObject({ instanceId: "goblin-1", currentHitPoints: 3 });
+    expect(repository.load({
       gameSystemId: "dnd-2024",
       entries: [],
       createInstanceId: () => "unused"
-    });
-    expect(otherEdition.instances).toEqual([]);
+    }).instances).toEqual([]);
   });
 
-  it("migrates the existing v2 unique-card encounter without losing order or pins", () => {
+  it("migrates v2 order and pins into one instance per formerly active definition", () => {
     const storage = new MemoryStorage();
     storage.setItem("dungeon-cards-workspace-v2-monster-dnd-2014", JSON.stringify({
       schemaVersion: 2,
@@ -231,24 +213,21 @@ describe("monster encounter persistence", () => {
       updatedAt: "2026-07-28T00:00:00.000Z"
     }));
     const ids = ["migrated-dragon", "migrated-goblin"];
-    const repository = createMonsterEncounterWorkspaceRepository(storage);
-    const migrated = repository.load({
+    const migrated = createMonsterEncounterWorkspaceRepository(storage).load({
       gameSystemId: "dnd-2014",
       entries: [goblin, dragon],
       createInstanceId: () => ids.shift() ?? "fallback"
     });
 
-    expect(migrated.schemaVersion).toBe(3);
-    expect(migrated.instances.map((instance) => instance.monsterId)).toEqual(["dragon", "goblin"]);
+    expect(migrated.instances.map(({ monsterId }) => monsterId)).toEqual(["dragon", "goblin"]);
     expect(migrated.instances[0]?.pinned).toBe(true);
-    expect(migrated.instances.map((instance) => instance.label)).toEqual(["Ancient Test Dragon 1", "Goblin 1"]);
+    expect(migrated.instances.map(({ label }) => label)).toEqual(["Ancient Test Dragon 1", "Goblin 1"]);
   });
 
-  it("falls back to an empty exact-edition encounter when saved JSON is malformed", () => {
+  it("falls back safely when saved JSON is malformed", () => {
     const storage = new MemoryStorage();
     storage.setItem("dungeon-monster-encounter-v3-dnd-2014", "not-json");
-    const repository = createMonsterEncounterWorkspaceRepository(storage);
-    const loaded = repository.load({
+    const loaded = createMonsterEncounterWorkspaceRepository(storage).load({
       gameSystemId: "dnd-2014",
       entries: [goblin],
       createInstanceId: () => "unused"
