@@ -20,7 +20,7 @@ const preparedPool2014: Array<[number, string]> = [
 
 const preparedPool2024: Array<[number, string]> = [
   [1, "Bless"], [1, "Cure Wounds"], [1, "Divine Favor"], [1, "Command"],
-  [5, "Aid"], [5, "Magic Weapon"], [5, "Protection from Poison"],
+  [5, "Lesser Restoration"], [5, "Magic Weapon"], [5, "Protection from Poison"],
   [9, "Aura of Vitality"], [9, "Blinding Smite"], [9, "Create Food and Water"],
   [13, "Aura of Life"], [13, "Banishment"], [13, "Death Ward"],
   [17, "Banishing Smite"], [17, "Circle of Power"], [17, "Dispel Evil and Good"]
