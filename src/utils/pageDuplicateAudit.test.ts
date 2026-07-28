@@ -25,6 +25,8 @@ const routeBlock = (source: string, page: string, nextPage?: string): string => 
 const cocHome = read("../components/cocShell/CocHome.tsx");
 const dndHome = read("../components/dndShell/DndHome.tsx");
 const cocPages = read("../components/cocShell/CocPageContent.tsx");
+const cocCatalog = read("../components/CocCardCatalog.tsx");
+const dndCatalog = read("../components/DndCardCatalog.tsx");
 const investigatorLibrary = read("../components/CocInvestigatorLibrary.tsx");
 const investigatorDossier = read("../components/CocInvestigatorDossier.tsx");
 const equipmentLibrary = read("../components/CocEquipmentLibrary.tsx");
@@ -48,11 +50,23 @@ describe("duplicate-free routed pages", () => {
     expect(dndHome).not.toContain("onNavigate(");
   });
 
-  it("keeps one percentile roller on the Investigator page", () => {
+  it("keeps catalog source summaries count-only rather than repeating workspace links", () => {
+    expect(cocCatalog).not.toContain("onNavigate");
+    expect(cocCatalog).not.toContain("onOpen");
+    expect(dndCatalog).not.toContain("onNavigate");
+    expect(dndCatalog).not.toContain("onOpen");
+  });
+
+  it("keeps one percentile roller and one full occupation package on the Investigator page", () => {
     const investigatorRoute = routeBlock(cocPages, "investigator", "keeper");
     expect(occurrences(investigatorRoute, "<CocPercentileCard")).toBe(1);
     expect(investigatorLibrary).not.toContain("<CocPercentileCard");
     expect(investigatorDossier).not.toContain("<CocPercentileCard");
+    expect(investigatorDossier).not.toContain("occupation.summary");
+    expect(investigatorDossier).not.toContain("occupation.contacts");
+    expect(investigatorDossier).not.toContain("occupation.typicalGear");
+    expect(investigatorDossier).not.toContain("occupation.complication");
+    expect(investigatorLibrary).toContain("occupation.summary");
   });
 
   it("does not repeat library-owned procedure cards in their route wrappers", () => {
