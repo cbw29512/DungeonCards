@@ -142,6 +142,7 @@ export const MonsterDeck = ({
           activeInstances={filteredInstances}
           countCopies={workspace.countCopies}
           entries={filteredLibraryEntries}
+          ruleset={ruleset}
           onAdd={workspace.addMonster}
           onAddCondition={workspace.addCondition}
           onDeleteHomebrew={onDeleteHomebrewMonster}
