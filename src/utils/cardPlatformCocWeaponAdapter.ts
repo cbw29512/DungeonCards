@@ -1,5 +1,5 @@
 import type { CardDefinition } from "../types/cardPlatform";
-import type { CocWeaponPreview } from "../types/coc";
+import type { CocWeaponRecord } from "../types/coc";
 import {
   cocCardPrint,
   cocReview,
@@ -9,61 +9,74 @@ import {
 } from "./cardPlatformCocAdapterShared";
 
 export const adaptCocWeapon = (
-  weapon: CocWeaponPreview,
+  weapon: CocWeaponRecord,
   options: CocAdapterOptions = {}
-): CardDefinition => ({
-  schemaVersion: 2,
-  id: `legacy-coc:weapon:${safeCocId(weapon.id)}`,
-  gameSystemId: "coc-7e",
-  family: "weapon",
-  visibility: options.visibility ?? "player-safe",
-  content: {
-    title: weapon.name,
-    subtitle: `${weapon.category} · ${weapon.skillName}`,
-    summary: `${weapon.damageFormula} damage, ${weapon.capacity}-round capacity, range ${weapon.range}.`,
-    detail: `${weapon.notes} Attacks per round: ${weapon.attacksPerRound}. Malfunction: ${weapon.malfunction}.`,
-    tags: [...new Set(["legacy-coc", "weapon", safeCocId(weapon.category), weapon.impaling ? "impaling" : "non-impaling"])]
-  },
-  source: cocSourceReference(options.source),
-  review: options.review ?? cocReview(options.source),
-  actions: [
-    {
-      id: "attack-check",
-      kind: "roll",
-      label: `Roll ${weapon.skillName}`,
-      rollSystem: "percentile",
-      percentileTarget: weapon.defaultSkill,
-      percentileDifficulty: "regular",
-      resourceCosts: [{ resourceId: "ammunition", amount: 1 }],
-      notes: `Default demonstration skill value: ${weapon.defaultSkill}%.`
+): CardDefinition => {
+  const hasTrackedUses = weapon.capacity > 0;
+  return {
+    schemaVersion: 2,
+    id: `legacy-coc:weapon:${safeCocId(weapon.id)}`,
+    gameSystemId: "coc-7e",
+    family: "weapon",
+    visibility: options.visibility ?? "player-safe",
+    content: {
+      title: weapon.name,
+      subtitle: `${weapon.category} · ${weapon.skillName}`,
+      summary: `${weapon.damageFormula}${weapon.usesDamageBonus ? " + DB" : ""} tabletop damage; range ${weapon.range}.`,
+      detail: `${weapon.notes} Tabletop attacks per round: ${weapon.attacksPerRound}.`,
+      tags: [...new Set([
+        "legacy-coc",
+        "weapon",
+        safeCocId(weapon.kind),
+        safeCocId(weapon.category),
+        safeCocId(weapon.availability),
+        ...weapon.eras.map(safeCocId),
+        weapon.impaling ? "impaling" : "non-impaling"
+      ])]
     },
-    {
-      id: "damage",
-      kind: "roll",
-      label: `Roll ${weapon.name} damage`,
-      rollSystem: "dice-formula",
-      formula: weapon.damageFormula,
-      notes: weapon.impaling ? "Apply impaling rules when the attack qualifies." : undefined
-    },
-    {
-      id: "firearm-procedure",
-      kind: "procedure",
-      label: "Resolve the weapon",
-      steps: [
-        `Check range and the ${weapon.attacksPerRound} attacks-per-round limit.`,
-        `Track ammunition and malfunction ${weapon.malfunction}.`,
-        weapon.notes
-      ]
-    }
-  ],
-  resources: [{
-    id: "ammunition",
-    label: "Ammunition",
-    maximum: weapon.capacity,
-    initial: weapon.capacity,
-    refresh: "manual",
-    unit: "rounds"
-  }],
-  linkedCardIds: [],
-  print: cocCardPrint
-});
+    source: cocSourceReference(options.source),
+    review: options.review ?? cocReview(options.source),
+    actions: [
+      {
+        id: "attack-check",
+        kind: "roll",
+        label: `Roll ${weapon.skillName}`,
+        rollSystem: "percentile",
+        percentileTarget: weapon.defaultSkill,
+        percentileDifficulty: "regular",
+        ...(hasTrackedUses ? { resourceCosts: [{ resourceId: "uses", amount: 1 }] } : {}),
+        notes: `Default original-library tabletop skill value: ${weapon.defaultSkill}%.`
+      },
+      {
+        id: "damage",
+        kind: "roll",
+        label: `Roll ${weapon.name} damage`,
+        rollSystem: "dice-formula",
+        formula: weapon.damageFormula,
+        notes: weapon.usesDamageBonus
+          ? "Apply the character's tabletop Damage Bonus when relevant."
+          : "This tabletop record does not add Damage Bonus."
+      },
+      {
+        id: "weapon-procedure",
+        kind: "procedure",
+        label: "Resolve the tabletop weapon",
+        steps: [
+          `Check the listed range and ${weapon.attacksPerRound} tabletop action limit.`,
+          hasTrackedUses ? "Update the card's remaining-use tracker." : "No remaining-use tracker is required.",
+          weapon.notes
+        ]
+      }
+    ],
+    resources: hasTrackedUses ? [{
+      id: "uses",
+      label: "Remaining uses",
+      maximum: weapon.capacity,
+      initial: weapon.capacity,
+      refresh: "manual",
+      unit: "uses"
+    }] : [],
+    linkedCardIds: [],
+    print: cocCardPrint
+  };
+};
