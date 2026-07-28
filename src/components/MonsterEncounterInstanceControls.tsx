@@ -14,6 +14,7 @@ type Props = {
   onRemoveCondition(condition: string): void;
   onRename(label: string): void;
   onSetHitPoints(value: number): void;
+  onSetMaximumHitPoints(value: number): void;
   onSetInitiative(value: number | null): void;
   onSetLegendaryRemaining(value: number): void;
   onSetReaction(available: boolean): void;
@@ -28,6 +29,7 @@ export const MonsterEncounterInstanceControls = ({
   onRemoveCondition,
   onRename,
   onSetHitPoints,
+  onSetMaximumHitPoints,
   onSetInitiative,
   onSetLegendaryRemaining,
   onSetReaction,
@@ -86,11 +88,23 @@ export const MonsterEncounterInstanceControls = ({
             type="number"
             value={instance.currentHitPoints}
           />
-          <small>/ {instance.maximumHitPoints}</small>
+        </label>
+        <label>
+          <span>Maximum HP</span>
+          <input
+            aria-label={`${instance.label} maximum hit points`}
+            max={100000}
+            min={1}
+            onChange={(event) => onSetMaximumHitPoints(Number(event.target.value))}
+            title="Change this when using rolled or customized monster hit points."
+            type="number"
+            value={instance.maximumHitPoints}
+          />
         </label>
         <div className="monster-instance-controls__hp-buttons" aria-label={`${instance.label} quick hit point changes`}>
           <button type="button" onClick={() => onSetHitPoints(instance.currentHitPoints - 1)}>−1 HP</button>
           <button type="button" onClick={() => onSetHitPoints(instance.currentHitPoints + 1)}>+1 HP</button>
+          <button type="button" onClick={() => onSetHitPoints(instance.maximumHitPoints)}>Restore full HP</button>
         </div>
       </div>
 

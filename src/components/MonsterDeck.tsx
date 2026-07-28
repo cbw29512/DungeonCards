@@ -78,17 +78,6 @@ export const MonsterDeck = ({
     () => filterMonsterWorkspaceEntries(compatibleMonsters, query, type, filterOptions),
     [compatibleMonsters, filterOptions, query, type]
   );
-  const matchingMonsterIds = useMemo(() => new Set(
-    filterMonsterWorkspaceEntries(compatibleMonsters, query, type, {
-      ...filterOptions,
-      sort: "name-asc"
-    }).map((entry) => entry.id)
-  ), [compatibleMonsters, filterOptions, query, type]);
-  const filteredInstances = useMemo(
-    () => workspace.activeInstances.filter((instance) => matchingMonsterIds.has(instance.monsterId)),
-    [matchingMonsterIds, workspace.activeInstances]
-  );
-  const filteredCount = view === "library" ? filteredLibraryEntries.length : filteredInstances.length;
 
   const clearFilters = () => {
     setQuery("");
@@ -133,7 +122,7 @@ export const MonsterDeck = ({
         <span>
           Add as many copies as the encounter needs. Goblin 1 and Goblin 2 keep separate names,
           HP, initiative, conditions, reactions, recharge state, and legendary-action budgets.
-          Use the filters to find the right threat by exact edition, CR, size, capability, or source text.
+          Library filters only affect monster discovery; the live encounter table always shows every combatant.
         </span>
         <WorkspaceToolbar
           activeCount={workspace.activeInstances.length}
@@ -188,15 +177,15 @@ export const MonsterDeck = ({
           <p>Open the Monster Library and add each creature. Use “Add another” for multiple copies.</p>
           <button onClick={() => setView("library")} type="button">Open Monster Library</button>
         </div>
-      ) : filteredCount === 0 ? (
+      ) : view === "library" && filteredLibraryEntries.length === 0 ? (
         <div className="workspace-empty">
-          <span aria-hidden="true">🔎</span><h3>No monsters match these filters.</h3>
+          <span aria-hidden="true">🔎</span><h3>No monsters match these library filters.</h3>
           <p>Clear one or more filters, broaden the CR range, or search a different capability.</p>
           <button onClick={clearFilters} type="button">Clear filters</button>
         </div>
       ) : (
         <MonsterDeckCards
-          activeInstances={filteredInstances}
+          activeInstances={workspace.activeInstances}
           countCopies={workspace.countCopies}
           entries={filteredLibraryEntries}
           ruleset={ruleset}
@@ -210,6 +199,7 @@ export const MonsterDeck = ({
           onSetHitPoints={workspace.setHitPoints}
           onSetInitiative={workspace.setInitiative}
           onSetLegendaryRemaining={workspace.setLegendaryRemaining}
+          onSetMaximumHitPoints={workspace.setMaximumHitPoints}
           onSetReaction={workspace.setReaction}
           onSetRecharge={workspace.setRecharge}
           onStartTurn={workspace.startTurn}

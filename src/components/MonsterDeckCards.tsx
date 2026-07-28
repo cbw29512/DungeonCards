@@ -45,6 +45,7 @@ type Props = {
   onTogglePin(instanceId: string): void;
   onRename(instanceId: string, label: string): void;
   onSetHitPoints(instanceId: string, value: number): void;
+  onSetMaximumHitPoints(instanceId: string, value: number): void;
   onSetInitiative(instanceId: string, value: number | null): void;
   onAddCondition(instanceId: string, condition: string): void;
   onRemoveCondition(instanceId: string, condition: string): void;
@@ -67,6 +68,7 @@ export const MonsterDeckCards = ({
   onTogglePin,
   onRename,
   onSetHitPoints,
+  onSetMaximumHitPoints,
   onSetInitiative,
   onAddCondition,
   onRemoveCondition,
@@ -129,6 +131,7 @@ export const MonsterDeckCards = ({
               onRemoveCondition={(condition) => onRemoveCondition(instance.instanceId, condition)}
               onRename={(label) => onRename(instance.instanceId, label)}
               onSetHitPoints={(value) => onSetHitPoints(instance.instanceId, value)}
+              onSetMaximumHitPoints={(value) => onSetMaximumHitPoints(instance.instanceId, value)}
               onSetInitiative={(value) => onSetInitiative(instance.instanceId, value)}
               onSetLegendaryRemaining={(value) => onSetLegendaryRemaining(instance.instanceId, value)}
               onSetReaction={(available) => onSetReaction(instance.instanceId, available)}

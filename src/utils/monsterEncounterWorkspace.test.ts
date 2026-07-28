@@ -4,9 +4,11 @@ import type { SrdMonsterRecord } from "../types/srdCompendium";
 import {
   addMonsterEncounterCondition,
   addMonsterEncounterInstance,
+  removeMonsterEncounterInstance,
   setMonsterEncounterHitPoints,
   setMonsterEncounterInitiative,
   setMonsterEncounterLegendaryRemaining,
+  setMonsterEncounterMaximumHitPoints,
   setMonsterEncounterReaction,
   setMonsterEncounterRecharge,
   sortMonsterEncounterByInitiative,
@@ -84,6 +86,32 @@ describe("monster encounter instances", () => {
     expect(workspace.instances.map(({ instanceId }) => instanceId)).toEqual(["goblin-1", "goblin-2", "goblin-3"]);
     expect(workspace.instances.map(({ label }) => label)).toEqual(["Goblin 1", "Goblin 2", "Goblin 3"]);
     expect(workspace.instances.every(({ currentHitPoints, reactionAvailable }) => currentHitPoints === 7 && reactionAvailable)).toBe(true);
+  });
+
+  it("chooses the first unused generated label after a copy is removed", () => {
+    let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-2");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-3");
+    workspace = removeMonsterEncounterInstance(workspace, "goblin-2");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-4");
+
+    expect(workspace.instances.map(({ label }) => label)).toEqual(["Goblin 1", "Goblin 3", "Goblin 2"]);
+    expect(new Set(workspace.instances.map(({ label }) => label.toLocaleLowerCase("en-US"))).size).toBe(3);
+  });
+
+  it("supports rolled maximum HP while preserving full or damaged state predictably", () => {
+    let workspace = createEmptyMonsterEncounterWorkspace("dnd-2014");
+    workspace = addMonsterEncounterInstance(workspace, goblin, "goblin-1");
+    workspace = setMonsterEncounterMaximumHitPoints(workspace, "goblin-1", 11);
+    expect(workspace.instances[0]).toMatchObject({ maximumHitPoints: 11, currentHitPoints: 11 });
+
+    workspace = setMonsterEncounterHitPoints(workspace, "goblin-1", 4);
+    workspace = setMonsterEncounterMaximumHitPoints(workspace, "goblin-1", 9);
+    expect(workspace.instances[0]).toMatchObject({ maximumHitPoints: 9, currentHitPoints: 4 });
+
+    workspace = setMonsterEncounterMaximumHitPoints(workspace, "goblin-1", 3);
+    expect(workspace.instances[0]).toMatchObject({ maximumHitPoints: 3, currentHitPoints: 3 });
   });
 
   it("keeps HP, initiative, and conditions independent and sorts initiative", () => {

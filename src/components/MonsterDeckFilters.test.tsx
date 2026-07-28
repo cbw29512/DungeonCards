@@ -17,7 +17,7 @@ const renderFilters = (view: "library" | "table") => renderToStaticMarkup(
     onSizeChange={noOp}
     onSortChange={noOp}
     onTypeChange={noOp}
-    query=""
+    query="dragon"
     ruleset="srd-5.2.1-2024"
     size="all"
     sizes={["all", "small", "large"]}
@@ -29,10 +29,10 @@ const renderFilters = (view: "library" | "table") => renderToStaticMarkup(
 );
 
 describe("Monster Library filter controls", () => {
-  it("renders clearly named search, edition, type, size, capability, and CR controls", () => {
+  it("renders clearly named discovery controls in the library", () => {
     const markup = renderFilters("library");
     for (const label of [
-      "Search",
+      "Search library",
       "Edition",
       "Creature type",
       "Size",
@@ -43,15 +43,23 @@ describe("Monster Library filter controls", () => {
     ]) {
       expect(markup).toContain(`>${label}<`);
     }
+    expect(markup).toContain('aria-label="Search monster library"');
     expect(markup).toContain("Clear filters");
     expect(markup).toContain("Legendary actions");
     expect(markup).toContain("CR 1/8");
     expect(markup).toContain("CR high to low");
   });
 
-  it("does not offer library sorting on the initiative-ordered active table", () => {
+  it("shows only edition selection on the live encounter table", () => {
     const markup = renderFilters("table");
+    expect(markup).toContain('aria-label="Encounter edition"');
+    expect(markup).not.toContain('aria-label="Search monster library"');
+    expect(markup).not.toContain('aria-label="Filter monster type"');
+    expect(markup).not.toContain('aria-label="Filter monster size"');
+    expect(markup).not.toContain('aria-label="Filter monster capability"');
+    expect(markup).not.toContain('aria-label="Minimum challenge rating"');
+    expect(markup).not.toContain('aria-label="Maximum challenge rating"');
     expect(markup).not.toContain("Sort library");
-    expect(markup).not.toContain("Sort monster library");
+    expect(markup).not.toContain("Clear filters");
   });
 });
