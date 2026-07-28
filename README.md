@@ -10,7 +10,7 @@ The goal is to reduce rulebook interruption during play. Verified libraries, cha
 
 Characters, compendiums, maps, and campaign tools are connected subsystems. **Cards, decks, and table-ready workspaces remain the product center.**
 
-See master epic [#67](https://github.com/cbw29512/DungeonCards/issues/67) for the controlling roadmap.
+See master epic [#67](https://github.com/cbw29512/DungeonCards/issues/67) for the controlling roadmap and completion audit [#97](https://github.com/cbw29512/DungeonCards/issues/97) for the current table-ready baseline.
 
 ## Product standards
 
@@ -19,24 +19,24 @@ See master epic [#67](https://github.com/cbw29512/DungeonCards/issues/67) for th
 - **Rules transparent:** verified summaries link to source, edition, review status, and licensing boundary.
 - **System separated:** D&D 2014, D&D 2024, and Call of Cthulhu procedures and persistence never silently mix.
 - **State first:** source data, card definitions, runtime instances, saved state, and presentation remain separate.
-- **Local first:** public browsing, card use, homebrew, and printing work without login.
+- **Local first:** public browsing, card use, homebrew, private imports, and printing work without login.
 - **Optional private accounts:** signed-in players can save supported Character Vault copies across devices through owner-only database policies.
 - **Accessible:** keyboard, screen-reader, focus, reduced-motion, responsive, and touch behavior are release gates.
 - **Print ready:** cards, sheets, folios, and encounter references remove controls and avoid clipped content.
 - **No fake completion:** structured validation and CI—not display text—determine release status.
 
-## Current card platform
+## Current Card Platform v2
 
-- Rule and guided-procedure cards
-- Executable dice and action cards
-- Player and DM personal decks
-- Monster quick-combat cards and expandable folios
-- Spell and monster reference cards
-- Call of Cthulhu Sanity, Luck, weapon, firearm, injury, healing, and procedure cards
-- Local homebrew card and monster builders
-- Favorites, roll history, independent card instances, and print layouts
-
-The shared card domain is being upgraded under #67 to add exact game-system identity, edition-safe persistence, broader card types, visibility boundaries, versioning, and reusable runtime instances.
+- exact `dnd-2014`, `dnd-2024`, and `coc-7e` identities;
+- rule, procedure, roll/action, spell, ritual, weapon, item, condition, creature, NPC, clue, handout, location, scene, table, generator, character-action, and investigator-action families;
+- immutable library definitions and independent runtime copies;
+- public, player-safe, GM/Keeper-only, and private visibility;
+- personal, GM/Keeper, encounter, character/investigator, campaign, print, favorites, and other deck kinds;
+- executable dice, d20, percentile, procedure, and linked-card actions;
+- tracked resources, refresh actions, atomic persistence, and exact-system history;
+- searchable exact-system Card Catalogs and playable deck workspaces;
+- secure versioned import/export and local-first private libraries;
+- one universal 250×350px screen / 2.5×3.5in print card standard.
 
 ## Dungeons & Dragons workspaces
 
@@ -44,15 +44,17 @@ The shared card domain is being upgraded under #67 to add exact game-system iden
 - Edition-separated conditions and Exhaustion
 - Movement, jumping, cover, Grapple, Shove, Hide, Search, and Opportunity Attack tools
 - HP, Temporary HP, Death Saves, stabilization, and concentration tracking
-- Initiative, turns, movement, reactions, surprise, conditions, and timed effects
+- Initiative, turns, movement, reactions, surprise, conditions, timed effects, positions, reach, and range
 - Weapon Mastery, armor, carrying capacity, tools, mounts, containers, vehicles, and equipment procedures
 - SRD 5.1 and SRD 5.2.1 spell and monster compendium
 - Structured monster quick-combat cards with complete source folios
-- Player and DM card workspaces
+- Player, DM, encounter, print, and custom playable decks
 - Homebrew card and monster builders
-- Character Vault with optimized builds, print packets, optional accounts, and private saves
+- Character Vault with optimized builds, complete print packets, generated card decks, optional accounts, and Saved Play Mode
 
 ### Current Character Vault baseline
+
+The public matrix defines 12 class/subclass paths in each edition at levels 1–20: **480 planned builds**.
 
 Vault Ready ladders currently include both editions at levels 1–20 for:
 
@@ -60,20 +62,35 @@ Vault Ready ladders currently include both editions at levels 1–20 for:
 - Barbarian / Berserker
 - Cleric / Life Domain
 
-Each Vault Ready build includes legal advancement, tactics, class-specific magic items, attunement validation, a tabbed digital sheet, and complete print output. Saved Character Play Mode remains an active milestone and is not considered complete until protected by a reviewed remote branch and green CI.
+That is **120 verified printable builds**. Each includes legal advancement, tactics, class-specific magic items, attunement validation, a tabbed digital sheet, generated Card Platform deck, owner-scoped Saved Play Mode, and complete black-and-white print output.
+
+The remaining **360 builds** cover Bard/Lore, Druid/Land, Monk/Open Hand, Paladin/Devotion, Ranger/Hunter, Rogue/Thief, Sorcerer/Draconic, Warlock/Fiend, and Wizard/Evocation. They remain visible only as blocked blueprints until the same release gate passes. See [#99](https://github.com/cbw29512/DungeonCards/issues/99).
+
+### D&D completion boundary
+
+Core combat resolution is strong, but the full-session program still includes exploration/survival, social procedures, rests/downtime, remaining adventuring gear, encounter budgets, hazards, objects, treasure, persistent campaign/session state, terrain/cover/area templates, and complete executable monster resolution. See [#100](https://github.com/cbw29512/DungeonCards/issues/100).
 
 ## Call of Cthulhu 7th Edition workspaces
 
-- Top-level system gateway and isolated Cthulhu experience
+- Top-level isolated CoC 7e shell and exact-system persistence
 - Percentile, difficulty, opposed, Bonus/Penalty, Pushed, and Luck procedures
-- Sanity loss, temporary insanity, bouts of madness, and reality checks
-- DEX order, close combat, Fighting Maneuvers, outnumbering, firearms, and wounds
-- First Aid, Medicine, dying, natural healing, and Major Wound recovery
+- Sanity loss, temporary insanity, bouts, campaign effects, and reality checks
+- DEX order, close combat, Fighting Maneuvers, outnumbering, firearms, wounds, and healing
 - Magic Points, casting procedures, and skill improvement
-- Investigator builder and Keeper investigation tools
-- Original demonstration dossiers and source/licensing audits
+- Simplified source-audited Investigator builder with printable handoff
+- Keeper investigation procedures and run sheets
+- Routed Equipment, Spells & Rituals, Creatures & NPCs, Encounters, Builders, Sources, Catalog, and Private Library areas
+- Playable exact-system decks, action history, and private Card Platform archives
 
-The controlling Call of Cthulhu epic is [#7](https://github.com/cbw29512/DungeonCards/issues/7). The target is a complete card-first Investigator and Keeper library with weapons, creatures/NPCs, spells/rituals, encounters, clues, handouts, case preparation, builders, and print decks without reproducing protected scenarios, artwork, or proprietary text.
+The current public CoC Card Catalog contains nine verified procedure cards plus one original demonstration weapon, ritual, and creature. It is a useful core toolkit, not yet a complete Keeper library. The next program adds full Investigator Play Mode, original prebuilt Investigators, persistent case/encounter state, broad original/public-safe content, and structured private owned-content builders. See [#101](https://github.com/cbw29512/DungeonCards/issues/101).
+
+Official paid Call of Cthulhu catalogs, scenarios, artwork, logos, and substantial proprietary text remain excluded unless permission is obtained.
+
+## Branching one-shot direction
+
+The shared card schema already supports scenes, clues, handouts, locations, visibility, linked cards, runtime copies, and campaign decks. Issue [#102](https://github.com/cbw29512/DungeonCards/issues/102) adds the missing adventure state machine: persistent player decisions, requirements, consequences, hidden GM/Keeper information, branching scenes, encounters, clues, multiple endings, save/resume, and separated print packets.
+
+First-party one-shots must be original or separately licensed. D&D adventures may reference public SRD assets with attribution. CoC adventures must use original cases, creatures, rituals, clues, locations, and handouts rather than copying official scenarios.
 
 ## Source catalogs
 
@@ -102,7 +119,7 @@ npm run build
 npm run check
 ```
 
-GitHub Actions blocks on high-severity dependency advisories, unit regressions, TypeScript errors, source-export failures, and production-build failures. A focused security workflow additionally scans tracked files and Git history for credential patterns without printing secret values.
+GitHub Actions blocks on high-severity dependency advisories, unit regressions, TypeScript errors, source-export failures, and production-build failures. A focused security workflow additionally scans tracked files and Git history for credential patterns without printing secret values. Pushes to `main` run the same check before GitHub Pages deployment.
 
 ## Official SRD synchronization
 
@@ -117,8 +134,8 @@ The synchronization pipeline downloads configured official PDFs, extracts page r
 
 ## Storage and publishing boundaries
 
-- Anonymous browsing, card use, homebrew, and printing remain available.
-- Local browser storage remains the default for personal cards, homebrew, and temporary workspaces.
+- Anonymous browsing, card use, homebrew, private archive import, and printing remain available.
+- Local browser storage remains the default for personal cards, decks, history, homebrew, imports, and temporary workspaces.
 - Optional Supabase accounts support private Character Vault saves when configured.
 - Row Level Security restricts saved-character rows to their owner.
 - Browser builds may use only Supabase publishable or legacy anon keys; secret and service-role keys are server-only.
@@ -128,7 +145,7 @@ The synchronization pipeline downloads configured official PDFs, extracts page r
 
 ## Architecture rules
 
-- Every persisted card, deck, workspace, encounter, builder draft, and campaign asset must carry or inherit exact game-system identity.
+- Every persisted card, deck, workspace, encounter, builder draft, adventure session, and campaign asset must carry or inherit exact game-system identity.
 - Reusable library definitions and independently tracked runtime instances remain separate.
 - Generated catalogs remain separate from handwritten rules logic and UI.
 - Keep handwritten source files under 150 lines where practical; split state, validation, persistence, presentation, and styles before they become difficult to audit.
