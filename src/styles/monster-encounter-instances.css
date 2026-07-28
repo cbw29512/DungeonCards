@@ -121,7 +121,7 @@
 }
 
 .monster-instance-controls__vitals {
-  grid-template-columns: minmax(90px, 0.55fr) minmax(115px, 0.75fr) minmax(0, 1fr);
+  grid-template-columns: repeat(3, minmax(90px, 1fr));
   align-items: end;
 }
 
@@ -136,7 +136,8 @@
 
 .monster-instance-controls__hp-buttons {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
 }
 
@@ -191,6 +192,11 @@
 
   .monster-encounter-toolbar {
     display: grid;
+  }
+
+  .monster-instance-controls__hp-buttons {
+    grid-column: auto;
+    grid-template-columns: 1fr;
   }
 
   .monster-instance-controls__condition-list,
