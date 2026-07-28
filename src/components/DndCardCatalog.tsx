@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useCardDeckLibrary } from "../hooks/useCardDeckLibrary";
-import type { DndAppPage } from "../integration/dmForgeRoute";
 import type { DndGameSystemId } from "../types/cardPlatform";
 import type { HomebrewDiceCard } from "../types/cards";
 import type { MonsterCardData } from "../types/monsters";
@@ -12,12 +11,10 @@ import { PlayableDeckWorkspace } from "./cardPlatform/PlayableDeckWorkspace";
 
 export const DndCardCatalog = ({
   homebrewCards,
-  homebrewMonsters,
-  onNavigate
+  homebrewMonsters
 }: {
   homebrewCards: HomebrewDiceCard[];
   homebrewMonsters: MonsterCardData[];
-  onNavigate(page: DndAppPage): void;
 }) => {
   const [gameSystemId, setGameSystemId] = useState<DndGameSystemId>("dnd-2024");
   const loaded = useMemo(() => loadCatalogPrivateLibrary(gameSystemId), [gameSystemId]);
@@ -30,13 +27,13 @@ export const DndCardCatalog = ({
       : built;
   }, [gameSystemId, homebrewCards, homebrewMonsters, loaded]);
   const actions = [
-    { sourceId: "rules" as const, label: "Rules", onOpen: () => onNavigate("rules") },
-    { sourceId: "conditions" as const, label: "Conditions", onOpen: () => onNavigate("conditions") },
-    { sourceId: "spells" as const, label: "SRD Spells", onOpen: () => onNavigate("compendium") },
-    { sourceId: "monsters" as const, label: "SRD Monsters", onOpen: () => onNavigate("monster") },
-    { sourceId: "characters" as const, label: "Character Vault", onOpen: () => onNavigate("pregens") },
-    { sourceId: "homebrew" as const, label: "Homebrew", onOpen: () => onNavigate("homebrew") },
-    { sourceId: "private" as const, label: "Private Library", onOpen: () => onNavigate("library") }
+    { sourceId: "rules" as const, label: "Rules" },
+    { sourceId: "conditions" as const, label: "Conditions" },
+    { sourceId: "spells" as const, label: "SRD Spells" },
+    { sourceId: "monsters" as const, label: "SRD Monsters" },
+    { sourceId: "characters" as const, label: "Character Vault" },
+    { sourceId: "homebrew" as const, label: "Homebrew" },
+    { sourceId: "private" as const, label: "Private Library" }
   ];
   return (
     <div className="dnd-card-catalog">
