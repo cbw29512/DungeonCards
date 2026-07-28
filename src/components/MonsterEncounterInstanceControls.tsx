@@ -3,8 +3,10 @@ import { getDndConditions } from "../data/dndConditions";
 import type { ResolvedMonsterEncounterInstance } from "../types/monsterEncounterWorkspace";
 import type { RulesetId } from "../types/ruleCards";
 import {
+  monsterConditionImmunityText,
   monsterHasRecharge,
-  monsterHasSpecialReaction
+  monsterHasSpecialReaction,
+  monsterIsImmuneToCondition
 } from "../utils/monsterEncounterWorkspaceModel";
 
 type Props = {
@@ -43,6 +45,9 @@ export const MonsterEncounterInstanceControls = ({
   );
   const hasSpecialReaction = monsterHasSpecialReaction(instance.monster);
   const hasRecharge = monsterHasRecharge(instance.monster);
+  const conditionImmunityText = monsterConditionImmunityText(instance.monster);
+  const selectedConditionIsImmune = Boolean(condition) && monsterIsImmuneToCondition(instance.monster, condition);
+  const immunityWarningId = `${instance.instanceId}-condition-immunity-warning`;
 
   const addCondition = () => {
     if (!condition) return;
@@ -111,18 +116,38 @@ export const MonsterEncounterInstanceControls = ({
       <div className="monster-instance-controls__conditions">
         <label>
           <span>Add {ruleset === "srd-5.1-2014" ? "2014" : "2024"} condition</span>
-          <select onChange={(event) => setCondition(event.target.value)} value={condition}>
+          <select
+            aria-describedby={selectedConditionIsImmune ? immunityWarningId : undefined}
+            onChange={(event) => setCondition(event.target.value)}
+            value={condition}
+          >
             <option value="">Choose condition…</option>
             {conditionOptions.map((name) => <option key={name} value={name}>{name}</option>)}
           </select>
         </label>
-        <button disabled={!condition} onClick={addCondition} type="button">Add</button>
+        <button disabled={!condition} onClick={addCondition} type="button">
+          {selectedConditionIsImmune ? "Add override" : "Add"}
+        </button>
+        {selectedConditionIsImmune && (
+          <p className="monster-instance-controls__immunity-warning" id={immunityWarningId} role="status">
+            The stat block lists immunity to {condition}. Add it only for a deliberate override. Listed immunities: {conditionImmunityText}.
+          </p>
+        )}
         <div className="monster-instance-controls__condition-list" aria-label={`${instance.label} active conditions`}>
-          {instance.conditions.length === 0 ? <small>No active conditions</small> : instance.conditions.map((name) => (
-            <button key={name} onClick={() => onRemoveCondition(name)} title={`Remove ${name}`} type="button">
-              {name} ×
-            </button>
-          ))}
+          {instance.conditions.length === 0 ? <small>No active conditions</small> : instance.conditions.map((name) => {
+            const immune = monsterIsImmuneToCondition(instance.monster, name);
+            return (
+              <button
+                data-condition-immune={immune ? "true" : undefined}
+                key={name}
+                onClick={() => onRemoveCondition(name)}
+                title={immune ? `Stat block lists immunity to ${name}. Remove override.` : `Remove ${name}`}
+                type="button"
+              >
+                {name}{immune ? " · immune override" : ""} ×
+              </button>
+            );
+          })}
         </div>
       </div>
 
