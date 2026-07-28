@@ -35,25 +35,31 @@ export const collectCatalogDefinitions = <T>(
   return { definitions, issues };
 };
 
-const normalizedTitleKey = (definition: CardDefinition): string => `${definition.family}:${definition.content.title
+const normalizeVisibleText = (value: string | undefined): string => (value ?? "")
   .normalize("NFKC")
   .toLocaleLowerCase("en-US")
   .replace(/[‘’]/g, "'")
   .replace(/\s+/g, " ")
-  .trim()}`;
+  .trim();
+
+const normalizedVisibleKey = (definition: CardDefinition): string => [
+  definition.family,
+  normalizeVisibleText(definition.content.title),
+  normalizeVisibleText(definition.content.subtitle)
+].join(":");
 
 export const buildCardCatalog = (
   gameSystemId: GameSystemId,
   sources: CardCatalogSource[]
 ): CardCatalog => {
   const entries = new Map<string, CardCatalogEntry>();
-  const titleEntries = new Map<string, CardCatalogEntry>();
+  const visibleEntries = new Map<string, CardCatalogEntry>();
   const issues: CardCatalogIssue[] = [];
 
   const removeEntry = (entry: CardCatalogEntry) => {
     entries.delete(entry.definition.id);
-    const titleKey = normalizedTitleKey(entry.definition);
-    if (titleEntries.get(titleKey)?.definition.id === entry.definition.id) titleEntries.delete(titleKey);
+    const visibleKey = normalizedVisibleKey(entry.definition);
+    if (visibleEntries.get(visibleKey)?.definition.id === entry.definition.id) visibleEntries.delete(visibleKey);
   };
 
   for (const source of sources) {
@@ -87,22 +93,22 @@ export const buildCardCatalog = (
         }
       }
 
-      const titleKey = normalizedTitleKey(definition);
-      const existingByTitle = titleEntries.get(titleKey);
-      if (existingByTitle) {
-        if (existingByTitle.privateImported && incoming.privateImported) {
-          removeEntry(existingByTitle);
+      const visibleKey = normalizedVisibleKey(definition);
+      const existingByVisibleIdentity = visibleEntries.get(visibleKey);
+      if (existingByVisibleIdentity) {
+        if (existingByVisibleIdentity.privateImported && incoming.privateImported) {
+          removeEntry(existingByVisibleIdentity);
         } else {
           issues.push({
             sourceId: source.id,
-            message: `${definition.content.title} duplicates an existing ${definition.family} title from ${existingByTitle.sourceLabel} and was excluded.`
+            message: `${definition.content.title} duplicates an existing visible ${definition.family} card from ${existingByVisibleIdentity.sourceLabel} and was excluded.`
           });
           continue;
         }
       }
 
       entries.set(definition.id, incoming);
-      titleEntries.set(titleKey, incoming);
+      visibleEntries.set(visibleKey, incoming);
     }
   }
 
