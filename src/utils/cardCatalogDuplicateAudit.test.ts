@@ -39,7 +39,7 @@ describe("Card Catalog duplicate rejection", () => {
     expect(catalog.issues.some((issue) => issue.message.includes("conflicts with immutable"))).toBe(true);
   });
 
-  it("excludes mechanically identical definitions even when IDs and visible punctuation differ", () => {
+  it("coalesces mechanically identical definitions even when IDs and visible punctuation differ", () => {
     const original = cloneWith(adaptCocWeapon(cocWeaponCatalog[0]!), {
       id: "legacy-coc:weapon:keepers-blade-one",
       content: { title: "Keeper’s Blade", subtitle: "Archive Test" }
@@ -51,11 +51,10 @@ describe("Card Catalog duplicate rejection", () => {
     const catalog = catalogFor([original, exactDuplicate]);
 
     expect(catalog.entries).toHaveLength(1);
-    expect(catalog.issues).toHaveLength(1);
-    expect(catalog.issues[0]?.message).toContain("exactly duplicates");
+    expect(catalog.issues).toHaveLength(0);
   });
 
-  it("keeps the same visible card when its roll formula changes", () => {
+  it("keeps the same visible card when its roll target changes", () => {
     const original = adaptCocWeapon(cocWeaponCatalog[0]!);
     const scaled = cloneWith(original, {
       id: "legacy-coc:weapon:scaled-attack",
