@@ -10,6 +10,7 @@ import {
   type DndMonsterActionKind,
   type DndMonsterLiveReference
 } from "../utils/dndMonsterLiveReference";
+import { resolveDndMonsterRechargeInReferences } from "../utils/dndMonsterLiveReferenceState";
 import { secureRandomInteger } from "../utils/randomInteger";
 import "../styles/dnd-monster-live-reference.css";
 
@@ -79,18 +80,27 @@ export const DndMonsterLiveReferencePanel = ({
   const useAction = (actionId: string, kind: DndMonsterActionKind, name: string) => {
     const resource = resourceForKind(kind);
     if (resource) setEncounter((current) => spendDndTurnResource(current, combatant.id, resource));
-    setReferences((current) => ({
-      ...current,
-      [combatant.id]: spendDndMonsterLiveAction(current[combatant.id], actionId)
-    }));
+    setReferences((current) => {
+      const currentReference = current[combatant.id];
+      if (!currentReference) return current;
+      return {
+        ...current,
+        [combatant.id]: spendDndMonsterLiveAction(currentReference, actionId)
+      };
+    });
     setResult(`${combatant.name} used ${name}.`);
   };
 
   const rollRecharge = (actionId: string, name: string) => {
     const roll = secureRandomInteger(1, 6);
-    const resolution = resolveDndMonsterRecharge(reference, actionId, roll);
-    setReferences((current) => ({ ...current, [combatant.id]: resolution.reference }));
-    setResult(`${combatant.name} rolled ${roll} for ${name}: ${resolution.succeeded ? "recharged" : `not ready; needs ${resolution.minimum}+`}.`);
+    const displayedResolution = resolveDndMonsterRecharge(reference, actionId, roll);
+    setReferences((current) => resolveDndMonsterRechargeInReferences(
+      current,
+      combatant.id,
+      actionId,
+      roll
+    ));
+    setResult(`${combatant.name} rolled ${roll} for ${name}: ${displayedResolution.succeeded ? "recharged" : `not ready; needs ${displayedResolution.minimum}+`}.`);
   };
 
   return (
