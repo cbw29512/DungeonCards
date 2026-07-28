@@ -17,9 +17,9 @@ const cantrips2014 = (level: number): string[] => [
 const cantrips2024 = (level: number): string[] => [
   "Guidance", "Light", "Spare the Dying",
   ...(level >= 4 ? ["Resistance"] : []),
-  ...(level >= 10 ? ["Toll the Dead"] : []),
-  "Sacred Flame (Magic Initiate: Cleric)",
-  "Thaumaturgy (Magic Initiate: Cleric)"
+  ...(level >= 10 ? ["Mending"] : []),
+  "Sacred Flame",
+  "Thaumaturgy"
 ];
 
 const clericPreparedPool2014: Array<[number, string]> = [
@@ -214,7 +214,7 @@ const make2024 = (level: number): DndCharacterRecord => {
       { id: "light-crossbow", name: "Light Crossbow", attackAbility: "dex", proficient: true, damageFormula: `1d8+${dndAbilityModifier(abilityScores.dex)}`, damageType: "piercing", rangeOrReach: "80/320 ft.", notes: "Loading, ammunition, two-handed; 20 bolts carried." }
     ],
     resources: resources2024(level), spellcastingExpected: true,
-    spellcasting: { kind: "prepared", ability: "wis", cantrips: cantrips2024(level), spells: [...prepared, ...domain, "Shield of Faith (Magic Initiate: Cleric)"], slotsByLevel: getDndFullCasterSlots(level), notes: `Cleric table Prepared Spells: ${preparedCount}. Life Domain adds ${domain.length} always-prepared spells; Magic Initiate adds Shield of Faith outside that count.` },
+    spellcasting: { kind: "prepared", ability: "wis", cantrips: cantrips2024(level), spells: [...prepared, ...domain, "Shield of Faith"], slotsByLevel: getDndFullCasterSlots(level), notes: `Cleric table Prepared Spells: ${preparedCount}. Life Domain adds ${domain.length} always-prepared spells; Magic Initiate adds Shield of Faith outside that count.` },
     classFeatures: features2024(level), subclassFeatures: life2024(level), advancementChoices: choices2024(level),
     equipment: ["Chain Mail", "Shield", "Warhammer", "Light Crossbow", "20 Bolts", "Priest's Pack", "Holy Symbol", "Quarterstaff", "Calligrapher's Supplies", "Prayer Book", "10 Sheets of Parchment", "Robe"], currencyGp: 23,
     notes: ["Dwarven Toughness adds 1 maximum HP per level; that bonus is included.", "Acolyte supplies Magic Initiate (Cleric), Insight, Religion, Calligrapher's Supplies, and the selected Wisdom/Charisma increases.", "Protector supplies Martial weapon and Heavy Armor training."],
