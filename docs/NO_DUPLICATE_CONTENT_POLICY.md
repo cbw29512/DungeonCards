@@ -5,9 +5,9 @@ Applies to: D&D and percentile-horror application shells, routed pages, public c
 
 ## User-facing rule
 
-A page must not present the same destination, full record, procedure card, or visibly identical catalog card more than once.
+A page must not present the same destination, full record, procedure card, or exact-equivalent catalog card more than once.
 
-This does not prohibit a compact index from selecting one detailed record. The index and selected detail serve different functions. It also does not collapse cards that share a generic title when their visible subtitles identify different characters, editions, or contexts.
+This does not prohibit a compact index from selecting one detailed record. The index and selected detail serve different functions. It also does not collapse cards merely because their titles look alike when their rules, rolls, resources, levels, links, or sources differ.
 
 ## Navigation
 
@@ -25,20 +25,24 @@ This does not prohibit a compact index from selecting one detailed record. The i
 
 ## Catalog identity
 
-Every accepted card must have:
+Every accepted card must have a unique storage ID and a clear visible identity.
 
-1. a unique storage ID; and
-2. a unique visible identity inside its family.
+Two definitions collapse into one reusable card only when their complete semantic payload is equivalent, including:
 
-Visible identity is normalized as:
+- game system and card family;
+- visibility;
+- normalized title, subtitle, summary, detail, and semantic tags;
+- source and public-distribution boundary;
+- executable actions and formulas;
+- resources, initial values, maximums, and refresh rules;
+- linked cards;
+- print definition.
 
-- card family;
-- title;
-- subtitle.
+Character/build context tags do not make two otherwise identical equipment or reference cards different. This prevents repeated loadout cards such as the same unchanged tool from flooding the catalog.
 
-Normalization handles Unicode compatibility, curly apostrophes, case differences, and repeated whitespace. Therefore visually identical cards cannot appear twice merely because their IDs or punctuation differ.
+Cards with the same visible title and subtitle remain separate when any mechanic or source payload differs. The catalog adds a readable character/level, source, or numbered variant label so users can tell those cards apart without exposing internal IDs.
 
-Cards with the same generic title remain separate when their subtitles visibly distinguish their context, such as two character-specific records.
+Normalization handles Unicode compatibility, curly apostrophes, case differences, and repeated whitespace.
 
 ## Data libraries
 
@@ -59,9 +63,11 @@ Automated tests verify:
 - removal of duplicate home-page destination grids;
 - count-only Card Catalog source summaries;
 - single-instance procedure composition;
-- unique IDs in every exact-system Card Catalog;
-- unique normalized family/title/subtitle identities;
-- rejection of duplicate IDs and duplicate visible cards;
+- unique IDs and final visible identities in every exact-system Card Catalog;
+- exact-equivalent reusable-card collapse;
+- preservation of level-scaled actions and resources;
+- readable disambiguation of mechanically distinct cards;
+- rejection of immutable ID conflicts;
 - preservation of context-distinct cards that share a generic title.
 
-Duplicate immutable public content is excluded. Later private imports may replace earlier private records with the same ID or visible identity, but cannot override or duplicate immutable public content.
+Later private imports may replace earlier private records with the same identity. They cannot override immutable public content, and an exact private copy of immutable public content is excluded with a clear source-health message.

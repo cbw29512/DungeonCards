@@ -1,4 +1,4 @@
-import type { CardDefinition } from "../types/cardPlatform";
+import type { CardDefinition, CardSourceReference } from "../types/cardPlatform";
 import type { DndAbilityId } from "../types/dndCharacter";
 import type { DndOptimizedBuildProfile } from "../types/dndCharacterVault";
 import { buildVaultCard, safeVaultCardId } from "./dndCharacterCardShared";
@@ -13,6 +13,14 @@ const attackBonus = (
   proficient: boolean
 ): number => abilityModifier(profile.character.abilityScores[ability])
   + (proficient ? proficiencyBonus(profile.level) : 0);
+
+const calculatedAttackSource = (profile: DndOptimizedBuildProfile): CardSourceReference => ({
+  kind: "original",
+  title: "DM Forge Character Vault calculated attack",
+  edition: profile.ruleset,
+  publicDistributionAllowed: true,
+  notes: "Attack and damage values are calculated from the selected verified build; underlying weapon and class rules remain governed by the listed edition sources."
+});
 
 export const generateDndAttackCards = (
   profile: DndOptimizedBuildProfile
@@ -44,7 +52,8 @@ export const generateDndAttackCards = (
         formula: attack.damageFormula,
         notes: attack.damageType
       }
-    ]
+    ],
+    sourceReference: calculatedAttackSource(profile)
   });
 });
 

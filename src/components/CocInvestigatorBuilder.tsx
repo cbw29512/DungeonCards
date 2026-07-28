@@ -15,6 +15,10 @@ import {
   type CocCharacteristicName,
   type CocCharacteristics
 } from "../utils/cocInvestigator";
+import {
+  buildCocOccupationValueAllocation,
+  isCocOccupationCreditRatingValid
+} from "../utils/cocOccupationAllocation";
 import { CocRuleStatus } from "./CocRuleStatus";
 import "../styles/coc-investigator-builder.css";
 
@@ -44,17 +48,16 @@ const DEFAULT_OCCUPATION_ROWS: OccupationRow[] = [
   { id: "credit-rating", skill: "Credit Rating", value: 40, locked: true }
 ];
 
-const OCCUPATION_SKILL_VALUES = [70, 60, 60, 50, 50, 50, 40, 40] as const;
-
 const occupationRowsFor = (occupationId: string): OccupationRow[] => {
   const occupation = getCocOccupation(occupationId);
+  const allocation = buildCocOccupationValueAllocation(occupation);
   return [
     ...occupation.suggestedSkills.map((skill, index) => ({
       id: `occupation-${index + 1}`,
       skill,
-      value: OCCUPATION_SKILL_VALUES[index] ?? 40
+      value: allocation.skillValues[index] ?? 40
     })),
-    { id: "credit-rating", skill: "Credit Rating", value: 40, locked: true }
+    { id: "credit-rating", skill: "Credit Rating", value: allocation.creditRating, locked: true }
   ];
 };
 
@@ -85,6 +88,9 @@ export const CocInvestigatorBuilder = () => {
   const allocationValid = validateStandardCharacteristicAllocation(characteristics);
   const occupationValuesValid = validateOccupationValueAllocation(occupationRows.map((row) => row.value));
   const derived = useMemo(() => calculateCocDerivedAttributes(characteristics), [characteristics]);
+  const selectedOccupation = originalOccupationId ? getCocOccupation(originalOccupationId) : undefined;
+  const creditRating = occupationRows.find((row) => row.id === "credit-rating")?.value ?? 0;
+  const creditRatingValid = !selectedOccupation || isCocOccupationCreditRatingValid(selectedOccupation, creditRating);
   const occupationNames = occupationRows.map((row) => normalizeSkillName(row.skill)).filter(Boolean);
   const interestNames = interestRows.map((row) => normalizeSkillName(row.skill)).filter(Boolean);
   const duplicateOccupationSkills = new Set(occupationNames).size !== occupationNames.length;
@@ -119,6 +125,7 @@ export const CocInvestigatorBuilder = () => {
 
   const creationReady = allocationValid
     && occupationValuesValid
+    && creditRatingValid
     && !duplicateOccupationSkills
     && !duplicateInterestSkills
     && !interestDuplicatesOccupation
@@ -199,7 +206,12 @@ export const CocInvestigatorBuilder = () => {
 
       <section className="coc-investigator-builder__section">
         <header><div><small>Step 3</small><h3>Create the occupation skill package</h3></div></header>
-        <p>Name eight appropriate occupation skills. Credit Rating is the ninth entry. Assign one 70, two 60s, three 50s, and three 40s. Selecting an original package fills these skill names while leaving every value editable.</p>
+        <p>Name eight appropriate occupation skills. Credit Rating is the ninth entry. Assign one 70, two 60s, three 50s, and three 40s. Selecting an original package fills a valid arrangement while leaving every value editable.</p>
+        {selectedOccupation && (
+          <p className="coc-builder-context-note">
+            {selectedOccupation.name} requires Credit Rating {selectedOccupation.creditRatingRange[0]}–{selectedOccupation.creditRatingRange[1]}. The loaded value is {creditRating}.
+          </p>
+        )}
         <div className="coc-occupation-grid">
           {occupationRows.map((row, index) => (
             <div key={row.id}>
@@ -219,6 +231,7 @@ export const CocInvestigatorBuilder = () => {
         </div>
         <div className="coc-builder-validation-list" aria-live="polite">
           <p className={occupationValuesValid ? "is-valid" : "is-error"}>{occupationValuesValid ? "Occupation values match the public allocation." : `Required values: ${COC_OCCUPATION_VALUES.join(", ")}.`}</p>
+          {selectedOccupation && <p className={creditRatingValid ? "is-valid" : "is-error"}>{creditRatingValid ? "Credit Rating is inside the selected occupation range." : `Credit Rating must remain between ${selectedOccupation.creditRatingRange[0]} and ${selectedOccupation.creditRatingRange[1]}.`}</p>}
           {duplicateOccupationSkills && <p className="is-error">Occupation skills—including Credit Rating—must be unique.</p>}
           {mythosOccupation && <p className="is-error">Beginning investigators cannot assign creation values to Cthulhu Mythos.</p>}
         </div>

@@ -1,4 +1,4 @@
-import type { CardDefinition, CardFamily } from "../types/cardPlatform";
+import type { CardDefinition, CardFamily, CardSourceReference } from "../types/cardPlatform";
 import type { DndOptimizedBuildProfile } from "../types/dndCharacterVault";
 import { buildVaultCard, safeVaultCardId } from "./dndCharacterCardShared";
 
@@ -8,6 +8,14 @@ const parseEquipment = (value: string): { title: string; detail?: string } => {
   const [title, ...detail] = value.split(separator);
   return { title: title.trim(), detail: detail.join(separator).trim() || undefined };
 };
+
+const loadoutSource = (profile: DndOptimizedBuildProfile): CardSourceReference => ({
+  kind: "original",
+  title: "DM Forge Character Vault loadout",
+  edition: profile.ruleset,
+  publicDistributionAllowed: true,
+  notes: "Loadout selection and packaging are original DM Forge build data; individual equipment rules remain governed by the selected edition sources."
+});
 
 export const generateDndEquipmentCards = (
   profile: DndOptimizedBuildProfile
@@ -25,7 +33,8 @@ export const generateDndEquipmentCards = (
       kind: "procedure",
       label: `Use ${item.title}`,
       steps: [item.detail ?? `Use ${item.title} according to the exact-edition equipment rules.`]
-    }]
+    }],
+    sourceReference: loadoutSource(profile)
   });
 });
 

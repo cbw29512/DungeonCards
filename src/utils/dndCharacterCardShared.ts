@@ -87,7 +87,17 @@ export const buildVaultCard = (
       subtitle: input.subtitle,
       summary: input.summary,
       detail: input.detail,
-      tags: [...new Set(["character-vault", profile.classId, profile.subclassId, ...input.tags])]
+      tags: [...new Set([
+        "character-vault",
+        `vault-class:${profile.classId}`,
+        `vault-subclass:${profile.subclassId}`,
+        `vault-class-label:${profile.character.className}`,
+        `vault-subclass-label:${profile.character.subclassName}`,
+        `vault-character-label:${profile.character.name}`,
+        `vault-level:${profile.level}`,
+        `vault-build:${safeVaultCardId(profile.id)}`,
+        ...input.tags
+      ])]
     },
     source,
     review: vaultReview(profile),
