@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import type { CocCreaturePreview, CocPercentileResult } from "../types/coc";
+import type { CocCreatureRecord, CocPercentileResult } from "../types/coc";
 import { rollCocPercentile } from "../utils/cocPercentile";
 import { rollDiceFormula } from "../utils/rollDice";
 import { CocRuleStatus } from "./CocRuleStatus";
 
 type CocCreatureDossierProps = {
-  creature: CocCreaturePreview;
+  creature: CocCreatureRecord;
 };
 
 type AttackOutcome = {
@@ -162,7 +162,7 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
                 <em>Roll</em>
               </button>
               <button type="button" onClick={rollSanityLoss}>
-                <span><strong>Prototype failed SAN loss</strong><small>{creature.sanityLossFormula}</small></span>
+                <span><strong>Failed SAN loss</strong><small>{creature.sanityLossFormula}</small></span>
                 <em>Roll</em>
               </button>
             </div>
@@ -196,7 +196,7 @@ export const CocCreatureDossier = ({ creature }: CocCreatureDossierProps) => {
             )}
             {sanityLoss !== undefined && (
               <>
-                <small>Prototype failed Sanity loss</small>
+                <small>Failed Sanity loss</small>
                 <strong>{sanityLoss}</strong>
                 <span>Sanity lost</span>
               </>
