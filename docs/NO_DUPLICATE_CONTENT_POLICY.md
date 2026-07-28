@@ -5,14 +5,18 @@ Applies to: D&D and percentile-horror application shells, routed pages, public c
 
 ## User-facing rule
 
-A page must not present the same destination, full record, procedure card, or exact-equivalent catalog card more than once.
+A page must not present the same full record, procedure card, or exact-equivalent catalog card more than once.
+
+Navigation must remain understandable rather than mechanically minimal. A landing page may offer a small set of contextual primary actions when they answer the immediate question “Which role am I playing?” It must not repeat the complete navigation registry as a second sitemap.
 
 This does not prohibit a compact index from selecting one detailed record. The index and selected detail serve different functions. It also does not collapse cards merely because their titles look alike when their rules, rolls, resources, levels, links, or sources differ.
 
 ## Navigation
 
-- Each system has one canonical top navigation bar.
-- Home pages do not repeat every destination as a second grid of buttons.
+- Each system has one canonical top navigation bar for the complete product map.
+- The D&D landing page may expose exactly two primary role actions: Player and Dungeon Master.
+- The percentile-horror landing page may expose exactly two primary role actions: Investigator and Keeper.
+- Home pages do not repeat specialist destinations as a second grid of buttons.
 - Card Catalog source summaries display counts only; they do not duplicate workspace navigation.
 - Navigation registries must contain unique page IDs and unique visible labels.
 
@@ -60,9 +64,12 @@ Every public library separately gates unique IDs and names. Current protected li
 Automated tests verify:
 
 - unique navigation destinations and labels;
-- removal of duplicate home-page destination grids;
+- exactly two contextual role actions on each landing page;
+- removal of duplicate home-page sitemap grids;
 - count-only Card Catalog source summaries;
 - single-instance procedure composition;
+- successful rendering of every registered route;
+- unique HTML IDs inside every rendered route;
 - unique IDs and final visible identities in every exact-system Card Catalog;
 - exact-equivalent reusable-card collapse;
 - preservation of level-scaled actions and resources;
