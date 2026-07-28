@@ -1,23 +1,10 @@
-import type {
-  CocSpellPreview,
-  CocWeaponPreview
-} from "../types/coc";
+import type { CocSpellPreview } from "../types/coc";
 import { cocCreatureCatalog } from "./cocCreatureCatalog";
+import { cocWeaponCatalog } from "./cocWeaponCatalog";
 
-export const cocPreviewWeapon: CocWeaponPreview = {
-  id: "coc-preview-service-revolver",
-  name: "Service Revolver",
-  category: "Handgun",
-  skillName: "Firearms (Handgun)",
-  defaultSkill: 55,
-  damageFormula: "1d10",
-  capacity: 6,
-  malfunction: 100,
-  range: "15 yards",
-  attacksPerRound: "1–3",
-  impaling: true,
-  notes: "Prototype weapon entry using original summary text. Multiple shots may add a Penalty die at the Keeper's direction."
-};
+export const cocPreviewWeapon = cocWeaponCatalog.find(
+  (weapon) => weapon.id === "coc-original-service-revolver"
+)!;
 
 export const cocPreviewSpell: CocSpellPreview = {
   id: "coc-preview-hollow-star",
