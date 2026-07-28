@@ -11,8 +11,9 @@ describe("DM Forge product-truth source contracts", () => {
   it("documents the current Character Vault and Card Platform baseline", () => {
     expect(readme).toContain("## Current Card Platform v2");
     expect(readme).toContain("**480 planned builds**");
-    expect(readme).toContain("**240 verified printable builds**");
-    expect(readme).toContain("remaining **240 builds**");
+    expect(readme).toContain("**280 verified printable builds**");
+    expect(readme).toContain("remaining **200 builds**");
+    expect(readme).toContain("- Bard / College of Lore");
     expect(readme).toContain("- Paladin / Devotion");
     expect(readme).toContain("- Rogue / Thief");
     expect(readme).toContain("- Wizard / Evocation");
