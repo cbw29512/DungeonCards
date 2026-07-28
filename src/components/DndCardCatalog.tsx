@@ -31,6 +31,7 @@ export const DndCardCatalog = ({
   }, [gameSystemId, homebrewCards, homebrewMonsters, loaded]);
   const actions = [
     { sourceId: "rules" as const, label: "Rules", onOpen: () => onNavigate("rules") },
+    { sourceId: "conditions" as const, label: "Conditions", onOpen: () => onNavigate("conditions") },
     { sourceId: "spells" as const, label: "SRD Spells", onOpen: () => onNavigate("compendium") },
     { sourceId: "monsters" as const, label: "SRD Monsters", onOpen: () => onNavigate("monster") },
     { sourceId: "characters" as const, label: "Character Vault", onOpen: () => onNavigate("pregens") },
@@ -40,7 +41,7 @@ export const DndCardCatalog = ({
   return (
     <div className="dnd-card-catalog">
       <section className="dnd-card-catalog__edition" aria-labelledby="dnd-card-catalog-edition-title">
-        <div><small>Exact-edition boundary</small><h1 id="dnd-card-catalog-edition-title">Choose the D&D Card Catalog</h1><p>Rules, spells, monsters, characters, homebrew, imports, and playable decks stay inside one edition.</p></div>
+        <div><small>Exact-edition boundary</small><h1 id="dnd-card-catalog-edition-title">Choose the D&D Card Catalog</h1><p>Rules, conditions, spells, monsters, characters, homebrew, imports, and playable decks stay inside one edition.</p></div>
         <div role="group" aria-label="D&D Card Catalog edition">
           <button aria-pressed={gameSystemId === "dnd-2014"} onClick={() => setGameSystemId("dnd-2014")} type="button">D&D 2014</button>
           <button aria-pressed={gameSystemId === "dnd-2024"} onClick={() => setGameSystemId("dnd-2024")} type="button">D&D 2024</button>
