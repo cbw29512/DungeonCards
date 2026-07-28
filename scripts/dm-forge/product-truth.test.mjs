@@ -11,8 +11,9 @@ describe("DM Forge product-truth source contracts", () => {
   it("documents the current Character Vault and Card Platform baseline", () => {
     expect(readme).toContain("## Current Card Platform v2");
     expect(readme).toContain("**480 planned builds**");
-    expect(readme).toContain("**200 verified printable builds**");
-    expect(readme).toContain("remaining **280 builds**");
+    expect(readme).toContain("**240 verified printable builds**");
+    expect(readme).toContain("remaining **240 builds**");
+    expect(readme).toContain("- Paladin / Devotion");
     expect(readme).toContain("- Rogue / Thief");
     expect(readme).toContain("- Wizard / Evocation");
     expect(readme).not.toContain("Saved Character Play Mode remains an active milestone");
@@ -29,7 +30,7 @@ describe("DM Forge product-truth source contracts", () => {
     expect(coverage).not.toContain("remaining ten public class paths");
   });
 
-  it("separates CoC archive import from structured owned-content authoring", () => {
+  it("separates CoC archive import from structured authoring", () => {
     expect(cocCoverage).toContain('id: "coc-7e-private-card-library"');
     expect(cocCoverage).toContain('status: "automation-complete"');
     expect(cocCoverage).toContain('id: "coc-7e-structured-owned-content"');
