@@ -20,7 +20,7 @@ const namedFeatureCards = (
     family: "character-action",
     title: parsed.title,
     subtitle: category === "class-feature" ? profile.character.className : profile.character.subclassName,
-    summary: parsed.detail ?? `${parsed.title} is available to this level ${profile.level} build.`,
+    summary: parsed.detail ?? `${parsed.title} is available to this ${profile.character.className} build.`,
     tags: ["feature", category],
     actions: [{
       id: "use-feature",
