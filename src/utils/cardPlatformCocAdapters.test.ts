@@ -15,13 +15,13 @@ const source = (id: string): CocRuleSourceRecord => {
 };
 
 describe("Call of Cthulhu Card Platform adapters", () => {
-  it("adapts the original weapon with executable rolls and ammunition", () => {
-    const card = adaptCocWeapon(cocPreviewWeapon, { source: source("coc-original-weapon-preview") });
+  it("adapts an original armory weapon with executable rolls and tracked uses", () => {
+    const card = adaptCocWeapon(cocPreviewWeapon);
     expect(card).toMatchObject({
       gameSystemId: "coc-7e",
       family: "weapon",
       visibility: "player-safe",
-      source: { kind: "original" },
+      source: { kind: "original", publicDistributionAllowed: true },
       review: { status: "draft" },
       print: { sizeId: "poker-2.5x3.5" }
     });
@@ -29,7 +29,7 @@ describe("Call of Cthulhu Card Platform adapters", () => {
       expect.objectContaining({ id: "attack-check", rollSystem: "percentile" }),
       expect.objectContaining({ id: "damage", formula: "1d10" })
     ]));
-    expect(card.resources[0]).toMatchObject({ id: "ammunition", maximum: 6, initial: 6 });
+    expect(card.resources[0]).toMatchObject({ id: "uses", maximum: 6, initial: 6 });
     expect(validateCardDefinition(card)).toEqual([]);
   });
 
