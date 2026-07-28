@@ -5,7 +5,7 @@ const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "
 const readme = read("README.md");
 const coverage = read("src/data/rulesCoverageDnd.ts");
 const cocCoverage = read("src/data/rulesCoverageCoc.ts");
-const home = read("src/components/dndShell/dndPageRegistry.ts");
+const dndCatalog = read("src/components/DndCardCatalog.tsx");
 
 describe("DM Forge product-truth source contracts", () => {
   it("documents the current Character Vault and Card Platform baseline", () => {
@@ -39,7 +39,7 @@ describe("DM Forge product-truth source contracts", () => {
     expect(cocCoverage).toContain('status: "missing"');
   });
 
-  it("keeps Conditions visible in D&D catalog discovery copy", () => {
-    expect(home).toContain("Search rules, conditions, spells, monsters");
+  it("keeps Conditions visible in the single D&D catalog discovery surface", () => {
+    expect(dndCatalog).toContain("Rules, conditions, spells, monsters");
   });
 });
