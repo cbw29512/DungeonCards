@@ -23,6 +23,7 @@ export const CocCardCatalog = ({
   }, [loaded]);
   const actions = [
     { sourceId: "coc-procedures" as const, label: "Verified Procedures", onOpen: () => onNavigate("rules") },
+    { sourceId: "coc-investigators" as const, label: "Investigators", onOpen: () => onNavigate("investigator") },
     { sourceId: "coc-equipment" as const, label: "Equipment", onOpen: () => onNavigate("equipment") },
     { sourceId: "coc-rituals" as const, label: "Spells & Rituals", onOpen: () => onNavigate("spells") },
     { sourceId: "coc-creatures" as const, label: "Creatures & NPCs", onOpen: () => onNavigate("creatures") },
