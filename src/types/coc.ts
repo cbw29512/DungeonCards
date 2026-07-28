@@ -59,20 +59,33 @@ export type CocPercentileResult = {
   meetsDifficulty: boolean;
 };
 
-export type CocWeaponPreview = {
+export type CocWeaponKind = "melee" | "thrown" | "handgun" | "long-gun" | "shotgun";
+export type CocWeaponEra = "1920s" | "modern" | "universal";
+export type CocWeaponAvailability = "common" | "restricted" | "special";
+
+export type CocWeaponRecord = {
   id: string;
   name: string;
   category: string;
+  kind: CocWeaponKind;
+  eras: CocWeaponEra[];
+  availability: CocWeaponAvailability;
+  hands: 1 | 2;
   skillName: string;
   defaultSkill: number;
   damageFormula: string;
+  usesDamageBonus: boolean;
   capacity: number;
-  malfunction: number;
+  malfunction?: number;
   range: string;
   attacksPerRound: string;
+  reload: string;
   impaling: boolean;
   notes: string;
 };
+
+/** @deprecated Prefer CocWeaponRecord for new public catalog content. */
+export type CocWeaponPreview = CocWeaponRecord;
 
 export type CocSpellPreview = {
   id: string;
