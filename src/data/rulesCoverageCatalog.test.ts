@@ -59,11 +59,11 @@ describe("DM Forge rules coverage ledger", () => {
     expect(rulesCoverageCatalog.some((entry) => entry.id === "dnd-2014-weapon-mastery")).toBe(false);
   });
 
-  it("filters by system, status, and search text", () => {
+  it("filters by system, status, and specific search text", () => {
     const verifiedLuck = filterRulesCoverage(rulesCoverageCatalog, {
       system: "coc-7e",
       status: "automation-complete",
-      query: "Luck"
+      query: "Group Luck"
     });
     expect(verifiedLuck).toHaveLength(1);
     expect(verifiedLuck[0].id).toBe("coc-7e-luck");
@@ -71,7 +71,7 @@ describe("DM Forge rules coverage ledger", () => {
     const ownedLuck = filterRulesCoverage(rulesCoverageCatalog, {
       system: "coc-7e",
       status: "requires-owned-source",
-      query: "Luck"
+      query: "Optional Luck spending"
     });
     expect(ownedLuck).toHaveLength(1);
     expect(ownedLuck[0].id).toBe("coc-7e-luck-spending");
