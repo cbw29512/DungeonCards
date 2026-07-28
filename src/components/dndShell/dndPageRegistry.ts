@@ -56,7 +56,7 @@ export const dndNavigationPages: DndAppPage[] = [
 ];
 
 export const dndHomeCards: DndHomeCard[] = [
-  { page: "catalog", icon: "🗂️", title: "Card Catalog", description: "Search rules, spells, monsters, Character Vault, homebrew, and private cards inside one exact edition." },
+  { page: "catalog", icon: "🗂️", title: "Card Catalog", description: "Search rules, conditions, spells, monsters, Character Vault, homebrew, and private cards inside one exact edition." },
   { page: "rules", icon: "📖", title: "Rules Guide", description: "Learn the table procedure first, then open the matching card." },
   { page: "coverage", icon: "🧭", title: "Rules Coverage", description: "See what is complete, automated, missing, or requires an owned source." },
   { page: "conditions", icon: "⚠️", title: "Conditions & Exhaustion", description: "Search every condition without mixing edition rules." },
