@@ -125,10 +125,6 @@ export const buildCardCatalog = (
         if (existingEquivalent.privateImported && incoming.privateImported) {
           removeEntry(existingEquivalent);
         } else {
-          issues.push({
-            sourceId: source.id,
-            message: `${definition.content.title} exactly duplicates ${existingEquivalent.sourceLabel} content and was excluded.`
-          });
           continue;
         }
       }
