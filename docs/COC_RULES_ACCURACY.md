@@ -152,6 +152,8 @@ The current public `coc-7e` Card Catalog contains:
 - 24 original creature/NPC cards;
 - 12 original premade Investigator cards.
 
+That is **93 public Card Platform definitions**.
+
 The Investigator builder additionally offers 24 original occupation packages. Current browser-local Investigator state tracks HP, Sanity, Magic Points, Luck, and Mythos with correct maximum-Sanity handling.
 
 This content depth does not mean every Call of Cthulhu rule is certified or that official catalogs are included. Each source-backed rule retains its own review status. Original records are validated as original product content and remain subject to mechanical tests, source-boundary tests, and playtesting.
