@@ -17,11 +17,11 @@ const rangerSpellPool2014: Array<[number, string]> = [
 ];
 
 const rangerSpellPool2024: Array<[number, string]> = [
-  [1, "Cure Wounds"], [1, "Goodberry"], [1, "Hail of Thorns"], [1, "Ensnaring Strike"], [1, "Fog Cloud"],
+  [1, "Cure Wounds"], [1, "Goodberry"], [1, "Ensnaring Strike"], [1, "Fog Cloud"], [1, "Entangle"],
   [5, "Pass without Trace"], [5, "Spike Growth"], [5, "Lesser Restoration"], [5, "Silence"],
-  [9, "Conjure Barrage"], [9, "Lightning Arrow"], [9, "Plant Growth"], [9, "Revivify"],
+  [9, "Conjure Animals"], [9, "Plant Growth"], [9, "Revivify"], [9, "Dispel Magic"],
   [13, "Freedom of Movement"], [13, "Conjure Woodland Beings"], [13, "Locate Creature"],
-  [17, "Swift Quiver"], [17, "Conjure Volley"], [17, "Greater Restoration"]
+  [17, "Greater Restoration"], [17, "Commune with Nature"], [17, "Tree Stride"]
 ];
 
 const rangerKnownCounts2014 = [0, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11];
