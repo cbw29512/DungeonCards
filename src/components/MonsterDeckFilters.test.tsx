@@ -29,7 +29,7 @@ const renderFilters = (view: "library" | "table") => renderToStaticMarkup(
 );
 
 describe("Monster Library filter controls", () => {
-  it("renders clearly named search, edition, type, size, capability, and CR controls", () => {
+  it("renders clearly named search, edition, type, size, capability, CR, and sort controls in the library", () => {
     const markup = renderFilters("library");
     for (const label of [
       "Search",
@@ -49,9 +49,21 @@ describe("Monster Library filter controls", () => {
     expect(markup).toContain("CR high to low");
   });
 
-  it("does not offer library sorting on the initiative-ordered active table", () => {
+  it("keeps only the exact-edition selector on the active encounter table", () => {
     const markup = renderFilters("table");
-    expect(markup).not.toContain("Sort library");
-    expect(markup).not.toContain("Sort monster library");
+    expect(markup).toContain(">Edition<");
+    expect(markup).toContain("every saved combatant stays visible");
+    for (const libraryOnlyLabel of [
+      "Search",
+      "Creature type",
+      "Size",
+      "Capability",
+      "Minimum CR",
+      "Maximum CR",
+      "Sort library",
+      "Clear filters"
+    ]) {
+      expect(markup).not.toContain(`>${libraryOnlyLabel}<`);
+    }
   });
 });
