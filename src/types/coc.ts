@@ -96,11 +96,17 @@ export type CocCreatureAttackPreview = {
   notes: string;
 };
 
-export type CocCreaturePreview = {
+export type CocCreatureKind = "human" | "animal" | "unnatural" | "entity";
+export type CocCreatureThreatLevel = "low" | "moderate" | "severe" | "catastrophic";
+
+export type CocCreatureRecord = {
   id: string;
   name: string;
   classification: string;
   keeperTag: string;
+  kind: CocCreatureKind;
+  threat: CocCreatureThreatLevel;
+  environments: string[];
   characteristics: Record<"STR" | "CON" | "SIZ" | "DEX" | "INT" | "POW", number>;
   hitPoints: number;
   magicPoints: number;
@@ -114,3 +120,6 @@ export type CocCreaturePreview = {
   traits: string[];
   attacks: CocCreatureAttackPreview[];
 };
+
+/** @deprecated Prefer CocCreatureRecord for new public catalog content. */
+export type CocCreaturePreview = CocCreatureRecord;

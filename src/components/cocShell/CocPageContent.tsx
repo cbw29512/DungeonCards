@@ -7,6 +7,7 @@ import type { CocAppPage } from "../../integration/dmForgeRoute";
 import { CocCardCatalog } from "../CocCardCatalog";
 import { CocCombatProcedureCard } from "../CocCombatProcedureCard";
 import { CocCreatureDossier } from "../CocCreatureDossier";
+import { CocCreatureLibrary } from "../CocCreatureLibrary";
 import { CocFirearmProcedureCard } from "../CocFirearmProcedureCard";
 import { CocHealingCard } from "../CocHealingCard";
 import { CocImprovementCard } from "../CocImprovementCard";
@@ -70,7 +71,9 @@ export const CocPageContent = ({
     </Page>
   );
   if (activePage === "creatures") return (
-    <Page eyebrow="Creatures & NPCs" title="Every number needed when it reaches the light." summary="The sample dossier is original demonstration content rather than copied official statistics."><CocCreatureDossier creature={cocPreviewCreature} /></Page>
+    <Page eyebrow="Original creature library" title="A complete Keeper-facing roster without copied sourcebook monsters." summary="Search original human adversaries, altered animals, unnatural creatures, and major entities. Open any dossier for live attacks, HP, Magic Points, Dodge, Sanity loss, and printable Keeper notes.">
+      <CocCreatureLibrary />
+    </Page>
   );
   if (activePage === "encounters") return (
     <Page eyebrow="Encounter operating procedure" title="Make violence fast, dangerous, and escapable." summary="Establish DEX order and keep reactions, wounds, cover, ammunition, treatment, and escape visible.">
