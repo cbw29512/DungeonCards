@@ -4,6 +4,7 @@ import type {
   MonsterEncounterInstance,
   MonsterEncounterWorkspace
 } from "../types/monsterEncounterWorkspace";
+import { buildMonsterCombatReference } from "./monsterCombatReference";
 
 const now = (): string => new Date().toISOString();
 const integer = (value: unknown, fallback: number): number => {
@@ -29,6 +30,12 @@ const uniqueConditions = (values: unknown): string[] => {
     return [label];
   });
 };
+const normalizedConditionText = (value: string): string => value
+  .normalize("NFKC")
+  .toLocaleLowerCase("en-US")
+  .replace(/[^a-z0-9]+/g, " ")
+  .trim();
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const monsterHitPointMaximum = (entry: EncounterMonsterEntry): number => {
   const raw = entry.kind === "formatted" ? entry.monster.hp : entry.monster.hitPoints;
@@ -41,6 +48,22 @@ export const monsterHasSpecialReaction = (entry: EncounterMonsterEntry): boolean
     ? entry.monster.reactions.length > 0
     : meaningfulSectionText(entry.monster.reactions)
 );
+
+export const monsterConditionImmunityText = (entry: EncounterMonsterEntry): string => (
+  entry.kind === "formatted"
+    ? entry.monster.conditionImmunities.join(", ")
+    : buildMonsterCombatReference(entry.monster).conditionImmunities
+);
+
+export const monsterIsImmuneToCondition = (
+  entry: EncounterMonsterEntry,
+  condition: string
+): boolean => {
+  const target = normalizedConditionText(condition);
+  const immunities = normalizedConditionText(monsterConditionImmunityText(entry));
+  if (!target || !immunities) return false;
+  return new RegExp(`(?:^| )${escapeRegExp(target)}(?:$| )`).test(immunities);
+};
 
 export const monsterHasRecharge = (entry: EncounterMonsterEntry): boolean => {
   const text = entry.kind === "formatted"
