@@ -33,9 +33,10 @@ export const cocSourceReference = (source?: CocRuleSourceRecord): CardSourceRefe
   notes: source.notes.join(" ") || undefined
 } : {
   kind: "original",
-  title: "DM Forge original Call of Cthulhu demonstration content",
+  title: "DM Forge original percentile-horror content",
   edition: "coc-7e",
-  publicDistributionAllowed: true
+  publicDistributionAllowed: true,
+  notes: "Original public-safe game content; not copied from an official creature, equipment, ritual, scenario, or sourcebook catalog."
 };
 
 export const cocReview = (source?: CocRuleSourceRecord): CardReview => {
