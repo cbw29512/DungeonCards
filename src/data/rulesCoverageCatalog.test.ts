@@ -35,9 +35,9 @@ describe("DM Forge rules coverage ledger", () => {
 
   it("derives Character Vault completion claims from the live registries", () => {
     expect(plannedBuildCount).toBe(480);
-    expect(readyBuildCount).toBe(240);
-    expect(blueprintCount).toBe(240);
-    expect(remainingPathCount).toBe(6);
+    expect(readyBuildCount).toBe(280);
+    expect(blueprintCount).toBe(200);
+    expect(remainingPathCount).toBe(5);
 
     for (const system of ["dnd-2014", "dnd-2024"] as const) {
       const matrix = rulesCoverageCatalog.find((entry) => entry.id === `${system}-pregen-library`);
