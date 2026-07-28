@@ -12,17 +12,19 @@ export const wizardCantrips = (ruleset: RulesetId, level: number): string[] => {
   const classCantrips = ruleset === "srd-5.1-2014"
     ? ["Fire Bolt", "Mage Hand", "Ray of Frost", ...(level >= 4 ? ["Light"] : []), ...(level >= 10 ? ["Prestidigitation"] : [])]
     : ["Light", "Mage Hand", "Ray of Frost", ...(level >= 4 ? ["Fire Bolt"] : []), ...(level >= 10 ? ["Prestidigitation"] : [])];
-  return ruleset === "srd-5.1-2014" ? [...classCantrips, "Minor Illusion (High Elf)"] : [...classCantrips, "Message (Magic Initiate: Wizard)", "Minor Illusion (Magic Initiate: Wizard)"];
+  return ruleset === "srd-5.1-2014"
+    ? [...classCantrips, "Minor Illusion"]
+    : [...classCantrips, "Message", "Minor Illusion"];
 };
 
 const preparedPool: Array<[number, string]> = [
   [1, "Mage Armor"], [1, "Shield"], [1, "Magic Missile"], [1, "Detect Magic"],
-  [3, "Misty Step"], [3, "Web"], [5, "Fireball"], [5, "Counterspell"], [5, "Dispel Magic"],
+  [3, "Misty Step"], [3, "Web"], [3, "Scorching Ray"], [5, "Fireball"], [5, "Counterspell"], [5, "Dispel Magic"],
   [7, "Dimension Door"], [7, "Polymorph"], [9, "Wall of Force"], [9, "Cone of Cold"],
   [11, "Chain Lightning"], [11, "Disintegrate"], [13, "Forcecage"], [13, "Teleport"],
   [15, "Maze"], [15, "Sunburst"], [17, "Meteor Swarm"], [17, "Wish"],
   [1, "Feather Fall"], [1, "Sleep"], [1, "Thunderwave"], [1, "Burning Hands"],
-  [3, "Mirror Image"], [3, "Scorching Ray"], [3, "Invisibility"], [3, "Hold Person"],
+  [3, "Mirror Image"], [3, "Invisibility"], [3, "Hold Person"],
   [5, "Fly"], [5, "Haste"], [5, "Lightning Bolt"], [5, "Hypnotic Pattern"],
   [7, "Greater Invisibility"], [7, "Wall of Fire"], [7, "Banishment"], [7, "Fire Shield"],
   [9, "Telekinesis"], [9, "Hold Monster"], [9, "Animate Objects"],
