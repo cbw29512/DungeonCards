@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { dndEncounterRules } from "../data/dndEncounterRules";
 import { createClientId } from "../utils/createId";
 import {
@@ -16,9 +16,14 @@ import {
   type DndCombatantSide,
   type DndEncounterState
 } from "../utils/dndEncounter";
+import {
+  createDndEncounterSessionRepository,
+  createEmptyDndEncounterSession
+} from "../utils/dndEncounterSessionStorage";
 import type { DndMonsterLiveReference } from "../utils/dndMonsterLiveReference";
 import type { DndGridPosition } from "../utils/dndSpatialCombat";
 import { secureRandomInteger } from "../utils/randomInteger";
+import { getRuntimeStorage } from "../utils/runtimeStorage";
 import { RULESET_LABELS, type RulesetId } from "../types/ruleCards";
 import { DndCombatantEffectsPanel } from "./DndCombatantEffectsPanel";
 import { DndCombatantHealthPanel } from "./DndCombatantHealthPanel";
@@ -27,13 +32,7 @@ import { DndMonsterLiveReferencePanel } from "./DndMonsterLiveReferencePanel";
 import { DndSpatialCombatPanel } from "./DndSpatialCombatPanel";
 import "../styles/dnd-encounter-tracker.css";
 
-const emptyEncounter = (ruleset: RulesetId): DndEncounterState => ({
-  ruleset,
-  round: 0,
-  currentIndex: 0,
-  started: false,
-  combatants: []
-});
+const DEFAULT_RULESET: RulesetId = "srd-5.2.1-2024";
 
 const sideLabels: Record<DndCombatantSide, string> = {
   player: "Player",
@@ -42,10 +41,16 @@ const sideLabels: Record<DndCombatantSide, string> = {
 };
 
 export const DndEncounterTracker = () => {
-  const [ruleset, setRuleset] = useState<RulesetId>("srd-5.2.1-2024");
-  const [encounter, setEncounter] = useState<DndEncounterState>(() => emptyEncounter("srd-5.2.1-2024"));
-  const [monsterReferences, setMonsterReferences] = useState<Record<string, DndMonsterLiveReference>>({});
-  const [positions, setPositions] = useState<Record<string, DndGridPosition>>({});
+  const repository = useMemo(
+    () => createDndEncounterSessionRepository(getRuntimeStorage()),
+    []
+  );
+  const initialSnapshot = useMemo(() => repository.load(DEFAULT_RULESET), [repository]);
+  const [ruleset, setRuleset] = useState<RulesetId>(DEFAULT_RULESET);
+  const [encounter, setEncounter] = useState<DndEncounterState>(initialSnapshot.encounter);
+  const [monsterReferences, setMonsterReferences] = useState<Record<string, DndMonsterLiveReference>>(initialSnapshot.monsterReferences);
+  const [positions, setPositions] = useState<Record<string, DndGridPosition>>(initialSnapshot.positions);
+  const [storageError, setStorageError] = useState<string>();
   const [name, setName] = useState("New combatant");
   const [side, setSide] = useState<DndCombatantSide>("enemy");
   const [initiative, setInitiative] = useState(12);
@@ -54,11 +59,32 @@ export const DndEncounterTracker = () => {
   const [maximumHitPoints, setMaximumHitPoints] = useState(20);
   const [currentHitPoints, setCurrentHitPoints] = useState(20);
   const [surprised, setSurprised] = useState(false);
-  const [concentrationCombatantId, setConcentrationCombatantId] = useState("");
+  const [concentrationCombatantId, setConcentrationCombatantId] = useState(
+    initialSnapshot.encounter.combatants.find((combatant) => combatant.concentration)?.id
+      ?? initialSnapshot.encounter.combatants[0]?.id
+      ?? ""
+  );
   const [concentrationEffect, setConcentrationEffect] = useState("Bless");
   const [damageTaken, setDamageTaken] = useState(10);
   const [constitutionSaveBonus, setConstitutionSaveBonus] = useState(2);
   const [concentrationResult, setConcentrationResult] = useState("");
+
+  useEffect(() => {
+    try {
+      repository.save({
+        schemaVersion: 1,
+        ruleset,
+        encounter,
+        monsterReferences,
+        positions,
+        updatedAt: new Date().toISOString()
+      });
+      setStorageError(undefined);
+    } catch (error) {
+      console.error("Saving the D&D encounter session failed", { ruleset, error });
+      setStorageError("This encounter could not be saved in the current browser.");
+    }
+  }, [encounter, monsterReferences, positions, repository, ruleset]);
 
   const source = dndEncounterRules[ruleset];
   const concentrationDc = calculateDndConcentrationDc(ruleset, damageTaken);
@@ -67,13 +93,23 @@ export const DndEncounterTracker = () => {
     [encounter.combatants]
   );
 
-  const changeRuleset = (next: RulesetId) => {
+  const applySnapshot = (next: RulesetId) => {
+    const snapshot = repository.load(next);
     setRuleset(next);
-    setEncounter(emptyEncounter(next));
-    setMonsterReferences({});
-    setPositions({});
-    setConcentrationCombatantId("");
+    setEncounter(snapshot.encounter);
+    setMonsterReferences(snapshot.monsterReferences);
+    setPositions(snapshot.positions);
+    setConcentrationCombatantId(
+      snapshot.encounter.combatants.find((combatant) => combatant.concentration)?.id
+        ?? snapshot.encounter.combatants[0]?.id
+        ?? ""
+    );
     setConcentrationResult("");
+    setStorageError(undefined);
+  };
+
+  const changeRuleset = (next: RulesetId) => {
+    if (next !== ruleset) applySnapshot(next);
   };
 
   const rollInitiative = () => {
@@ -125,12 +161,15 @@ export const DndEncounterTracker = () => {
     setConcentrationResult("");
   };
 
-  const endEncounter = () => {
-    setEncounter(emptyEncounter(ruleset));
-    setMonsterReferences({});
-    setPositions({});
+  const clearEncounter = () => {
+    repository.clear(ruleset);
+    const empty = createEmptyDndEncounterSession(ruleset);
+    setEncounter(empty.encounter);
+    setMonsterReferences(empty.monsterReferences);
+    setPositions(empty.positions);
     setConcentrationCombatantId("");
     setConcentrationResult("");
+    setStorageError(undefined);
   };
 
   const runConcentrationSave = () => {
@@ -171,6 +210,14 @@ export const DndEncounterTracker = () => {
         <strong>{RULESET_LABELS[ruleset]} only</strong>
         <p>{source.surpriseSummary}</p>
         <p>{source.reactionSummary}</p>
+        <div className="dnd-encounter-save-status">
+          <span role={storageError ? "alert" : "status"}>
+            {storageError ?? `${encounter.started ? `Round ${encounter.round}` : "Setup"} is saved automatically in this browser for ${RULESET_LABELS[ruleset]}.`}
+          </span>
+          {!encounter.started && encounter.combatants.length > 0 && (
+            <button type="button" onClick={clearEncounter}>Clear saved setup</button>
+          )}
+        </div>
       </section>
 
       {!encounter.started && (
@@ -207,7 +254,7 @@ export const DndEncounterTracker = () => {
       <section className="dnd-initiative-board" aria-labelledby="initiative-board-title">
         <header>
           <div><small>Turn order</small><h2 id="initiative-board-title">{encounter.started ? `Round ${encounter.round}` : "Setup order"}</h2></div>
-          {encounter.started && <div className="dnd-encounter-button-row"><button type="button" onClick={() => setEncounter((current) => advanceDndTurn(current))}>End turn / Next</button><button type="button" onClick={endEncounter}>End encounter</button></div>}
+          {encounter.started && <div className="dnd-encounter-button-row"><button type="button" onClick={() => setEncounter((current) => advanceDndTurn(current))}>End turn / Next</button><button type="button" onClick={clearEncounter}>End encounter</button></div>}
         </header>
 
         {encounter.combatants.length === 0 ? <p className="dnd-encounter-empty">Add at least one combatant to begin.</p> : (
