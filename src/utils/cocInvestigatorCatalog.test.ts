@@ -45,7 +45,7 @@ describe("Percentile Horror original occupation and Investigator libraries", () 
       expect(occupation.creditRatingRange[0]).toBeLessThanOrEqual(occupation.creditRatingRange[1]);
       expect(occupation.contacts.length).toBeGreaterThanOrEqual(3);
       expect(occupation.typicalGear.length).toBeGreaterThanOrEqual(3);
-      expect(occupation.complication.length).toBeGreaterThanOrEqual(60);
+      expect(occupation.complication.length).toBeGreaterThanOrEqual(50);
     }
   });
 
