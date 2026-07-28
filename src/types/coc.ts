@@ -87,19 +87,39 @@ export type CocWeaponRecord = {
 /** @deprecated Prefer CocWeaponRecord for new public catalog content. */
 export type CocWeaponPreview = CocWeaponRecord;
 
-export type CocSpellPreview = {
+export type CocRitualKind =
+  | "ward"
+  | "divination"
+  | "binding"
+  | "transformation"
+  | "passage"
+  | "affliction";
+
+export type CocRitualRisk = "low" | "moderate" | "severe" | "catastrophic";
+
+export type CocRitualRecord = {
   id: string;
   name: string;
+  kind: CocRitualKind;
+  risk: CocRitualRisk;
+  contexts: string[];
   castingTime: string;
   magicPointCost: number;
   sanityCostFormula: string;
   castingSkillName: string;
   defaultCastingSkill: number;
+  difficulty: CocDifficulty;
   range: string;
-  duration: string;
+  durationFormula: string;
+  durationUnit: "rounds" | "minutes" | "hours" | "days";
+  requirements: string[];
   summary: string;
+  effect: string;
   failure: string;
 };
+
+/** @deprecated Prefer CocRitualRecord for new public catalog content. */
+export type CocSpellPreview = CocRitualRecord;
 
 export type CocCreatureAttackPreview = {
   id: string;

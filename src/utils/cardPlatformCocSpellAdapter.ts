@@ -1,5 +1,5 @@
 import type { CardDefinition } from "../types/cardPlatform";
-import type { CocSpellPreview } from "../types/coc";
+import type { CocRitualRecord } from "../types/coc";
 import {
   cocCardPrint,
   cocReview,
@@ -9,7 +9,7 @@ import {
 } from "./cardPlatformCocAdapterShared";
 
 export const adaptCocSpell = (
-  spell: CocSpellPreview,
+  spell: CocRitualRecord,
   options: CocAdapterOptions = {}
 ): CardDefinition => ({
   schemaVersion: 2,
@@ -19,10 +19,26 @@ export const adaptCocSpell = (
   visibility: options.visibility ?? "game-master-only",
   content: {
     title: spell.name,
-    subtitle: `${spell.castingTime} · range ${spell.range}`,
+    subtitle: `${spell.kind} · ${spell.risk} risk · ${spell.castingTime}`,
     summary: spell.summary,
-    detail: `Magic Point cost: ${spell.magicPointCost}. Sanity cost: ${spell.sanityCostFormula}. Duration: ${spell.duration}. Failure: ${spell.failure}`,
-    tags: ["legacy-coc", "ritual", "magic", "sanity-cost"]
+    detail: [
+      `Effect: ${spell.effect}`,
+      `Magic Point cost: ${spell.magicPointCost}.`,
+      `Sanity cost: ${spell.sanityCostFormula}.`,
+      `Range: ${spell.range}.`,
+      `Duration: ${spell.durationFormula} ${spell.durationUnit}.`,
+      `Requirements: ${spell.requirements.join("; ")}.`,
+      `Failure: ${spell.failure}`
+    ].join(" "),
+    tags: [...new Set([
+      "legacy-coc",
+      "ritual",
+      "original",
+      safeCocId(spell.kind),
+      safeCocId(spell.risk),
+      safeCocId(spell.difficulty),
+      ...spell.contexts.map(safeCocId)
+    ])]
   },
   source: cocSourceReference(options.source),
   review: options.review ?? cocReview(options.source),
@@ -33,8 +49,8 @@ export const adaptCocSpell = (
       label: `Roll ${spell.castingSkillName}`,
       rollSystem: "percentile",
       percentileTarget: spell.defaultCastingSkill,
-      percentileDifficulty: "regular",
-      notes: `Default demonstration casting value: ${spell.defaultCastingSkill}%.`
+      percentileDifficulty: spell.difficulty,
+      notes: `Default original-library casting value: ${spell.defaultCastingSkill}%. Spend ${spell.magicPointCost} Magic Points when the attempt begins.`
     },
     {
       id: "sanity-cost",
@@ -44,14 +60,22 @@ export const adaptCocSpell = (
       formula: spell.sanityCostFormula
     },
     {
+      id: "duration",
+      kind: "roll",
+      label: `Roll duration in ${spell.durationUnit}`,
+      rollSystem: "dice-formula",
+      formula: spell.durationFormula
+    },
+    {
       id: "casting-procedure",
       kind: "procedure",
       label: "Resolve the ritual",
       steps: [
-        `Spend ${spell.magicPointCost} Magic Points.`,
-        `Resolve the ${spell.castingSkillName} casting check when required.`,
-        `Apply ${spell.sanityCostFormula} Sanity loss and track the ${spell.duration} duration.`,
-        spell.failure
+        `Confirm the requirements: ${spell.requirements.join("; ")}.`,
+        `Spend ${spell.magicPointCost} Magic Points and resolve the ${spell.difficulty} ${spell.castingSkillName} check.`,
+        `Apply ${spell.sanityCostFormula} Sanity loss.`,
+        `On success, apply the effect for ${spell.durationFormula} ${spell.durationUnit}: ${spell.effect}`,
+        `On failure, apply the original backlash: ${spell.failure}`
       ]
     }
   ],

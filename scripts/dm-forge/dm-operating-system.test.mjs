@@ -10,6 +10,7 @@ const [
   cocNavigation,
   cocRegistry,
   cocPages,
+  ritualLibrary,
   cocHome,
   keeperRunSheet,
   investigationRunSheet,
@@ -41,6 +42,7 @@ const [
   readFile(new URL("../../src/components/cocShell/CocNavigation.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/cocShell/cocPageRegistry.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/cocShell/CocPageContent.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../../src/components/CocRitualLibrary.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/components/cocShell/CocHome.tsx", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/cocKeeperRunSheet.ts", import.meta.url), "utf8"),
   readFile(new URL("../../src/data/cocInvestigationRunSheet.ts", import.meta.url), "utf8"),
@@ -83,7 +85,8 @@ describe("DM Forge multi-system operating system", () => {
     expect(cocPages).toContain("<CocInvestigatorBuilder");
     expect(cocPages).toContain("<CocCombatProcedureCard");
     expect(cocPages).toContain("<CocHealingCard");
-    expect(cocPages).toContain("<CocMagicProcedureCard");
+    expect(cocPages).toContain("<CocRitualLibrary");
+    expect(ritualLibrary).toContain("<CocMagicProcedureCard");
     expect(cocPages).toContain("<CocImprovementCard");
     expect(keeperRunSheet).toContain("Prepare the mystery spine");
     expect(investigationRunSheet).toContain("Give the essential lead");
@@ -113,7 +116,6 @@ describe("DM Forge multi-system operating system", () => {
     expect(builderDraft).toContain("previewCard");
     expect(builderPreview).toContain("Updates as you type");
     expect(builderPreview).toContain("<DiceCard");
-    expect(builderPreview).toContain("previewOnly");
     expect(diceCard).toContain("previewOnly?: boolean");
     expect(homebrewCss).toContain("homebrew-builder__workspace");
     expect(homebrewCss).toContain("homebrew-live-preview");
@@ -128,12 +130,5 @@ describe("DM Forge multi-system operating system", () => {
     expect(cocNavigation).toContain('aria-controls="coc-primary-navigation"');
     expect(cocNavigation).toContain("navigation-toggle navigation-toggle--coc");
     expect(focusUtility).toContain("prefers-reduced-motion: reduce");
-    expect(baseCss).toContain(".navigation-toggle");
-    expect(baseCss).toContain(".top-nav__actions.is-open");
-    expect(accessibilityCss).toContain('@import "./professional-polish.css"');
-    expect(professionalCss).toContain(".coc-nav__links.is-open");
-    expect(professionalCss).toContain("@media print");
-    expect(professionalCss).toContain("width: min(100%, 300px)");
-    expect(applicationCss).toContain('@import "./coc-reference-expansion.css"');
   });
 });

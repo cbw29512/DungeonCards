@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cocPreviewCreature, cocPreviewSpell } from "../../data/cocPreviewCatalog";
+import { cocPreviewCreature } from "../../data/cocPreviewCatalog";
 import { cocCombatRunSheet } from "../../data/cocCombatRunSheet";
 import { cocInvestigationRunSheet } from "../../data/cocInvestigationRunSheet";
 import { cocKeeperRunSheet } from "../../data/cocKeeperRunSheet";
@@ -14,13 +14,12 @@ import { CocHealingCard } from "../CocHealingCard";
 import { CocImprovementCard } from "../CocImprovementCard";
 import { CocInjuryCard } from "../CocInjuryCard";
 import { CocInvestigatorBuilder } from "../CocInvestigatorBuilder";
-import { CocMagicProcedureCard } from "../CocMagicProcedureCard";
 import { CocOpposedCard } from "../CocOpposedCard";
 import { CocPercentileCard } from "../CocPercentileCard";
+import { CocRitualLibrary } from "../CocRitualLibrary";
 import { CocRulesAudit } from "../CocRulesAudit";
 import { CocRulesGuide } from "../CocRulesGuide";
 import { CocSanityCard } from "../CocSanityCard";
-import { CocSpellCard } from "../CocSpellCard";
 import { PrivateCardLibraryWorkspace } from "../cardPlatform/PrivateCardLibraryWorkspace";
 import { CocHome } from "./CocHome";
 import { CocQuickReferenceGrid, CocReferenceGrid } from "./CocReferenceGrid";
@@ -65,9 +64,8 @@ export const CocPageContent = ({
     </Page>
   );
   if (activePage === "spells") return (
-    <Page eyebrow="Spells & rituals" title="Track the cost before opening the door." summary="Handle first casting, pushed attempts, Magic Points, overflow, timing, and original rituals.">
-      <div className="coc-procedure-grid"><CocMagicProcedureCard /><CocSpellCard spell={cocPreviewSpell} /></div>
-      <div className="coc-legal-note"><strong>Occult-content boundary</strong><p>Public rituals must be original, creator-submitted, public-domain, or licensed for reuse.</p></div>
+    <Page eyebrow="Original ritual library" title="Twenty-four dangerous answers with visible costs." summary="Search original wards, divinations, bindings, transformations, passages, and afflictions. Open any record for requirements, casting checks, Magic Point and Sanity costs, duration, effect, backlash, and print-ready Keeper reference.">
+      <CocRitualLibrary />
     </Page>
   );
   if (activePage === "creatures") return (
