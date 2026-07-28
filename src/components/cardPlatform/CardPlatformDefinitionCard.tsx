@@ -22,6 +22,9 @@ const actionLines = (card: CardDefinition): string[] => card.actions.flatMap((ac
 export const CardPlatformDefinitionCard = ({ card }: { card: CardDefinition }) => {
   const [flipped, setFlipped] = useState(false);
   const actions = actionLines(card);
+  const source = card.source.license
+    ? `${card.source.title} · ${card.source.license}`
+    : card.source.title;
   return (
     <button
       aria-label={`${flipped ? "Show front of" : "Show details for"} ${card.content.title}`}
@@ -61,7 +64,7 @@ export const CardPlatformDefinitionCard = ({ card }: { card: CardDefinition }) =
                   <i key={resource.id}>{resource.label}: {resource.maximum}</i>
                 ))}
           </span>
-          <span className="card-platform-card__source"><b>Source</b><i>{card.source.title}</i></span>
+          <span className="card-platform-card__source"><b>Source</b><i>{source}</i></span>
         </span>
       </span>
     </button>
