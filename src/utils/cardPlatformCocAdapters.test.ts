@@ -33,12 +33,18 @@ describe("Call of Cthulhu Card Platform adapters", () => {
     expect(validateCardDefinition(card)).toEqual([]);
   });
 
-  it("adapts the original ritual with structured casting procedure", () => {
-    const card = adaptCocSpell(cocPreviewSpell, { source: source("coc-original-spell-preview") });
-    expect(card).toMatchObject({ gameSystemId: "coc-7e", family: "ritual", visibility: "game-master-only" });
+  it("adapts an original ritual with costs, duration, and backlash procedure", () => {
+    const card = adaptCocSpell(cocPreviewSpell);
+    expect(card).toMatchObject({
+      gameSystemId: "coc-7e",
+      family: "ritual",
+      visibility: "game-master-only",
+      source: { kind: "original", publicDistributionAllowed: true }
+    });
     expect(card.actions).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: "casting-check", rollSystem: "percentile" }),
-      expect.objectContaining({ id: "sanity-cost", formula: "1d4" }),
+      expect.objectContaining({ id: "casting-check", rollSystem: "percentile", percentileDifficulty: "regular" }),
+      expect.objectContaining({ id: "sanity-cost", formula: "1d3" }),
+      expect.objectContaining({ id: "duration", formula: "2d6" }),
       expect.objectContaining({ id: "casting-procedure", kind: "procedure" })
     ]));
     expect(validateCardDefinition(card)).toEqual([]);
