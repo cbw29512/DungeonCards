@@ -17,7 +17,7 @@ const rangerSpellPool2014: Array<[number, string]> = [
 ];
 
 const rangerSpellPool2024: Array<[number, string]> = [
-  [1, "Cure Wounds"], [1, "Goodberry"], [1, "Hail of Thorns"], [1, "Ensnaring Strike"],
+  [1, "Cure Wounds"], [1, "Goodberry"], [1, "Hail of Thorns"], [1, "Ensnaring Strike"], [1, "Fog Cloud"],
   [5, "Pass without Trace"], [5, "Spike Growth"], [5, "Lesser Restoration"], [5, "Silence"],
   [9, "Conjure Barrage"], [9, "Lightning Arrow"], [9, "Plant Growth"], [9, "Revivify"],
   [13, "Freedom of Movement"], [13, "Conjure Woodland Beings"], [13, "Locate Creature"],
