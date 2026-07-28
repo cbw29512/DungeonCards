@@ -1,0 +1,35 @@
+.coc-investigator-dossier__save-note {
+  grid-column: 1 / -1;
+  color: #9aa98c;
+  line-height: 1.4;
+}
+
+@media print {
+  body.print-investigator-dossier .coc-section--page > .coc-section__heading,
+  body.print-investigator-dossier .coc-section--page > .coc-section__subheading,
+  body.print-investigator-dossier .coc-section--page > .coc-procedure-grid,
+  body.print-investigator-dossier .coc-section--page > .coc-reference-grid,
+  body.print-investigator-dossier .coc-investigator-library__summary,
+  body.print-investigator-dossier .coc-investigator-library__controls,
+  body.print-investigator-dossier .coc-investigator-library__result-line,
+  body.print-investigator-dossier .coc-investigator-library__index,
+  body.print-investigator-dossier .coc-investigator-library__occupations {
+    display: none !important;
+  }
+
+  body.print-investigator-dossier .coc-investigator-library,
+  body.print-investigator-dossier .coc-investigator-library__workspace,
+  body.print-investigator-dossier .coc-investigator-library__dossier {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.print-investigator-dossier .coc-investigator-dossier {
+    display: block !important;
+    width: 100% !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
