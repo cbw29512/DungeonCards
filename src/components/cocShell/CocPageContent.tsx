@@ -14,6 +14,7 @@ import { CocHealingCard } from "../CocHealingCard";
 import { CocImprovementCard } from "../CocImprovementCard";
 import { CocInjuryCard } from "../CocInjuryCard";
 import { CocInvestigatorBuilder } from "../CocInvestigatorBuilder";
+import { CocInvestigatorLibrary } from "../CocInvestigatorLibrary";
 import { CocOpposedCard } from "../CocOpposedCard";
 import { CocPercentileCard } from "../CocPercentileCard";
 import { CocRitualLibrary } from "../CocRitualLibrary";
@@ -43,7 +44,9 @@ export const CocPageContent = ({
   if (activePage === "catalog") return <CocCardCatalog onNavigate={onNavigate} />;
   if (activePage === "library") return <PrivateCardLibraryWorkspace gameSystemId="coc-7e" />;
   if (activePage === "investigator") return (
-    <Page eyebrow="Investigator workspace" title="Keep pressure procedures in one card library." summary="Resolve the roll, apply the cost, and record what changed without opening Keeper notes.">
+    <Page eyebrow="Original Investigator library" title="Choose a complete Investigator or build your own." summary="Search original 1920s and modern characters, open live printable dossiers, track HP, Sanity, Magic Points, and Luck, or borrow one of twenty-four occupation packages for the builder.">
+      <CocInvestigatorLibrary />
+      <div className="coc-section__subheading"><small>Player procedures</small><h2>Keep pressure rules beside the active sheet.</h2></div>
       <div className="coc-procedure-grid"><CocPercentileCard eyebrow="Investigator skill file" title="Active Skill Check" /><CocSanityCard /><CocInjuryCard /><CocHealingCard /><CocImprovementCard /></div>
       <CocQuickReferenceGrid />
     </Page>
