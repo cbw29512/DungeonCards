@@ -8,6 +8,7 @@ import type { CardReviewStatus } from "./cardPlatform";
 
 export type CardCatalogSourceId =
   | "rules"
+  | "conditions"
   | "spells"
   | "monsters"
   | "characters"

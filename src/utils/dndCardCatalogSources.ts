@@ -1,3 +1,4 @@
+import { getDndConditions } from "../data/dndConditions";
 import { encounterMonsterCatalog, createHomebrewEncounterEntry } from "../data/encounterMonsterCatalog";
 import { ruleCardCatalog } from "../data/ruleCardCatalog";
 import { srdSpells } from "../data/srdCompendium";
@@ -7,6 +8,7 @@ import type { CardPlatformExportEnvelope } from "../types/cardPlatformRuntime";
 import type { HomebrewDiceCard } from "../types/cards";
 import type { MonsterCardData } from "../types/monsters";
 import { adaptDiceCard } from "./cardPlatformDiceAdapter";
+import { adaptDndCondition } from "./cardPlatformDndConditionAdapter";
 import { adaptEncounterMonster } from "./cardPlatformMonsterAdapter";
 import { adaptRuleCard } from "./cardPlatformRuleAdapter";
 import { adaptSrdSpell } from "./cardPlatformSrdSpellAdapter";
@@ -24,6 +26,11 @@ export const buildDndCardCatalog = (
 ) => {
   const ruleset = rulesetFor(gameSystemId);
   const rules = collectCatalogDefinitions("rules", ruleCardCatalog, (card) => adaptRuleCard(card, ruleset));
+  const conditions = collectCatalogDefinitions(
+    "conditions",
+    getDndConditions(ruleset),
+    adaptDndCondition
+  );
   const spells = collectCatalogDefinitions(
     "spells",
     srdSpells.filter((spell) => spell.edition === ruleset),
@@ -58,6 +65,7 @@ export const buildDndCardCatalog = (
   );
   const sources: CardCatalogSource[] = [
     { id: "rules", label: "Built-in rule cards", ...rules },
+    { id: "conditions", label: "D&D condition cards", ...conditions },
     { id: "spells", label: "Generated SRD spells", ...spells },
     { id: "monsters", label: "Generated SRD monsters", ...monsters },
     { id: "characters", label: "Character Vault", definitions: characters },

@@ -17,12 +17,15 @@ The D&D route requires an explicit edition selection. The Call of Cthulhu route 
 Each D&D catalog assembles:
 
 - built-in exact-edition rule cards;
+- edition-separated condition cards projected from the existing Conditions & Exhaustion records;
 - generated SRD spell cards;
 - generated SRD monster cards;
 - Character Vault action, feature, spell, resource, equipment, and magic-item cards;
 - exact-edition homebrew dice cards;
 - homebrew monsters projected into the selected edition;
 - definitions from the selected exact-system private library.
+
+Condition cards retain their canonical ordered effects as one executable procedure. Adding the same condition repeatedly creates independent runtime copies through the normal playable-deck library; it does not mutate the immutable condition record.
 
 The catalog does not copy or replace the source databases. It builds deterministic Card Platform projections from their current immutable records.
 
@@ -93,7 +96,7 @@ Print mode prints only the currently filtered page. Temporary flip state does no
 
 Source-group controls open the corresponding specialized workspace:
 
-- D&D Rules, Compendium, Monster Encounter, Character Vault, Homebrew, and Private Library;
+- D&D Rules, Conditions & Exhaustion, Compendium, Monster Encounter, Character Vault, Homebrew, and Private Library;
 - CoC Rules, Equipment, Spells & Rituals, Creatures & NPCs, and Private Library.
 
 The Card Catalog is an index and operating surface, not a replacement for those deeper tools.
