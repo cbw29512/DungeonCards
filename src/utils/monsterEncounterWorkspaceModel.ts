@@ -32,7 +32,7 @@ export const monsterHitPointMaximum = (entry: EncounterMonsterEntry): number => 
   return Math.max(1, match ? Number(match[1]) : 1);
 };
 
-export const monsterHasReaction = (entry: EncounterMonsterEntry): boolean => (
+export const monsterHasSpecialReaction = (entry: EncounterMonsterEntry): boolean => (
   entry.kind === "formatted"
     ? entry.monster.reactions.length > 0
     : entry.monster.reactions.trim().length > 0
@@ -48,10 +48,12 @@ export const monsterHasRecharge = (entry: EncounterMonsterEntry): boolean => {
 };
 
 export const monsterLegendaryActionMaximum = (entry: EncounterMonsterEntry): number => {
-  const hasLegendaryActions = entry.kind === "formatted"
-    ? entry.monster.legendaryActions.length > 0
-    : entry.monster.legendaryActions.trim().length > 0;
-  return hasLegendaryActions ? 3 : 0;
+  const legendaryText = entry.kind === "formatted"
+    ? entry.monster.legendaryActions.map((action) => `${action.name} ${action.text ?? ""}`).join(" ")
+    : entry.monster.legendaryActions;
+  if (!legendaryText.trim()) return 0;
+  const explicit = legendaryText.match(/(?:take|has?)\s+(\d+)\s+legendary actions?/i);
+  return explicit ? Math.max(1, Number(explicit[1])) : 3;
 };
 
 export const createMonsterEncounterInstance = (
@@ -70,7 +72,7 @@ export const createMonsterEncounterInstance = (
     maximumHitPoints,
     initiative: null,
     conditions: [],
-    reactionAvailable: monsterHasReaction(entry),
+    reactionAvailable: true,
     rechargeReady: monsterHasRecharge(entry),
     legendaryActionsMaximum,
     legendaryActionsRemaining: legendaryActionsMaximum
@@ -129,7 +131,7 @@ export const normalizeMonsterEncounterWorkspace = (
         : bounded(candidate.initiative, -100, 100, 0),
       conditions: uniqueConditions(candidate.conditions),
       reactionAvailable: candidate.reactionAvailable === undefined
-        ? defaults.reactionAvailable
+        ? true
         : candidate.reactionAvailable !== false,
       rechargeReady: candidate.rechargeReady === undefined
         ? defaults.rechargeReady
