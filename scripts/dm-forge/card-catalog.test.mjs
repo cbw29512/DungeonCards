@@ -6,6 +6,7 @@ const route = read("src/integration/dmForgeRoute.ts");
 const dnd = read("src/utils/dndCardCatalogSources.ts");
 const conditionAdapter = read("src/utils/cardPlatformDndConditionAdapter.ts");
 const dndCatalog = read("src/components/DndCardCatalog.tsx");
+const cocCatalog = read("src/components/CocCardCatalog.tsx");
 const coc = read("src/utils/cocCardCatalogSources.ts");
 const query = read("src/utils/cardCatalogQuery.ts");
 const workspace = read("src/components/cardPlatform/CardCatalogWorkspace.tsx");
@@ -31,6 +32,15 @@ describe("unified exact-system Card Catalog architecture", () => {
     expect(coc).toContain("buildCardCatalog");
   });
 
+  it("keeps source summaries count-only instead of duplicating global navigation", () => {
+    expect(dndCatalog).toContain('sourceId: "conditions"');
+    expect(dndCatalog).not.toContain("onNavigate");
+    expect(dndCatalog).not.toContain("onOpen");
+    expect(cocCatalog).toContain('sourceId: "coc-investigators"');
+    expect(cocCatalog).not.toContain("onNavigate");
+    expect(cocCatalog).not.toContain("onOpen");
+  });
+
   it("keeps D&D condition cards exact-edition, procedural, and universally printable", () => {
     expect(conditionAdapter).toContain("gameSystemIdForRuleset(condition.edition)");
     expect(conditionAdapter).toContain('family: "condition"');
@@ -38,7 +48,6 @@ describe("unified exact-system Card Catalog architecture", () => {
     expect(conditionAdapter).toContain("steps: [...condition.effects]");
     expect(conditionAdapter).toContain('sizeId: "poker-2.5x3.5"');
     expect(dndCatalog).toContain('sourceId: "conditions"');
-    expect(dndCatalog).toContain('onNavigate("conditions")');
   });
 
   it("keeps the DOM pagination boundary at 36 cards", () => {
