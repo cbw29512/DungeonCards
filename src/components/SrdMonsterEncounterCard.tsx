@@ -13,11 +13,13 @@ import { SrdMonsterEncounterFolio } from "./SrdMonsterEncounterFolio";
 type SrdMonsterEncounterCardProps = {
   monster: SrdMonsterRecord;
   workspaceControls: WorkspaceCardControls;
+  workspaceLabel?: string;
 };
 
 export const SrdMonsterEncounterCard = ({
   monster,
-  workspaceControls
+  workspaceControls,
+  workspaceLabel
 }: SrdMonsterEncounterCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
@@ -52,10 +54,10 @@ export const SrdMonsterEncounterCard = ({
             type={monster.type}
           />
         )}
-        monsterName={monster.name}
+        monsterName={workspaceLabel ?? monster.name}
       />
       <RuleCardWorkspaceActions
-        cardName={monster.name}
+        cardName={workspaceLabel ?? monster.name}
         collectionLabel="My Encounter"
         controls={workspaceControls}
       />
