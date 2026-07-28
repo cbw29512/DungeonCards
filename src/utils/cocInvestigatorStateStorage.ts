@@ -82,7 +82,13 @@ export const loadCocInvestigatorState = (
     if (parsed.schemaVersion !== 1 || parsed.investigatorId !== investigator.id) {
       return { state: fallback, error: "Saved Investigator state used an unsupported format and was reset safely." };
     }
-    return { state: normalizeCocInvestigatorState(investigator, parsed, parsed.updatedAt) };
+    return {
+      state: normalizeCocInvestigatorState(
+        investigator,
+        parsed,
+        parsed.updatedAt ?? new Date().toISOString()
+      )
+    };
   } catch {
     return { state: fallback, error: "Saved Investigator state could not be read and was reset safely." };
   }
