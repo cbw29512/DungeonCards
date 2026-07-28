@@ -2,6 +2,7 @@ import { getCocOccupation } from "../data/cocOccupationCatalog";
 import type { CardDefinition } from "../types/cardPlatform";
 import type { CocInvestigatorRecord } from "../types/cocInvestigatorCatalog";
 import { calculateCocDerivedAttributes } from "./cocInvestigator";
+import { calculateMaximumSanity } from "./cocSanityCampaign";
 import {
   cocCardPrint,
   cocReview,
@@ -16,6 +17,8 @@ export const adaptCocInvestigator = (
 ): CardDefinition => {
   const occupation = getCocOccupation(investigator.occupationId);
   const derived = calculateCocDerivedAttributes(investigator.characteristics);
+  const mythosSkill = investigator.skills["Cthulhu Mythos"] ?? 0;
+  const maximumSanity = calculateMaximumSanity(mythosSkill);
   const topSkills = Object.entries(investigator.skills)
     .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
     .slice(0, 6);
@@ -60,7 +63,7 @@ export const adaptCocInvestigator = (
     })),
     resources: [
       { id: "hit-points", label: "Hit Points", maximum: derived.hitPoints, initial: derived.hitPoints, refresh: "manual", unit: "HP" },
-      { id: "sanity", label: "Sanity", maximum: investigator.characteristics.POW, initial: investigator.characteristics.POW, refresh: "manual", unit: "SAN" },
+      { id: "sanity", label: "Sanity", maximum: maximumSanity, initial: Math.min(investigator.characteristics.POW, maximumSanity), refresh: "manual", unit: "SAN", notes: `Maximum Sanity is 99 minus Cthulhu Mythos (${mythosSkill}).` },
       { id: "magic-points", label: "Magic Points", maximum: derived.magicPoints, initial: derived.magicPoints, refresh: "manual", unit: "MP" },
       { id: "luck", label: "Luck", maximum: 99, initial: investigator.luck, refresh: "manual", unit: "Luck" }
     ],
