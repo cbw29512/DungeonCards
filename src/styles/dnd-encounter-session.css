@@ -1,0 +1,39 @@
+.dnd-encounter-save-status {
+  display: flex;
+  margin-top: 0.35rem;
+  padding-top: 0.65rem;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  gap: 0.75rem;
+}
+
+.dnd-encounter-save-status span {
+  color: #c8f3d7;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.dnd-encounter-save-status span[role="alert"] {
+  color: #ffd0c7;
+}
+
+.dnd-encounter-save-status button {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 680px) {
+  .dnd-encounter-save-status {
+    display: grid;
+  }
+
+  .dnd-encounter-save-status button {
+    width: 100%;
+  }
+}
+
+@media print {
+  .dnd-encounter-save-status {
+    display: none !important;
+  }
+}
