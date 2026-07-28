@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CocPercentileResult, CocRollMode, CocSuccessLevel, CocWeaponPreview } from "../types/coc";
+import type { CocPercentileResult, CocRollMode, CocSuccessLevel, CocWeaponRecord } from "../types/coc";
 import { resolveCocDamage, type CocDamageResolution } from "../utils/cocDamage";
 import { rollCocPercentile } from "../utils/cocPercentile";
 import { CocRuleStatus } from "./CocRuleStatus";
@@ -14,22 +14,24 @@ const outcomeLabels: Record<CocSuccessLevel, string> = {
 };
 
 type CocWeaponCardProps = {
-  weapon: CocWeaponPreview;
+  weapon: CocWeaponRecord;
 };
 
 export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
   const [skillValue, setSkillValue] = useState(weapon.defaultSkill);
   const [mode, setMode] = useState<CocRollMode>("normal");
   const [ammunition, setAmmunition] = useState(weapon.capacity);
+  const [damageBonus, setDamageBonus] = useState("0");
   const [attackResult, setAttackResult] = useState<CocPercentileResult>();
   const [damage, setDamage] = useState<CocDamageResolution>();
   const [error, setError] = useState<string>();
+  const usesAmmunition = weapon.capacity > 0;
 
   const attack = () => {
     try {
-      if (ammunition <= 0) throw new Error("The weapon is empty. Reload before attacking.");
+      if (usesAmmunition && ammunition <= 0) throw new Error("The weapon is empty. Reload before attacking.");
       const result = rollCocPercentile(skillValue, "regular", mode);
-      setAmmunition((current) => Math.max(0, current - 1));
+      if (usesAmmunition) setAmmunition((current) => Math.max(0, current - 1));
       setAttackResult(result);
       setDamage(undefined);
       setError(undefined);
@@ -49,15 +51,21 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
       const kind = attackResult.successLevel === "extreme"
         ? weapon.impaling ? "extreme-impaling" : "extreme-blunt"
         : "ordinary";
-      setDamage(resolveCocDamage(weapon.damageFormula, "0", kind));
+      setDamage(resolveCocDamage(
+        weapon.damageFormula,
+        weapon.usesDamageBonus ? damageBonus : "0",
+        kind
+      ));
       setError(undefined);
     } catch (caught) {
-      console.error("CoC weapon damage failed", { weaponId: weapon.id, attackResult, caught });
+      console.error("CoC weapon damage failed", { weaponId: weapon.id, attackResult, damageBonus, caught });
       setError(caught instanceof Error ? caught.message : "The damage roll failed.");
     }
   };
 
-  const malfunctioned = attackResult !== undefined && attackResult.roll >= weapon.malfunction;
+  const malfunctioned = attackResult !== undefined
+    && weapon.malfunction !== undefined
+    && attackResult.roll >= weapon.malfunction;
   const criticalDamagePending = attackResult?.successLevel === "critical";
   const canDamage = attackResult !== undefined
     && attackResult.meetsDifficulty
@@ -68,7 +76,7 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
     <article className={`coc-card coc-card--weapon${malfunctioned ? " coc-outcome--fumble" : ""}`}>
       <header className="coc-card__header">
         <div>
-          <small>Evidence locker · {weapon.category}</small>
+          <small>Original armory · {weapon.category}</small>
           <h2>{weapon.name}</h2>
         </div>
         <span className="coc-card__stamp">WPN</span>
@@ -76,19 +84,23 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
 
       <div className="coc-record-grid">
         <span><small>Skill</small><strong>{weapon.skillName}</strong></span>
-        <span><small>Damage</small><strong>{weapon.damageFormula}</strong></span>
+        <span><small>Damage</small><strong>{weapon.damageFormula}{weapon.usesDamageBonus ? " + DB" : ""}</strong></span>
         <span><small>Range</small><strong>{weapon.range}</strong></span>
         <span><small>Attacks</small><strong>{weapon.attacksPerRound}</strong></span>
-        <span><small>Malfunction</small><strong>{weapon.malfunction}</strong></span>
+        <span><small>Hands</small><strong>{weapon.hands}</strong></span>
+        <span><small>Availability</small><strong>{weapon.availability}</strong></span>
+        <span><small>Malfunction</small><strong>{weapon.malfunction ?? "—"}</strong></span>
         <span><small>Impaling</small><strong>{weapon.impaling ? "Yes" : "No"}</strong></span>
       </div>
 
-      <div className="coc-ammo" aria-label={`${ammunition} of ${weapon.capacity} rounds remaining`}>
-        {Array.from({ length: weapon.capacity }, (_, index) => (
-          <span className={index < ammunition ? "is-loaded" : ""} key={index} aria-hidden="true" />
-        ))}
-        <strong>{ammunition}/{weapon.capacity}</strong>
-      </div>
+      {usesAmmunition && (
+        <div className="coc-ammo" aria-label={`${ammunition} of ${weapon.capacity} rounds remaining`}>
+          {Array.from({ length: weapon.capacity }, (_, index) => (
+            <span className={index < ammunition ? "is-loaded" : ""} key={index} aria-hidden="true" />
+          ))}
+          <strong>{ammunition}/{weapon.capacity}</strong>
+        </div>
+      )}
 
       <div className="coc-control-grid coc-control-grid--two">
         <label>
@@ -111,15 +123,31 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
             <option value="double-bonus">Two Bonus dice</option>
           </select>
         </label>
+        {weapon.usesDamageBonus && (
+          <label>
+            Investigator Damage Bonus
+            <input
+              aria-label="Damage Bonus dice formula"
+              onChange={(event) => setDamageBonus(event.target.value)}
+              placeholder="0, 1d4, -1d4…"
+              type="text"
+              value={damageBonus}
+            />
+          </label>
+        )}
       </div>
 
       <div className="coc-button-row">
-        <button className="coc-roll-button" type="button" onClick={attack}>Fire one round</button>
-        <button type="button" onClick={() => {
-          setAmmunition(weapon.capacity);
-          setAttackResult(undefined);
-          setDamage(undefined);
-        }}>Reload</button>
+        <button className="coc-roll-button" type="button" onClick={attack}>
+          {usesAmmunition ? "Fire one round" : weapon.kind === "thrown" ? "Throw weapon" : "Make attack"}
+        </button>
+        {usesAmmunition && (
+          <button type="button" onClick={() => {
+            setAmmunition(weapon.capacity);
+            setAttackResult(undefined);
+            setDamage(undefined);
+          }}>Reload</button>
+        )}
       </div>
 
       {attackResult && (
@@ -139,7 +167,7 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
               <em>{damage.total} total damage</em>
               <small>
                 Weapon: {damage.weaponDamage}
-                {damage.damageBonus > 0 ? ` · Damage Bonus: ${damage.damageBonus}` : ""}
+                {damage.damageBonus !== 0 ? ` · Damage Bonus: ${damage.damageBonus}` : ""}
                 {damage.additionalWeaponRoll > 0 ? ` · Additional weapon roll: ${damage.additionalWeaponRoll}` : ""}
               </small>
             </div>
@@ -147,9 +175,11 @@ export const CocWeaponCard = ({ weapon }: CocWeaponCardProps) => {
         </section>
       )}
 
+      <p className="coc-card__note"><strong>Reload:</strong> {weapon.reload}</p>
       <p className="coc-card__note">{weapon.notes}</p>
+      <p className="coc-card__note">Original DM Forge percentile-horror record · {weapon.eras.join(" / ")}</p>
+      {usesAmmunition && <CocRuleStatus sourceId="coc-firearm-procedure" />}
       {attackResult?.successLevel === "extreme" && <CocRuleStatus sourceId="coc-extreme-damage" />}
-      <CocRuleStatus sourceId="coc-original-weapon-preview" />
       {error && <p className="coc-error" role="alert">{error}</p>}
     </article>
   );
