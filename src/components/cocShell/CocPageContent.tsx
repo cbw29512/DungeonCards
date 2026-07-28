@@ -32,8 +32,14 @@ const Page = ({ eyebrow, title, summary, children }: { eyebrow: string; title: s
   </section>
 );
 
-export const CocPageContent = ({ activePage }: { activePage: CocAppPage }) => {
-  if (activePage === "home") return <CocHome />;
+export const CocPageContent = ({
+  activePage,
+  onNavigate
+}: {
+  activePage: CocAppPage;
+  onNavigate(page: CocAppPage): void;
+}) => {
+  if (activePage === "home") return <CocHome onNavigate={onNavigate} />;
   if (activePage === "rules") return <CocRulesGuide />;
   if (activePage === "catalog") return <CocCardCatalog />;
   if (activePage === "library") return <PrivateCardLibraryWorkspace gameSystemId="coc-7e" />;
