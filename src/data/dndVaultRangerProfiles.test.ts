@@ -66,11 +66,14 @@ describe("Ranger Hunter Character Vault profiles", () => {
       const profile = getDndVaultRangerProfile(ruleset, 20)!;
       const spells = generateDndCharacterCardBundle(profile).definitions.filter((card) => card.family === "spell");
       expect(spells.length).toBeGreaterThan(10);
-      expect(spells.every((card) => (
-        card.source.kind === "srd"
-        && card.source.edition === ruleset
-        && typeof card.source.page === "number"
-      ))).toBe(true);
+      const unresolved = spells
+        .filter((card) => !(
+          card.source.kind === "srd"
+          && card.source.edition === ruleset
+          && typeof card.source.page === "number"
+        ))
+        .map((card) => card.content.title);
+      expect(unresolved).toEqual([]);
     }
   });
 
