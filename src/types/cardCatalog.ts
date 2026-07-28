@@ -17,7 +17,8 @@ export type CardCatalogSourceId =
   | "coc-procedures"
   | "coc-equipment"
   | "coc-rituals"
-  | "coc-creatures";
+  | "coc-creatures"
+  | "coc-investigators";
 
 export type CardCatalogEntry = {
   definition: CardDefinition;
