@@ -1,6 +1,6 @@
 # Monster Encounter Workspace v3
 
-Status: implementation candidate  
+Status: implemented and regression-tested  
 Parent issues: #100, #97, and #67  
 Reviewed: 2026-07-28
 
@@ -41,10 +41,19 @@ Start Turn refreshes the creature's reaction and legendary-action budget. It del
 
 - Library cards appear once per canonical monster definition.
 - `Add to My Encounter` becomes `Add another` after the first copy.
-- The active table renders each combatant independently.
+- The active table renders every combatant independently and is never narrowed by Monster Library discovery filters.
+- Library search, type, size, CR, capability, and sorting controls appear only in the Library view.
 - Removing one instance does not remove other copies or the canonical library definition.
-- Search and type filters operate on definitions in the library and on source definitions for active instances.
+- Automatically generated encounter labels use the first available positive copy number, so removing and re-adding a creature cannot create duplicate visible labels.
 - Initiative sorting places known values high-to-low and leaves unrolled combatants last while preserving the pinned group.
+
+## Hit Point handling
+
+- A new combatant starts at the average Hit Points listed by its source record.
+- Maximum HP is editable for rolled or scenario-adjusted monster Hit Points.
+- Changing maximum HP while the creature is still at full health moves current HP to the new maximum.
+- Changing maximum HP after damage preserves current HP unless it must be clamped down to the new maximum.
+- Current HP remains bounded between zero and maximum HP.
 
 ## Migration
 
@@ -71,15 +80,15 @@ Only verified same-edition SRD monsters transfer under the current handoff schem
 - Every creature receives a once-per-round reaction budget, even if its stat block has no special Reactions section.
 - A special Reactions section is signaled separately from the universal reaction budget.
 - Legendary-action maximum is parsed from explicit source text when available and otherwise defaults to the standard three only when legendary actions exist.
-- HP starts from the listed average Hit Points value and remains independently editable per instance.
 - Conditions come from the selected edition's condition library.
 
 ## Release gates
 
-- repeated-definition instance tests;
-- independent HP, initiative, and condition tests;
+- repeated-definition instance and unique-label tests;
+- independent current/maximum HP, initiative, and condition tests;
 - reaction, recharge, and legendary-turn refresh tests;
 - initiative ordering tests;
+- library-versus-table control rendering tests;
 - state normalization and clamping tests;
 - exact-edition save/load tests;
 - v2 migration tests;
