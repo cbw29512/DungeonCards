@@ -128,8 +128,12 @@ export const normalizeMonsterEncounterWorkspace = (
         ? null
         : bounded(candidate.initiative, -100, 100, 0),
       conditions: uniqueConditions(candidate.conditions),
-      reactionAvailable: candidate.reactionAvailable !== false,
-      rechargeReady: candidate.rechargeReady !== false,
+      reactionAvailable: candidate.reactionAvailable === undefined
+        ? defaults.reactionAvailable
+        : candidate.reactionAvailable !== false,
+      rechargeReady: candidate.rechargeReady === undefined
+        ? defaults.rechargeReady
+        : candidate.rechargeReady !== false,
       legendaryActionsMaximum,
       legendaryActionsRemaining: bounded(
         candidate.legendaryActionsRemaining,
