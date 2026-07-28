@@ -11,6 +11,7 @@ import {
   isCthulhuMythosSkill,
   validateStandardCharacteristicAllocation
 } from "./cocInvestigator";
+import { calculateMaximumSanity } from "./cocSanityCampaign";
 import { validateCardDefinition } from "./cardPlatformValidation";
 
 const normalizedSkill = (value: string): string => value
@@ -72,6 +73,8 @@ describe("Percentile Horror original occupation and Investigator libraries", () 
       expect(investigator.age).toBeGreaterThanOrEqual(18);
       expect(investigator.luck).toBeGreaterThan(0);
       expect(investigator.luck).toBeLessThanOrEqual(99);
+      expect(investigator.cthulhuMythos ?? 0).toBeGreaterThanOrEqual(0);
+      expect(investigator.cthulhuMythos ?? 0).toBeLessThanOrEqual(99);
       expect(listedSkills.length).toBeGreaterThanOrEqual(13);
       expect(listedSkills.every(([, value]) => Number.isInteger(value) && value >= 1 && value <= 100)).toBe(true);
       expect(listedSkills.some(([skill]) => isCthulhuMythosSkill(skill))).toBe(false);
@@ -90,6 +93,7 @@ describe("Percentile Horror original occupation and Investigator libraries", () 
   it("adapts every Investigator into a valid player-safe Card Platform sheet", () => {
     for (const investigator of cocInvestigatorCatalog) {
       const card = adaptCocInvestigator(investigator);
+      const maximumSanity = calculateMaximumSanity(investigator.cthulhuMythos ?? 0);
       expect(card).toMatchObject({
         gameSystemId: "coc-7e",
         family: "investigator",
@@ -100,13 +104,18 @@ describe("Percentile Horror original occupation and Investigator libraries", () 
         }
       });
       expect(card.actions).toHaveLength(6);
-      expect(card.resources).toHaveLength(4);
+      expect(card.resources).toHaveLength(5);
       expect(card.resources.map((resource) => resource.id)).toEqual([
         "hit-points",
         "sanity",
         "magic-points",
-        "luck"
+        "luck",
+        "cthulhu-mythos"
       ]);
+      expect(card.resources.find((resource) => resource.id === "sanity")).toMatchObject({
+        maximum: maximumSanity,
+        initial: Math.min(investigator.characteristics.POW, maximumSanity)
+      });
       expect(card.linkedCardIds).toHaveLength(investigator.weaponIds.length);
       expect(validateCardDefinition(card)).toEqual([]);
     }
