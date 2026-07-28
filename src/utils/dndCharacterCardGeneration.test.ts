@@ -62,6 +62,23 @@ describe("Character Vault Card Platform generation", () => {
     expect(slots.every((card) => card.resources[0]?.refresh === "long-rest")).toBe(true);
   });
 
+  it("links 2024 Paladin smite and steed cards to exact SRD records", () => {
+    const paladin = dndVaultReadyBuilds.find((profile) => (
+      profile.classId === "paladin" && profile.ruleset === "srd-5.2.1-2024" && profile.level === 5
+    ));
+    expect(paladin).toBeDefined();
+    const spells = generateDndCharacterCardBundle(paladin!).definitions.filter((card) => card.family === "spell");
+    for (const title of ["Divine Smite", "Find Steed"]) {
+      const spell = spells.find((card) => card.content.title === title);
+      expect(spell).toBeDefined();
+      expect(spell?.source).toEqual(expect.objectContaining({
+        kind: "srd",
+        edition: "srd-5.2.1-2024",
+        page: expect.any(Number)
+      }));
+    }
+  });
+
   it("creates item cards with independent charges or consumable uses", () => {
     const bundles = dndVaultReadyBuilds
       .filter((profile) => profile.level >= 10)
