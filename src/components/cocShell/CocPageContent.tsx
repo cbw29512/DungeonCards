@@ -39,7 +39,7 @@ export const CocPageContent = ({
   activePage: CocAppPage;
   onNavigate(page: CocAppPage): void;
 }) => {
-  if (activePage === "home") return <CocHome onNavigate={onNavigate} />;
+  if (activePage === "home") return <CocHome />;
   if (activePage === "rules") return <CocRulesGuide />;
   if (activePage === "catalog") return <CocCardCatalog onNavigate={onNavigate} />;
   if (activePage === "library") return <PrivateCardLibraryWorkspace gameSystemId="coc-7e" />;
