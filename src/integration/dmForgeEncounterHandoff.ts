@@ -26,6 +26,7 @@ const publicRuleset = (value: EncounterMonsterEntry["ruleset"]): DmForgeEncounte
 };
 
 const activeCampaignName = (): string => {
+  if (typeof window === "undefined") return "My Campaign";
   try {
     const store = JSON.parse(window.localStorage.getItem("dmforge-shared-v1") || "null") as {
       activeCampaignId?: string;
@@ -38,6 +39,29 @@ const activeCampaignName = (): string => {
   } catch {
     return "My Campaign";
   }
+};
+
+const aggregateEncounterEntries = (
+  entries: EncounterMonsterEntry[]
+): DmForgeEncounterHandoffMonster[] => {
+  const grouped = new Map<string, DmForgeEncounterHandoffMonster>();
+  for (const entry of entries.slice(0, 100)) {
+    const ruleset = publicRuleset(entry.ruleset);
+    const sourceRecordId = String(entry.id).slice(0, 180);
+    const key = `${ruleset}:${sourceRecordId}`;
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.quantity += 1;
+      continue;
+    }
+    grouped.set(key, {
+      sourceRecordId,
+      name: String(entry.name).trim().slice(0, 160),
+      ruleset,
+      quantity: 1
+    });
+  }
+  return [...grouped.values()];
 };
 
 export const buildDmForgeEncounterHandoff = (
@@ -58,12 +82,7 @@ export const buildDmForgeEncounterHandoff = (
     createdAt: new Date().toISOString(),
     campaign: activeCampaignName().slice(0, 100),
     ruleset,
-    monsters: entries.slice(0, 100).map((entry) => ({
-      sourceRecordId: String(entry.id).slice(0, 180),
-      name: String(entry.name).trim().slice(0, 160),
-      ruleset: publicRuleset(entry.ruleset),
-      quantity: 1
-    }))
+    monsters: aggregateEncounterEntries(entries)
   };
 };
 
