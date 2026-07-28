@@ -9,20 +9,12 @@ type SrdMonsterReferenceCardProps = {
   monster: SrdMonsterRecord;
 };
 
-const section = (title: string, text: string) => text ? (
-  <section>
-    <h3>{title}</h3>
-    {stripMonsterExperienceText(text).split("\n\n").map((paragraph) => (
-      <p key={paragraph}>{paragraph}</p>
-    ))}
-  </section>
-) : null;
-
 export const SrdMonsterReferenceCard = ({ monster }: SrdMonsterReferenceCardProps) => {
   const challengeRating = formatMonsterChallengeRating(monster.challenge);
   const preview = stripMonsterExperienceText(
     monster.actions || monster.traits || monster.rawText
   );
+  const completeSourceText = stripMonsterExperienceText(monster.rawText).trim();
 
   return (
     <article className="srd-reference-card srd-reference-card--monster">
@@ -45,15 +37,12 @@ export const SrdMonsterReferenceCard = ({ monster }: SrdMonsterReferenceCardProp
 
       <details>
         <summary>Open complete stat-block reference</summary>
-        <div className="srd-reference-card__full-text">
-          {section("Traits", monster.traits)}
-          {section("Actions", monster.actions)}
-          {section("Bonus Actions", monster.bonusActions)}
-          {section("Reactions", monster.reactions)}
-          {section("Legendary Actions", monster.legendaryActions)}
-          {!monster.traits && !monster.actions && (
-            <p>{stripMonsterExperienceText(monster.rawText)}</p>
-          )}
+        <div className="srd-reference-card__full-text srd-reference-card__full-text--monster">
+          <header>
+            <strong>Complete licensed source record</strong>
+            <small>{monster.sourceReference} · page {monster.sourcePage}</small>
+          </header>
+          <pre>{completeSourceText}</pre>
         </div>
       </details>
 

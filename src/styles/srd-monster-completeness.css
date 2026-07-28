@@ -1,0 +1,40 @@
+.srd-reference-card__full-text--monster > header {
+  display: flex;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  gap: 0.6rem;
+}
+
+.srd-reference-card__full-text--monster > header strong {
+  color: #ffe2a6;
+  font-size: 0.72rem;
+}
+
+.srd-reference-card__full-text--monster > header small {
+  color: #cdbfd9;
+  font-size: 0.62rem;
+  text-align: right;
+}
+
+.srd-reference-card__full-text--monster pre {
+  margin: 0;
+  color: #e5d9e8;
+  font: inherit;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 560px) {
+  .srd-reference-card__full-text--monster > header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .srd-reference-card__full-text--monster > header small {
+    text-align: left;
+  }
+}

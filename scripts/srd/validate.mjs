@@ -1,3 +1,8 @@
+const expectedCounts = {
+  "srd-5.1-2014": { spells: 319, monsters: 314 },
+  "srd-5.2.1-2024": { spells: 339, monsters: 328 }
+};
+
 const requiredSentinels = {
   "srd-5.1-2014": {
     spells: ["Acid Splash", "Fireball", "Wish"],
@@ -62,12 +67,24 @@ const validateMonsterQuality = (monsters) => monsters.forEach((monster) => {
     `Monster ${field} is required.`,
     { monster: monster.id }
   ));
+  assert(monster.rawText?.trim().length > 80, "Monster complete source text is required.", {
+    monster: monster.id,
+    rawTextLength: monster.rawText?.length ?? 0
+  });
+  assert(Number.isInteger(monster.sourcePage) && monster.sourcePage > 0, "Monster source page is required.", {
+    monster: monster.id,
+    sourcePage: monster.sourcePage
+  });
+  assert(monster.sourceReference?.trim(), "Monster source reference is required.", {
+    monster: monster.id
+  });
   assert(!hasLineWrapArtifact([
     monster.traits,
     monster.actions,
     monster.bonusActions,
     monster.reactions,
-    monster.legendaryActions
+    monster.legendaryActions,
+    monster.rawText
   ].join(" ")), "Monster text contains a PDF line-wrap artifact.", { monster: monster.id });
 });
 
@@ -75,11 +92,14 @@ const validateEdition = (spells, monsters, edition) => {
   const editionSpells = spells.filter((record) => record.edition === edition);
   const editionMonsters = monsters.filter((record) => record.edition === edition);
   const sentinels = requiredSentinels[edition];
+  const expected = expectedCounts[edition];
 
-  assert(editionSpells.length >= 300, `${edition} must contain at least 300 spells.`, {
+  assert(editionSpells.length === expected.spells, `${edition} must contain exactly ${expected.spells} spells.`, {
+    expected: expected.spells,
     count: editionSpells.length
   });
-  assert(editionMonsters.length >= 250, `${edition} must contain at least 250 monsters.`, {
+  assert(editionMonsters.length === expected.monsters, `${edition} must contain exactly ${expected.monsters} monsters.`, {
+    expected: expected.monsters,
     count: editionMonsters.length
   });
 
@@ -126,6 +146,18 @@ export const validateCatalogs = ({ spells, monsters, manifest }) => {
   validateEditionDifferences(spells, monsters);
   assert(manifest.length === 2, "Both official SRD source manifests are required.");
   manifest.forEach((source) => {
+    const expected = expectedCounts[source.edition];
+    assert(expected, "Manifest contains an unsupported SRD edition.", { edition: source.edition });
+    assert(source.spellCount === expected.spells, "Manifest spell count does not match the reviewed extraction baseline.", {
+      edition: source.edition,
+      expected: expected.spells,
+      count: source.spellCount
+    });
+    assert(source.monsterCount === expected.monsters, "Manifest monster count does not match the reviewed extraction baseline.", {
+      edition: source.edition,
+      expected: expected.monsters,
+      count: source.monsterCount
+    });
     assert(/^[a-f0-9]{64}$/.test(source.sha256), "Each source PDF needs a SHA-256 digest.", {
       edition: source.edition
     });
