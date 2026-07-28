@@ -1,13 +1,15 @@
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
 import type { ResolvedMonsterEncounterInstance } from "../types/monsterEncounterWorkspace";
+import type { RulesetId } from "../types/ruleCards";
 import type { WorkspaceMoveDirection, WorkspaceView } from "../types/workspaces";
 import { MonsterEncounterInstanceControls } from "./MonsterEncounterInstanceControls";
 import { MonsterReferenceCard } from "./MonsterReferenceCard";
+import type { WorkspaceCardControls } from "./RuleCardWorkspaceActions";
 import { SrdMonsterEncounterCard } from "./SrdMonsterEncounterCard";
 
 const renderMonsterCard = (
   entry: EncounterMonsterEntry,
-  workspaceControls: Parameters<typeof SrdMonsterEncounterCard>[0]["workspaceControls"],
+  workspaceControls: WorkspaceCardControls,
   options: {
     key: string;
     label?: string;
@@ -33,6 +35,7 @@ const renderMonsterCard = (
 type Props = {
   entries: EncounterMonsterEntry[];
   activeInstances: ResolvedMonsterEncounterInstance[];
+  ruleset: RulesetId;
   view: WorkspaceView;
   countCopies(monsterId: string): number;
   onAdd(monsterId: string): void;
@@ -54,6 +57,7 @@ type Props = {
 export const MonsterDeckCards = ({
   entries,
   activeInstances,
+  ruleset,
   view,
   countCopies,
   onAdd,
@@ -104,7 +108,7 @@ export const MonsterDeckCards = ({
       {activeInstances.map((instance, index) => {
         const previous = activeInstances[index - 1];
         const next = activeInstances[index + 1];
-        const workspaceControls = {
+        const workspaceControls: WorkspaceCardControls = {
           view,
           isActive: true,
           isPinned: instance.pinned,
@@ -120,6 +124,7 @@ export const MonsterDeckCards = ({
           <article className="monster-instance" key={instance.instanceId}>
             <MonsterEncounterInstanceControls
               instance={instance}
+              ruleset={ruleset}
               onAddCondition={(condition) => onAddCondition(instance.instanceId, condition)}
               onRemoveCondition={(condition) => onRemoveCondition(instance.instanceId, condition)}
               onRename={(label) => onRename(instance.instanceId, label)}
