@@ -13,6 +13,10 @@ const integer = (value: unknown, fallback: number): number => {
 const bounded = (value: unknown, minimum: number, maximum: number, fallback: number): number => (
   Math.max(minimum, Math.min(maximum, integer(value, fallback)))
 );
+const meaningfulSectionText = (value: string): boolean => {
+  const normalized = value.trim();
+  return normalized.length > 0 && !/^(?:[-–—]+|none|n\/a)$/i.test(normalized);
+};
 const uniqueConditions = (values: unknown): string[] => {
   if (!Array.isArray(values)) return [];
   const seen = new Set<string>();
@@ -35,7 +39,7 @@ export const monsterHitPointMaximum = (entry: EncounterMonsterEntry): number => 
 export const monsterHasSpecialReaction = (entry: EncounterMonsterEntry): boolean => (
   entry.kind === "formatted"
     ? entry.monster.reactions.length > 0
-    : entry.monster.reactions.trim().length > 0
+    : meaningfulSectionText(entry.monster.reactions)
 );
 
 export const monsterHasRecharge = (entry: EncounterMonsterEntry): boolean => {
@@ -51,7 +55,7 @@ export const monsterLegendaryActionMaximum = (entry: EncounterMonsterEntry): num
   const legendaryText = entry.kind === "formatted"
     ? entry.monster.legendaryActions.map((action) => `${action.name} ${action.text ?? ""}`).join(" ")
     : entry.monster.legendaryActions;
-  if (!legendaryText.trim()) return 0;
+  if (!meaningfulSectionText(legendaryText)) return 0;
   const explicit = legendaryText.match(/(?:take|has?)\s+(\d+)\s+legendary actions?/i);
   return explicit ? Math.max(1, Number(explicit[1])) : 3;
 };
