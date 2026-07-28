@@ -35,12 +35,27 @@ export const collectCatalogDefinitions = <T>(
   return { definitions, issues };
 };
 
+const normalizedTitleKey = (definition: CardDefinition): string => `${definition.family}:${definition.content.title
+  .normalize("NFKC")
+  .toLocaleLowerCase("en-US")
+  .replace(/[‘’]/g, "'")
+  .replace(/\s+/g, " ")
+  .trim()}`;
+
 export const buildCardCatalog = (
   gameSystemId: GameSystemId,
   sources: CardCatalogSource[]
 ): CardCatalog => {
   const entries = new Map<string, CardCatalogEntry>();
+  const titleEntries = new Map<string, CardCatalogEntry>();
   const issues: CardCatalogIssue[] = [];
+
+  const removeEntry = (entry: CardCatalogEntry) => {
+    entries.delete(entry.definition.id);
+    const titleKey = normalizedTitleKey(entry.definition);
+    if (titleEntries.get(titleKey)?.definition.id === entry.definition.id) titleEntries.delete(titleKey);
+  };
+
   for (const source of sources) {
     source.issues?.forEach((message) => issues.push({ sourceId: source.id, message }));
     for (const definition of source.definitions) {
@@ -51,27 +66,46 @@ export const buildCardCatalog = (
         issues.push({ sourceId: source.id, message: `${definition.id}: ${validation.join(" ")}` });
         continue;
       }
+
       const incoming: CardCatalogEntry = {
         definition,
         sourceId: source.id,
         sourceLabel: source.label,
         privateImported: Boolean(source.privateImported)
       };
-      const existing = entries.get(definition.id);
-      if (!existing) {
-        entries.set(definition.id, incoming);
-        continue;
+
+      const existingById = entries.get(definition.id);
+      if (existingById) {
+        if (existingById.privateImported && incoming.privateImported) {
+          removeEntry(existingById);
+        } else {
+          issues.push({
+            sourceId: source.id,
+            message: `${definition.id} conflicts with immutable ${existingById.sourceLabel} content and was excluded.`
+          });
+          continue;
+        }
       }
-      if (existing.privateImported && incoming.privateImported) {
-        entries.set(definition.id, incoming);
-        continue;
+
+      const titleKey = normalizedTitleKey(definition);
+      const existingByTitle = titleEntries.get(titleKey);
+      if (existingByTitle) {
+        if (existingByTitle.privateImported && incoming.privateImported) {
+          removeEntry(existingByTitle);
+        } else {
+          issues.push({
+            sourceId: source.id,
+            message: `${definition.content.title} duplicates an existing ${definition.family} title from ${existingByTitle.sourceLabel} and was excluded.`
+          });
+          continue;
+        }
       }
-      issues.push({
-        sourceId: source.id,
-        message: `${definition.id} conflicts with immutable ${existing.sourceLabel} content and was excluded.`
-      });
+
+      entries.set(definition.id, incoming);
+      titleEntries.set(titleKey, incoming);
     }
   }
+
   const catalogEntries = [...entries.values()];
   const sourceCounts: CardCatalog["sourceCounts"] = {};
   const familyCounts: CardCatalog["familyCounts"] = {};
