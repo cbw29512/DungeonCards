@@ -14,7 +14,9 @@ describe("D&D condition Card Platform adapter", () => {
     for (const fixture of fixtures) {
       const cards = fixture.conditions.map(adaptDndCondition);
       expect(cards).toHaveLength(fixture.conditions.length);
-      expect(new Set(cards.map((card) => card.id).size).toBeUndefined();
+      expect(new Set(cards.map((card) => card.id)).size).toBe(cards.length);
+      expect(cards.every((card) => card.gameSystemId === fixture.gameSystemId)).toBe(true);
+      expect(cards.every((card) => validateCardDefinition(card).length === 0)).toBe(true);
     }
   });
 
