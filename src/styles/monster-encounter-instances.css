@@ -146,6 +146,17 @@
   align-items: end;
 }
 
+.monster-instance-controls__immunity-warning {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  color: #ffe8ad;
+  border: 1px solid rgb(247 199 107 / 38%);
+  border-radius: 0.5rem;
+  background: rgb(146 88 35 / 18%);
+  line-height: 1.45;
+}
+
 .monster-instance-controls__condition-list {
   display: flex;
   min-height: 40px;
@@ -160,6 +171,11 @@
   padding: 0.35rem 0.55rem;
   color: #ffe0a2;
   background: rgb(152 76 52 / 18%);
+}
+
+.monster-instance-controls__condition-list button[data-condition-immune="true"] {
+  border-color: rgb(247 199 107 / 48%);
+  background: rgb(146 88 35 / 24%);
 }
 
 .monster-instance-controls__condition-list small {
@@ -199,6 +215,7 @@
     grid-template-columns: 1fr;
   }
 
+  .monster-instance-controls__immunity-warning,
   .monster-instance-controls__condition-list,
   .monster-instance-controls__economy > small {
     grid-column: auto;

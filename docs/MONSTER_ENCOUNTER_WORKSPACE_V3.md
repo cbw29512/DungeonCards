@@ -55,6 +55,16 @@ Start Turn refreshes the creature's reaction and legendary-action budget. It del
 - Changing maximum HP after damage preserves current HP unless it must be clamped down to the new maximum.
 - Current HP remains bounded between zero and maximum HP.
 
+## Condition-immunity guidance
+
+- Condition choices come from the selected edition's condition library.
+- Formatted and homebrew monsters use their structured `conditionImmunities` values.
+- Generated SRD references use the complete licensed stat-block text parsed by the combat-reference layer.
+- Selecting a condition explicitly listed as immune produces a visible source-backed warning and changes the action to `Add override`.
+- The warning does not block the DM, because scenarios, temporary effects, and house rules may intentionally override a normal immunity.
+- Active immune-condition overrides remain visibly marked until removed.
+- Matching uses complete normalized condition names; partial words do not create false immunity warnings.
+
 ## Migration
 
 If no v3 workspace exists, the repository reads the former exact-edition v2 key:
@@ -80,12 +90,13 @@ Only verified same-edition SRD monsters transfer under the current handoff schem
 - Every creature receives a once-per-round reaction budget, even if its stat block has no special Reactions section.
 - A special Reactions section is signaled separately from the universal reaction budget.
 - Legendary-action maximum is parsed from explicit source text when available and otherwise defaults to the standard three only when legendary actions exist.
-- Conditions come from the selected edition's condition library.
 
 ## Release gates
 
 - repeated-definition instance and unique-label tests;
 - independent current/maximum HP, initiative, and condition tests;
+- reference and formatted-record condition-immunity detection tests;
+- rendered immune-condition override tests;
 - reaction, recharge, and legendary-turn refresh tests;
 - initiative ordering tests;
 - library-versus-table control rendering tests;
