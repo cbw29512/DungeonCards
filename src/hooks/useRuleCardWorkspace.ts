@@ -6,6 +6,7 @@ import type {
   RuleCardWorkspaceRole
 } from "../types/ruleCardWorkspaces";
 import type { WorkspaceMoveDirection } from "../types/workspaces";
+import { getRuntimeStorage } from "../utils/runtimeStorage";
 import {
   addRuleCardInstance,
   changeRuleCardInstanceRuleset,
@@ -22,22 +23,6 @@ import {
 const STARTER_CARD_COUNT = 6;
 const DEFAULT_RULESET: RulesetId = "srd-5.2.1-2024";
 
-const createNonPersistentStorage = (): Storage => {
-  const values = new Map<string, string>();
-  return {
-    get length() { return values.size; },
-    clear: () => values.clear(),
-    getItem: (key) => values.get(key) ?? null,
-    key: (index) => [...values.keys()][index] ?? null,
-    removeItem: (key) => { values.delete(key); },
-    setItem: (key, value) => { values.set(key, value); }
-  };
-};
-
-const workspaceStorage = (): Storage => (
-  typeof window === "undefined" ? createNonPersistentStorage() : window.localStorage
-);
-
 export const useRuleCardWorkspace = (
   role: RuleCardWorkspaceRole,
   cards: RuleCard[]
@@ -50,7 +35,7 @@ export const useRuleCardWorkspace = (
     [cards]
   );
   const repository = useMemo(
-    () => createRuleCardWorkspaceRepository(workspaceStorage()),
+    () => createRuleCardWorkspaceRepository(getRuntimeStorage()),
     []
   );
   const [storageError, setStorageError] = useState<string>();
