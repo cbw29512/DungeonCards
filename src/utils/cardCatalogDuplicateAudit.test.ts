@@ -4,9 +4,13 @@ import type { CardDefinition } from "../types/cardPlatform";
 import { buildCardCatalog } from "./cardCatalogBuild";
 import { adaptCocWeapon } from "./cardPlatformCocWeaponAdapter";
 
+type CardPatch = Omit<Partial<CardDefinition>, "content"> & {
+  content?: Partial<CardDefinition["content"]>;
+};
+
 const cloneWith = (
   card: CardDefinition,
-  patch: Partial<CardDefinition> & { content?: Partial<CardDefinition["content"]> }
+  patch: CardPatch
 ): CardDefinition => ({
   ...card,
   ...patch,
