@@ -42,24 +42,50 @@ const normalizeVisibleText = (value: string | undefined): string => (value ?? ""
   .replace(/\s+/g, " ")
   .trim();
 
-const normalizedVisibleKey = (definition: CardDefinition): string => [
-  definition.family,
-  normalizeVisibleText(definition.content.title),
-  normalizeVisibleText(definition.content.subtitle)
-].join(":");
+const canonicalize = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, nested]) => [key, canonicalize(nested)])
+    );
+  }
+  return value;
+};
+
+const equivalentDefinitionKey = (definition: CardDefinition): string => JSON.stringify(canonicalize({
+  schemaVersion: definition.schemaVersion,
+  gameSystemId: definition.gameSystemId,
+  family: definition.family,
+  visibility: definition.visibility,
+  content: {
+    ...definition.content,
+    title: normalizeVisibleText(definition.content.title),
+    subtitle: normalizeVisibleText(definition.content.subtitle)
+  },
+  source: definition.source,
+  review: definition.review,
+  actions: definition.actions,
+  resources: definition.resources,
+  linkedCardIds: definition.linkedCardIds,
+  print: definition.print
+}));
 
 export const buildCardCatalog = (
   gameSystemId: GameSystemId,
   sources: CardCatalogSource[]
 ): CardCatalog => {
   const entries = new Map<string, CardCatalogEntry>();
-  const visibleEntries = new Map<string, CardCatalogEntry>();
+  const equivalentEntries = new Map<string, CardCatalogEntry>();
   const issues: CardCatalogIssue[] = [];
 
   const removeEntry = (entry: CardCatalogEntry) => {
     entries.delete(entry.definition.id);
-    const visibleKey = normalizedVisibleKey(entry.definition);
-    if (visibleEntries.get(visibleKey)?.definition.id === entry.definition.id) visibleEntries.delete(visibleKey);
+    const equivalentKey = equivalentDefinitionKey(entry.definition);
+    if (equivalentEntries.get(equivalentKey)?.definition.id === entry.definition.id) {
+      equivalentEntries.delete(equivalentKey);
+    }
   };
 
   for (const source of sources) {
@@ -93,22 +119,22 @@ export const buildCardCatalog = (
         }
       }
 
-      const visibleKey = normalizedVisibleKey(definition);
-      const existingByVisibleIdentity = visibleEntries.get(visibleKey);
-      if (existingByVisibleIdentity) {
-        if (existingByVisibleIdentity.privateImported && incoming.privateImported) {
-          removeEntry(existingByVisibleIdentity);
+      const equivalentKey = equivalentDefinitionKey(definition);
+      const existingEquivalent = equivalentEntries.get(equivalentKey);
+      if (existingEquivalent) {
+        if (existingEquivalent.privateImported && incoming.privateImported) {
+          removeEntry(existingEquivalent);
         } else {
           issues.push({
             sourceId: source.id,
-            message: `${definition.content.title} duplicates an existing visible ${definition.family} card from ${existingByVisibleIdentity.sourceLabel} and was excluded.`
+            message: `${definition.content.title} exactly duplicates ${existingEquivalent.sourceLabel} content and was excluded.`
           });
           continue;
         }
       }
 
       entries.set(definition.id, incoming);
-      visibleEntries.set(visibleKey, incoming);
+      equivalentEntries.set(equivalentKey, incoming);
     }
   }
 
