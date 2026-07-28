@@ -1,0 +1,117 @@
+.home-role-hero {
+  min-height: calc(100svh - 72px);
+  padding-block: clamp(1rem, 3vh, 2rem);
+  align-content: center;
+}
+
+.home-role-hero .hero__content,
+.home-role-hero .coc-hero__copy {
+  display: grid;
+  align-content: center;
+}
+
+.home-role-hero.hero h1 {
+  font-size: clamp(2.35rem, 5.5vw, 4.6rem);
+}
+
+.home-role-actions {
+  display: grid;
+  width: min(100%, 920px);
+  margin: clamp(1rem, 2.5vh, 1.5rem) auto 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.home-role-actions button {
+  display: grid;
+  min-height: 150px;
+  padding: clamp(1rem, 2.4vw, 1.35rem);
+  color: inherit;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 1rem;
+  text-align: left;
+  background: linear-gradient(145deg, rgb(255 255 255 / 13%), rgb(255 255 255 / 5%));
+  box-shadow: var(--surface-shadow);
+  cursor: pointer;
+  align-content: center;
+  gap: 0.35rem;
+  transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.home-role-actions button:hover,
+.home-role-actions button:focus-visible {
+  border-color: #f7c76b;
+  box-shadow: 0 22px 60px rgb(0 0 0 / 42%);
+  transform: translateY(-2px);
+}
+
+.home-role-actions small {
+  color: #f7c76b;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-role-actions strong {
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+  line-height: 1.1;
+}
+
+.home-role-actions span {
+  color: #d9c9b8;
+  line-height: 1.45;
+}
+
+.home-role-actions--coc {
+  width: min(100%, 820px);
+  margin-inline: 0;
+}
+
+.home-role-actions--coc button {
+  border-color: rgb(190 163 104 / 24%);
+  background: linear-gradient(145deg, rgb(103 124 89 / 16%), rgb(255 255 255 / 3%));
+  box-shadow: 0 18px 52px rgb(0 0 0 / 32%);
+}
+
+.home-role-actions--coc button:hover,
+.home-role-actions--coc button:focus-visible {
+  border-color: #c8b575;
+}
+
+.home-role-actions--coc small,
+.home-role-actions--coc strong {
+  color: #d9c78f;
+}
+
+.home-role-actions--coc span {
+  color: #aaa28f;
+}
+
+@media (max-height: 760px) and (min-width: 721px) {
+  .home-role-hero {
+    min-height: auto;
+  }
+
+  .home-role-actions button {
+    min-height: 128px;
+  }
+
+  .home-role-hero.hero h1 {
+    font-size: clamp(2rem, 5vw, 3.7rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .home-role-hero {
+    min-height: auto;
+  }
+
+  .home-role-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .home-role-actions button {
+    min-height: 132px;
+  }
+}
