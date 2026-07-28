@@ -1,20 +1,27 @@
 import { useState } from "react";
 import type { CardDefinition } from "../../types/cardPlatform";
 
+const MAX_ACTION_LINES = 6;
+
 const systemLabel = (card: CardDefinition): string => card.gameSystemId === "dnd-2014"
   ? "D&D 2014"
   : card.gameSystemId === "dnd-2024"
     ? "D&D 2024"
     : "Call of Cthulhu 7e";
 
-const actionDetail = (action: CardDefinition["actions"][number]): string => {
-  if (action.kind === "roll") return action.formula ?? action.rollSystem;
-  if (action.kind === "procedure") return `${action.steps.length} step${action.steps.length === 1 ? "" : "s"}`;
-  return `${action.targetCardIds.length} linked card${action.targetCardIds.length === 1 ? "" : "s"}`;
-};
+const actionLines = (card: CardDefinition): string[] => card.actions.flatMap((action) => {
+  if (action.kind === "procedure") {
+    return action.steps.map((step, index) => `${action.label} ${index + 1}: ${step}`);
+  }
+  if (action.kind === "roll") {
+    return [`${action.label}: ${action.formula ?? action.rollSystem}`];
+  }
+  return [`${action.label}: ${action.targetCardIds.length} linked card${action.targetCardIds.length === 1 ? "" : "s"}`];
+});
 
 export const CardPlatformDefinitionCard = ({ card }: { card: CardDefinition }) => {
   const [flipped, setFlipped] = useState(false);
+  const actions = actionLines(card);
   return (
     <button
       aria-label={`${flipped ? "Show front of" : "Show details for"} ${card.content.title}`}
@@ -39,11 +46,12 @@ export const CardPlatformDefinitionCard = ({ card }: { card: CardDefinition }) =
           <strong>{card.content.title}</strong>
           <span className="card-platform-card__section">
             <b>Actions</b>
-            {card.actions.length === 0
+            {actions.length === 0
               ? <i>Reference card</i>
-              : card.actions.slice(0, 3).map((action) => (
-                  <i key={action.id}>{action.label}: {actionDetail(action)}</i>
+              : actions.slice(0, MAX_ACTION_LINES).map((line, index) => (
+                  <i key={`${card.id}:action-line:${index}`}>{line}</i>
                 ))}
+            {actions.length > MAX_ACTION_LINES && <i>+{actions.length - MAX_ACTION_LINES} more action lines</i>}
           </span>
           <span className="card-platform-card__section">
             <b>Tracked resources</b>
