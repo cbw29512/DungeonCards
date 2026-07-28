@@ -97,9 +97,9 @@ const makeRecord = (level: number): DndCharacterRecord => {
       kind: "prepared",
       ability: "int",
       cantrips: wizardCantrips(slot.ruleset, level),
-      spells: [...wizardPreparedSpells(level, preparedCount), "Shield (Magic Initiate: Wizard)"],
+      spells: wizardPreparedSpells(level, preparedCount),
       slotsByLevel: getDndFullCasterSlots(level),
-      notes: `Wizard table Prepared Spells: ${preparedCount}. Spellbook contains at least ${6 + (level - 1) * 2} leveled spells before found or copied additions. Magic Initiate adds Shield outside that count.`
+      notes: `Wizard table Prepared Spells: ${preparedCount}. Spellbook contains at least ${6 + (level - 1) * 2} leveled spells before found or copied additions. Magic Initiate adds a free Shield cast and keeps Shield prepared.`
     },
     classFeatures: classFeaturesForLevel(level),
     subclassFeatures: subclassFeaturesForLevel(level),
