@@ -12,7 +12,11 @@ import {
 import { AdventureDmView } from "./adventure/AdventureDmView";
 import { AdventureInitiative } from "./adventure/AdventureInitiative";
 import { AdventurePlayerView } from "./adventure/AdventurePlayerView";
-import { advanceAdventureTurn, rollRoomInitiative } from "../utils/adventureInitiative";
+import {
+  advanceAdventureTurn,
+  rollRoomInitiative,
+  toggleTurnResource
+} from "../utils/adventureInitiative";
 
 export const AdventurePackWorkspace = () => {
   const [state, setState] = useState(() => createAdventureState(hearthglowPack));
@@ -43,6 +47,7 @@ export const AdventurePackWorkspace = () => {
         state={state}
         onRoll={() => safelyUpdate("roll initiative", () => setState((current) => rollRoomInitiative(hearthglowPack, current)))}
         onNext={() => safelyUpdate("advance turn", () => setState((current) => advanceAdventureTurn(current)))}
+        onResource={(resource) => safelyUpdate("track turn resource", () => setState((current) => toggleTurnResource(current, resource)))}
       />
       {state.view === "dm" ? (
         <AdventureDmView

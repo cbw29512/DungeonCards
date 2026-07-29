@@ -12,9 +12,11 @@ export const createAdventureState = (pack: AdventurePack): AdventureRuntimeState
   initiative: [],
   round: 0,
   activeTurn: 0,
+  openingTurnCount: 0,
   placedCardIdsByRoom: Object.fromEntries(
     pack.rooms.map((room) => [room.id, [...room.cardIds]])
-  )
+  ),
+  usedTurnResources: []
 });
 
 export const setAdventureView = (

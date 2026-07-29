@@ -38,17 +38,33 @@ export const rollRoomInitiative = (
         - (leftRoll + (left.initiative?.bonus ?? 0));
       return totalDifference || compareCards(left, right);
     });
-    const initiative: AdventureInitiativeEntry[] = sorted.map((card) => {
+    const normalEntries: AdventureInitiativeEntry[] = sorted.map((card) => {
       const roll = rolls.get(card.id) ?? 0;
       return {
+        entryId: `normal:${card.id}`,
         cardId: card.id,
         title: card.title,
         roll,
         total: roll + (card.initiative?.bonus ?? 0),
-        openingTurn: roll === 20
+        openingTurn: false
       };
     });
-    return { ...state, initiative, round: initiative.length ? 1 : 0, activeTurn: 0 };
+    const openingEntries = normalEntries
+      .filter((entry) => entry.roll === 20)
+      .map((entry) => ({
+        ...entry,
+        entryId: `opening:${entry.cardId}`,
+        openingTurn: true
+      }));
+    const initiative = [...openingEntries, ...normalEntries];
+    return {
+      ...state,
+      initiative,
+      round: openingEntries.length ? 0 : initiative.length ? 1 : 0,
+      activeTurn: 0,
+      openingTurnCount: openingEntries.length,
+      usedTurnResources: []
+    };
   } catch (error) {
     console.error("Unable to roll adventure initiative.", error);
     return state;
@@ -58,7 +74,27 @@ export const rollRoomInitiative = (
 export const advanceAdventureTurn = (state: AdventureRuntimeState): AdventureRuntimeState => {
   if (!state.initiative.length) return state;
   const next = state.activeTurn + 1;
+  if (state.round === 0) {
+    return next < state.openingTurnCount
+      ? { ...state, activeTurn: next, usedTurnResources: [] }
+      : { ...state, activeTurn: state.openingTurnCount, round: 1, usedTurnResources: [] };
+  }
   return next < state.initiative.length
-    ? { ...state, activeTurn: next }
-    : { ...state, activeTurn: 0, round: state.round + 1 };
+    ? { ...state, activeTurn: next, usedTurnResources: [] }
+    : {
+      ...state,
+      activeTurn: state.openingTurnCount,
+      round: state.round + 1,
+      usedTurnResources: []
+    };
 };
+
+export const toggleTurnResource = (
+  state: AdventureRuntimeState,
+  resource: AdventureRuntimeState["usedTurnResources"][number]
+): AdventureRuntimeState => ({
+  ...state,
+  usedTurnResources: state.usedTurnResources.includes(resource)
+    ? state.usedTurnResources.filter((entry) => entry !== resource)
+    : [...state.usedTurnResources, resource]
+});

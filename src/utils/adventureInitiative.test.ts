@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { hearthglowPack } from "../data/hearthglowPack";
 import { createAdventureState } from "./adventureRuntime";
-import { advanceAdventureTurn, rollRoomInitiative } from "./adventureInitiative";
+import {
+  advanceAdventureTurn,
+  rollRoomInitiative,
+  toggleTurnResource
+} from "./adventureInitiative";
 
 describe("adventure initiative", () => {
   it("puts a natural 20 first and marks its free opening turn", () => {
@@ -14,6 +18,10 @@ describe("adventure initiative", () => {
     const result = rollRoomInitiative(hearthglowPack, state, () => rolls.shift() ?? 1);
     expect(result.initiative[0]?.openingTurn).toBe(true);
     expect(result.initiative[0]?.roll).toBe(20);
+    expect(result.round).toBe(0);
+    const roundOne = advanceAdventureTurn(result);
+    expect(roundOne.round).toBe(1);
+    expect(roundOne.initiative[roundOne.activeTurn]?.cardId).toBe(result.initiative[0]?.cardId);
   });
 
   it("uses the full ability chain to resolve equal totals", () => {
@@ -36,5 +44,16 @@ describe("adventure initiative", () => {
     rolled.initiative.forEach(() => { result = advanceAdventureTurn(result); });
     expect(result.round).toBe(2);
     expect(result.activeTurn).toBe(0);
+  });
+
+  it("tracks resources and clears them for the next turn", () => {
+    const rolled = rollRoomInitiative(
+      hearthglowPack,
+      { ...createAdventureState(hearthglowPack), roomId: "foundry" },
+      () => 10
+    );
+    const used = toggleTurnResource(rolled, "action");
+    expect(used.usedTurnResources).toEqual(["action"]);
+    expect(advanceAdventureTurn(used).usedTurnResources).toEqual([]);
   });
 });

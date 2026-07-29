@@ -48,6 +48,7 @@ export type AdventurePack = {
 
 export type AdventureView = "dm" | "player";
 export type AdventureBoardSlot = "room" | "npc" | "monster" | "trap" | "treasure" | "clue";
+export type AdventureTurnResource = "movement" | "action" | "bonus" | "free" | "reaction";
 
 export type AdventureRuntimeState = {
   view: AdventureView;
@@ -58,10 +59,13 @@ export type AdventureRuntimeState = {
   initiative: AdventureInitiativeEntry[];
   round: number;
   activeTurn: number;
+  openingTurnCount: number;
   placedCardIdsByRoom: Record<string, string[]>;
+  usedTurnResources: AdventureTurnResource[];
 };
 
 export type AdventureInitiativeEntry = {
+  entryId: string;
   cardId: string;
   title: string;
   roll: number;
