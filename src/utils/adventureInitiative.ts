@@ -23,8 +23,7 @@ export const rollRoomInitiative = (
   d20: () => number = () => Math.floor(Math.random() * 20) + 1
 ): AdventureRuntimeState => {
   try {
-    const room = pack.rooms.find((candidate) => candidate.id === state.roomId);
-    const roomIds = new Set(room?.cardIds ?? []);
+    const roomIds = new Set(state.placedCardIdsByRoom[state.roomId] ?? []);
     const participants = pack.cards.filter((card) => (
       card.initiative && (card.id === state.claimedCharacterId || roomIds.has(card.id))
     ));

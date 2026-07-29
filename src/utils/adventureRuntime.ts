@@ -11,7 +11,10 @@ export const createAdventureState = (pack: AdventurePack): AdventureRuntimeState
   backpackCardIds: [],
   initiative: [],
   round: 0,
-  activeTurn: 0
+  activeTurn: 0,
+  placedCardIdsByRoom: Object.fromEntries(
+    pack.rooms.map((room) => [room.id, [...room.cardIds]])
+  )
 });
 
 export const setAdventureView = (
@@ -70,3 +73,40 @@ export const addTreasure = (
     ? state
     : { ...state, backpackCardIds: [...state.backpackCardIds, cardId] }
 );
+
+export const placeAdventureCard = (
+  state: AdventureRuntimeState,
+  cardId: string,
+  pack: AdventurePack
+): AdventureRuntimeState => {
+  try {
+    if (!pack.cards.some((card) => card.id === cardId)) {
+      throw new Error(`Unknown adventure card: ${cardId}`);
+    }
+    const placed = state.placedCardIdsByRoom[state.roomId] ?? [];
+    if (placed.includes(cardId)) return state;
+    return {
+      ...state,
+      placedCardIdsByRoom: {
+        ...state.placedCardIdsByRoom,
+        [state.roomId]: [...placed, cardId]
+      }
+    };
+  } catch (error) {
+    console.error("Unable to place adventure card.", error);
+    return state;
+  }
+};
+
+export const removeAdventureCard = (
+  state: AdventureRuntimeState,
+  cardId: string
+): AdventureRuntimeState => ({
+  ...state,
+  revealedCardIds: state.revealedCardIds.filter((id) => id !== cardId),
+  placedCardIdsByRoom: {
+    ...state.placedCardIdsByRoom,
+    [state.roomId]: (state.placedCardIdsByRoom[state.roomId] ?? [])
+      .filter((id) => id !== cardId)
+  }
+});

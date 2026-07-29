@@ -29,7 +29,12 @@ export const AdventureCardTile = ({
           {card.quickStats.map((stat) => <li key={stat}>{stat}</li>)}
         </ul>
       )}
-      {dmView && card.dmText && <aside><strong>DM</strong> {card.dmText}</aside>}
+      {dmView && card.dmText && (
+        <aside className="adventure-card__dm">
+          <strong>PRIVATE DM CARD</strong>
+          <span>{card.dmText}</span>
+        </aside>
+      )}
       {onAction && (
         <button type="button" onClick={onAction}>
           {actionLabel ?? (revealed ? "Hide from players" : "Reveal to players")}

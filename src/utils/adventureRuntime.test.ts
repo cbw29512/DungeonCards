@@ -3,6 +3,8 @@ import { hearthglowPack } from "../data/hearthglowPack";
 import {
   addTreasure,
   createAdventureState,
+  placeAdventureCard,
+  removeAdventureCard,
   selectAdventureRoom,
   toggleRevealedCard
 } from "./adventureRuntime";
@@ -41,5 +43,22 @@ describe("adventure runtime", () => {
     const state = createAdventureState(hearthglowPack);
     const once = addTreasure(state, "ITEM-001");
     expect(addTreasure(once, "ITEM-001").backpackCardIds).toEqual(["ITEM-001"]);
+  });
+
+  it("places a library card in only the active room", () => {
+    const state = createAdventureState(hearthglowPack);
+    const result = placeAdventureCard(state, "MON-002", hearthglowPack);
+    expect(result.placedCardIdsByRoom.square).toContain("MON-002");
+    expect(result.placedCardIdsByRoom.inn).not.toContain("MON-002");
+  });
+
+  it("removes a card from the room and from player reveals", () => {
+    const state = {
+      ...createAdventureState(hearthglowPack),
+      revealedCardIds: ["LOC-005"]
+    };
+    const result = removeAdventureCard(state, "LOC-005");
+    expect(result.placedCardIdsByRoom.square).not.toContain("LOC-005");
+    expect(result.revealedCardIds).not.toContain("LOC-005");
   });
 });

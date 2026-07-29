@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { hearthglowPack } from "../data/hearthglowPack";
 import {
-  addTreasure,
   claimCharacter,
   createAdventureState,
+  placeAdventureCard,
+  removeAdventureCard,
   selectAdventureRoom,
   setAdventureView,
   toggleRevealedCard
@@ -47,9 +48,10 @@ export const AdventurePackWorkspace = () => {
         <AdventureDmView
           pack={hearthglowPack}
           state={state}
+          onPlace={(id) => safelyUpdate("place card", () => setState((current) => placeAdventureCard(current, id, hearthglowPack)))}
+          onRemove={(id) => safelyUpdate("remove card", () => setState((current) => removeAdventureCard(current, id)))}
           onRoom={(id) => safelyUpdate("select room", () => setState((current) => selectAdventureRoom(current, id, hearthglowPack)))}
           onReveal={(id) => safelyUpdate("reveal card", () => setState((current) => toggleRevealedCard(current, id, hearthglowPack)))}
-          onTreasure={(id) => safelyUpdate("approve treasure", () => setState((current) => addTreasure(current, id)))}
         />
       ) : (
         <AdventurePlayerView

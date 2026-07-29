@@ -1,25 +1,42 @@
-import type { AdventurePack, AdventureRuntimeState } from "../../types/adventurePack";
-import { AdventureCardTile } from "./AdventureCardTile";
+import { useState } from "react";
+import type {
+  AdventureBoardSlot as Slot,
+  AdventurePack,
+  AdventureRuntimeState
+} from "../../types/adventurePack";
+import { AdventureBoardSlot } from "./AdventureBoardSlot";
+import { AdventureCardLibrary } from "./AdventureCardLibrary";
 
 type Props = {
   pack: AdventurePack;
   state: AdventureRuntimeState;
+  onPlace(cardId: string): void;
+  onRemove(cardId: string): void;
   onRoom(roomId: string): void;
   onReveal(cardId: string): void;
-  onTreasure(cardId: string): void;
 };
 
+const boardOrder: Slot[] = ["room", "npc", "monster", "trap", "treasure", "clue"];
+
 export const AdventureDmView = ({
+  onPlace,
+  onRemove,
   onReveal,
   onRoom,
-  onTreasure,
   pack,
   state
 }: Props) => {
+  const [librarySlot, setLibrarySlot] = useState<Slot>();
   const room = pack.rooms.find((candidate) => candidate.id === state.roomId) ?? pack.rooms[0];
-  const cards = room
-    ? room.cardIds.map((id) => pack.cards.find((card) => card.id === id)).filter((card) => card !== undefined)
-    : [];
+  const placedIds = state.placedCardIdsByRoom[state.roomId] ?? [];
+  const placedCards = placedIds
+    .map((id) => pack.cards.find((card) => card.id === id))
+    .filter((card) => card !== undefined);
+
+  const addCard = (cardId: string) => {
+    onPlace(cardId);
+    setLibrarySlot(undefined);
+  };
 
   return (
     <div className="adventure-dm">
@@ -38,24 +55,31 @@ export const AdventureDmView = ({
         ))}
       </aside>
       <section className="adventure-board">
-        <header>
-          <p>Room {room?.number}</p>
-          <h2>{room?.title}</h2>
-          <span>Select cards to reveal them on every player screen.</span>
+        <header className="adventure-board__heading">
+          <div><p>Room {room?.number}</p><h2>{room?.title}</h2></div>
+          <span>The DM sees both card faces. Players receive only revealed player faces.</span>
         </header>
-        <div className="adventure-card-row">
-          {cards.map((card) => (
-            <AdventureCardTile
-              card={card}
-              dmView
-              key={card.id}
-              onAction={() => card.kind === "treasure" ? onTreasure(card.id) : onReveal(card.id)}
-              actionLabel={card.kind === "treasure" ? "Approve treasure" : undefined}
-              revealed={state.revealedCardIds.includes(card.id)}
-            />
-          ))}
-        </div>
+        {boardOrder.map((slot) => (
+          <AdventureBoardSlot
+            cards={placedCards.filter((card) => card.kind === slot)}
+            key={slot}
+            onAdd={setLibrarySlot}
+            onRemove={onRemove}
+            onReveal={onReveal}
+            revealedIds={state.revealedCardIds}
+            slot={slot}
+          />
+        ))}
       </section>
+      {librarySlot && (
+        <AdventureCardLibrary
+          cards={pack.cards}
+          onAdd={addCard}
+          onClose={() => setLibrarySlot(undefined)}
+          placedIds={placedIds}
+          slot={librarySlot}
+        />
+      )}
     </div>
   );
 };
