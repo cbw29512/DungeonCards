@@ -64,6 +64,15 @@ export type AdventureRuntimeState = {
   placedCardIdsByRoom: Record<string, string[]>;
   usedTurnResources: AdventureTurnResource[];
   activeEventCardId?: string;
+  sessionCode: string;
+  players: AdventurePlayerSeat[];
+  activePlayerId?: string;
+};
+
+export type AdventurePlayerSeat = {
+  id: string;
+  name: string;
+  characterId?: string;
 };
 
 export type AdventureInitiativeEntry = {

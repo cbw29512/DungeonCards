@@ -3,6 +3,8 @@ import { hearthglowPack } from "../data/hearthglowPack";
 import {
   addTreasure,
   createAdventureState,
+  claimCharacter,
+  joinAdventure,
   placeAdventureCard,
   removeAdventureCard,
   selectAdventureRoom,
@@ -60,5 +62,14 @@ describe("adventure runtime", () => {
     const result = removeAdventureCard(state, "LOC-005");
     expect(result.placedCardIdsByRoom.square).not.toContain("LOC-005");
     expect(result.revealedCardIds).not.toContain("LOC-005");
+  });
+
+  it("joins players and prevents duplicate character claims", () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const first = claimCharacter(joinAdventure(createAdventureState(hearthglowPack), "Wendy"), "PC-001");
+    const secondJoined = joinAdventure(first, "Sam");
+    const duplicate = claimCharacter(secondJoined, "PC-001");
+    expect(first.players[0]).toMatchObject({ name: "Wendy", characterId: "PC-001" });
+    expect(duplicate.players[1].characterId).toBeUndefined();
   });
 });

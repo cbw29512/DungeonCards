@@ -3,15 +3,18 @@ import { hearthglowPack } from "../data/hearthglowPack";
 import {
   claimCharacter,
   createAdventureState,
+  joinAdventure,
   placeAdventureCard,
   removeAdventureCard,
   selectAdventureRoom,
+  selectAdventurePlayer,
   setAdventureView,
   toggleRevealedCard
 } from "../utils/adventureRuntime";
 import { AdventureDmView } from "./adventure/AdventureDmView";
 import { AdventureInitiative } from "./adventure/AdventureInitiative";
 import { AdventurePlayerView } from "./adventure/AdventurePlayerView";
+import { AdventureLobby } from "./adventure/AdventureLobby";
 import {
   advanceAdventureTurn,
   rollRoomInitiative,
@@ -49,6 +52,12 @@ export const AdventurePackWorkspace = () => {
         onRoll={() => safelyUpdate("roll initiative", () => setState((current) => rollRoomInitiative(hearthglowPack, current)))}
         onNext={() => safelyUpdate("advance turn", () => setState((current) => advanceAdventureTurn(current)))}
         onResource={(resource) => safelyUpdate("track turn resource", () => setState((current) => toggleTurnResource(current, resource)))}
+      />
+      <AdventureLobby
+        cards={hearthglowPack.cards}
+        state={state}
+        onJoin={(name) => safelyUpdate("join table", () => setState((current) => joinAdventure(current, name)))}
+        onSelect={(id) => safelyUpdate("select player", () => setState((current) => selectAdventurePlayer(current, id)))}
       />
       {state.view === "dm" ? (
         <AdventureDmView

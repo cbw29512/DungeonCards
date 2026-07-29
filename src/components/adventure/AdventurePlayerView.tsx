@@ -28,6 +28,9 @@ const CardZone = ({
 
 export const AdventurePlayerView = ({ cards, onClaim, state }: Props) => {
   const characters = cards.filter((card) => card.kind === "character");
+  const claimedIds = state.players
+    .filter((player) => player.id !== state.activePlayerId)
+    .map((player) => player.characterId);
   const claimed = cards.find((card) => card.id === state.claimedCharacterId);
   const visible = cards.filter((card) => state.revealedCardIds.includes(card.id));
   const backpack = cards.filter((card) => state.backpackCardIds.includes(card.id));
@@ -41,7 +44,7 @@ export const AdventurePlayerView = ({ cards, onClaim, state }: Props) => {
       <section className="adventure-player-claim">
         <header><p>Player setup</p><h2>Claim an available character</h2></header>
         <div className="adventure-claim-grid">
-          {characters.map((card) => (
+          {characters.filter((card) => !claimedIds.includes(card.id)).map((card) => (
             <AdventureCardTile
               actionLabel="Claim character"
               card={card}
