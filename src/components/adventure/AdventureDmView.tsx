@@ -6,6 +6,7 @@ import type {
 } from "../../types/adventurePack";
 import { AdventureBoardSlot } from "./AdventureBoardSlot";
 import { AdventureCardLibrary } from "./AdventureCardLibrary";
+import { AdventureEventRoller } from "./AdventureEventRoller";
 
 type Props = {
   pack: AdventurePack;
@@ -14,6 +15,7 @@ type Props = {
   onRemove(cardId: string): void;
   onRoom(roomId: string): void;
   onReveal(cardId: string): void;
+  onRollEvent(): void;
 };
 
 const boardOrder: Slot[] = ["room", "npc", "monster", "trap", "treasure", "clue"];
@@ -22,6 +24,7 @@ export const AdventureDmView = ({
   onPlace,
   onRemove,
   onReveal,
+  onRollEvent,
   onRoom,
   pack,
   state
@@ -32,6 +35,7 @@ export const AdventureDmView = ({
   const placedCards = placedIds
     .map((id) => pack.cards.find((card) => card.id === id))
     .filter((card) => card !== undefined);
+  const activeEvent = pack.cards.find((card) => card.id === state.activeEventCardId);
 
   const addCard = (cardId: string) => {
     onPlace(cardId);
@@ -70,6 +74,14 @@ export const AdventureDmView = ({
             slot={slot}
           />
         ))}
+        {room?.id === "inn" && (
+          <AdventureEventRoller
+            event={activeEvent}
+            onReveal={() => activeEvent && onReveal(activeEvent.id)}
+            onRoll={onRollEvent}
+            revealed={activeEvent ? state.revealedCardIds.includes(activeEvent.id) : false}
+          />
+        )}
       </section>
       {librarySlot && (
         <AdventureCardLibrary

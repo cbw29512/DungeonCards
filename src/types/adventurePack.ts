@@ -5,6 +5,7 @@ export type AdventureCardKind =
   | "trap"
   | "treasure"
   | "clue"
+  | "event"
   | "recovery"
   | "character";
 
@@ -62,6 +63,7 @@ export type AdventureRuntimeState = {
   openingTurnCount: number;
   placedCardIdsByRoom: Record<string, string[]>;
   usedTurnResources: AdventureTurnResource[];
+  activeEventCardId?: string;
 };
 
 export type AdventureInitiativeEntry = {

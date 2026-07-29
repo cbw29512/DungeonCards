@@ -2,6 +2,7 @@ import type { AdventurePack } from "../types/adventurePack";
 import { hearthglowEncounterCards } from "./hearthglowEncounterCards";
 import { hearthglowLocationCards, hearthglowRooms } from "./hearthglowLocations";
 import { hearthglowPlayerCards } from "./hearthglowPlayerCards";
+import { hearthglowEvents } from "./hearthglowEvents";
 
 export const hearthglowPack: AdventurePack = {
   id: "first-chime-of-hearthglow",
@@ -14,6 +15,7 @@ export const hearthglowPack: AdventurePack = {
   cards: [
     ...hearthglowLocationCards,
     ...hearthglowEncounterCards,
-    ...hearthglowPlayerCards
+    ...hearthglowPlayerCards,
+    ...hearthglowEvents
   ]
 };

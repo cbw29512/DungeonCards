@@ -40,6 +40,12 @@
 .adventure-library > header { display: flex; justify-content: space-between; align-items: center; }
 .adventure-library h2, .adventure-library p { margin: .15rem 0; }
 .adventure-library > header button { min-height: 44px; padding: .5rem 1rem; border-radius: .5rem; }
+.adventure-event-roller { margin-top: 1rem; padding: 1rem; color: #fff; background: linear-gradient(135deg, #512d48, #241729); border: 2px solid #d8ad45; border-radius: .85rem; }
+.adventure-event-roller > header { display: flex; justify-content: space-between; align-items: center; }
+.adventure-event-roller > header span { color: #e4bd5c; font-size: .68rem; font-weight: 800; text-transform: uppercase; }
+.adventure-event-roller > header h3 { margin: .15rem 0; }
+.adventure-event-roller > header button { min-height: 44px; padding: .55rem .85rem; background: #f1cd72; border: 0; border-radius: .5rem; font-weight: 800; }
+.adventure-event-roller .adventure-card { margin-top: .75rem; color: #2a1d26; }
 .adventure-card-row, .adventure-claim-grid { display: flex; gap: 1rem; overflow-x: auto; align-items: flex-start; padding: .25rem 0 1rem; }
 .adventure-card { flex: 0 0 250px; width: 250px; min-height: 350px; overflow: hidden; background: #fff9e9; border: 5px solid #2c1a31; border-radius: 14px; box-shadow: 0 8px 20px #2b172026; }
 .adventure-card__art { display: flex; flex-direction: column; justify-content: space-between; height: 115px; padding: .8rem; color: #fff; background: radial-gradient(circle at 70% 25%, #b98043, #4d2945 58%, #211526); text-transform: uppercase; }

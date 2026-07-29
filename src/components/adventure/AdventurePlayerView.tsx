@@ -34,7 +34,7 @@ export const AdventurePlayerView = ({ cards, onClaim, state }: Props) => {
   const room = visible.filter((card) => card.kind === "room");
   const threats = visible.filter((card) => card.kind === "monster");
   const hazards = visible.filter((card) => card.kind === "trap");
-  const discoveries = visible.filter((card) => ["npc", "clue", "treasure"].includes(card.kind));
+  const discoveries = visible.filter((card) => ["npc", "clue", "treasure", "event"].includes(card.kind));
 
   if (!claimed) {
     return (

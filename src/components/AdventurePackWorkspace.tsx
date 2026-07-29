@@ -17,6 +17,7 @@ import {
   rollRoomInitiative,
   toggleTurnResource
 } from "../utils/adventureInitiative";
+import { rollAdventureEvent } from "../utils/adventureEvents";
 
 export const AdventurePackWorkspace = () => {
   const [state, setState] = useState(() => createAdventureState(hearthglowPack));
@@ -57,6 +58,7 @@ export const AdventurePackWorkspace = () => {
           onRemove={(id) => safelyUpdate("remove card", () => setState((current) => removeAdventureCard(current, id)))}
           onRoom={(id) => safelyUpdate("select room", () => setState((current) => selectAdventureRoom(current, id, hearthglowPack)))}
           onReveal={(id) => safelyUpdate("reveal card", () => setState((current) => toggleRevealedCard(current, id, hearthglowPack)))}
+          onRollEvent={() => safelyUpdate("roll room event", () => setState((current) => rollAdventureEvent(current, hearthglowPack)))}
         />
       ) : (
         <AdventurePlayerView
