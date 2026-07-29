@@ -1,0 +1,38 @@
+.adventure-workspace { padding: 1.5rem; color: #2a1d26; background: #f4ead2; min-height: 100vh; }
+.adventure-hero { display: flex; justify-content: space-between; gap: 1rem; padding: 1.5rem; color: #fff8e9; background: linear-gradient(135deg, #321d36, #713a45); border-radius: 1rem; }
+.adventure-hero h1 { margin: .2rem 0; font-size: clamp(2rem, 4vw, 3.6rem); }
+.adventure-hero p { color: #e4bd5c; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.adventure-view-toggle { display: flex; flex-wrap: wrap; align-content: flex-start; gap: .5rem; }
+.adventure-view-toggle button, .adventure-room-list button, .adventure-card button { min-height: 44px; border: 1px solid #d8ad45; border-radius: .65rem; cursor: pointer; }
+.adventure-view-toggle button { padding: .7rem 1rem; color: #fff; background: #26182d; }
+.adventure-view-toggle button[aria-pressed="true"] { color: #26182d; background: #f1cd72; }
+.adventure-initiative { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: 1rem; padding: 1rem; color: #fff; background: #241729; border: 1px solid #d8ad45; border-radius: 1rem; }
+.adventure-initiative p, .adventure-initiative h2 { margin: 0; }
+.adventure-initiative p { color: #e4bd5c; font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+.adventure-initiative button { min-height: 44px; padding: .6rem .9rem; border: 1px solid #d8ad45; border-radius: .55rem; background: #f1cd72; font-weight: 800; }
+.adventure-initiative ol { display: flex; flex: 1 1 100%; gap: .5rem; overflow-x: auto; padding: 0; list-style: none; }
+.adventure-initiative li { min-width: 12rem; padding: .65rem; background: #3c2942; border-radius: .5rem; }
+.adventure-initiative li.is-active { color: #28192e; background: #f1cd72; }
+.adventure-initiative li span { display: block; font-size: .72rem; }
+.adventure-dm { display: grid; grid-template-columns: minmax(14rem, 18rem) 1fr; gap: 1rem; margin-top: 1rem; }
+.adventure-room-list, .adventure-board, .adventure-player section { padding: 1rem; background: #fffaf0; border: 1px solid #d9c69e; border-radius: 1rem; }
+.adventure-room-list button { display: grid; width: 100%; margin: .45rem 0; padding: .7rem; text-align: left; background: #fff; }
+.adventure-room-list button[aria-pressed="true"] { color: #fff; background: #633248; }
+.adventure-room-list span { font-size: .72rem; text-transform: uppercase; }
+.adventure-board header { margin-bottom: 1rem; }
+.adventure-board header p { margin: 0; color: #8d493f; font-weight: 800; text-transform: uppercase; }
+.adventure-card-row, .adventure-claim-grid { display: flex; gap: 1rem; overflow-x: auto; align-items: flex-start; padding: .25rem 0 1rem; }
+.adventure-card { flex: 0 0 250px; width: 250px; min-height: 350px; overflow: hidden; background: #fff9e9; border: 5px solid #2c1a31; border-radius: 14px; box-shadow: 0 8px 20px #2b172026; }
+.adventure-card__art { display: flex; flex-direction: column; justify-content: space-between; height: 115px; padding: .8rem; color: #fff; background: radial-gradient(circle at 70% 25%, #b98043, #4d2945 58%, #211526); text-transform: uppercase; }
+.adventure-card__art span { color: #f3d57c; font-size: .75rem; letter-spacing: .1em; }
+.adventure-card__body { padding: .8rem; }
+.adventure-card h3 { margin: .2rem 0 .45rem; font-family: Georgia, serif; font-size: 1.22rem; }
+.adventure-card p { font-size: .86rem; line-height: 1.35; }
+.adventure-card ul { display: flex; flex-wrap: wrap; gap: .25rem; padding: 0; list-style: none; font-size: .72rem; }
+.adventure-card li { padding: .18rem .35rem; background: #ead9ae; border-radius: .3rem; }
+.adventure-card aside { padding: .45rem; font-size: .75rem; background: #eee2ef; border-left: 3px solid #744363; }
+.adventure-card button { width: 100%; margin-top: .5rem; background: #e4bd5c; color: #29192d; font-weight: 800; }
+.adventure-player { display: grid; gap: 1rem; margin-top: 1rem; }
+.adventure-empty { padding: 2rem; color: #6c5c62; border: 2px dashed #ccb98f; border-radius: .8rem; }
+@media (max-width: 800px) { .adventure-hero { flex-direction: column; } .adventure-dm { grid-template-columns: 1fr; } }
+@media print { .top-nav, .adventure-view-toggle, .adventure-room-list, .adventure-initiative, .adventure-card button { display: none !important; } .adventure-dm { display: block; } .adventure-card-row { flex-wrap: wrap; overflow: visible; } .adventure-card { break-inside: avoid; } }

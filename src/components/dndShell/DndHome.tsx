@@ -22,7 +22,7 @@ export const DndHome = ({ onNavigate }: { onNavigate(page: DndAppPage): void }) 
         </button>
       </div>
       <p className="home-navigation-note">
-        Need a specialist tool? The navigation bar contains Character Vault, encounters, monsters, the SRD Compendium, builders, and the complete Card Catalog.
+        Need a specialist tool? The navigation bar contains Adventure Packs, Character Vault, encounters, monsters, the SRD Compendium, builders, and the complete Card Catalog.
       </p>
     </div>
   </section>

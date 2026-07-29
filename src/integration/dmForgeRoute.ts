@@ -11,6 +11,7 @@ export type DndAppPage =
   | "armor"
   | "compendium"
   | "catalog"
+  | "adventures"
   | "player"
   | "dm"
   | "monster"
@@ -37,7 +38,7 @@ export type DungeonCardsSystem = "dnd-5e" | "coc-7e";
 const DND_PAGES = new Set<DndAppPage>([
   "home", "rules", "coverage", "conditions", "movement", "health", "combat",
   "pregens", "mastery", "armor", "compendium", "catalog", "player", "dm", "monster",
-  "library", "homebrew", "monster-homebrew"
+  "adventures", "library", "homebrew", "monster-homebrew"
 ]);
 
 const COC_PAGES = new Set<CocAppPage>([

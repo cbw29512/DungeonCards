@@ -18,6 +18,7 @@ import { MonsterHomebrewBuilder } from "../MonsterHomebrewBuilder";
 import { RulesCoverageDashboard } from "../RulesCoverageDashboard";
 import { RulesDeck } from "../RulesDeck";
 import { SrdCompendium } from "../SrdCompendium";
+import { AdventurePackWorkspace } from "../AdventurePackWorkspace";
 import { DndHome } from "./DndHome";
 
 export type DndPageContentProps = {
@@ -48,6 +49,7 @@ export const DndPageContent = (props: DndPageContentProps) => {
   if (activePage === "armor") return <DndArmorLoadout />;
   if (activePage === "compendium") return <SrdCompendium />;
   if (activePage === "catalog") return <DndCardCatalog homebrewCards={props.homebrewCards} homebrewMonsters={props.homebrewMonsters} />;
+  if (activePage === "adventures") return <AdventurePackWorkspace />;
   if (activePage === "library") return <DndPrivateCardLibrary />;
 
   if (activePage === "player") {

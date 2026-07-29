@@ -13,6 +13,7 @@ export const dndPageLabels: Record<DndAppPage, string> = {
   armor: "Armor & Loadout",
   compendium: "SRD Compendium",
   catalog: "Card Catalog",
+  adventures: "Adventure Packs",
   player: "Player Workspace",
   dm: "DM Workspace",
   monster: "Monster Encounter",
@@ -34,6 +35,7 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
   armor: "Armor",
   compendium: "Compendium",
   catalog: "Card Catalog",
+  adventures: "Adventures",
   player: "Player",
   dm: "DM",
   monster: "Encounter",
@@ -44,6 +46,6 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
 
 export const dndNavigationPages: DndAppPage[] = [
   "home", "rules", "coverage", "conditions", "movement", "health", "combat",
-  "pregens", "mastery", "armor", "compendium", "catalog", "player", "dm", "monster",
+  "pregens", "mastery", "armor", "compendium", "catalog", "adventures", "player", "dm", "monster",
   "library", "homebrew", "monster-homebrew"
 ];
