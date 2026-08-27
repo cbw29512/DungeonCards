@@ -18,7 +18,7 @@ const srdMonster: SrdMonsterRecord = {
   speed: "30 ft.",
   challenge: "2",
   traits: "",
-  actions: "Multiattack. The hunter makes two Claw attacks.\nPoison Cloud (Recharge 5–6). Each creature in a 10-foot radius must make a DC 13 CON saving throw.\nClaw. Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 slashing damage.",
+  actions: "Multiattack. The hunter makes two Claw attacks.\nPoison Cloud (Recharge 5–6). Each creature in a 10-foot radius must make a DC 13 CON saving throw.\nClaw (Hybrid Form Only). Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 slashing damage.",
   bonusActions: "",
   reactions: "",
   legendaryActions: "",
@@ -78,12 +78,12 @@ describe("monster action canonicalization", () => {
     expect(actions).toHaveLength(2);
   });
 
-  it("selects attacks named by Multiattack before unrelated recharge actions", () => {
+  it("selects qualified attacks named by Multiattack before unrelated recharge actions", () => {
     const reference = buildMonsterCombatReference(srdMonster);
 
     expect(reference.actions.map((action) => action.name)).toEqual([
       "Multiattack",
-      "Claw",
+      "Claw (Hybrid Form Only)",
       "Poison Cloud (Recharge 5–6)"
     ]);
   });
