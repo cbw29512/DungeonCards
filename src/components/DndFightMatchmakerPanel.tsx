@@ -32,7 +32,10 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
     );
     return ranked.map((recommendation) => ({
       ...recommendation,
-      entry: availableProfiles.find(({ profile }) => profile.id === recommendation.opponent.id)?.entry
+      entry: availableProfiles.find(({ profile }) => (
+        profile.id === recommendation.opponent.id
+        && profile.ruleset === recommendation.opponent.ruleset
+      ))?.entry
     })).filter((item) => item.entry);
   }, [availableProfiles, characterResult]);
 
@@ -60,6 +63,7 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
           <p className="fight-matchmaker__eyebrow">Fight Cards · RAW stats stay untouched</p>
           <h3 id="fight-matchmaker-title">Choose a worthy opponent—or choose chaos.</h3>
           <p>Recommended matches rank the closest supported SRD duels. Custom Match never blocks an intentional mismatch.</p>
+          <p className="fight-matchmaker__scope">Baseline odds use AC, HP, supported attacks, ordinary critical hits, and Fighter Extra Attack. Unsupported special abilities are never silently estimated.</p>
         </div>
         <div className="fight-matchmaker__modes" aria-label="Fight matching mode">
           <button aria-pressed={mode === "recommended"} onClick={() => setMode("recommended")} type="button">Recommended Match</button>
