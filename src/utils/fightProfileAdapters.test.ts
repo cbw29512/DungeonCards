@@ -69,7 +69,7 @@ const bob: SrdMonsterRecord = {
   bonusActions: "",
   reactions: "",
   legendaryActions: "",
-  rawText: "",
+  rawText: "STR 18 (+4) DEX 11 (+0) CON 16 (+3) INT 6 (-2) WIS 16 (+3) CHA 9 (-1)",
   sourcePage: 1,
   sourceReference: "SRD 5.1"
 };
@@ -81,16 +81,21 @@ describe("fight profile adapters", () => {
     expect(averageDiceFormula("damage varies")).toBeNull();
   });
 
-  it("derives Carnar's level 3 fighter profile from the pregen attack record", () => {
+  it("derives Carnar's executable level 3 fighter profile from the pregen attack record", () => {
     const result = buildCharacterFightProfile(fighter());
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
-    expect(result.sourceActionName).toBe("Longsword");
-    expect(result.profile.attackBonus).toBe(5);
-    expect(result.profile.attacksPerRound).toBe(1);
-    expect(result.profile.averageDamageOnHit).toBe(7.5);
-    expect(result.profile.averageCriticalBonusDamage).toBe(4.5);
+    expect(result.profile).toMatchObject({
+      attackBonus: 5,
+      attacksPerRound: 1,
+      averageDamageOnHit: 7.5,
+      averageCriticalBonusDamage: 4.5,
+      initiativeBonus: 1,
+      attackDamageFormula: "1d8 + 3",
+      criticalBonusFormula: "1d8",
+      sourceActionName: "Longsword"
+    });
   });
 
   it("uses the fighter Extra Attack progression without changing the character record", () => {
@@ -107,12 +112,17 @@ describe("fight profile adapters", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
-    expect(result.sourceActionName).toBe("Greataxe");
-    expect(result.profile.armorClass).toBe(14);
-    expect(result.profile.hitPoints).toBe(76);
-    expect(result.profile.attackBonus).toBe(6);
-    expect(result.profile.averageDamageOnHit).toBe(17);
-    expect(result.profile.challengeRating).toBe(3);
+    expect(result.profile).toMatchObject({
+      armorClass: 14,
+      hitPoints: 76,
+      attackBonus: 6,
+      averageDamageOnHit: 17,
+      initiativeBonus: 0,
+      attackDamageFormula: "2d12 + 4",
+      criticalBonusFormula: "2d12",
+      sourceActionName: "Greataxe",
+      challengeRating: 3
+    });
   });
 
   it("refuses ambiguous Multiattack rather than inventing an attacks-per-round value", () => {
