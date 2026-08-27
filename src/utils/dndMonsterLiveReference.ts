@@ -1,6 +1,6 @@
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
 import type { MonsterItem } from "../types/monsters";
-import { canonicalMonsterActionIdentity } from "./monsterActionCanonicalization";
+import { reconcileMonsterActions } from "./monsterActionCanonicalization";
 import { buildMonsterCombatReference, type MonsterCombatActionReference } from "./monsterCombatReference";
 import { parseDndCreatureSize, type DndCreatureSize } from "./dndSpatialCombat";
 
@@ -91,27 +91,12 @@ const actionKindPriority: Record<DndMonsterActionKind, number> = {
   reaction: 3
 };
 
-const dedupeLiveActions = (actions: DndMonsterLiveAction[]): DndMonsterLiveAction[] => {
-  const unique: DndMonsterLiveAction[] = [];
-  const positions = new Map<string, number>();
-
-  actions.forEach((action) => {
-    const identity = canonicalMonsterActionIdentity(action);
-    const existingIndex = positions.get(identity);
-    if (existingIndex === undefined) {
-      positions.set(identity, unique.length);
-      unique.push(action);
-      return;
-    }
-
-    const existing = unique[existingIndex];
-    if (actionKindPriority[action.kind] > actionKindPriority[existing.kind]) {
-      unique[existingIndex] = action;
-    }
-  });
-
-  return unique;
-};
+const dedupeLiveActions = (actions: DndMonsterLiveAction[]): DndMonsterLiveAction[] => (
+  reconcileMonsterActions(
+    actions,
+    (candidate, existing) => actionKindPriority[candidate.kind] > actionKindPriority[existing.kind]
+  )
+);
 
 export const buildDndMonsterLiveReference = (
   entry: EncounterMonsterEntry
