@@ -2,6 +2,7 @@ import type { DndCharacterAttack, DndCharacterRecord } from "../types/dndCharact
 import type { FightCombatantProfile, FightProfileBuildResult } from "../types/fightMatchmaker";
 import type { SrdMonsterRecord } from "../types/srdCompendium";
 import { d20HitChance } from "./fightMatchmaker";
+import { buildCriticalBonusFormula, parseSrdInitiativeBonus } from "./fightExecutionProfile";
 
 const abilityModifier = (score: number): number => Math.floor((score - 10) / 2);
 const proficiencyBonus = (level: number): number => 2 + Math.floor((level - 1) / 4);
@@ -47,7 +48,8 @@ const characterAttackProfile = (
   attack: DndCharacterAttack
 ): FightCombatantProfile | null => {
   const damage = averageDiceFormula(attack.damageFormula);
-  if (!damage) return null;
+  const criticalBonusFormula = buildCriticalBonusFormula(attack.damageFormula);
+  if (!damage || !criticalBonusFormula) return null;
   return {
     id: character.id,
     name: character.name,
@@ -59,6 +61,10 @@ const characterAttackProfile = (
     attacksPerRound: fighterAttacksPerRound(character),
     averageDamageOnHit: damage.average,
     averageCriticalBonusDamage: damage.diceAverage,
+    initiativeBonus: abilityModifier(character.abilityScores.dex),
+    attackDamageFormula: attack.damageFormula,
+    criticalBonusFormula,
+    sourceActionName: attack.name,
     level: character.level
   };
 };
@@ -99,9 +105,10 @@ const parseMonsterAttack = (line: string, monster: SrdMonsterRecord): { name: st
   if (/\bplus\b/i.test(line.slice((hit.index ?? 0) + hit[0].length))) return null;
 
   const damage = averageDiceFormula(hit[2]);
+  const criticalBonusFormula = buildCriticalBonusFormula(hit[2]);
   const armorClass = parseNumber(monster.armorClass);
   const hitPoints = parseNumber(monster.hitPoints);
-  if (!damage || armorClass === null || hitPoints === null) return null;
+  if (!damage || !criticalBonusFormula || armorClass === null || hitPoints === null) return null;
 
   return {
     name,
@@ -115,6 +122,10 @@ const parseMonsterAttack = (line: string, monster: SrdMonsterRecord): { name: st
       attacksPerRound: 1,
       averageDamageOnHit: Number(hit[1]),
       averageCriticalBonusDamage: damage.diceAverage,
+      initiativeBonus: parseSrdInitiativeBonus(monster.rawText),
+      attackDamageFormula: hit[2],
+      criticalBonusFormula,
+      sourceActionName: name,
       challengeRating: parseChallenge(monster.challenge)
     }
   };
