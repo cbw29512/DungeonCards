@@ -8,6 +8,7 @@ import type { CardActionDefinition } from "../types/cardPlatformActions";
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
 import type { MonsterCardData, MonsterItem } from "../types/monsters";
 import { gameSystemIdForRuleset } from "./cardPlatformGameSystem";
+import { reconcileMonsterActions, type MonsterActionLike } from "./monsterActionCanonicalization";
 
 export type MonsterAdapterOptions = {
   homebrewGameSystemId?: DndGameSystemId;
@@ -40,12 +41,36 @@ const itemAction = (item: MonsterItem, prefix: string, index: number): CardActio
   };
 };
 
-const formattedActions = (monster: MonsterCardData): CardActionDefinition[] => [
-  ...monster.actions.map((item, index) => itemAction(item, "action", index)),
-  ...monster.bonusActions.map((item, index) => itemAction(item, "bonus", index)),
-  ...monster.reactions.map((item, index) => itemAction(item, "reaction", index)),
-  ...monster.legendaryActions.map((item, index) => itemAction(item, "legendary", index))
-].filter((action) => action.kind !== "procedure" || action.steps.length > 0);
+type FormattedActionCandidate = MonsterActionLike & {
+  item: MonsterItem;
+  prefix: string;
+  index: number;
+  priority: number;
+};
+
+const formattedCandidate = (
+  item: MonsterItem,
+  prefix: string,
+  index: number,
+  priority: number
+): FormattedActionCandidate => ({
+  item,
+  prefix,
+  index,
+  priority,
+  name: item.name,
+  summary: [item.hit, item.reach, item.damage, item.text].filter(Boolean).join(" · "),
+  reachOrRange: item.reach
+});
+
+const formattedActions = (monster: MonsterCardData): CardActionDefinition[] => reconcileMonsterActions([
+  ...monster.actions.map((item, index) => formattedCandidate(item, "action", index, 0)),
+  ...monster.legendaryActions.map((item, index) => formattedCandidate(item, "legendary", index, 1)),
+  ...monster.bonusActions.map((item, index) => formattedCandidate(item, "bonus", index, 2)),
+  ...monster.reactions.map((item, index) => formattedCandidate(item, "reaction", index, 3))
+], (candidate, existing) => candidate.priority > existing.priority)
+  .map((candidate) => itemAction(candidate.item, candidate.prefix, candidate.index))
+  .filter((action) => action.kind !== "procedure" || action.steps.length > 0);
 
 const referenceActions = (entry: EncounterMonsterEntry): CardActionDefinition[] => {
   if (entry.kind !== "reference") return [];
