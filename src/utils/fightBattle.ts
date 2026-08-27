@@ -23,8 +23,8 @@ export const createFightBattle = (
     status: "ready",
     round: 1,
     activeIndex: 0,
-    character: { profile: character, currentHitPoints: character.hitPoints },
-    monster: { profile: monster, currentHitPoints: monster.hitPoints },
+    character: { profile: character, currentHitPoints: character.hitPoints, effects: [] },
+    monster: { profile: monster, currentHitPoints: monster.hitPoints, effects: [] },
     events: []
   };
 };
