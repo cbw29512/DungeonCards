@@ -1,4 +1,5 @@
 import type { SrdMonsterRecord } from "../types/srdCompendium";
+import { selectQuickMonsterActions, uniqueMonsterActions } from "./monsterActionCanonicalization";
 
 export type MonsterAbilityReference = {
   name: "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
@@ -127,7 +128,7 @@ const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
     const reachOrRange = description.match(/\b(?:reach|range)\s+[^.;]+/i)?.[0];
     return [{ name: name.trim(), summary: actionSummary(description), reachOrRange }];
   }
-  return matches.map((match, index) => {
+  return uniqueMonsterActions(matches.map((match, index) => {
     const start = (match.index || 0) + match[0].length;
     const end = index + 1 < matches.length ? matches[index + 1].index || normalized.length : normalized.length;
     const description = normalized.slice(start, end).trim();
@@ -135,13 +136,10 @@ const parseNamedEntries = (text: string): MonsterCombatActionReference[] => {
     const recharge = name.match(/Recharge\s+[^)]+/i)?.[0];
     const reachOrRange = description.match(/\b(?:reach|range)\s+[^.;]+/i)?.[0];
     return { name, summary: actionSummary(description), recharge, reachOrRange };
-  });
+  }));
 };
 
-const prioritizedActions = (actions: MonsterCombatActionReference[]) => [...actions].sort((a, b) => {
-  const score = (action: MonsterCombatActionReference) => (action.name.toLowerCase().includes("multiattack") ? 4 : 0) + (action.summary.includes("to hit") ? 3 : 0) + (action.summary.includes("saving throw") ? 2 : 0) + (action.recharge ? 1 : 0);
-  return score(b) - score(a);
-}).slice(0, 3);
+const prioritizedActions = (actions: MonsterCombatActionReference[]) => selectQuickMonsterActions(actions, 3);
 
 export const buildMonsterCombatReference = (monster: SrdMonsterRecord): MonsterCombatReference => {
   const abilities = parseAbilities(monster.rawText);
