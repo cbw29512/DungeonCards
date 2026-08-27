@@ -10,10 +10,11 @@ type Props = { character: DndCharacterRecord };
 type Mode = "recommended" | "custom";
 
 const percent = (chance: number): string => `${Math.round(chance * 100)}%`;
+const monsterKey = (ruleset: string, id: string): string => `${ruleset}:${id}`;
 
 export const DndFightMatchmakerPanel = ({ character }: Props) => {
   const [mode, setMode] = useState<Mode>("recommended");
-  const [selectedMonsterId, setSelectedMonsterId] = useState("");
+  const [selectedMonsterKey, setSelectedMonsterKey] = useState("");
   const characterResult = useMemo(() => buildCharacterFightProfile(character), [character]);
 
   const availableProfiles = useMemo(() => encounterMonsterCatalog.flatMap((entry) => {
@@ -35,7 +36,9 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
     })).filter((item) => item.entry);
   }, [availableProfiles, characterResult]);
 
-  const selectedEntry = encounterMonsterCatalog.find((entry) => entry.id === selectedMonsterId);
+  const selectedEntry = encounterMonsterCatalog.find((entry) => (
+    monsterKey(entry.ruleset, entry.id) === selectedMonsterKey
+  ));
   let selectedProfile: FightCombatantProfile | undefined;
   let selectedIssue = "";
   if (selectedEntry?.kind === "reference") {
@@ -69,10 +72,10 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
       ) : mode === "recommended" ? (
         <div className="fight-matchmaker__recommendations">
           {recommendations.map(({ assessment, entry }) => entry && (
-            <article className={`fight-matchmaker__result fight-matchmaker__result--${assessment.severity}`} key={`${entry.ruleset}:${entry.id}`}>
+            <article className={`fight-matchmaker__result fight-matchmaker__result--${assessment.severity}`} key={monsterKey(entry.ruleset, entry.id)}>
               <div><strong>{character.name} vs. {entry.name}</strong><span>{RULESET_LABELS[character.ruleset]} · CR {entry.cr}</span></div>
               <div className="fight-matchmaker__odds"><b>{percent(assessment.characterWinChance)}</b><span>{assessment.label}</span><b>{percent(assessment.monsterWinChance)}</b></div>
-              <button onClick={() => { setSelectedMonsterId(entry.id); setMode("custom"); }} type="button">Use this matchup</button>
+              <button onClick={() => { setSelectedMonsterKey(monsterKey(entry.ruleset, entry.id)); setMode("custom"); }} type="button">Use this matchup</button>
             </article>
           ))}
           {!recommendations.length && <p className="fight-matchmaker__notice">No same-edition high-confidence SRD duel profiles are available for this character yet.</p>}
@@ -80,10 +83,10 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
       ) : (
         <div className="fight-matchmaker__custom">
           <label htmlFor="fight-monster-select">Opponent</label>
-          <select id="fight-monster-select" onChange={(event) => setSelectedMonsterId(event.target.value)} value={selectedMonsterId}>
+          <select id="fight-monster-select" onChange={(event) => setSelectedMonsterKey(event.target.value)} value={selectedMonsterKey}>
             <option value="">Choose any monster…</option>
             {encounterMonsterCatalog.map((entry) => (
-              <option key={`${entry.ruleset}:${entry.id}`} value={entry.id}>{entry.name} · {entry.ruleset === "homebrew" ? "Homebrew" : RULESET_LABELS[entry.ruleset]} · CR {entry.cr}</option>
+              <option key={monsterKey(entry.ruleset, entry.id)} value={monsterKey(entry.ruleset, entry.id)}>{entry.name} · {entry.ruleset === "homebrew" ? "Homebrew" : RULESET_LABELS[entry.ruleset]} · CR {entry.cr}</option>
             ))}
           </select>
 
