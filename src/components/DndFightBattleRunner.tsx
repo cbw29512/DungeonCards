@@ -8,6 +8,7 @@ import {
   rollFightInitiative,
   runFightToCompletion
 } from "../utils/fightBattle";
+import { getFightBattleProfileIssue } from "../utils/fightBattleValidation";
 
 type Props = {
   character: FightCombatantProfile;
@@ -18,6 +19,7 @@ const combatantName = (state: FightBattleState, side: FightSide): string => stat
 
 export const DndFightBattleRunner = ({ character, monster }: Props) => {
   const [battle, setBattle] = useState<FightBattleState>();
+  const executionIssue = getFightBattleProfileIssue(character) ?? getFightBattleProfileIssue(monster);
 
   const startFight = () => setBattle(rollFightInitiative(createFightBattle(character, monster)));
   const chooseInitiative = (side: FightSide) => setBattle((state) => (
@@ -29,6 +31,15 @@ export const DndFightBattleRunner = ({ character, monster }: Props) => {
   const autoFight = () => setBattle((state) => (
     state?.status === "active" ? runFightToCompletion(state) : state
   ));
+
+  if (executionIssue) {
+    return (
+      <section className="fight-runner fight-runner--unavailable" role="status">
+        <strong>Battle automation unavailable</strong>
+        <span>{executionIssue}</span>
+      </section>
+    );
+  }
 
   if (!battle) {
     return (
