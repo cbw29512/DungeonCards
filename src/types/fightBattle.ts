@@ -4,9 +4,39 @@ export type FightSide = "character" | "monster";
 export type FightBattleStatus = "ready" | "initiative-tie" | "active" | "complete";
 export type FightAttackOutcome = "miss" | "hit" | "critical";
 
+export type FightEffectKind =
+  | "condition"
+  | "buff"
+  | "debuff"
+  | "damage-over-time"
+  | "healing-over-time"
+  | "concentration"
+  | "ward"
+  | "mark"
+  | "custom";
+
+export type FightEffectExpiry =
+  | { type: "manual" }
+  | { type: "round"; expiresAfterRound: number }
+  | { type: "turn-start"; side: FightSide; remaining: number }
+  | { type: "turn-end"; side: FightSide; remaining: number };
+
+export type FightActiveEffect = {
+  id: string;
+  rulesKey: string;
+  label: string;
+  kind: FightEffectKind;
+  sourceName: string;
+  sourceSide?: FightSide;
+  appliedRound: number;
+  expiry: FightEffectExpiry;
+  stacks?: number;
+};
+
 export type FightBattleCombatantState = {
   profile: FightCombatantProfile;
   currentHitPoints: number;
+  activeEffects: FightActiveEffect[];
 };
 
 export type FightInitiativeState = {

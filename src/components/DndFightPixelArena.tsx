@@ -1,5 +1,6 @@
 import type { FightBattleState, FightSide } from "../types/fightBattle";
 import type { FightPixelIdentity } from "../types/fightBattlePresentation";
+import { fightEffectVisual } from "../utils/fightEffects";
 import {
   characterPixelIdentity,
   deriveFightPixelScene,
@@ -27,23 +28,49 @@ export const DndFightPixelArena = ({ battle, characterIdentity, monsterIdentity 
     const cue = side === "character" ? frame.characterCue : frame.monsterCue;
     const isActive = frame.activeSide === side;
     const takesDamage = frame.damageTarget === side && frame.damageNumber;
+    const hpPercent = Math.max(0, Math.min(100, (state.currentHitPoints / state.profile.hitPoints) * 100));
     return (
-      <div
-        className={`fight-pixel-arena__combatant ${sideClass(side)} fight-pixel-arena__combatant--${cue}${isActive ? " is-active" : ""}`}
-        data-archetype={identity.archetype}
-        data-cue={cue}
-        data-sprite-key={identity.spriteKey}
+      <article
+        className={`fight-pixel-arena__card ${isActive ? "is-active" : ""}`}
+        data-side={side}
       >
-        <div className="fight-pixel-arena__nameplate">
+        <header className="fight-pixel-arena__nameplate">
           <strong>{state.profile.name}</strong>
           <span>{state.currentHitPoints}/{state.profile.hitPoints} HP</span>
+        </header>
+        <div className="fight-pixel-arena__health" aria-label={`${state.profile.name} health ${state.currentHitPoints} of ${state.profile.hitPoints}`}>
+          <i style={{ width: `${hpPercent}%` }} />
         </div>
-        <div className="fight-pixel-arena__sprite" aria-label={`${state.profile.name}: ${cue}`}>
-          <span className="fight-pixel-arena__glyph" aria-hidden="true">{identity.fallbackGlyph}</span>
-          <i className="fight-pixel-arena__shadow" aria-hidden="true" />
+        <div className="fight-pixel-arena__effects" aria-label={`${state.profile.name} active effects`}>
+          {state.activeEffects.map((effect) => {
+            const visual = fightEffectVisual(effect);
+            return (
+              <span
+                key={effect.id}
+                className={`fight-pixel-arena__effect fight-pixel-arena__effect--${visual.category}`}
+                title={`${effect.label} · ${effect.sourceName}`}
+                aria-label={`${visual.ariaLabel}, from ${effect.sourceName}`}
+              >
+                <b aria-hidden="true">{visual.symbol}</b>
+                <small>{effect.label}</small>
+                {effect.stacks && effect.stacks > 1 ? <em>×{effect.stacks}</em> : null}
+              </span>
+            );
+          })}
         </div>
-        {takesDamage ? <b className="fight-pixel-arena__damage">-{frame.damageNumber}</b> : null}
-      </div>
+        <div
+          className={`fight-pixel-arena__combatant ${sideClass(side)} fight-pixel-arena__combatant--${cue}${isActive ? " is-active" : ""}`}
+          data-archetype={identity.archetype}
+          data-cue={cue}
+          data-sprite-key={identity.spriteKey}
+        >
+          <div className="fight-pixel-arena__sprite" aria-label={`${state.profile.name}: ${cue}`}>
+            <span className="fight-pixel-arena__glyph" aria-hidden="true">{identity.fallbackGlyph}</span>
+            <i className="fight-pixel-arena__shadow" aria-hidden="true" />
+          </div>
+          {takesDamage ? <b className="fight-pixel-arena__damage">-{frame.damageNumber}</b> : null}
+        </div>
+      </article>
     );
   };
 
