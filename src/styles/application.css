@@ -34,6 +34,7 @@
 @import "./dnd-pregen-library.css";
 @import "./fight-matchmaker.css";
 @import "./fight-battle-runner.css";
+@import "./fight-pixel-arena.css";
 @import "./dnd-encounter-session.css";
 @import "./adventure-pack.css";
 @import "./private-card-library.css";
