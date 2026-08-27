@@ -10,7 +10,7 @@ const fighter = {
   armorClass: 16,
   hitPoints: 20,
   attackBonus: 5,
-  averageDamage: 7.5,
+  averageDamageOnHit: 7.5,
   attacksPerRound: 1,
   initiativeBonus: 2,
   attackDamageFormula: "1d8+3",
