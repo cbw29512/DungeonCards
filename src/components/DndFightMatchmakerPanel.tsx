@@ -6,6 +6,7 @@ import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import { RULESET_LABELS } from "../types/ruleCards";
 import { assessFightMatch, rankFightOpponents } from "../utils/fightMatchmaker";
 import { buildCharacterFightProfile, buildSrdMonsterFightProfile } from "../utils/fightProfileAdapters";
+import { characterPixelIdentity, monsterPixelIdentity } from "../utils/fightBattlePresentation";
 
 type Props = { character: DndCharacterRecord };
 type Mode = "recommended" | "custom";
@@ -17,6 +18,7 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
   const [mode, setMode] = useState<Mode>("recommended");
   const [selectedMonsterKey, setSelectedMonsterKey] = useState("");
   const characterResult = useMemo(() => buildCharacterFightProfile(character), [character]);
+  const characterIdentity = useMemo(() => characterPixelIdentity(character.className), [character.className]);
 
   const availableProfiles = useMemo(() => encounterMonsterCatalog.flatMap((entry) => {
     if (entry.kind !== "reference") return [];
@@ -55,6 +57,9 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
 
   const selectedAssessment = characterResult.ok && selectedProfile
     ? assessFightMatch(characterResult.profile, selectedProfile)
+    : undefined;
+  const selectedMonsterIdentity = selectedEntry?.kind === "reference"
+    ? monsterPixelIdentity(selectedEntry.name, selectedEntry.monster.type)
     : undefined;
 
   return (
@@ -105,8 +110,10 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
               </article>
               <DndFightBattleRunner
                 character={characterResult.profile}
+                characterIdentity={characterIdentity}
                 key={selectedMonsterKey}
                 monster={selectedProfile}
+                monsterIdentity={selectedMonsterIdentity}
               />
             </>
           ) : selectedEntry ? (
