@@ -15,6 +15,10 @@ export type FightCombatantProfile = {
   challengeRating?: number;
 };
 
+export type FightProfileBuildResult =
+  | { ok: true; profile: FightCombatantProfile; sourceActionName: string }
+  | { ok: false; issues: string[] };
+
 export type FightFavoredSide = "character" | "monster" | "even";
 export type FightBalanceSeverity = "fair" | "favored" | "brutal" | "stomp";
 
