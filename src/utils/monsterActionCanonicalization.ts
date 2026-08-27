@@ -14,6 +14,10 @@ const canonicalActionName = (value: string): string => normalizeWords(
   value.replace(/\(\s*Recharge[^)]*\)/gi, " ")
 );
 
+const multiattackReferenceName = (value: string): string => normalizeWords(
+  value.replace(/\([^)]*\)/g, " ")
+);
+
 export const canonicalMonsterActionIdentity = (action: MonsterActionLike): string => [
   canonicalActionName(action.name),
   normalizeWords(action.summary ?? ""),
@@ -55,7 +59,7 @@ const quickActionScore = (action: MonsterActionLike): number => {
 };
 
 const multiattackReferences = (multiattack: MonsterActionLike, action: MonsterActionLike): boolean => {
-  const referencedName = canonicalActionName(action.name);
+  const referencedName = multiattackReferenceName(action.name);
   if (!referencedName || referencedName === "multiattack") return false;
   const summary = ` ${normalizeWords(multiattack.summary ?? "")} `;
   return summary.includes(` ${referencedName} `);
