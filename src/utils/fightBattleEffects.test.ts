@@ -10,7 +10,7 @@ const profile = (name: string): FightCombatantProfile => ({
   armorClass: 14,
   hitPoints: 20,
   attackBonus: 5,
-  averageDamagePerHit: 7,
+  averageDamageOnHit: 7,
   attacksPerRound: 1,
   initiativeBonus: 2,
   attackDamageFormula: "1d8+3",
