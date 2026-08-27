@@ -1,0 +1,73 @@
+.fight-matchmaker {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(35, 24, 18, 0.96));
+  color: #f8f0dd;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+}
+
+.fight-matchmaker__header,
+.fight-matchmaker__result,
+.fight-matchmaker__odds {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.fight-matchmaker__header { align-items: flex-start; }
+.fight-matchmaker__header h3 { margin: 0.2rem 0 0.45rem; font-size: clamp(1.25rem, 2vw, 1.8rem); }
+.fight-matchmaker__header p { margin: 0; max-width: 68ch; color: #d8d2c6; }
+.fight-matchmaker__eyebrow { text-transform: uppercase; letter-spacing: 0.13em; font-size: 0.72rem; font-weight: 800; color: #e2b866 !important; }
+
+.fight-matchmaker__modes { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.fight-matchmaker button,
+.fight-matchmaker select {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  padding: 0.65rem 0.85rem;
+  font: inherit;
+}
+.fight-matchmaker button { cursor: pointer; font-weight: 800; }
+.fight-matchmaker button[aria-pressed="true"] { background: #f3dfb0; color: #24180f; border-color: #f3dfb0; }
+.fight-matchmaker button:hover { border-color: #e2b866; }
+
+.fight-matchmaker__recommendations { display: grid; gap: 0.75rem; margin-top: 1rem; }
+.fight-matchmaker__result,
+.fight-matchmaker__showdown {
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-left-width: 5px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.055);
+}
+.fight-matchmaker__result > div:first-child { display: grid; gap: 0.2rem; }
+.fight-matchmaker__result > div:first-child span { color: #bdb7aa; font-size: 0.82rem; }
+.fight-matchmaker__result--fair { border-left-color: #79c98b; }
+.fight-matchmaker__result--favored { border-left-color: #d6b45d; }
+.fight-matchmaker__result--brutal { border-left-color: #db854f; }
+.fight-matchmaker__result--stomp { border-left-color: #d95959; }
+
+.fight-matchmaker__odds { min-width: 250px; justify-content: center; text-align: center; }
+.fight-matchmaker__odds b { font-size: 1.2rem; }
+.fight-matchmaker__odds span { color: #f3dfb0; font-weight: 800; font-size: 0.84rem; }
+
+.fight-matchmaker__custom { display: grid; gap: 0.7rem; margin-top: 1rem; }
+.fight-matchmaker__custom label { font-weight: 800; }
+.fight-matchmaker__custom select { width: 100%; background: #171b23; }
+.fight-matchmaker__showdown h4 { margin: 0 0 0.7rem; text-align: center; font-size: 1.35rem; }
+.fight-matchmaker__showdown h4 span { margin: 0 0.45rem; color: #d95959; }
+.fight-matchmaker__showdown p { color: #d8d2c6; }
+.fight-matchmaker__warning { display: block; color: #ffc580; }
+.fight-matchmaker__notice { margin: 1rem 0 0; padding: 0.8rem; border-radius: 10px; background: rgba(255, 255, 255, 0.07); color: #ddd5c8; }
+
+@media (max-width: 760px) {
+  .fight-matchmaker__header,
+  .fight-matchmaker__result { display: grid; }
+  .fight-matchmaker__modes { margin-top: 0.75rem; }
+  .fight-matchmaker__odds { min-width: 0; width: 100%; }
+}
