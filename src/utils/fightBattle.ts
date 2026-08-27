@@ -7,27 +7,18 @@ import type {
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import type { RandomIntegerSource } from "./randomInteger";
 import { rollDiceFormula } from "./rollDice";
+import { assertFightBattleProfile } from "./fightBattleValidation";
 
 const attackFormula = (bonus: number): string => `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
 const naturalRoll = (result: ReturnType<typeof rollDiceFormula>): number =>
   result.dice[0]?.keptResults?.[0] ?? result.dice[0]?.results[0] ?? 0;
 
-const assertExecutableProfile = (profile: FightCombatantProfile): void => {
-  if (profile.initiativeBonus === undefined) throw new Error(`${profile.name} is missing a safe initiative bonus.`);
-  if (!profile.attackDamageFormula || !profile.criticalBonusFormula || !profile.sourceActionName) {
-    throw new Error(`${profile.name} is missing an executable canonical attack.`);
-  }
-  if (!Number.isInteger(profile.attacksPerRound) || profile.attacksPerRound < 1) {
-    throw new Error(`${profile.name} has an invalid attacks-per-round value.`);
-  }
-};
-
 export const createFightBattle = (
   character: FightCombatantProfile,
   monster: FightCombatantProfile
 ): FightBattleState => {
-  assertExecutableProfile(character);
-  assertExecutableProfile(monster);
+  assertFightBattleProfile(character);
+  assertFightBattleProfile(monster);
   return {
     status: "ready",
     round: 1,
