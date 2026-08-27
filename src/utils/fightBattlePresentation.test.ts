@@ -34,8 +34,8 @@ const activeState = (): FightBattleState => ({
     monsterTotal: 11,
     order: ["character", "monster"]
   },
-  character: { profile: profile("hero", "Hero"), currentHitPoints: 20 },
-  monster: { profile: profile("monster", "Monster"), currentHitPoints: 12 },
+  character: { profile: profile("hero", "Hero"), currentHitPoints: 20, activeEffects: [] },
+  monster: { profile: profile("monster", "Monster"), currentHitPoints: 12, activeEffects: [] },
   events: []
 });
 
