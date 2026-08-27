@@ -11,6 +11,9 @@ export type FightCombatantProfile = {
   averageDamageOnHit: number;
   averageCriticalBonusDamage?: number;
   initiativeBonus?: number;
+  attackDamageFormula?: string;
+  criticalBonusFormula?: string;
+  sourceActionName?: string;
   level?: number;
   challengeRating?: number;
 };

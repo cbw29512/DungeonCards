@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { DndFightBattleRunner } from "./DndFightBattleRunner";
 import { encounterMonsterCatalog } from "../data/encounterMonsterCatalog";
 import type { DndCharacterRecord } from "../types/dndCharacter";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
@@ -94,13 +95,20 @@ export const DndFightMatchmakerPanel = ({ character }: Props) => {
             ))}
           </select>
 
-          {selectedAssessment && selectedEntry ? (
-            <article className={`fight-matchmaker__showdown fight-matchmaker__result--${selectedAssessment.severity}`}>
-              <h4>{character.name} <span>VS</span> {selectedEntry.name}</h4>
-              <div className="fight-matchmaker__odds"><b>{percent(selectedAssessment.characterWinChance)}</b><span>{selectedAssessment.label}</span><b>{percent(selectedAssessment.monsterWinChance)}</b></div>
-              <p>{selectedAssessment.reasons.join(" ")}</p>
-              {!selectedAssessment.rulesetCompatible && <strong className="fight-matchmaker__warning">Cross-edition custom fight — allowed, not recommended.</strong>}
-            </article>
+          {selectedAssessment && selectedEntry && selectedProfile ? (
+            <>
+              <article className={`fight-matchmaker__showdown fight-matchmaker__result--${selectedAssessment.severity}`}>
+                <h4>{character.name} <span>VS</span> {selectedEntry.name}</h4>
+                <div className="fight-matchmaker__odds"><b>{percent(selectedAssessment.characterWinChance)}</b><span>{selectedAssessment.label}</span><b>{percent(selectedAssessment.monsterWinChance)}</b></div>
+                <p>{selectedAssessment.reasons.join(" ")}</p>
+                {!selectedAssessment.rulesetCompatible && <strong className="fight-matchmaker__warning">Cross-edition custom fight — allowed, not recommended.</strong>}
+              </article>
+              <DndFightBattleRunner
+                character={characterResult.profile}
+                key={selectedMonsterKey}
+                monster={selectedProfile}
+              />
+            </>
           ) : selectedEntry ? (
             <p className="fight-matchmaker__notice">{selectedIssue || "This matchup can be selected, but automated odds are not available yet."}</p>
           ) : null}
