@@ -1,5 +1,6 @@
 import type { EncounterMonsterEntry } from "../types/encounterMonsters";
 import type { MonsterItem } from "../types/monsters";
+import { reconcileMonsterActions } from "./monsterActionCanonicalization";
 import { buildMonsterCombatReference, type MonsterCombatActionReference } from "./monsterCombatReference";
 import { parseDndCreatureSize, type DndCreatureSize } from "./dndSpatialCombat";
 
@@ -83,6 +84,20 @@ const formattedAction = (
   };
 };
 
+const actionKindPriority: Record<DndMonsterActionKind, number> = {
+  action: 0,
+  legendaryAction: 1,
+  bonusAction: 2,
+  reaction: 3
+};
+
+const dedupeLiveActions = (actions: DndMonsterLiveAction[]): DndMonsterLiveAction[] => (
+  reconcileMonsterActions(
+    actions,
+    (candidate, existing) => actionKindPriority[candidate.kind] > actionKindPriority[existing.kind]
+  )
+);
+
 export const buildDndMonsterLiveReference = (
   entry: EncounterMonsterEntry
 ): DndMonsterLiveReference => {
@@ -95,12 +110,12 @@ export const buildDndMonsterLiveReference = (
       armorClass: monster.ac,
       savingThrows: monster.saves.join(", "),
       senses: monster.senses,
-      actions: [
+      actions: dedupeLiveActions([
         ...monster.actions.map((item, index) => formattedAction(item, "action", index)),
         ...monster.bonusActions.map((item, index) => formattedAction(item, "bonusAction", index)),
         ...monster.reactions.map((item, index) => formattedAction(item, "reaction", index)),
         ...monster.legendaryActions.map((item, index) => formattedAction(item, "legendaryAction", index))
-      ]
+      ])
     };
   }
 
@@ -113,12 +128,12 @@ export const buildDndMonsterLiveReference = (
     armorClass: monster.armorClass,
     savingThrows: reference.savingThrows,
     senses: reference.senses,
-    actions: [
+    actions: dedupeLiveActions([
       ...reference.allActions.map((action, index) => toLiveAction(action, "action", index)),
       ...reference.bonusActions.map((action, index) => toLiveAction(action, "bonusAction", index)),
       ...reference.reactions.map((action, index) => toLiveAction(action, "reaction", index)),
       ...reference.legendaryActions.map((action, index) => toLiveAction(action, "legendaryAction", index))
-    ]
+    ])
   };
 };
 
