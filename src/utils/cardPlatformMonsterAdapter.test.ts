@@ -33,9 +33,12 @@ const formatted: EncounterMonsterEntry = {
     immunities: [],
     conditionImmunities: [],
     traits: [{ name: "Cinder Trail", text: "The hound leaves burning ground behind it." }],
-    actions: [{ name: "Bite", hit: "+5 to hit", reach: "5 ft.", damage: "10 (2d6 + 3) fire damage" }],
+    actions: [
+      { name: "Bite", hit: "+5 to hit", reach: "5 ft.", damage: "10 (2d6 + 3) fire damage" },
+      { name: "Tail Guard", text: "The hound adds 2 to its AC against one attack." }
+    ],
     bonusActions: [],
-    reactions: [],
+    reactions: [{ name: "Tail Guard", text: "The hound adds 2 to its AC against one attack." }],
     legendaryActions: [],
     spellcasting: null,
     lairActions: [],
@@ -76,7 +79,7 @@ const reference: EncounterMonsterEntry = {
 };
 
 describe("monster Card Platform adapter", () => {
-  it("requires an exact edition for neutral homebrew monsters", () => {
+  it("requires an exact edition and canonicalizes duplicate formatted actions", () => {
     expect(() => adaptEncounterMonster(formatted)).toThrow(/exact D&D edition/i);
     const card = adaptEncounterMonster(formatted, { homebrewGameSystemId: "dnd-2024" });
     expect(card).toMatchObject({
@@ -88,6 +91,8 @@ describe("monster Card Platform adapter", () => {
     });
     expect(card.resources[0]).toMatchObject({ id: "hit-points", maximum: 45, initial: 45 });
     expect(card.actions[0]).toMatchObject({ label: "Bite", formula: "2d6+3" });
+    expect(card.actions.filter((action) => action.label === "Tail Guard")).toHaveLength(1);
+    expect(card.actions.find((action) => action.label === "Tail Guard")?.id).toBe("reaction-0-tail-guard");
     expect(validateCardDefinition(card)).toEqual([]);
   });
 
