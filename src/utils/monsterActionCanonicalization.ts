@@ -20,15 +20,32 @@ export const canonicalMonsterActionIdentity = (action: MonsterActionLike): strin
   normalizeWords(action.reachOrRange ?? "")
 ].join("|");
 
-export const uniqueMonsterActions = <T extends MonsterActionLike>(actions: T[]): T[] => {
-  const seen = new Set<string>();
-  return actions.filter((action) => {
+export const reconcileMonsterActions = <T extends MonsterActionLike>(
+  actions: T[],
+  preferReplacement?: (candidate: T, existing: T) => boolean
+): T[] => {
+  const unique: T[] = [];
+  const positions = new Map<string, number>();
+
+  actions.forEach((action) => {
     const identity = canonicalMonsterActionIdentity(action);
-    if (seen.has(identity)) return false;
-    seen.add(identity);
-    return true;
+    const existingIndex = positions.get(identity);
+    if (existingIndex === undefined) {
+      positions.set(identity, unique.length);
+      unique.push(action);
+      return;
+    }
+
+    const existing = unique[existingIndex];
+    if (preferReplacement?.(action, existing)) unique[existingIndex] = action;
   });
+
+  return unique;
 };
+
+export const uniqueMonsterActions = <T extends MonsterActionLike>(actions: T[]): T[] => (
+  reconcileMonsterActions(actions)
+);
 
 const quickActionScore = (action: MonsterActionLike): number => {
   const summary = action.summary ?? "";
