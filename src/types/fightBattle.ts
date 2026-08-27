@@ -3,10 +3,26 @@ import type { FightCombatantProfile } from "./fightMatchmaker";
 export type FightSide = "character" | "monster";
 export type FightBattleStatus = "ready" | "initiative-tie" | "active" | "complete";
 export type FightAttackOutcome = "miss" | "hit" | "critical";
+export type FightEffectKind = "condition" | "buff" | "debuff";
+export type FightEffectTickTiming = "start" | "end" | "manual";
+
+export type FightEffectState = {
+  id: string;
+  name: string;
+  kind: FightEffectKind;
+  iconKey?: string;
+  sourceName?: string;
+  remainingRounds?: number;
+  tickTiming: FightEffectTickTiming;
+  saveAbility?: string;
+  saveDc?: number;
+  concentration?: boolean;
+};
 
 export type FightBattleCombatantState = {
   profile: FightCombatantProfile;
   currentHitPoints: number;
+  effects: FightEffectState[];
 };
 
 export type FightInitiativeState = {
