@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DndFightMatchmakerPanel } from "./DndFightMatchmakerPanel";
 import { DndPregenCharacterSheet } from "./DndPregenCharacterSheet";
 import { DndPregenReleasePanel } from "./dndCharacterVault/DndPregenReleasePanel";
 import { DndPregenSelectorControls } from "./dndCharacterVault/DndPregenSelectorControls";
@@ -81,7 +82,12 @@ export const DndPregenLibrary = () => {
         <>
           <DndPregenSelectorControls definitions={definitions} level={level} onChangeLevel={setLevel} onChangePath={setPathId} onChangeRuleset={changeRuleset} pathId={selectedDefinition ? dndPregenDefinitionPath(selectedDefinition) : ""} ruleset={ruleset} />
           {selectedDefinition && selectedSlot && readiness && <DndPregenReleasePanel definition={selectedDefinition} level={level} profile={selectedVaultBuild} readiness={readiness} ruleset={ruleset} slot={selectedSlot} />}
-          {selectedRecord && readiness?.ready && <DndPregenCharacterSheet onSave={selectedVaultBuild ? () => { void vault.saveProfile(selectedVaultBuild); } : undefined} profile={selectedVaultBuild} record={selectedRecord} signedIn={Boolean(vault.session)} />}
+          {selectedRecord && readiness?.ready && (
+            <>
+              <DndPregenCharacterSheet onSave={selectedVaultBuild ? () => { void vault.saveProfile(selectedVaultBuild); } : undefined} profile={selectedVaultBuild} record={selectedRecord} signedIn={Boolean(vault.session)} />
+              <DndFightMatchmakerPanel character={selectedRecord} />
+            </>
+          )}
           <div className="pregen-library__columns">
             <section><h3>Release gates</h3><ol className="pregen-library__requirements">{dndPregenReadyRequirements.map((requirement) => <li key={requirement}>{requirement}</li>)}</ol></section>
             <aside className="pregen-library__boundary">
