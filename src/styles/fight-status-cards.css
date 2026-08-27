@@ -1,0 +1,251 @@
+.fight-card-arena__cards {
+  align-items: stretch;
+  gap: clamp(0.7rem, 3vw, 2rem);
+}
+
+.fight-status-card {
+  position: relative;
+  width: min(42vw, 320px);
+  min-height: 330px;
+  padding: 0.8rem;
+  border: 4px solid #161616;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f8e7bc 0%, #d9b36a 100%);
+  box-shadow: 0 8px 0 #161616, 0 14px 30px rgb(0 0 0 / 28%);
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+
+.fight-status-card.is-active {
+  outline: 4px solid #fff6b5;
+  outline-offset: 3px;
+}
+
+.fight-status-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 3px solid rgb(20 20 20 / 70%);
+}
+
+.fight-status-card__header strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fight-status-card__health {
+  position: relative;
+  height: 25px;
+  margin: 0.65rem 0;
+  border: 3px solid #161616;
+  background: #3b1010;
+  overflow: hidden;
+}
+
+.fight-status-card__health i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(180deg, #58e66f, #17702a);
+  transition: width 260ms steps(8, end);
+}
+
+.fight-status-card__health span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-shadow: 1px 1px #111;
+}
+
+.fight-status-card__stage {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+}
+
+.fight-stick {
+  position: relative;
+  width: 86px;
+  height: 150px;
+  transform-origin: 50% 90%;
+}
+
+.fight-stick i {
+  position: absolute;
+  display: block;
+  background: currentColor;
+  border: 2px solid #111;
+  box-sizing: border-box;
+}
+
+.fight-stick__head {
+  top: 7px;
+  left: 29px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.fight-stick__body {
+  top: 35px;
+  left: 39px;
+  width: 10px;
+  height: 64px;
+}
+
+.fight-stick__arm,
+.fight-stick__leg {
+  width: 9px;
+  height: 57px;
+  transform-origin: 50% 4px;
+  border-radius: 5px;
+}
+
+.fight-stick__arm--front { top: 43px; left: 41px; transform: rotate(-48deg); }
+.fight-stick__arm--back { top: 43px; left: 39px; transform: rotate(48deg); }
+.fight-stick__leg--front { top: 93px; left: 41px; transform: rotate(-27deg); }
+.fight-stick__leg--back { top: 93px; left: 39px; transform: rotate(27deg); }
+
+.fight-stick__identity {
+  position: absolute;
+  top: 52px;
+  left: 17px;
+  min-width: 54px;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1;
+  color: #fff6d5;
+  text-shadow: 2px 2px #111;
+}
+
+.fight-pixel-arena__combatant--character .fight-stick { color: #2859c5; }
+.fight-pixel-arena__combatant--monster .fight-stick { color: #b52d27; }
+
+.fight-pixel-arena__combatant--attack .fight-stick,
+.fight-pixel-arena__combatant--critical .fight-stick {
+  animation: fight-stick-lunge 360ms steps(4, end);
+}
+
+.fight-pixel-arena__combatant--hurt .fight-stick {
+  animation: fight-stick-hurt 320ms steps(3, end);
+}
+
+.fight-pixel-arena__combatant--miss .fight-stick {
+  animation: fight-stick-miss 320ms steps(3, end);
+}
+
+.fight-pixel-arena__combatant--ko .fight-stick {
+  transform: rotate(84deg) translate(35px, 24px);
+}
+
+.fight-pixel-arena__combatant--victory .fight-stick__arm--front,
+.fight-pixel-arena__combatant--victory .fight-stick__arm--back {
+  transform: rotate(180deg);
+}
+
+.fight-status-card__effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-height: 34px;
+  align-items: center;
+  padding-top: 0.55rem;
+  border-top: 3px solid rgb(20 20 20 / 50%);
+}
+
+.fight-status-card__clear {
+  opacity: 0.55;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.fight-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 100%;
+  padding: 0.22rem 0.38rem;
+  border: 2px solid #161616;
+  background: #efe6d2;
+  box-shadow: 2px 2px 0 #161616;
+}
+
+.fight-status-chip b {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 2px solid currentColor;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.fight-status-chip small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.fight-status-chip--condition { background: #e1c2ef; }
+.fight-status-chip--buff { background: #bde7c4; }
+.fight-status-chip--debuff { background: #f1b9b1; }
+
+@keyframes fight-stick-lunge {
+  0% { transform: translateX(0); }
+  45% { transform: translateX(38px) rotate(7deg); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes fight-stick-hurt {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(-14px) rotate(-7deg); }
+  70% { transform: translateX(9px) rotate(5deg); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes fight-stick-miss {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+@media (max-width: 720px) {
+  .fight-card-arena__cards {
+    gap: 0.45rem;
+  }
+
+  .fight-status-card {
+    width: calc(50% - 1.2rem);
+    min-width: 0;
+    min-height: 280px;
+    padding: 0.48rem;
+  }
+
+  .fight-status-card__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .fight-status-card__stage { min-height: 145px; }
+  .fight-stick { transform: scale(0.82); }
+  .fight-status-chip small { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fight-stick,
+  .fight-status-card__health i {
+    animation: none !important;
+    transition: none !important;
+  }
+}
