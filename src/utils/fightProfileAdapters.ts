@@ -72,7 +72,7 @@ export const buildCharacterFightProfile = (character: DndCharacterRecord): Fight
     return { ok: false, issues: [`${character.name} has no attack with a safely parseable damage formula.`] };
   }
 
-  const best = candidates.toSorted((left, right) => {
+  const best = [...candidates].sort((left, right) => {
     const leftScore = d20HitChance(left.profile.attackBonus, 15) * left.profile.averageDamageOnHit;
     const rightScore = d20HitChance(right.profile.attackBonus, 15) * right.profile.averageDamageOnHit;
     return rightScore - leftScore;
@@ -132,7 +132,7 @@ export const buildSrdMonsterFightProfile = (monster: SrdMonsterRecord): FightPro
     return { ok: false, issues: [`${monster.name} has no high-confidence basic attack for matchmaking.`] };
   }
 
-  const best = candidates.toSorted((left, right) => {
+  const best = [...candidates].sort((left, right) => {
     const leftScore = d20HitChance(left.profile.attackBonus, 15) * left.profile.averageDamageOnHit;
     const rightScore = d20HitChance(right.profile.attackBonus, 15) * right.profile.averageDamageOnHit;
     return rightScore - leftScore;
