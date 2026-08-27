@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FightBattleState, FightSide } from "../types/fightBattle";
+import type { FightPixelIdentity } from "../types/fightBattlePresentation";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import {
   createFightBattle,
@@ -9,15 +10,18 @@ import {
   runFightToCompletion
 } from "../utils/fightBattle";
 import { getFightBattleProfileIssue } from "../utils/fightBattleValidation";
+import { DndFightPixelArena } from "./DndFightPixelArena";
 
 type Props = {
   character: FightCombatantProfile;
   monster: FightCombatantProfile;
+  characterIdentity?: FightPixelIdentity;
+  monsterIdentity?: FightPixelIdentity;
 };
 
 const combatantName = (state: FightBattleState, side: FightSide): string => state[side].profile.name;
 
-export const DndFightBattleRunner = ({ character, monster }: Props) => {
+export const DndFightBattleRunner = ({ character, monster, characterIdentity, monsterIdentity }: Props) => {
   const [battle, setBattle] = useState<FightBattleState>();
   const executionIssue = getFightBattleProfileIssue(character) ?? getFightBattleProfileIssue(monster);
 
@@ -46,7 +50,7 @@ export const DndFightBattleRunner = ({ character, monster }: Props) => {
       <section className="fight-runner fight-runner--ready">
         <div>
           <strong>{character.name} vs. {monster.name}</strong>
-          <span>Executable baseline duel · initiative, attacks, crits, damage, HP, victory</span>
+          <span>8-bit Fight Cards duel · the visuals follow the D&D rules engine</span>
         </div>
         <button className="fight-runner__fight" onClick={startFight} type="button">FIGHT</button>
       </section>
@@ -59,6 +63,12 @@ export const DndFightBattleRunner = ({ character, monster }: Props) => {
 
   return (
     <section className={`fight-runner fight-runner--${battle.status}`} aria-live="polite">
+      <DndFightPixelArena
+        battle={battle}
+        characterIdentity={characterIdentity}
+        monsterIdentity={monsterIdentity}
+      />
+
       <header className="fight-runner__scoreboard">
         <div>
           <strong>{battle.character.profile.name}</strong>
@@ -115,7 +125,7 @@ export const DndFightBattleRunner = ({ character, monster }: Props) => {
         </ol>
       )}
 
-      <p className="fight-runner__scope">Current runner executes the canonical basic-attack loop only. Unsupported special abilities are not silently simulated.</p>
+      <p className="fight-runner__scope">The arena animates only canonical combat events. Unsupported special abilities are not silently simulated.</p>
     </section>
   );
 };
