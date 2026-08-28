@@ -167,14 +167,24 @@
   font-size: 0.76rem;
 }
 
-.fight-showcase__simulation > button {
-  justify-self: start;
+.fight-showcase__simulation > button,
+.fight-showcase__party-controls > button,
+.fight-showcase__party-member > button {
   min-height: 40px;
   padding: 0.55rem 0.9rem;
   border: 1px solid rgba(226, 184, 102, 0.35);
   background: rgba(169, 64, 49, 0.32);
   color: #f3e8d2;
   font-weight: 850;
+}
+
+.fight-showcase__simulation > button {
+  justify-self: start;
+}
+
+.fight-showcase__simulation button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .fight-showcase__simulation-results {
@@ -208,6 +218,112 @@
   color: #e2b866;
   font-size: 1.05rem;
   font-weight: 900;
+}
+
+.fight-showcase__party-simulation {
+  border-color: rgba(111, 155, 197, 0.25);
+  background: rgba(42, 65, 88, 0.12);
+}
+
+.fight-showcase__party-members {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.fight-showcase__party-member {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: end;
+  padding: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.fight-showcase__party-member--primary {
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.fight-showcase__party-member > span,
+.fight-showcase__party-member label > span,
+.fight-showcase__party-controls label > span {
+  color: #9f978c;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fight-showcase__party-member > strong {
+  color: #ddd6ca;
+  font-size: 0.88rem;
+}
+
+.fight-showcase__party-member label,
+.fight-showcase__party-controls label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.fight-showcase__party-member select,
+.fight-showcase__party-controls select {
+  min-width: 0;
+  min-height: 40px;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(226, 184, 102, 0.2);
+  border-radius: 6px;
+  background: #11151c;
+  color: #e5dfd5;
+}
+
+.fight-showcase__party-member > button {
+  min-height: 40px;
+  padding-inline: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.72rem;
+}
+
+.fight-showcase__party-controls {
+  display: flex;
+  gap: 0.6rem;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.fight-showcase__party-controls label {
+  min-width: 190px;
+}
+
+.fight-showcase__party-issue {
+  padding: 0.55rem 0.65rem;
+  border-left: 3px solid rgba(226, 184, 102, 0.55);
+  background: rgba(226, 184, 102, 0.06);
+  color: #d9caae;
+}
+
+.fight-showcase__survival-list {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fight-showcase__survival-list li {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.17);
+}
+
+.fight-showcase__survival-list strong {
+  color: #d9bd83;
+  white-space: nowrap;
 }
 
 .fight-front-door__footer {
@@ -244,4 +360,8 @@
   .fight-front-door__intro { padding-top: 2rem; }
   .fight-showcase__chooser { grid-template-columns: 42px minmax(0, 1fr) 42px; }
   .fight-showcase__simulation-results dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fight-showcase__party-member { grid-template-columns: minmax(0, 1fr); }
+  .fight-showcase__party-member > button { justify-self: start; }
+  .fight-showcase__party-controls { align-items: stretch; flex-direction: column; }
+  .fight-showcase__party-controls label { min-width: 0; }
 }
