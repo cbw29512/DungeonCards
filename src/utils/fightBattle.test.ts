@@ -66,17 +66,17 @@ describe("fight battle engine", () => {
     expect(resolved.initiative?.order).toEqual(["monster", "character"]);
   });
 
-  it("honors natural 1 misses and natural 20 critical damage and emits matching presentation events", () => {
+  it("honors natural 1 misses and natural 20 Heroic Crits and emits matching presentation events", () => {
     let state = rollFightInitiative(createFightBattle(fighter, monster), sequence(10, 8));
     state = resolveFightTurn(state, sequence(1));
     expect(state.monster.currentHitPoints).toBe(20);
     expect(state.events[0].outcome).toBe("miss");
     expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "miss", delivery: "weapon", side: "monster" });
 
-    state = resolveFightTurn(state, sequence(20, 4, 5));
-    expect(state.character.currentHitPoints).toBe(9);
-    expect(state.events[1]).toMatchObject({ outcome: "critical", damage: 11, naturalRoll: 20 });
-    expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "critical", amount: 11, side: "character" });
+    state = resolveFightTurn(state, sequence(20, 4));
+    expect(state.character.currentHitPoints).toBe(8);
+    expect(state.events[1]).toMatchObject({ outcome: "critical", damage: 12, naturalRoll: 20 });
+    expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "critical", amount: 12, side: "character" });
     expect(state.round).toBe(2);
   });
 
