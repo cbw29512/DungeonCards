@@ -12,13 +12,14 @@ import type {
   FightMultiattackAction,
   FightSaveAction
 } from "../types/fightRules";
-import type { RandomIntegerSource } from "./randomInteger";
+import { secureRandomInteger, type RandomIntegerSource } from "./randomInteger";
 import { rollDiceFormula } from "./rollDice";
 import {
   applyFightEffect,
   breakFightConcentration,
   grantFightTemporaryHitPoints,
   healFightCombatant,
+  resolveFightTimedEffectSaves,
   startFightConcentration,
   tickFightEffects
 } from "./fightBattleEffects";
@@ -39,6 +40,7 @@ const legacyActionsForProfile = (profile: FightCombatantProfile): FightActionDef
     name: profile.sourceActionName ?? "Attack",
     kind: "attack",
     economy: "action",
+    delivery: profile.attackDelivery ?? "weapon",
     attackBonus: profile.attackBonus,
     criticalAt: 20,
     rangeFeet: 5,
@@ -56,6 +58,7 @@ const legacyActionsForProfile = (profile: FightCombatantProfile): FightActionDef
       name: `${profile.sourceActionName ?? "Attack"} ×${profile.attacksPerRound}`,
       kind: "multiattack",
       economy: "action",
+      delivery: profile.attackDelivery ?? "weapon",
       sequence: [{ actionId: attackId, count: profile.attacksPerRound }],
       rangeFeet: 5
     }
@@ -169,10 +172,11 @@ const refreshRecharge = (
   randomInteger?: RandomIntegerSource
 ): FightBattleState => {
   let next = state;
+  const random = randomInteger ?? secureRandomInteger;
   for (const action of fightActionsForProfile(state[side].profile)) {
     if (!action.recharge || state[side].rechargeReady[action.id] !== false) continue;
     const sides = action.recharge.dieSides ?? 6;
-    const roll = (randomInteger ?? ((minimum, maximum) => Math.floor(Math.random() * (maximum - minimum + 1)) + minimum))(1, sides);
+    const roll = random(1, sides);
     if (roll < action.recharge.minimum) continue;
     next = {
       ...next,
@@ -253,7 +257,7 @@ const spendAction = (
 
 const moveIntoRange = (state: FightBattleState, side: FightSide, action: FightActionDefinition): FightBattleState => {
   const rangeFeet = action.rangeFeet ?? 5;
-  if (state.distanceFeet <= rangeFeet) return state;
+  if (rangeFeet === 0 || state.distanceFeet <= rangeFeet) return state;
   const movement = Math.min(state[side].economy.movementRemainingFeet, state.distanceFeet - rangeFeet);
   if (movement <= 0) return state;
   const nextDistance = Math.max(0, state.distanceFeet - movement);
@@ -296,6 +300,7 @@ const applyActionEffects = (
   tickTiming: effect.tickTiming ?? "manual",
   saveAbility: effect.saveAbility,
   saveDc: effect.saveDc,
+  saveTiming: effect.saveTiming,
   concentrationOwner: effect.concentrationLinked ? source : undefined,
   attackRollMode: effect.attackRollMode,
   attacksAgainstRollMode: effect.attacksAgainstRollMode,
@@ -454,7 +459,7 @@ const resolveAttackAction = (
     sourceName: action.name,
     outcome,
     damage: damage.appliedTotal,
-    delivery: state[attacker].profile.attackDelivery ?? "weapon"
+    delivery: action.delivery ?? state[attacker].profile.attackDelivery ?? "weapon"
   });
   if (outcome !== "miss") next = applyActionEffects(next, target, attacker, action.name, action.effectsOnHit);
   if (applied.hitPointsAfter === 0) return completeIfDowned(next, target, attacker);
@@ -474,9 +479,10 @@ const resolveSaveAction = (
     randomInteger
   });
   const succeeded = saveRoll.total >= action.saveDc;
+  const delivery = action.delivery ?? "spell";
   let next = appendFightPresentationEvent(state, {
     type: succeeded ? "save-success" : "save-failure",
-    delivery: "spell",
+    delivery,
     side: target,
     sourceSide: attacker,
     label: `${action.name}: ${action.saveAbility.toUpperCase()} save ${succeeded ? "succeeds" : "fails"}`,
@@ -502,7 +508,7 @@ const resolveSaveAction = (
     next = applied.state;
     next = appendFightPresentationEvent(next, {
       type: "hit",
-      delivery: "spell",
+      delivery,
       side: target,
       sourceSide: attacker,
       label: `${action.name} deals damage`,
@@ -531,7 +537,11 @@ const executeAction = (
 ): FightBattleState => {
   if (!options.skipEconomy && !canUseAction(state, attacker, action)) return state;
   let next = moveIntoRange(state, attacker, action);
-  if (next.distanceFeet > (action.rangeFeet ?? 5) && action.kind !== "heal" && action.kind !== "temporary-hit-points" && action.kind !== "grant-action") return next;
+  if ((action.rangeFeet ?? 5) > 0
+    && next.distanceFeet > (action.rangeFeet ?? 5)
+    && action.kind !== "heal"
+    && action.kind !== "temporary-hit-points"
+    && action.kind !== "grant-action") return next;
   next = spendAction(next, attacker, action, options);
   if (action.requiresConcentration) next = startFightConcentration(next, attacker, action.name);
 
@@ -567,11 +577,19 @@ const executeAction = (
 
 const primaryAction = (state: FightBattleState, side: FightSide): FightActionDefinition | undefined => {
   const actions = fightActionsForProfile(state[side].profile).filter((action) =>
-    (action.kind === "attack" || action.kind === "save" || action.kind === "multiattack") && canUseAction(state, side, action));
+    action.economy === "action"
+    && (action.kind === "attack" || action.kind === "save" || action.kind === "multiattack")
+    && canUseAction(state, side, action));
   return actions.find((action) => action.recharge && state[side].rechargeReady[action.id] !== false)
     ?? actions.find((action) => action.kind === "multiattack")
     ?? actions[0];
 };
+
+const offensiveBonusAction = (state: FightBattleState, side: FightSide): FightActionDefinition | undefined =>
+  fightActionsForProfile(state[side].profile).find((action) =>
+    action.economy === "bonus-action"
+    && (action.kind === "attack" || action.kind === "save")
+    && canUseAction(state, side, action));
 
 const useSupportAction = (
   state: FightBattleState,
@@ -591,7 +609,8 @@ const useSupportAction = (
 export const resolveFightTurn = (state: FightBattleState, randomInteger?: RandomIntegerSource): FightBattleState => {
   if (state.status !== "active" || !state.initiative?.order) throw new Error("A fight turn requires resolved initiative.");
   const attacker = state.initiative.order[state.activeIndex];
-  let next = tickFightEffects(state, attacker, "start");
+  let next = resolveFightTimedEffectSaves(state, attacker, "start", randomInteger);
+  next = tickFightEffects(next, attacker, "start");
   next = resetTurnState(next, attacker);
   next = refreshRecharge(next, attacker, randomInteger);
   next = useSupportAction(next, attacker, randomInteger);
@@ -615,6 +634,12 @@ export const resolveFightTurn = (state: FightBattleState, randomInteger?: Random
     }
   }
 
+  if (next.status === "active") {
+    const bonus = offensiveBonusAction(next, attacker);
+    if (bonus) next = executeAction(next, attacker, bonus, randomInteger);
+  }
+  if (next.status !== "active") return next;
+  next = resolveFightTimedEffectSaves(next, attacker, "end", randomInteger);
   next = tickFightEffects(next, attacker, "end");
   return next.activeIndex === 0
     ? { ...next, activeIndex: 1 }
