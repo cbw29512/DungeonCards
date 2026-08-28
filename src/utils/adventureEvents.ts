@@ -1,9 +1,10 @@
 import type { AdventurePack, AdventureRuntimeState } from "../types/adventurePack";
+import { secureRandomInteger } from "./randomInteger";
 
 export const rollAdventureEvent = (
   state: AdventureRuntimeState,
   pack: AdventurePack,
-  d10: () => number = () => Math.floor(Math.random() * 10) + 1
+  d10: () => number = () => secureRandomInteger(1, 10)
 ): AdventureRuntimeState => {
   try {
     const roll = d10();
