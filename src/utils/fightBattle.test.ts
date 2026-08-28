@@ -104,6 +104,85 @@ describe("fight battle engine", () => {
     expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "downed", side: "monster" });
   });
 
+  it("retargets remaining Multiattack strikes through the canonical turn without restarting turn effects", () => {
+    const fragile = { ...fighter, id: "fragile", name: "Fragile Hero", armorClass: 10, hitPoints: 5 };
+    const backup = { ...fighter, id: "backup", name: "Backup Hero", armorClass: 10, hitPoints: 20 };
+    const hunter: FightCombatantProfile = {
+      ...monster,
+      id: "hunter",
+      name: "Hunter",
+      attackBonus: 8,
+      attacksPerRound: 2,
+      actions: [
+        {
+          id: "claw",
+          name: "Claw",
+          kind: "attack",
+          economy: "action",
+          delivery: "weapon",
+          attackBonus: 8,
+          rangeFeet: 5,
+          damage: [{ formula: "1d4+5", damageType: "slashing", criticalBonusFormula: "1d4" }]
+        },
+        {
+          id: "multiattack",
+          name: "Multiattack",
+          kind: "multiattack",
+          economy: "action",
+          delivery: "weapon",
+          rangeFeet: 5,
+          sequence: [{ actionId: "claw", count: 2 }]
+        }
+      ]
+    };
+
+    let state = createFightBattle(fragile, hunter);
+    state = {
+      ...state,
+      status: "active",
+      activeIndex: 0,
+      initiative: {
+        characterNaturalRoll: 1,
+        characterTotal: 1,
+        monsterNaturalRoll: 20,
+        monsterTotal: 20,
+        order: ["monster", "character"]
+      },
+      character: { ...state.character, combatantId: "hero:fragile" },
+      monster: { ...state.monster, combatantId: "monster:hunter" }
+    };
+    state = applyFightEffect(state, "monster", {
+      id: "turn-clock",
+      name: "Turn Clock",
+      kind: "buff",
+      remainingRounds: 2,
+      tickTiming: "end"
+    });
+    const replacement = {
+      ...createFightBattle(backup, hunter).character,
+      combatantId: "hero:backup"
+    };
+    const downed: string[] = [];
+
+    const resolved = resolveFightTurn(state, sequence(15, 1, 15, 1), {
+      onOpponentDowned: (downedState, attacker, target) => {
+        expect(attacker).toBe("monster");
+        expect(target).toBe("character");
+        downed.push(downedState.character.combatantId ?? "missing");
+        return replacement;
+      }
+    });
+
+    expect(downed).toEqual(["hero:fragile"]);
+    expect(resolved.status).toBe("active");
+    expect(resolved.winner).toBeUndefined();
+    expect(resolved.character.combatantId).toBe("hero:backup");
+    expect(resolved.character.currentHitPoints).toBe(14);
+    expect(resolved.events).toHaveLength(2);
+    expect(resolved.events.map((event) => event.damage)).toEqual([6, 6]);
+    expect(resolved.monster.effects.find((effect) => effect.id === "turn-clock")?.remainingRounds).toBe(1);
+  });
+
   it("breaks a downed combatant's concentration and clears linked effects before declaring downed", () => {
     const fragileCaster = { ...monster, hitPoints: 5 };
     let state = createFightBattle(fighter, fragileCaster);
