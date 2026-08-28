@@ -1,5 +1,10 @@
 import type { DndAbilityId } from "./dndCharacter";
-import type { FightActionDefinition, FightResourceDefinition, FightRollMode } from "./fightRules";
+import type {
+  FightActionDefinition,
+  FightFailedSaveRerollDefinition,
+  FightResourceDefinition,
+  FightRollMode
+} from "./fightRules";
 import type { RulesetId } from "./ruleCards";
 
 export type FightCombatantProfile = {
@@ -20,6 +25,7 @@ export type FightCombatantProfile = {
   attackDelivery?: "weapon" | "spell";
   speedFeet?: number;
   savingThrowBonuses?: Partial<Record<DndAbilityId, number>>;
+  failedSaveRerolls?: FightFailedSaveRerollDefinition[];
   damageResistances?: string[];
   damageImmunities?: string[];
   damageVulnerabilities?: string[];
