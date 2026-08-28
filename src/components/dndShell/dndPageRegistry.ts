@@ -8,6 +8,7 @@ export const dndPageLabels: Record<DndAppPage, string> = {
   movement: "Movement & Special Actions",
   health: "HP & Death Saves",
   combat: "Initiative & Concentration",
+  fight: "Fight Cards",
   pregens: "Premade Characters",
   mastery: "Weapon Mastery",
   armor: "Armor & Loadout",
@@ -30,6 +31,7 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
   movement: "Movement",
   health: "Health",
   combat: "Combat",
+  fight: "Fight Cards",
   pregens: "Pregens",
   mastery: "Mastery",
   armor: "Armor",
@@ -45,7 +47,7 @@ export const dndNavigationLabels: Record<DndAppPage, string> = {
 };
 
 export const dndNavigationPages: DndAppPage[] = [
-  "home", "rules", "coverage", "conditions", "movement", "health", "combat",
-  "pregens", "mastery", "armor", "compendium", "catalog", "adventures", "player", "dm", "monster",
+  "home", "fight", "pregens", "rules", "coverage", "conditions", "movement", "health", "combat",
+  "mastery", "armor", "compendium", "catalog", "adventures", "player", "dm", "monster",
   "library", "homebrew", "monster-homebrew"
 ];
