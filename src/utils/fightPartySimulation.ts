@@ -54,6 +54,12 @@ const median = (values: number[]): number => {
   return sorted.length % 2 === 0 ? (sorted[middle - 1] + sorted[middle]) / 2 : sorted[middle];
 };
 const d20Formula = (bonus: number): string => `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
+const combatantDistance = (hero: FightBattleCombatantState, monster: FightBattleCombatantState): number => {
+  if (Number.isFinite(hero.positionFeet) && Number.isFinite(monster.positionFeet)) {
+    return Math.abs((hero.positionFeet as number) - (monster.positionFeet as number));
+  }
+  return 30;
+};
 
 export const getFightPartySimulationIssue = (
   heroes: FightCombatantProfile[],
@@ -91,19 +97,17 @@ const transientBattle = ({
   hero,
   monster,
   actor,
-  round,
-  distanceFeet
+  round
 }: {
   hero: FightBattleCombatantState;
   monster: FightBattleCombatantState;
   actor: FightSide;
   round: number;
-  distanceFeet: number;
 }): FightBattleState => ({
   status: "active",
   round,
   activeIndex: 0,
-  distanceFeet,
+  distanceFeet: combatantDistance(hero, monster),
   initiative: {
     characterNaturalRoll: 0,
     characterTotal: 0,
@@ -217,7 +221,6 @@ const runPartyEncounter = ({
     };
   });
   let monster: FightBattleCombatantState = { ...first.monster, combatantId: monsterId };
-  let distanceFeet = first.distanceFeet;
   const order = initiativeOrder(heroes, monsterProfile, randomInteger);
   let round = 1;
 
@@ -234,17 +237,16 @@ const runPartyEncounter = ({
       if (entry.kind === "hero") {
         const hero = heroes.find((candidate) => candidate.id === entry.heroId);
         if (!hero || hero.combatant.currentHitPoints <= 0) continue;
-        const duel = transientBattle({ hero: hero.combatant, monster, actor: "character", round, distanceFeet });
+        const duel = transientBattle({ hero: hero.combatant, monster, actor: "character", round });
         const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger));
         hero.combatant = resolved.character;
         monster = resolved.monster;
         monster = syncCrossPartyConcentration({ heroes, activeHeroId: hero.id, monster, resolved });
-        distanceFeet = resolved.distanceFeet;
       } else {
         const firstTarget = chooseMonsterTarget(heroes, targetPolicy, randomInteger);
         if (!firstTarget) return { winner: "monster" as const, round, heroes, monster };
         let activeTarget = firstTarget;
-        const duel = transientBattle({ hero: activeTarget.combatant, monster, actor: "monster", round, distanceFeet });
+        const duel = transientBattle({ hero: activeTarget.combatant, monster, actor: "monster", round });
         const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger, {
           onOpponentDowned: (downedState, attacker, targetSide) => {
             if (attacker !== "monster" || targetSide !== "character") return undefined;
@@ -266,7 +268,6 @@ const runPartyEncounter = ({
         activeTarget.combatant = resolved.character;
         monster = resolved.monster;
         monster = syncCrossPartyConcentration({ heroes, activeHeroId: activeTarget.id, monster, resolved });
-        distanceFeet = resolved.distanceFeet;
       }
     }
   }
