@@ -1,5 +1,5 @@
 import type { DndAbilityId } from "./dndCharacter";
-import type { FightActionDefinition, FightResourceDefinition } from "./fightRules";
+import type { FightActionDefinition, FightResourceDefinition, FightRollMode } from "./fightRules";
 import type { RulesetId } from "./ruleCards";
 
 export type FightCombatantProfile = {
@@ -13,6 +13,7 @@ export type FightCombatantProfile = {
   averageDamageOnHit: number;
   averageCriticalBonusDamage?: number;
   initiativeBonus?: number;
+  initiativeRollMode?: FightRollMode;
   attackDamageFormula?: string;
   criticalBonusFormula?: string;
   sourceActionName?: string;

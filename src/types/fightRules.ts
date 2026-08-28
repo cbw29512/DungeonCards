@@ -64,6 +64,8 @@ export type FightResourceDefinition = {
   maximum: number;
   initial?: number;
   refresh: "turn" | "round" | "short-rest" | "long-rest" | "manual" | "none";
+  shortRestRecovery?: number | "all";
+  longRestRecovery?: number | "all";
 };
 
 type FightActionBase = {
@@ -105,6 +107,7 @@ export type FightHealAction = FightActionBase & {
   kind: "heal";
   formula: string;
   target: "self";
+  movementGrantedFeet?: number;
 };
 
 export type FightTemporaryHitPointsAction = FightActionBase & {
@@ -116,6 +119,7 @@ export type FightTemporaryHitPointsAction = FightActionBase & {
 export type FightGrantAction = FightActionBase & {
   kind: "grant-action";
   grants: "action";
+  excludedDelivery?: FightActionDelivery;
 };
 
 export type FightMultiattackStep = {

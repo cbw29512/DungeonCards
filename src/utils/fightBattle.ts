@@ -173,8 +173,14 @@ export const rollFightInitiative = (
   randomInteger?: RandomIntegerSource
 ): FightBattleState => {
   if (state.status !== "ready") throw new Error("Initiative can only be rolled for a ready fight.");
-  const characterRoll = rollDiceFormula(attackFormula(state.character.profile.initiativeBonus ?? 0), { randomInteger });
-  const monsterRoll = rollDiceFormula(attackFormula(state.monster.profile.initiativeBonus ?? 0), { randomInteger });
+  const characterRoll = rollDiceFormula(attackFormula(state.character.profile.initiativeBonus ?? 0), {
+    advantageMode: state.character.profile.initiativeRollMode,
+    randomInteger
+  });
+  const monsterRoll = rollDiceFormula(attackFormula(state.monster.profile.initiativeBonus ?? 0), {
+    advantageMode: state.monster.profile.initiativeRollMode,
+    randomInteger
+  });
   const initiative: FightInitiativeState = {
     characterNaturalRoll: naturalRoll(characterRoll),
     characterTotal: characterRoll.total,
@@ -266,6 +272,9 @@ const hasEconomy = (state: FightBattleState, side: FightSide, action: FightActio
 const canUseAction = (state: FightBattleState, side: FightSide, action: FightActionDefinition): boolean =>
   !isFightIncapacitated(state[side])
   && hasEconomy(state, side, action)
+  && !(action.economy === "action"
+    && state[side].economy.restrictedActionDelivery
+    && action.delivery === state[side].economy.restrictedActionDelivery)
   && hasResourceCosts(state, side, action)
   && (!action.recharge || state[side].rechargeReady[action.id] !== false);
 
@@ -278,7 +287,10 @@ const spendAction = (
   let next = state;
   if (!options.skipEconomy) {
     const economy = { ...next[side].economy };
-    if (action.economy === "action") economy.actionsAvailable = Math.max(0, economy.actionsAvailable - 1);
+    if (action.economy === "action") {
+      economy.actionsAvailable = Math.max(0, economy.actionsAvailable - 1);
+      if (economy.restrictedActionDelivery) economy.restrictedActionDelivery = undefined;
+    }
     else if (action.economy === "bonus-action") economy.bonusActionsAvailable = Math.max(0, economy.bonusActionsAvailable - 1);
     else if (action.economy === "reaction") economy.reactionAvailable = false;
     next = { ...next, [side]: { ...next[side], economy } };
@@ -638,7 +650,31 @@ const executeAction = (
   if (action.kind === "save") return resolveSaveAction(next, attacker, action, randomInteger, options.turnOptions);
   if (action.kind === "heal") {
     const amount = Math.max(0, rollDiceFormula(action.formula, { randomInteger }).total);
-    return healFightCombatant(next, attacker, amount, action.name);
+    let healed = healFightCombatant(next, attacker, amount, action.name);
+    const movementGrantedFeet = Math.max(0, action.movementGrantedFeet ?? 0);
+    if (movementGrantedFeet > 0) {
+      healed = {
+        ...healed,
+        [attacker]: {
+          ...healed[attacker],
+          economy: {
+            ...healed[attacker].economy,
+            movementRemainingFeet: healed[attacker].economy.movementRemainingFeet + movementGrantedFeet
+          }
+        }
+      };
+      healed = appendFightPresentationEvent(healed, {
+        type: "movement",
+        delivery: "system",
+        side: attacker,
+        sourceSide: attacker,
+        label: `${action.name}: ${movementGrantedFeet} ft movement available`,
+        sourceName: action.name,
+        amount: movementGrantedFeet,
+        iconKey: "movement"
+      });
+    }
+    return healed;
   }
   if (action.kind === "temporary-hit-points") {
     const amount = Math.max(0, rollDiceFormula(action.formula, { randomInteger }).total);
@@ -649,7 +685,11 @@ const executeAction = (
       ...next,
       [attacker]: {
         ...next[attacker],
-        economy: { ...next[attacker].economy, actionsAvailable: next[attacker].economy.actionsAvailable + 1 }
+        economy: {
+          ...next[attacker].economy,
+          actionsAvailable: next[attacker].economy.actionsAvailable + 1,
+          restrictedActionDelivery: action.excludedDelivery
+        }
       }
     };
   }

@@ -77,6 +77,7 @@ export type FightTurnEconomyState = {
   bonusActionsAvailable: number;
   reactionAvailable: boolean;
   movementRemainingFeet: number;
+  restrictedActionDelivery?: "weapon" | "spell";
 };
 
 export type FightBattleCombatantState = {

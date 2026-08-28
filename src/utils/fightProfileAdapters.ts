@@ -179,8 +179,20 @@ const championCritical = !isSupportedChampion || character.level < 3
   }
 
   const resources: NonNullable<FightCombatantProfile["resources"]> = [];
-  if (character.ruleset === "srd-5.1-2014" && character.classId === "fighter") {
-    resources.push({ id: "second-wind", name: "Second Wind", maximum: 1, refresh: "short-rest" });
+  const supportedFighter = character.classId === "fighter"
+    && (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024");
+  if (supportedFighter) {
+    const secondWindMaximum = character.ruleset === "srd-5.2.1-2024"
+      ? character.level >= 10 ? 4 : character.level >= 4 ? 3 : 2
+      : 1;
+    resources.push({
+      id: "second-wind",
+      name: "Second Wind",
+      maximum: secondWindMaximum,
+      refresh: "short-rest",
+      shortRestRecovery: character.ruleset === "srd-5.2.1-2024" ? 1 : "all",
+      longRestRecovery: "all"
+    });
     actions.push({
       id: "second-wind",
       name: "Second Wind",
@@ -188,16 +200,27 @@ const championCritical = !isSupportedChampion || character.level < 3
       economy: "bonus-action",
       target: "self",
       formula: `1d10+${character.level}`,
+      ...(character.ruleset === "srd-5.2.1-2024" && character.level >= 5
+        ? { movementGrantedFeet: Math.floor(character.speedFeet / 2) }
+        : {}),
       resourceCosts: [{ resourceId: "second-wind", amount: 1 }]
     });
     if (character.level >= 2) {
-      resources.push({ id: "action-surge", name: "Action Surge", maximum: 1, refresh: "short-rest" });
+      resources.push({
+        id: "action-surge",
+        name: "Action Surge",
+        maximum: character.level >= 17 ? 2 : 1,
+        refresh: "short-rest",
+        shortRestRecovery: "all",
+        longRestRecovery: "all"
+      });
       actions.push({
         id: "action-surge",
         name: "Action Surge",
         kind: "grant-action",
         economy: "free",
         grants: "action",
+        ...(character.ruleset === "srd-5.2.1-2024" ? { excludedDelivery: "spell" as const } : {}),
         resourceCosts: [{ resourceId: "action-surge", amount: 1 }]
       });
     }
@@ -221,6 +244,7 @@ const championCritical = !isSupportedChampion || character.level < 3
       averageDamageOnHit: damage.average,
       averageCriticalBonusDamage: damage.diceAverage,
       initiativeBonus: abilityModifier(character.abilityScores.dex),
+      initiativeRollMode: character.ruleset === "srd-5.2.1-2024" && isSupportedChampion && character.level >= 3 ? "advantage" : undefined,
       attackDamageFormula: best.attack.damageFormula,
       criticalBonusFormula: buildCriticalBonusFormula(best.attack.damageFormula) ?? undefined,
       sourceActionName: best.attack.name,
