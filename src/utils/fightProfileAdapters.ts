@@ -406,7 +406,7 @@ const monsterSaveBonuses = (monster: SrdMonsterRecord): Partial<Record<DndAbilit
   return bonuses;
 };
 
-const parseActionsForBlock = (text: string, economy: FightActionEconomy): FightActionDefinition[] => compactEntries(text).flatMap((entry) => {
+const parseActionsForBlock = (text: string, economy: FightActionEconomy): FightActionDefinition[] => compactEntries(text).flatMap<FightActionDefinition>((entry) => {
   const attack = parseAttackAction(entry.name, entry.description, economy);
   if (attack) return [attack];
   const save = parseSaveAction(entry.name, entry.description, economy);
@@ -416,7 +416,7 @@ const parseActionsForBlock = (text: string, economy: FightActionEconomy): FightA
 export const buildSrdMonsterFightProfile = (monster: SrdMonsterRecord): FightProfileBuildResult => {
   const entries = compactEntries(monster.actions);
   const actionEntries = entries.filter((entry) => !/^Multiattack\b/i.test(entry.name));
-  const actions = actionEntries.flatMap((entry) => {
+  const actions: FightActionDefinition[] = actionEntries.flatMap<FightActionDefinition>((entry) => {
     const attack = parseAttackAction(entry.name, entry.description, "action");
     if (attack) return [attack];
     const save = parseSaveAction(entry.name, entry.description, "action");
