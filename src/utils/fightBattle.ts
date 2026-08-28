@@ -24,6 +24,7 @@ import {
   startFightConcentration,
   tickFightEffects
 } from "./fightBattleEffects";
+import { fightActionMaximumRangeFeet, fightAttackDistanceRollMode } from "./fightAttackRange";
 import { appendFightPresentationEvent, recordFightAttackPresentation } from "./fightPresentationEvents";
 import { assertFightBattleProfile } from "./fightBattleValidation";
 import {
@@ -86,6 +87,7 @@ const legacyActionsForProfile = (profile: FightCombatantProfile): FightActionDef
     kind: "attack",
     economy: "action",
     delivery: profile.attackDelivery ?? "weapon",
+    attackMode: "melee",
     attackBonus: profile.attackBonus,
     criticalAt: 20,
     rangeFeet: 5,
@@ -491,8 +493,10 @@ const resolveAttackAction = (
   options: FightTurnOptions = {}
 ): FightBattleState => {
   const target: FightSide = attacker === "character" ? "monster" : "character";
+  const distanceFeet = fightBattleDistanceFeet(state);
+  const distanceRollMode = fightAttackDistanceRollMode(action, distanceFeet, state[target]);
   const roll = rollDiceFormula(attackFormula(action.attackBonus), {
-    advantageMode: fightAttackRollMode(state[attacker], state[target], action.attackRollMode, fightBattleDistanceFeet(state)),
+    advantageMode: fightAttackRollMode(state[attacker], state[target], distanceRollMode, distanceFeet),
     naturalRollRule: "attack",
     randomInteger
   });
@@ -619,8 +623,9 @@ const executeAction = (
 ): FightBattleState => {
   if (!options.skipEconomy && !canUseAction(state, attacker, action)) return state;
   let next = moveIntoRange(state, attacker, action);
-  if ((action.rangeFeet ?? 5) > 0
-    && fightBattleDistanceFeet(next) > (action.rangeFeet ?? 5)
+  const maximumRangeFeet = fightActionMaximumRangeFeet(action);
+  if (maximumRangeFeet > 0
+    && fightBattleDistanceFeet(next) > maximumRangeFeet
     && action.kind !== "heal"
     && action.kind !== "temporary-hit-points"
     && action.kind !== "grant-action") return next;

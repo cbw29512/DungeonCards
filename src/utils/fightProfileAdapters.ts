@@ -22,6 +22,8 @@ const proficiencyBonus = (level: number): number => 2 + Math.floor((level - 1) /
 const safeId = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "action";
 
 type FormulaAverage = { average: number; diceAverage: number };
+type ParsedWeaponRange = { rangeFeet: number; longRangeFeet?: number; attackMode: "melee" | "ranged" };
+type ParsedMonsterAttackRange = { rangeFeet: number; longRangeFeet?: number; attackMode?: "melee" | "ranged" };
 
 export const averageDiceFormula = (formula: string): FormulaAverage | null => {
   const normalized = formula.replaceAll(" ", "").toLowerCase();
@@ -57,7 +59,16 @@ const fighterAttacksPerRound = (character: DndCharacterRecord): number => {
   return 1;
 };
 
-const parseRangeFeet = (value: string): number => Number(value.match(/\d+/)?.[0] ?? 5);
+export const parseFightWeaponRange = (value: string): ParsedWeaponRange => {
+  const band = value.match(/(\d+)\s*\/\s*(\d+)\s*ft/i);
+  if (band) {
+    const rangeFeet = Number(band[1]);
+    const longRangeFeet = Number(band[2]);
+    if (rangeFeet > 0 && longRangeFeet >= rangeFeet) return { rangeFeet, longRangeFeet, attackMode: "ranged" };
+  }
+  const rangeFeet = Number(value.match(/\d+/)?.[0] ?? 5);
+  return { rangeFeet: Math.max(0, rangeFeet), attackMode: "melee" };
+};
 
 const characterSaveBonuses = (character: DndCharacterRecord): Partial<Record<DndAbilityId, number>> =>
   Object.fromEntries(abilityIds.map((ability) => [
@@ -73,16 +84,19 @@ const characterAttackAction = (
 ): FightAttackAction | null => {
   const criticalBonusFormula = buildCriticalBonusFormula(attack.damageFormula);
   if (!criticalBonusFormula || !averageDiceFormula(attack.damageFormula)) return null;
+  const range = parseFightWeaponRange(attack.rangeOrReach);
   return {
     id: `attack-${safeId(attack.id || attack.name)}`,
     name: attack.name,
     kind: "attack",
     economy: "action",
     delivery: "weapon",
+    attackMode: range.attackMode,
     attackBonus: abilityModifier(character.abilityScores[attack.attackAbility])
       + (attack.proficient ? proficiencyBonus(character.level) : 0),
     criticalAt,
-    rangeFeet: parseRangeFeet(attack.rangeOrReach),
+    rangeFeet: range.rangeFeet,
+    longRangeFeet: range.longRangeFeet,
     damage: [{
       formula: attack.damageFormula,
       damageType: attack.damageType,
@@ -250,12 +264,25 @@ const damageComponents = (description: string): FightDamageComponent[] => [...de
   return [{ formula, damageType: match[2].toLowerCase(), criticalBonusFormula: criticalBonusFormula ?? undefined }];
 });
 
-const attackRange = (description: string): number => {
+const monsterAttackRange = (description: string): ParsedMonsterAttackRange => {
   const reach = description.match(/\breach\s+(\d+)\s*ft/i);
-  if (reach) return Number(reach[1]);
-  const range = description.match(/\brange\s+(\d+)(?:\s*\/\s*\d+)?\s*ft/i);
-  if (range) return Number(range[1]);
-  return 5;
+  const range = description.match(/\brange\s+(\d+)(?:\s*\/\s*(\d+))?\s*ft/i);
+  const explicitMelee = /\bMelee(?: Weapon| Spell)? Attack(?: Roll)?\b/i.test(description);
+  const explicitRanged = /\bRanged(?: Weapon| Spell)? Attack(?: Roll)?\b/i.test(description);
+
+  if (explicitRanged && !explicitMelee && range) {
+    return {
+      rangeFeet: Number(range[1]),
+      longRangeFeet: range[2] ? Number(range[2]) : undefined,
+      attackMode: "ranged"
+    };
+  }
+  if (explicitMelee && !explicitRanged) {
+    return { rangeFeet: Number(reach?.[1] ?? 5), attackMode: "melee" };
+  }
+  if (reach) return { rangeFeet: Number(reach[1]) };
+  if (range) return { rangeFeet: Number(range[1]), longRangeFeet: range[2] ? Number(range[2]) : undefined };
+  return { rangeFeet: 5 };
 };
 
 const rechargeForName = (name: string) => {
@@ -271,15 +298,18 @@ const parseAttackAction = (
   const attackBonus = description.match(/([+-]\d+)\s+to hit/i);
   const components = damageComponents(description);
   if (!attackBonus || !components.length || !/\bHit:/i.test(description)) return null;
+  const range = monsterAttackRange(description);
   return {
     id: `${economy}-${safeId(name.replace(/\s*\([^)]*Recharge[^)]*\)/i, ""))}`,
     name,
     kind: "attack",
     economy,
     delivery: "weapon",
+    attackMode: range.attackMode,
     attackBonus: Number(attackBonus[1]),
     criticalAt: 20,
-    rangeFeet: attackRange(description),
+    rangeFeet: range.rangeFeet,
+    longRangeFeet: range.longRangeFeet,
     recharge: rechargeForName(name),
     damage: components
   };

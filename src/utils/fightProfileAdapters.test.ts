@@ -4,7 +4,8 @@ import type { SrdMonsterRecord } from "../types/srdCompendium";
 import {
   averageDiceFormula,
   buildCharacterFightProfile,
-  buildSrdMonsterFightProfile
+  buildSrdMonsterFightProfile,
+  parseFightWeaponRange
 } from "./fightProfileAdapters";
 
 const fighter = (level = 3): DndCharacterRecord => ({
@@ -81,6 +82,13 @@ describe("fight profile adapters", () => {
     expect(averageDiceFormula("damage varies")).toBeNull();
   });
 
+  it("preserves weapon normal/long range instead of collapsing the second band", () => {
+    expect(parseFightWeaponRange("5 ft.")).toEqual({ rangeFeet: 5, attackMode: "melee" });
+    expect(parseFightWeaponRange("10 ft.")).toEqual({ rangeFeet: 10, attackMode: "melee" });
+    expect(parseFightWeaponRange("30/120 ft.")).toEqual({ rangeFeet: 30, longRangeFeet: 120, attackMode: "ranged" });
+    expect(parseFightWeaponRange("80 / 320 ft.")).toEqual({ rangeFeet: 80, longRangeFeet: 320, attackMode: "ranged" });
+  });
+
   it("derives Carnar's 2014 Champion actions, saves, Second Wind, and Action Surge", () => {
     const result = buildCharacterFightProfile(fighter());
     expect(result.ok).toBe(true);
@@ -100,12 +108,36 @@ describe("fight profile adapters", () => {
     });
     expect(result.profile.actions?.find((action) => action.name === "Longsword")).toMatchObject({
       kind: "attack",
+      attackMode: "melee",
+      rangeFeet: 5,
       criticalAt: 19,
       delivery: "weapon"
     });
     expect(result.profile.actions?.some((action) => action.kind === "heal" && action.name === "Second Wind")).toBe(true);
     expect(result.profile.actions?.some((action) => action.kind === "grant-action" && action.name === "Action Surge")).toBe(true);
     expect(result.profile.resources?.map((resource) => resource.id)).toEqual(expect.arrayContaining(["second-wind", "action-surge"]));
+  });
+
+  it("preserves a character ranged weapon's normal and long ranges on its executable action", () => {
+    const archer = fighter();
+    archer.attacks.push({
+      id: "light-crossbow",
+      name: "Light Crossbow",
+      attackAbility: "dex",
+      proficient: true,
+      damageFormula: "1d8+1",
+      damageType: "piercing",
+      rangeOrReach: "80/320 ft."
+    });
+    const result = buildCharacterFightProfile(archer);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.profile.actions?.find((action) => action.name === "Light Crossbow")).toMatchObject({
+      kind: "attack",
+      attackMode: "ranged",
+      rangeFeet: 80,
+      longRangeFeet: 320
+    });
   });
 
   it("uses the fighter Extra Attack progression without changing the character record", () => {
@@ -142,7 +174,25 @@ describe("fight profile adapters", () => {
     });
     expect(result.profile.actions?.find((action) => action.name === "Greataxe")).toMatchObject({
       kind: "attack",
+      attackMode: "melee",
+      rangeFeet: 5,
       damage: [{ damageType: "slashing" }]
+    });
+  });
+
+  it("preserves an explicit monster ranged attack's normal and long range", () => {
+    const result = buildSrdMonsterFightProfile({
+      ...bob,
+      name: "Archer",
+      actions: "Longbow. Ranged Weapon Attack: +6 to hit, range 150/600 ft., one target. Hit: 8 (1d8 + 4) piercing damage."
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.profile.actions?.find((action) => action.name === "Longbow")).toMatchObject({
+      kind: "attack",
+      attackMode: "ranged",
+      rangeFeet: 150,
+      longRangeFeet: 600
     });
   });
 
