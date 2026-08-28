@@ -6,6 +6,7 @@ import { DndArmorLoadout } from "../DndArmorLoadout";
 import { DndCardCatalog } from "../DndCardCatalog";
 import { DndConditionsLibrary } from "../DndConditionsLibrary";
 import { DndEncounterTracker } from "../DndEncounterTracker";
+import { DndFightCardsArena } from "../DndFightCardsArena";
 import { DndHealthTracker } from "../DndHealthTracker";
 import { DndHomebrewWorkspace } from "../DndHomebrewWorkspace";
 import { DndMovementLibrary } from "../DndMovementLibrary";
@@ -38,6 +39,7 @@ export type DndPageContentProps = {
 export const DndPageContent = (props: DndPageContentProps) => {
   const { activePage } = props;
   if (activePage === "home") return <DndHome onNavigate={props.onNavigate} />;
+  if (activePage === "fight") return <DndFightCardsArena />;
   if (activePage === "rules") return <DndRulesGuide />;
   if (activePage === "coverage") return <RulesCoverageDashboard />;
   if (activePage === "conditions") return <DndConditionsLibrary />;
