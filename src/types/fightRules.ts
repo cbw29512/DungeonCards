@@ -38,6 +38,7 @@ export type FightActionEffectDefinition = {
   tickTiming?: FightEffectTickTimingValue;
   saveAbility?: DndAbilityId;
   saveDc?: number;
+  saveTiming?: FightEffectTickTimingValue;
   concentrationLinked?: boolean;
   attackRollMode?: FightRollMode;
   attacksAgainstRollMode?: FightRollMode;
