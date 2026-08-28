@@ -81,6 +81,8 @@ export type FightTurnEconomyState = {
 
 export type FightBattleCombatantState = {
   combatantId?: string;
+  /** Position on the current abstract combat lane, in feet. Omitted by legacy serialized duel state. */
+  positionFeet?: number;
   profile: FightCombatantProfile;
   currentHitPoints: number;
   temporaryHitPoints?: number;
@@ -121,6 +123,7 @@ export type FightBattleState = {
   status: FightBattleStatus;
   round: number;
   activeIndex: 0 | 1;
+  /** Legacy/cache distance. New state keeps this synchronized with combatant positions. */
   distanceFeet: number;
   initiative?: FightInitiativeState;
   character: FightBattleCombatantState;
