@@ -4,11 +4,14 @@ import type {
   FightEffectTickTiming,
   FightSide
 } from "../types/fightBattle";
+import type { RandomIntegerSource } from "./randomInteger";
 import {
   appendFightPresentationEvent,
   appendFightPresentationEvents,
   effectDelivery
 } from "./fightPresentationEvents";
+import { fightSaveRollMode } from "./fightRules";
+import { rollDiceFormula } from "./rollDice";
 
 const normalizeEffect = (effect: FightEffectState): FightEffectState => ({
   ...effect,
@@ -118,6 +121,31 @@ export const resolveFightEffectSave = ({
   });
   if (succeeded) next = removeFightEffect(next, side, effectId);
   return { state: next, total, succeeded };
+};
+
+export const resolveFightTimedEffectSaves = (
+  state: FightBattleState,
+  side: FightSide,
+  timing: Exclude<FightEffectTickTiming, "manual">,
+  randomInteger?: RandomIntegerSource
+): FightBattleState => {
+  let next = state;
+  const effectIds = next[side].effects
+    .filter((effect) => effect.saveTiming === timing && effect.saveAbility && effect.saveDc)
+    .map((effect) => effect.id);
+  for (const effectId of effectIds) {
+    const effect = next[side].effects.find((candidate) => candidate.id === effectId);
+    if (!effect?.saveAbility || !effect.saveDc) continue;
+    const bonus = next[side].profile.savingThrowBonuses?.[effect.saveAbility] ?? 0;
+    const formula = `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
+    const rolled = rollDiceFormula(formula, {
+      advantageMode: fightSaveRollMode(next[side]),
+      randomInteger
+    });
+    const kept = rolled.dice[0]?.keptResults?.[0] ?? rolled.dice[0]?.results[0] ?? 1;
+    next = resolveFightEffectSave({ state: next, side, effectId, naturalRoll: kept, saveBonus: bonus }).state;
+  }
+  return next;
 };
 
 export const startFightConcentration = (
