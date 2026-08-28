@@ -27,16 +27,19 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
           adapters = Path('src/utils/fightProfileAdapters.ts')
           text = adapters.read_text()
-          old = '''  const championCritical = character.ruleset === "srd-5.1-2014"
-            && character.classId === "fighter"
-            && character.level >= 3
-            && /champion/i.test(character.subclassName)
-            ? 19
-            : 20;'''
-          new = '''  const isSupportedChampion = (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024")
+          pattern = re.compile(
+              r'  const championCritical = character\.ruleset === "srd-5\.1-2014"\s*'
+              r'&& character\.classId === "fighter"\s*'
+              r'&& character\.level >= 3\s*'
+              r'&& /champion/i\.test\(character\.subclassName\)\s*'
+              r'\? 19\s*'
+              r': 20;'
+          )
+          replacement = '''  const isSupportedChampion = (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024")
             && character.classId === "fighter"
             && /champion/i.test(character.subclassName);
           const championCritical = !isSupportedChampion || character.level < 3
@@ -44,27 +47,31 @@ jobs:
             : character.level >= 15
               ? 18
               : 19;'''
-          if text.count(old) != 1:
-              raise SystemExit('Expected exactly one Champion threshold block.')
-          adapters.write_text(text.replace(old, new, 1))
+          text, count = pattern.subn(replacement, text, count=1)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one Champion threshold block; replaced {count}.')
+          adapters.write_text(text)
 
           battle = Path('src/utils/fightBattle.ts')
           text = battle.read_text()
-          old = '''  const outcome = natural === 1
-            ? "miss"
-            : natural === 20 || natural >= criticalAt
-              ? "critical"
-              : roll.total >= state[target].profile.armorClass ? "hit" : "miss";'''
-          new = '''  const hitsArmorClass = natural === 20
+          pattern = re.compile(
+              r'  const outcome = natural === 1\s*'
+              r'\? "miss"\s*'
+              r': natural === 20 \|\| natural >= criticalAt\s*'
+              r'\? "critical"\s*'
+              r': roll\.total >= state\[target\]\.profile\.armorClass \? "hit" : "miss";'
+          )
+          replacement = '''  const hitsArmorClass = natural === 20
             || (natural !== 1 && roll.total >= state[target].profile.armorClass);
           const outcome = !hitsArmorClass
             ? "miss"
             : natural === 20 || natural >= criticalAt
               ? "critical"
               : "hit";'''
-          if text.count(old) != 1:
-              raise SystemExit('Expected exactly one attack outcome block.')
-          battle.write_text(text.replace(old, new, 1))
+          text, count = pattern.subn(replacement, text, count=1)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one attack outcome block; replaced {count}.')
+          battle.write_text(text)
           PY
       - name: Focused Champion contracts
         run: npx vitest run src/utils/championCriticalThresholds.test.ts src/utils/fightBattle.test.ts src/utils/fightProfileAdapters.test.ts
