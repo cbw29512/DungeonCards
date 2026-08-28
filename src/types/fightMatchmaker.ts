@@ -14,6 +14,7 @@ export type FightCombatantProfile = {
   attackDamageFormula?: string;
   criticalBonusFormula?: string;
   sourceActionName?: string;
+  attackDelivery?: "weapon" | "spell";
   level?: number;
   challengeRating?: number;
 };
