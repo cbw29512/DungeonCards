@@ -141,7 +141,12 @@ describe("2024 Fighter core Fight Cards mechanics", () => {
   });
 
   it("grants Tactical Shift movement when Second Wind is actually activated", () => {
-    const champion = profileFor(fighter(5));
+    const baseChampion = profileFor(fighter(5));
+    const champion: FightCombatantProfile = {
+      ...baseChampion,
+      actions: baseChampion.actions?.filter((entry) => entry.id !== "action-surge"),
+      resources: baseChampion.resources?.filter((entry) => entry.id !== "action-surge")
+    };
     let battle = rollFightInitiative(createFightBattle(champion, dummy()), sequence(18, 2, 1));
     battle = {
       ...battle,
