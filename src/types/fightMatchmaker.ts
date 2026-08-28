@@ -2,9 +2,13 @@ import type { DndAbilityId } from "./dndCharacter";
 import type {
   FightActionDefinition,
   FightAttackFollowUpDefinition,
+  FightFailedAttackRerollDefinition,
   FightFailedSaveRerollDefinition,
+  FightPostCriticalMovementDefinition,
   FightResourceDefinition,
-  FightRollMode
+  FightRollMode,
+  FightTurnStartHealingDefinition,
+  FightTurnStartResourceGrantDefinition
 } from "./fightRules";
 import type { RulesetId } from "./ruleCards";
 
@@ -27,7 +31,11 @@ export type FightCombatantProfile = {
   speedFeet?: number;
   savingThrowBonuses?: Partial<Record<DndAbilityId, number>>;
   failedSaveRerolls?: FightFailedSaveRerollDefinition[];
+  failedAttackRerolls?: FightFailedAttackRerollDefinition[];
   attackFollowUps?: FightAttackFollowUpDefinition[];
+  turnStartResourceGrants?: FightTurnStartResourceGrantDefinition[];
+  turnStartHealing?: FightTurnStartHealingDefinition[];
+  postCriticalMovement?: FightPostCriticalMovementDefinition[];
   damageResistances?: string[];
   damageImmunities?: string[];
   damageVulnerabilities?: string[];
