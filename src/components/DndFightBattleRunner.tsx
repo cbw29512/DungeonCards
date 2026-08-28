@@ -46,7 +46,16 @@ export const DndFightBattleRunner = ({ character, monster, characterIdentity, mo
   }, [autoStart, battle, executionIssue]);
 
   if (executionIssue) {
-    return <section className="fight-runner fight-runner--unavailable" role="status"><strong>This card is not ready for automated combat yet.</strong><span>{executionIssue}</span></section>;
+    return (
+      <section className="fight-runner fight-runner--unavailable" role="status">
+        <strong>This fighter is not ready for the arena yet.</strong>
+        {onChangeFighters ? <button onClick={onChangeFighters} type="button">Choose another card</button> : null}
+        <details className="fight-runner__details">
+          <summary>DM Details</summary>
+          <p>{executionIssue}</p>
+        </details>
+      </section>
+    );
   }
 
   if (!battle) {
@@ -69,15 +78,18 @@ export const DndFightBattleRunner = ({ character, monster, characterIdentity, mo
           </div>
         </div>
       ) : null}
-      {recentEvents.length > 0 ? (
-        <details className="fight-runner__details">
-          <summary>Fight log · verify the rolls</summary>
+      <details className="fight-runner__details">
+        <summary>DM Details · rolls &amp; rules</summary>
+        <div className="fight-runner__dm-copy">
+          <p><strong>Heroic Crits:</strong> a crit adds the maximum value of the attack&apos;s crit-eligible base dice to one normal damage roll; flat modifiers apply once. This is a Fight Cards house rule.</p>
+          <p><strong>Automation:</strong> only combat actions the engine can execute safely are used; unsupported abilities are never invented.</p>
+        </div>
+        {recentEvents.length > 0 ? (
           <ol className="fight-runner__log">
             {recentEvents.map((event) => <li key={event.id}><span>R{event.round} · {event.attackTotal} to hit</span><strong>{event.summary}</strong><small>{combatantName(battle, event.target)}: {event.targetHitPointsAfter} HP</small></li>)}
           </ol>
-        </details>
-      ) : null}
-      <p className="fight-runner__scope"><strong>Heroic Crits:</strong> a crit adds the maximum value of the attack&apos;s crit-eligible base dice to one normal damage roll; flat modifiers are added once. This is an explicit Fight Cards house rule, not 2024 RAW. Unsupported abilities are never invented.</p>
+        ) : <p>No attack rolls yet.</p>}
+      </details>
     </section>
   );
 };
