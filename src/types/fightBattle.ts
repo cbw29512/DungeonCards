@@ -50,6 +50,7 @@ export type FightPresentationEvent = {
 
 export type FightConcentrationState = {
   sourceName: string;
+  ownerCombatantId?: string;
 };
 
 export type FightEffectState = {
@@ -63,7 +64,9 @@ export type FightEffectState = {
   saveAbility?: DndAbilityId;
   saveDc?: number;
   saveTiming?: FightEffectTickTiming;
+  /** Duel-side fallback retained for old serialized/tests. New party-safe effects use concentrationOwnerId. */
   concentrationOwner?: FightSide;
+  concentrationOwnerId?: string;
   attackRollMode?: FightRollMode;
   attacksAgainstRollMode?: FightRollMode;
   saveRollMode?: FightRollMode;
@@ -77,6 +80,7 @@ export type FightTurnEconomyState = {
 };
 
 export type FightBattleCombatantState = {
+  combatantId?: string;
   profile: FightCombatantProfile;
   currentHitPoints: number;
   temporaryHitPoints?: number;
