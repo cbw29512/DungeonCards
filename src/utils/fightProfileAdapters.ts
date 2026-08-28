@@ -180,6 +180,7 @@ const championCritical = !isSupportedChampion || character.level < 3
 
   const resources: NonNullable<FightCombatantProfile["resources"]> = [];
   const failedSaveRerolls: NonNullable<FightCombatantProfile["failedSaveRerolls"]> = [];
+  const attackFollowUps: NonNullable<FightCombatantProfile["attackFollowUps"]> = [];
   const supportedFighter = character.classId === "fighter"
     && (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024");
   if (supportedFighter) {
@@ -242,6 +243,16 @@ const championCritical = !isSupportedChampion || character.level < 3
         autoUse: "when-can-succeed"
       });
     }
+    if (character.ruleset === "srd-5.2.1-2024" && character.level >= 13) {
+      attackFollowUps.push({
+        id: "studied-attacks",
+        name: "Studied Attacks",
+        trigger: "miss",
+        rollMode: "advantage",
+        target: "same-creature",
+        expires: "end-of-next-turn"
+      });
+    }
   }
   const spells = characterSpellActions(character);
   actions.unshift(...spells.actions);
@@ -270,6 +281,7 @@ const championCritical = !isSupportedChampion || character.level < 3
       speedFeet: character.speedFeet,
       savingThrowBonuses: characterSaveBonuses(character),
       failedSaveRerolls: failedSaveRerolls.length ? failedSaveRerolls : undefined,
+      attackFollowUps: attackFollowUps.length ? attackFollowUps : undefined,
       actions,
       resources,
       level: character.level
