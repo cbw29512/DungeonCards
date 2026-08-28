@@ -9,6 +9,10 @@ import {
   rollFightInitiative
 } from "../utils/fightBattle";
 import { getFightBattleProfileIssue } from "../utils/fightBattleValidation";
+import {
+  FIGHT_WATCHED_STARTING_DISTANCE_FEET,
+  setFightStartingDistance
+} from "../utils/fightEncounterSetup";
 import { DndFightPixelArena } from "./DndFightPixelArena";
 
 type Props = {
@@ -22,7 +26,10 @@ type Props = {
 
 const combatantName = (state: FightBattleState, side: FightSide): string => state[side].profile.name;
 const startBattle = (character: FightCombatantProfile, monster: FightCombatantProfile): FightBattleState =>
-  rollFightInitiative(createFightBattle(character, monster));
+  rollFightInitiative(setFightStartingDistance(
+    createFightBattle(character, monster),
+    FIGHT_WATCHED_STARTING_DISTANCE_FEET
+  ));
 
 export const DndFightBattleRunner = ({ character, monster, characterIdentity, monsterIdentity, autoStart = false, onChangeFighters }: Props) => {
   const [battle, setBattle] = useState<FightBattleState | undefined>(() => autoStart ? startBattle(character, monster) : undefined);
@@ -81,6 +88,7 @@ export const DndFightBattleRunner = ({ character, monster, characterIdentity, mo
       <details className="fight-runner__details">
         <summary>DM Details · rolls &amp; rules</summary>
         <div className="fight-runner__dm-copy">
+          <p><strong>Encounter start:</strong> the watched neutral arena starts the two cards {FIGHT_WATCHED_STARTING_DISTANCE_FEET} ft apart. D&amp;D itself leaves starting positions to the GM/encounter.</p>
           <p><strong>Heroic Crits:</strong> a crit adds the maximum value of the attack&apos;s crit-eligible base dice to one normal damage roll; flat modifiers apply once. This is a Fight Cards house rule.</p>
           <p><strong>Automation:</strong> only combat actions the engine can execute safely are used; unsupported abilities are never invented.</p>
         </div>
