@@ -39,6 +39,8 @@ export const DndFightPixelArena = ({ battle, characterIdentity, monsterIdentity 
     const effects = [...state.effects].sort((left, right) =>
       effectOrder[left.kind] - effectOrder[right.kind] || left.name.localeCompare(right.name));
     const hasPersistentState = Boolean(state.concentration || (state.temporaryHitPoints ?? 0) > 0 || effects.length > 0);
+    const resources = (state.profile.resources ?? []).filter((resource) => resource.maximum > 0);
+    const rechargeActions = (state.profile.actions ?? []).filter((action) => action.recharge);
     return (
       <article
         className={`fight-pixel-arena__combatant fight-status-card ${sideClass(side)} fight-pixel-arena__combatant--${cue}${isActive ? " is-active" : ""}`}
@@ -59,6 +61,12 @@ export const DndFightPixelArena = ({ battle, characterIdentity, monsterIdentity 
             ◇ {state.temporaryHitPoints} TEMP HP
           </div>
         ) : null}
+        <div className="fight-status-card__economy" aria-label={`${state.profile.name} action economy`}>
+          <span className={state.economy.actionsAvailable > 0 ? "is-ready" : "is-spent"}>A {state.economy.actionsAvailable}</span>
+          <span className={state.economy.bonusActionsAvailable > 0 ? "is-ready" : "is-spent"}>BA {state.economy.bonusActionsAvailable}</span>
+          <span className={state.economy.reactionAvailable ? "is-ready" : "is-spent"}>R {state.economy.reactionAvailable ? "READY" : "SPENT"}</span>
+          <span>MOVE {state.economy.movementRemainingFeet} FT</span>
+        </div>
         <div className="fight-pixel-arena__sprite fight-status-card__stage" aria-label={`${state.profile.name}: ${cue}`}>
           <div className="fight-stick" aria-hidden="true">
             <i className="fight-stick__head" />
@@ -84,6 +92,20 @@ export const DndFightPixelArena = ({ battle, characterIdentity, monsterIdentity 
           ) : null}
         </div>
         {takesDamage ? <b className="fight-pixel-arena__damage">-{frame.damageNumber}</b> : null}
+        {(resources.length > 0 || rechargeActions.length > 0) ? (
+          <div className="fight-status-card__resources" aria-label={`${state.profile.name} combat resources`}>
+            {resources.map((resource) => (
+              <span key={resource.id} title={`${resource.name} · refresh ${resource.refresh}`}>
+                {resource.name.toUpperCase()} {state.resources[resource.id] ?? 0}/{resource.maximum}
+              </span>
+            ))}
+            {rechargeActions.map((action) => (
+              <span className={state.rechargeReady[action.id] === false ? "is-spent" : "is-ready"} key={action.id}>
+                {action.name.toUpperCase()} {state.rechargeReady[action.id] === false ? "RECHARGING" : "READY"}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="fight-status-card__effects" aria-label={`${state.profile.name} active effects`}>
           {!hasPersistentState ? <span className="fight-status-card__clear">NO STATUS</span> : null}
           {state.concentration ? (
@@ -120,6 +142,7 @@ export const DndFightPixelArena = ({ battle, characterIdentity, monsterIdentity 
       </div>
       <footer className="fight-pixel-arena__hud">
         <span>ROUND {frame.round}</span>
+        <span>DISTANCE {battle.distanceFeet} FT</span>
         <span>{frame.latestEvent?.sourceActionName ?? "READY"}</span>
         <span>{frame.latestEvent ? `ROLL ${frame.latestEvent.naturalRoll} · ${frame.latestEvent.attackTotal} TO HIT` : "D&D RULES ENGINE"}</span>
       </footer>
