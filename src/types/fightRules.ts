@@ -3,6 +3,7 @@ import type { AdvantageMode } from "./ruleCards";
 
 export type FightRollMode = AdvantageMode;
 export type FightActionEconomy = "action" | "bonus-action" | "reaction" | "free";
+export type FightActionDelivery = "weapon" | "spell";
 export type FightEffectKindValue = "condition" | "buff" | "debuff";
 export type FightEffectTickTimingValue = "start" | "end" | "manual";
 
@@ -68,6 +69,7 @@ type FightActionBase = {
   id: string;
   name: string;
   economy: FightActionEconomy;
+  delivery?: FightActionDelivery;
   resourceCosts?: FightActionResourceCost[];
   recharge?: FightRechargeDefinition;
   rangeFeet?: number;
