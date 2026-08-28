@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DndCharacterRecord } from "../types/dndCharacter";
+import type { FightBattleState } from "../types/fightBattle";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import { createFightBattle, resolveFightTurn, rollFightInitiative } from "./fightBattle";
 import { buildCharacterFightProfile } from "./fightProfileAdapters";
@@ -111,6 +112,14 @@ const target = (armorClass = 15): FightCombatantProfile => ({
   }]
 });
 
+const withoutActionSurge = (state: FightBattleState): FightBattleState => ({
+  ...state,
+  character: {
+    ...state.character,
+    resources: { ...state.character.resources, "action-surge": 0 }
+  }
+});
+
 describe("2024 Champion combat", () => {
   it("adds Remarkable Athlete critical movement at Champion 3 only for the 2024 ruleset", () => {
     expect(built(2).postCriticalMovement).toBeUndefined();
@@ -125,7 +134,7 @@ describe("2024 Champion combat", () => {
   });
 
   it("moves a ranged Champion up to half Speed immediately after a Critical Hit without spending normal movement", () => {
-    let battle = rollFightInitiative(createFightBattle(built(3), target()), sequence(20, 19, 1));
+    let battle = withoutActionSurge(rollFightInitiative(createFightBattle(built(3), target()), sequence(20, 19, 1)));
     battle = resolveFightTurn(battle, sequence(19, 4));
 
     expect(battle.events[0].outcome).toBe("critical");
@@ -141,7 +150,10 @@ describe("2024 Champion combat", () => {
   });
 
   it("does not auto-retreat a melee Champion after a Critical Hit", () => {
-    let battle = rollFightInitiative(createFightBattle(built(3, "srd-5.2.1-2024", false), target()), sequence(20, 19, 1));
+    let battle = withoutActionSurge(rollFightInitiative(
+      createFightBattle(built(3, "srd-5.2.1-2024", false), target()),
+      sequence(20, 19, 1)
+    ));
     battle = resolveFightTurn(battle, sequence(19, 4));
 
     expect(battle.events[0].outcome).toBe("critical");
@@ -164,7 +176,7 @@ describe("2024 Champion combat", () => {
       bonus: 0
     }));
 
-    let battle = rollFightInitiative(createFightBattle(profile, target()), sequence(20, 19, 1));
+    let battle = withoutActionSurge(rollFightInitiative(createFightBattle(profile, target()), sequence(20, 19, 1)));
     battle = resolveFightTurn(battle, sequence(2, 9, 4, 15, 4));
 
     expect(battle.events.slice(0, 2).map((event) => event.outcome)).toEqual(["hit", "hit"]);
@@ -226,7 +238,7 @@ describe("2024 Champion combat", () => {
   });
 
   it("treats Superior Critical as an actual hit even when the attack total is below AC", () => {
-    let battle = rollFightInitiative(createFightBattle(built(15), target(50)), sequence(20, 19, 1));
+    let battle = withoutActionSurge(rollFightInitiative(createFightBattle(built(15), target(50)), sequence(20, 19, 1)));
     battle = resolveFightTurn(battle, sequence(18, 4, 15, 4, 15, 4));
 
     expect(battle.events[0].naturalRoll).toBe(18);
