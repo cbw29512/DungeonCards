@@ -16,7 +16,6 @@ const spell = (overrides: Partial<SrdSpellRecord>): SrdSpellRecord => ({
   classes: ["Wizard"],
   description: "",
   higherLevels: "",
-  rawText: "",
   sourcePage: 1,
   sourceReference: "SRD 5.1",
   ...overrides
