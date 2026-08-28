@@ -78,6 +78,41 @@ export type FightFailedSaveRerollDefinition = {
   autoUse: "when-can-succeed" | "always";
 };
 
+export type FightFailedAttackRerollDefinition = {
+  id: string;
+  name: string;
+  resourceId: string;
+  /** Auto-combat policy. RAW still owns whether the reroll is optional. */
+  autoUse: "when-can-hit" | "always";
+};
+
+export type FightTurnStartResourceGrantDefinition = {
+  id: string;
+  name: string;
+  resourceId: string;
+  amount: number;
+  /** Grant only when the tracked resource is below its profile maximum. */
+  when: "missing";
+};
+
+export type FightTurnStartHealingDefinition = {
+  id: string;
+  name: string;
+  amount: number;
+  minimumHitPoints: number;
+  /** Trigger when current HP is at or below this fraction of maximum HP. */
+  maximumHitPointFraction: number;
+};
+
+export type FightPostCriticalMovementDefinition = {
+  id: string;
+  name: string;
+  maximumFeet: number;
+  opportunityAttackSafe: boolean;
+  /** Conservative duel policy; RAW still allows any movement up to the maximum. */
+  autoUse: "retreat-ranged-without-leaving-normal-range";
+};
+
 /**
  * A target-specific benefit created by one attack roll and consumed by a later
  * attack roll. Studied Attacks is the first user; this shape also supports
