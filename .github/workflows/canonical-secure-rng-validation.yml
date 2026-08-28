@@ -1,0 +1,26 @@
+name: Canonical Secure RNG Validation
+
+on:
+  push:
+    branches:
+      - agent/canonical-secure-rng
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Focused secure RNG contracts
+        run: npx vitest run src/utils/randomInteger.test.ts src/utils/adventureEvents.test.ts src/utils/adventureInitiative.test.ts
+      - name: Full repository suite
+        run: npm test
+      - name: Production build
+        run: npm run build
