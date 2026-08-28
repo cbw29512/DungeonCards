@@ -7,7 +7,7 @@ import type {
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import type { RandomIntegerSource } from "./randomInteger";
 import { rollDiceFormula } from "./rollDice";
-import { tickFightEffects } from "./fightBattleEffects";
+import { breakFightConcentration, tickFightEffects } from "./fightBattleEffects";
 import { appendFightPresentationEvent, recordFightAttackPresentation } from "./fightPresentationEvents";
 import { assertFightBattleProfile } from "./fightBattleValidation";
 
@@ -137,6 +137,7 @@ export const resolveFightTurn = (state: FightBattleState, randomInteger?: Random
       delivery: next[attacker].profile.attackDelivery ?? "weapon"
     });
     if (targetHitPointsAfter === 0) {
+      next = breakFightConcentration(next, target);
       next = appendFightPresentationEvent(next, {
         type: "downed",
         delivery: "system",
