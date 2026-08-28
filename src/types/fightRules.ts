@@ -4,6 +4,7 @@ import type { AdvantageMode } from "./ruleCards";
 export type FightRollMode = AdvantageMode;
 export type FightActionEconomy = "action" | "bonus-action" | "reaction" | "free";
 export type FightActionDelivery = "weapon" | "spell";
+export type FightAttackMode = "melee" | "ranged";
 export type FightEffectKindValue = "condition" | "buff" | "debuff";
 export type FightEffectTickTimingValue = "start" | "end" | "manual";
 
@@ -72,12 +73,17 @@ type FightActionBase = {
   delivery?: FightActionDelivery;
   resourceCosts?: FightActionResourceCost[];
   recharge?: FightRechargeDefinition;
+  /** Maximum ordinary range/reach for the action. */
   rangeFeet?: number;
   requiresConcentration?: boolean;
 };
 
 export type FightAttackAction = FightActionBase & {
   kind: "attack";
+  /** Explicit attack mode when the source distinguishes melee from ranged. */
+  attackMode?: FightAttackMode;
+  /** Ranged-weapon long range. Attacks beyond rangeFeet and through this value have Disadvantage. */
+  longRangeFeet?: number;
   attackBonus: number;
   attackRollMode?: FightRollMode;
   criticalAt?: number;
