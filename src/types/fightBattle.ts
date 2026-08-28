@@ -1,3 +1,5 @@
+import type { DndAbilityId } from "./dndCharacter";
+import type { FightRollMode } from "./fightRules";
 import type { FightCombatantProfile } from "./fightMatchmaker";
 
 export type FightSide = "character" | "monster";
@@ -18,6 +20,12 @@ export type FightPresentationEventType =
   | "effect-removed"
   | "concentration-started"
   | "concentration-broken"
+  | "damage-resisted"
+  | "damage-immune"
+  | "damage-vulnerable"
+  | "recharge-ready"
+  | "movement"
+  | "resource-used"
   | "downed";
 
 export type FightPresentationDelivery = "weapon" | "spell" | "condition" | "buff" | "debuff" | "system";
@@ -33,6 +41,7 @@ export type FightPresentationEvent = {
   iconKey?: string;
   sourceName?: string;
   amount?: number;
+  damageType?: string;
   saveAbility?: string;
   saveDc?: number;
   saveTotal?: number;
@@ -50,9 +59,19 @@ export type FightEffectState = {
   sourceName?: string;
   remainingRounds?: number;
   tickTiming: FightEffectTickTiming;
-  saveAbility?: string;
+  saveAbility?: DndAbilityId;
   saveDc?: number;
   concentrationOwner?: FightSide;
+  attackRollMode?: FightRollMode;
+  attacksAgainstRollMode?: FightRollMode;
+  saveRollMode?: FightRollMode;
+};
+
+export type FightTurnEconomyState = {
+  actionsAvailable: number;
+  bonusActionsAvailable: number;
+  reactionAvailable: boolean;
+  movementRemainingFeet: number;
 };
 
 export type FightBattleCombatantState = {
@@ -61,6 +80,9 @@ export type FightBattleCombatantState = {
   temporaryHitPoints?: number;
   concentration?: FightConcentrationState;
   effects: FightEffectState[];
+  resources: Record<string, number>;
+  rechargeReady: Record<string, boolean>;
+  economy: FightTurnEconomyState;
 };
 
 export type FightInitiativeState = {
@@ -81,7 +103,9 @@ export type FightAttackEvent = {
   naturalRoll: number;
   attackTotal: number;
   outcome: FightAttackOutcome;
+  rawDamage?: number;
   damage: number;
+  damageTypes?: string[];
   temporaryHitPointsAbsorbed?: number;
   targetHitPointsAfter: number;
   summary: string;
@@ -91,6 +115,7 @@ export type FightBattleState = {
   status: FightBattleStatus;
   round: number;
   activeIndex: 0 | 1;
+  distanceFeet: number;
   initiative?: FightInitiativeState;
   character: FightBattleCombatantState;
   monster: FightBattleCombatantState;
