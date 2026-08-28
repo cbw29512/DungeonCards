@@ -1,3 +1,4 @@
+import { srdSpells } from "../data/srdCompendium";
 import type { DndAbilityId, DndCharacterAttack, DndCharacterRecord } from "../types/dndCharacter";
 import type { FightCombatantProfile, FightProfileBuildResult } from "../types/fightMatchmaker";
 import type {
@@ -13,6 +14,7 @@ import type { SrdMonsterRecord } from "../types/srdCompendium";
 import { d20HitChance } from "./fightMatchmaker";
 import { buildCriticalBonusFormula, parseSrdInitiativeBonus } from "./fightExecutionProfile";
 import { buildMonsterCombatReference } from "./monsterCombatReference";
+import { buildSrdSpellFightAction } from "./fightSrdSpellAdapter";
 
 const abilityIds: DndAbilityId[] = ["str", "dex", "con", "int", "wis", "cha"];
 const abilityModifier = (score: number): number => Math.floor((score - 10) / 2);
@@ -76,6 +78,7 @@ const characterAttackAction = (
     name: attack.name,
     kind: "attack",
     economy: "action",
+    delivery: "weapon",
     attackBonus: abilityModifier(character.abilityScores[attack.attackAbility])
       + (attack.proficient ? proficiencyBonus(character.level) : 0),
     criticalAt,
@@ -86,6 +89,41 @@ const characterAttackAction = (
       criticalBonusFormula
     }]
   };
+};
+
+const characterSpellActions = (
+  character: DndCharacterRecord
+): { actions: FightActionDefinition[]; resources: NonNullable<FightCombatantProfile["resources"]> } => {
+  if (character.spellcasting.kind === "none") return { actions: [], resources: [] };
+  const ability = character.spellcasting.ability;
+  const modifier = abilityModifier(character.abilityScores[ability]);
+  const proficiency = proficiencyBonus(character.level);
+  const spellAttackBonus = modifier + proficiency;
+  const spellSaveDc = 8 + modifier + proficiency;
+  const names = new Set([...character.spellcasting.cantrips, ...character.spellcasting.spells].map((name) => name.toLowerCase()));
+  const actions = srdSpells
+    .filter((spell) => spell.edition === character.ruleset && names.has(spell.name.toLowerCase()))
+    .flatMap((spell) => {
+      const action = buildSrdSpellFightAction({
+        spell,
+        characterLevel: character.level,
+        spellAttackBonus,
+        spellSaveDc,
+        spellcastingModifier: modifier
+      });
+      return action ? [action] : [];
+    });
+  const resources = Object.entries(character.spellcasting.slotsByLevel).flatMap(([level, maximum]) => {
+    const count = Number(maximum ?? 0);
+    if (!Number.isInteger(count) || count <= 0) return [];
+    return [{
+      id: `spell-slot-${level}`,
+      name: `Level ${level} spell slots`,
+      maximum: count,
+      refresh: "long-rest" as const
+    }];
+  });
+  return { actions, resources };
 };
 
 export const buildCharacterFightProfile = (character: DndCharacterRecord): FightProfileBuildResult => {
@@ -118,6 +156,7 @@ export const buildCharacterFightProfile = (character: DndCharacterRecord): Fight
       name: `Attack ×${attacksPerRound}`,
       kind: "multiattack",
       economy: "action",
+      delivery: "weapon",
       rangeFeet: best.action.rangeFeet,
       sequence: [{ actionId: best.action.id, count: attacksPerRound }]
     });
@@ -147,6 +186,9 @@ export const buildCharacterFightProfile = (character: DndCharacterRecord): Fight
       });
     }
   }
+  const spells = characterSpellActions(character);
+  actions.unshift(...spells.actions);
+  resources.push(...spells.resources);
 
   const damage = averageDiceFormula(best.attack.damageFormula)!;
   return {
@@ -234,6 +276,7 @@ const parseAttackAction = (
     name,
     kind: "attack",
     economy,
+    delivery: "weapon",
     attackBonus: Number(attackBonus[1]),
     criticalAt: 20,
     rangeFeet: attackRange(description),
@@ -292,6 +335,7 @@ const parseSaveAction = (
     name,
     kind: "save",
     economy,
+    delivery: "spell",
     recharge: rechargeForName(name),
     rangeFeet: Number(within?.[1] ?? range?.[1] ?? 30),
     saveAbility,
@@ -343,6 +387,7 @@ const parseMultiattack = (
     name: entry.name,
     kind: "multiattack",
     economy: "action",
+    delivery: "weapon",
     rangeFeet: Math.max(...sequence.map((step) => actions.find((action) => action.id === step.actionId)?.rangeFeet ?? 5)),
     sequence
   };
