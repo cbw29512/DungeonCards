@@ -1,0 +1,26 @@
+name: Fight Cards Party Accuracy Validation
+
+on:
+  push:
+    branches:
+      - agent/fight-cards-party-accuracy
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Party accuracy contract
+        run: npx vitest run src/utils/fightPartySimulation.test.ts src/utils/fightBattleEffects.test.ts src/utils/fightBattle.test.ts
+      - name: Full suite
+        run: npm test
+      - name: Production build
+        run: npm run build
