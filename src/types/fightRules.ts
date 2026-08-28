@@ -70,6 +70,7 @@ type FightActionBase = {
   resourceCosts?: FightActionResourceCost[];
   recharge?: FightRechargeDefinition;
   rangeFeet?: number;
+  requiresConcentration?: boolean;
 };
 
 export type FightAttackAction = FightActionBase & {
