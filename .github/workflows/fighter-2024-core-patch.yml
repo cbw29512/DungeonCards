@@ -36,7 +36,6 @@ jobs:
                   raise SystemExit(f'{label}: expected 1 exact match, got {text.count(old)}')
               p.write_text(text.replace(old, new, 1))
 
-          # Profile metadata: initiative roll mode.
           replace_once(
               'src/types/fightMatchmaker.ts',
               'import type { FightActionDefinition, FightResourceDefinition } from "./fightRules";',
@@ -49,8 +48,6 @@ jobs:
               '  initiativeBonus?: number;\n  initiativeRollMode?: FightRollMode;\n',
               'initiativeRollMode field'
           )
-
-          # Action/resource metadata.
           replace_once(
               'src/types/fightRules.ts',
               '  refresh: "turn" | "round" | "short-rest" | "long-rest" | "manual" | "none";\n};',
@@ -69,8 +66,6 @@ jobs:
               'export type FightGrantAction = FightActionBase & {\n  kind: "grant-action";\n  grants: "action";\n  excludedDelivery?: FightActionDelivery;\n};',
               'grant action restriction'
           )
-
-          # Turn economy remembers a restriction only for the granted action.
           replace_once(
               'src/types/fightBattle.ts',
               '  movementRemainingFeet: number;\n};',
@@ -115,54 +110,56 @@ jobs:
               r'if \(character\.ruleset === "srd-5\.1-2014" && character\.classId === "fighter"\) \{.*?\n  \}\n  const spells = characterSpellActions\(character\);',
               re.S
           )
-          replacement = '''  const resources: NonNullable<FightCombatantProfile["resources"]> = [];
-  const supportedFighter = character.classId === "fighter"
-    && (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024");
-  if (supportedFighter) {
-    const secondWindMaximum = character.ruleset === "srd-5.2.1-2024"
-      ? character.level >= 10 ? 4 : character.level >= 4 ? 3 : 2
-      : 1;
-    resources.push({
-      id: "second-wind",
-      name: "Second Wind",
-      maximum: secondWindMaximum,
-      refresh: "short-rest",
-      shortRestRecovery: character.ruleset === "srd-5.2.1-2024" ? 1 : "all",
-      longRestRecovery: "all"
-    });
-    actions.push({
-      id: "second-wind",
-      name: "Second Wind",
-      kind: "heal",
-      economy: "bonus-action",
-      target: "self",
-      formula: `1d10+${character.level}`,
-      ...(character.ruleset === "srd-5.2.1-2024" && character.level >= 5
-        ? { movementGrantedFeet: Math.floor(character.speedFeet / 2) }
-        : {}),
-      resourceCosts: [{ resourceId: "second-wind", amount: 1 }]
-    });
-    if (character.level >= 2) {
-      resources.push({
-        id: "action-surge",
-        name: "Action Surge",
-        maximum: character.level >= 17 ? 2 : 1,
-        refresh: "short-rest",
-        shortRestRecovery: "all",
-        longRestRecovery: "all"
-      });
-      actions.push({
-        id: "action-surge",
-        name: "Action Surge",
-        kind: "grant-action",
-        economy: "free",
-        grants: "action",
-        ...(character.ruleset === "srd-5.2.1-2024" ? { excludedDelivery: "spell" as const } : {}),
-        resourceCosts: [{ resourceId: "action-surge", amount: 1 }]
-      });
-    }
-  }
-  const spells = characterSpellActions(character);'''
+          replacement = '\n'.join([
+              '  const resources: NonNullable<FightCombatantProfile["resources"]> = [];',
+              '  const supportedFighter = character.classId === "fighter"',
+              '    && (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024");',
+              '  if (supportedFighter) {',
+              '    const secondWindMaximum = character.ruleset === "srd-5.2.1-2024"',
+              '      ? character.level >= 10 ? 4 : character.level >= 4 ? 3 : 2',
+              '      : 1;',
+              '    resources.push({',
+              '      id: "second-wind",',
+              '      name: "Second Wind",',
+              '      maximum: secondWindMaximum,',
+              '      refresh: "short-rest",',
+              '      shortRestRecovery: character.ruleset === "srd-5.2.1-2024" ? 1 : "all",',
+              '      longRestRecovery: "all"',
+              '    });',
+              '    actions.push({',
+              '      id: "second-wind",',
+              '      name: "Second Wind",',
+              '      kind: "heal",',
+              '      economy: "bonus-action",',
+              '      target: "self",',
+              '      formula: `1d10+${character.level}`,',
+              '      ...(character.ruleset === "srd-5.2.1-2024" && character.level >= 5',
+              '        ? { movementGrantedFeet: Math.floor(character.speedFeet / 2) }',
+              '        : {}),',
+              '      resourceCosts: [{ resourceId: "second-wind", amount: 1 }]',
+              '    });',
+              '    if (character.level >= 2) {',
+              '      resources.push({',
+              '        id: "action-surge",',
+              '        name: "Action Surge",',
+              '        maximum: character.level >= 17 ? 2 : 1,',
+              '        refresh: "short-rest",',
+              '        shortRestRecovery: "all",',
+              '        longRestRecovery: "all"',
+              '      });',
+              '      actions.push({',
+              '        id: "action-surge",',
+              '        name: "Action Surge",',
+              '        kind: "grant-action",',
+              '        economy: "free",',
+              '        grants: "action",',
+              '        ...(character.ruleset === "srd-5.2.1-2024" ? { excludedDelivery: "spell" as const } : {}),',
+              '        resourceCosts: [{ resourceId: "action-surge", amount: 1 }]',
+              '      });',
+              '    }',
+              '  }',
+              '  const spells = characterSpellActions(character);'
+          ])
           text, count = pattern.subn(replacement, text, count=1)
           if count != 1:
               raise SystemExit(f'Fighter resource block expected 1 match, got {count}')
