@@ -165,8 +165,6 @@ const syncCrossPartyConcentration = ({
         hero.combatant = stripFightPartyConcentrationEffects(hero.combatant, ownerId);
       }
     } else {
-      // The active transient duel already contains the authoritative monster state,
-      // including any newly applied replacement concentration effect.
       for (const hero of heroes) {
         if (hero.id === activeHeroId) continue;
         hero.combatant = stripFightPartyConcentrationEffects(hero.combatant, ownerId);
@@ -181,9 +179,9 @@ const chooseMonsterTarget = (
   heroes: PartyHeroState[],
   policy: FightPartyMonsterTargetPolicy,
   randomInteger: RandomIntegerSource
-): PartyHeroState => {
+): PartyHeroState | undefined => {
   const living = heroes.filter((hero) => hero.combatant.currentHitPoints > 0);
-  if (!living.length) throw new Error("Monster target selection requires a living hero.");
+  if (!living.length) return undefined;
   if (policy === "focus-lowest-hp") {
     return [...living].sort((left, right) => (
       left.combatant.currentHitPoints - right.combatant.currentHitPoints
@@ -243,12 +241,31 @@ const runPartyEncounter = ({
         monster = syncCrossPartyConcentration({ heroes, activeHeroId: hero.id, monster, resolved });
         distanceFeet = resolved.distanceFeet;
       } else {
-        const target = chooseMonsterTarget(heroes, targetPolicy, randomInteger);
-        const duel = transientBattle({ hero: target.combatant, monster, actor: "monster", round, distanceFeet });
-        const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger));
-        target.combatant = resolved.character;
+        const firstTarget = chooseMonsterTarget(heroes, targetPolicy, randomInteger);
+        if (!firstTarget) return { winner: "monster" as const, round, heroes, monster };
+        let activeTarget = firstTarget;
+        const duel = transientBattle({ hero: activeTarget.combatant, monster, actor: "monster", round, distanceFeet });
+        const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger, {
+          onOpponentDowned: (downedState, attacker, targetSide) => {
+            if (attacker !== "monster" || targetSide !== "character") return undefined;
+            const taggedDownedState = tagConcentrationOwnerIds(downedState);
+            activeTarget.combatant = taggedDownedState.character;
+            monster = taggedDownedState.monster;
+            monster = syncCrossPartyConcentration({
+              heroes,
+              activeHeroId: activeTarget.id,
+              monster,
+              resolved: taggedDownedState
+            });
+            const replacement = chooseMonsterTarget(heroes, targetPolicy, randomInteger);
+            if (!replacement) return undefined;
+            activeTarget = replacement;
+            return replacement.combatant;
+          }
+        }));
+        activeTarget.combatant = resolved.character;
         monster = resolved.monster;
-        monster = syncCrossPartyConcentration({ heroes, activeHeroId: target.id, monster, resolved });
+        monster = syncCrossPartyConcentration({ heroes, activeHeroId: activeTarget.id, monster, resolved });
         distanceFeet = resolved.distanceFeet;
       }
     }
