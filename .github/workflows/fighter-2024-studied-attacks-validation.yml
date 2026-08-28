@@ -1,0 +1,41 @@
+name: Studied Attacks Validation
+
+on:
+  push:
+    branches:
+      - agent/fighter-2024-studied-attacks
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fighter-2024-studied-attacks
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply exact Studied Attacks integration
+        run: python .github/scripts/apply_fighter_2024_studied_attacks.py
+      - name: Focused Studied Attacks contracts
+        run: npx vitest run src/utils/fightAttackFollowUps.test.ts src/utils/fighter2024StudiedAttacks.test.ts src/utils/fightBattle.test.ts src/utils/fightRules.test.ts src/utils/fightProfileAdapters.test.ts src/utils/fightPartySimulation.test.ts
+      - name: Full repository suite
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Commit verified integration
+        run: |
+          rm .github/workflows/fighter-2024-studied-attacks-validation.yml
+          rm .github/scripts/apply_fighter_2024_studied_attacks.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/utils/fightBattle.ts src/utils/fightProfileAdapters.ts .github/workflows/fighter-2024-studied-attacks-validation.yml .github/scripts/apply_fighter_2024_studied_attacks.py
+          git commit -m "feat: integrate 5.5e Fighter Studied Attacks"
+          git push origin HEAD:agent/fighter-2024-studied-attacks
