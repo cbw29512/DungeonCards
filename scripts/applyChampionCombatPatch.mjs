@@ -217,11 +217,11 @@ patchFile("src/utils/fightStatusPresentation.ts", (input) => {
 `,
 `  if (event.type === "resource-used" || event.type === "resource-gained") return "◆";
 `, "resource glyph");
+  const resourceUsedLine = '  if (event.type === "resource-used" && event.amount !== undefined) return `${event.amount} use${event.amount === 1 ? "" : "s"}`;\n';
   text = replaceOnce(text,
-`  if (event.type === "resource-used" && event.amount !== undefined) return `${event.amount} use${event.amount === 1 ? "" : "s"}`;
-`,
-`  if (event.type === "resource-used" && event.amount !== undefined) return `${event.amount} use${event.amount === 1 ? "" : "s"}`;
-  if (event.type === "resource-gained" && event.amount !== undefined) return `+${event.amount}`;
-`, "resource gained detail");
+    resourceUsedLine,
+    resourceUsedLine + '  if (event.type === "resource-gained" && event.amount !== undefined) return `+${event.amount}`;\n',
+    "resource gained detail"
+  );
   return text;
 });
