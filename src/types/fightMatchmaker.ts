@@ -1,3 +1,5 @@
+import type { DndAbilityId } from "./dndCharacter";
+import type { FightActionDefinition, FightResourceDefinition } from "./fightRules";
 import type { RulesetId } from "./ruleCards";
 
 export type FightCombatantProfile = {
@@ -15,6 +17,13 @@ export type FightCombatantProfile = {
   criticalBonusFormula?: string;
   sourceActionName?: string;
   attackDelivery?: "weapon" | "spell";
+  speedFeet?: number;
+  savingThrowBonuses?: Partial<Record<DndAbilityId, number>>;
+  damageResistances?: string[];
+  damageImmunities?: string[];
+  damageVulnerabilities?: string[];
+  actions?: FightActionDefinition[];
+  resources?: FightResourceDefinition[];
   level?: number;
   challengeRating?: number;
 };
