@@ -9,7 +9,7 @@ describe("Fight Cards showdown", () => {
     expect(html).toContain("Pregen Heroes vs. Every SRD Monster. Who Will Win?");
     expect(html).toContain('data-hero-slot-count="240"');
     expect(html).toContain('data-monster-count="328"');
-    expect(html).toContain("all 240 hero slots and all 328 official SRD 5.2.1 monsters stay visible");
+    expect(html).toContain("All 240 hero slots and all 328 official SRD 5.2.1 monsters stay visible");
     expect(html).toContain("Choose hero");
     expect(html).toContain("Choose monster · all 328");
     expect(html).toContain(">FIGHT</button>");
