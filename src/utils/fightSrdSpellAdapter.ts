@@ -57,13 +57,21 @@ const damageComponents = (spell: SrdSpellRecord, characterLevel: number): FightD
 const supportedCondition = (description: string): string | undefined =>
   description.match(/\b(?:is|becomes|be)\s+(blinded|charmed|deafened|frightened|grappled|incapacitated|invisible|paralyzed|petrified|poisoned|prone|restrained|stunned|unconscious)\b/i)?.[1]?.toLowerCase();
 
+const repeatSaveTiming = (description: string): "start" | "end" | undefined => {
+  const after = description.match(/repeat(?:s)? the saving throw at (?:the )?(start|end) of (?:each of )?(?:its|their|the target'?s) turns?/i);
+  if (after) return after[1].toLowerCase() as "start" | "end";
+
+  const before = description.match(/at (?:the )?(start|end) of (?:each of )?(?:its|their|the target'?s) turns?[^.]{0,120}?repeat(?:s)? the saving throw/i);
+  return before?.[1]?.toLowerCase() as "start" | "end" | undefined;
+};
+
 const conditionEffect = (
   spell: SrdSpellRecord,
   condition: string,
   saveAbility: DndAbilityId,
   saveDc: number
 ): FightActionEffectDefinition => {
-  const repeat = spell.description.match(/repeat(?:s)? the saving throw at (?:the )?(start|end) of (?:each of )?(?:its|their|the target'?s) turns?/i);
+  const repeatTiming = repeatSaveTiming(spell.description);
   return {
     id: `spell-${safeId(spell.name)}-${condition}`,
     name: condition[0].toUpperCase() + condition.slice(1),
@@ -71,9 +79,9 @@ const conditionEffect = (
     iconKey: condition,
     sourceName: spell.name,
     tickTiming: "manual",
-    saveAbility: repeat ? saveAbility : undefined,
-    saveDc: repeat ? saveDc : undefined,
-    saveTiming: repeat ? repeat[1].toLowerCase() as "start" | "end" : undefined,
+    saveAbility: repeatTiming ? saveAbility : undefined,
+    saveDc: repeatTiming ? saveDc : undefined,
+    saveTiming: repeatTiming,
     concentrationLinked: /concentration/i.test(spell.duration),
     attackRollMode: condition === "poisoned" || condition === "frightened" ? "disadvantage" : undefined
   };
