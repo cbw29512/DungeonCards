@@ -23,10 +23,26 @@ const profile = (id: string, name: string): FightCombatantProfile => ({
   initiativeBonus: 2
 });
 
+const combatantState = (combatantProfile: FightCombatantProfile, currentHitPoints: number) => ({
+  profile: combatantProfile,
+  currentHitPoints,
+  temporaryHitPoints: 0,
+  effects: [],
+  resources: {},
+  rechargeReady: {},
+  economy: {
+    actionsAvailable: 1,
+    bonusActionsAvailable: 1,
+    reactionAvailable: true,
+    movementRemainingFeet: 30
+  }
+});
+
 const activeState = (): FightBattleState => ({
   status: "active",
   round: 2,
   activeIndex: 0,
+  distanceFeet: 5,
   initiative: {
     characterNaturalRoll: 14,
     characterTotal: 16,
@@ -34,8 +50,8 @@ const activeState = (): FightBattleState => ({
     monsterTotal: 11,
     order: ["character", "monster"]
   },
-  character: { profile: profile("hero", "Hero"), currentHitPoints: 20, effects: [] },
-  monster: { profile: profile("monster", "Monster"), currentHitPoints: 12, effects: [] },
+  character: combatantState(profile("hero", "Hero"), 20),
+  monster: combatantState(profile("monster", "Monster"), 12),
   events: []
 });
 
@@ -79,34 +95,65 @@ describe("fight battle pixel presentation", () => {
     state.events.push({
       id: 1,
       round: 2,
-      attacker: "monster",
-      target: "character",
+      attacker: "character",
+      target: "monster",
       attackNumber: 1,
-      sourceActionName: "Claw",
+      sourceActionName: "Longsword",
       naturalRoll: 20,
       attackTotal: 25,
       outcome: "critical",
-      damage: 14,
-      targetHitPointsAfter: 6,
-      summary: "Monster Claw: critical for 14 damage."
+      rawDamage: 12,
+      damage: 12,
+      damageTypes: ["slashing"],
+      targetHitPointsAfter: 0,
+      summary: "Hero Longsword: critical hit for 12 damage."
     });
     expect(deriveFightPixelFrame(state)).toMatchObject({
-      characterCue: "hurt",
-      monsterCue: "critical",
-      headline: "CRITICAL HIT!",
-      damageNumber: 14,
-      damageTarget: "character"
+      characterCue: "attack",
+      monsterCue: "downed",
+      headline: "CRITICAL!",
+      damageNumber: 12,
+      damageTarget: "monster"
     });
   });
 
-  it("renders winner and KO only after the rules engine completes combat", () => {
+  it("uses presentation events for spell, condition, healing, and defense cues", () => {
     const state = activeState();
-    state.status = "complete";
-    state.winner = "monster";
-    state.character.currentHitPoints = 0;
-    const frame = deriveFightPixelFrame(state);
-    expect(frame.monsterCue).toBe("victory");
-    expect(frame.characterCue).toBe("ko");
-    expect(frame.headline).toBe("Monster WINS!");
+    state.presentationEvents = [{
+      id: 1,
+      round: 2,
+      type: "damage-resisted",
+      delivery: "system",
+      side: "monster",
+      sourceSide: "character",
+      label: "Resists fire",
+      sourceName: "Fire Bolt",
+      damageType: "fire"
+    }];
+    expect(deriveFightPixelFrame(state)).toMatchObject({
+      characterCue: "cast",
+      monsterCue: "resist",
+      headline: "RESIST!"
+    });
+  });
+
+  it("renders applied conditions as exact target status cues", () => {
+    const state = activeState();
+    state.presentationEvents = [{
+      id: 1,
+      round: 2,
+      type: "effect-applied",
+      delivery: "condition",
+      side: "character",
+      sourceSide: "monster",
+      label: "Poisoned applied",
+      sourceName: "Poison Breath",
+      iconKey: "poisoned"
+    }];
+    expect(deriveFightPixelFrame(state)).toMatchObject({
+      characterCue: "condition",
+      monsterCue: "cast",
+      headline: "POISONED"
+    });
   });
 });
