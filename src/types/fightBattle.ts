@@ -61,6 +61,7 @@ export type FightEffectState = {
   tickTiming: FightEffectTickTiming;
   saveAbility?: DndAbilityId;
   saveDc?: number;
+  saveTiming?: FightEffectTickTiming;
   concentrationOwner?: FightSide;
   attackRollMode?: FightRollMode;
   attacksAgainstRollMode?: FightRollMode;
