@@ -1,0 +1,178 @@
+.fight-front-door {
+  min-height: 100vh;
+  padding: 0 clamp(1rem, 3vw, 2.5rem) 2rem;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(151, 52, 39, 0.22), transparent 34rem),
+    linear-gradient(180deg, #0a0c11 0%, #11151c 52%, #090b10 100%);
+}
+
+.fight-front-door__bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1240px, 100%);
+  min-height: 64px;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(226, 184, 102, 0.18);
+}
+
+.fight-front-door__brand {
+  color: #e2b866;
+  font-size: 0.92rem;
+  font-weight: 1000;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+}
+
+.fight-front-door__nav {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.fight-front-door__nav button,
+.fight-front-door__footer button,
+.fight-front-door__other-games > button {
+  min-height: 40px;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(226, 184, 102, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d6d0c7;
+  font-size: 0.82rem;
+}
+
+.fight-front-door__intro {
+  display: grid;
+  gap: 0.55rem;
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: clamp(2.4rem, 7vw, 5.5rem) 0 clamp(1.2rem, 3vw, 2rem);
+  text-align: center;
+}
+
+.fight-front-door__eyebrow {
+  margin: 0;
+  color: #e2b866;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.fight-front-door__intro h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 8vw, 5.5rem);
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.fight-front-door__intro > p:last-child {
+  max-width: 680px;
+  margin: 0.4rem auto 0;
+  color: #c9c2b6;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
+.fight-front-door__arena {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+}
+
+.fight-showcase--compact {
+  padding-top: 0.5rem;
+}
+
+.fight-showcase--compact .fight-showcase__hero > span {
+  display: none;
+}
+
+.fight-showcase--compact .fight-showcase__hero h1 {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  color: #ddd7cc;
+}
+
+.fight-showcase-card[data-ready="false"] {
+  border-style: dashed;
+  filter: saturate(0.7);
+}
+
+.fight-showcase__not-ready {
+  justify-self: center;
+  max-width: 560px;
+  margin: -0.3rem 0 0;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid rgba(226, 184, 102, 0.22);
+  border-radius: 10px;
+  background: rgba(226, 184, 102, 0.06);
+  color: #d8c9ae;
+  text-align: center;
+  font-size: 0.88rem;
+}
+
+.fight-showcase__dm-details,
+.fight-runner__details {
+  width: min(780px, 100%);
+  margin-inline: auto;
+  border: 1px solid rgba(226, 184, 102, 0.18);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.fight-showcase__dm-details > summary,
+.fight-runner__details > summary {
+  padding: 0.8rem 1rem;
+  color: #bdb5a8;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.fight-showcase__dm-details > div,
+.fight-runner__dm-copy {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0 1rem 0.9rem;
+  color: #aaa397;
+  font-size: 0.82rem;
+}
+
+.fight-showcase__dm-details p,
+.fight-runner__dm-copy p {
+  margin: 0;
+}
+
+.fight-front-door__footer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: min(900px, 100%);
+  margin: 1.5rem auto 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(226, 184, 102, 0.12);
+  color: #8f8a82;
+  font-size: 0.8rem;
+}
+
+.fight-front-door__other-games {
+  min-height: 100vh;
+  padding: 1rem;
+  background: #0a0c11;
+}
+
+.fight-front-door__other-games > button {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 650px) {
+  .fight-front-door { padding-inline: 0.75rem; }
+  .fight-front-door__bar { min-height: 56px; }
+  .fight-front-door__nav button { padding-inline: 0.55rem; font-size: 0.72rem; }
+  .fight-front-door__brand { font-size: 0.8rem; letter-spacing: 0.16em; }
+  .fight-front-door__intro { padding-top: 2rem; }
+  .fight-showcase__chooser { grid-template-columns: 42px minmax(0, 1fr) 42px; }
+}
