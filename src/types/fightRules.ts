@@ -78,6 +78,20 @@ export type FightFailedSaveRerollDefinition = {
   autoUse: "when-can-succeed" | "always";
 };
 
+/**
+ * A target-specific benefit created by one attack roll and consumed by a later
+ * attack roll. Studied Attacks is the first user; this shape also supports
+ * future RAW mechanics such as Vex without baking class names into the engine.
+ */
+export type FightAttackFollowUpDefinition = {
+  id: string;
+  name: string;
+  trigger: "miss" | "hit-and-damage";
+  rollMode: FightRollMode;
+  target: "same-creature";
+  expires: "end-of-next-turn";
+};
+
 type FightActionBase = {
   id: string;
   name: string;
