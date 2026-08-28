@@ -9,6 +9,11 @@ const normalizeList = (values: string[] | undefined): string[] =>
   (values ?? []).map((value) => value.trim().toLowerCase()).filter(Boolean);
 
 export const normalizeFightDamageType = (value: string): string => value.trim().toLowerCase();
+const normalizeEffectKey = (value: string): string => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const effectKeys = (combatant: FightBattleCombatantState): Set<string> => new Set(
+  combatant.effects.flatMap((effect) => [normalizeEffectKey(effect.id), normalizeEffectKey(effect.name)])
+);
+const hasEffect = (keys: Set<string>, value: string): boolean => keys.has(normalizeEffectKey(value));
 
 export const combineFightRollModes = (...modes: Array<FightRollMode | undefined>): FightRollMode => {
   const hasAdvantage = modes.includes("advantage");
@@ -22,15 +27,45 @@ export const combineFightRollModes = (...modes: Array<FightRollMode | undefined>
 export const fightAttackRollMode = (
   attacker: FightBattleCombatantState,
   target: FightBattleCombatantState,
-  actionMode?: FightRollMode
-): FightRollMode => combineFightRollModes(
-  actionMode,
-  ...attacker.effects.map((effect) => effect.attackRollMode),
-  ...target.effects.map((effect) => effect.attacksAgainstRollMode)
-);
+  actionMode?: FightRollMode,
+  distanceFeet = 5
+): FightRollMode => {
+  const attackerEffects = effectKeys(attacker);
+  const targetEffects = effectKeys(target);
+  const standardModes: FightRollMode[] = [];
+
+  if (["blinded", "poisoned", "frightened", "restrained", "prone"].some((effect) => hasEffect(attackerEffects, effect))) {
+    standardModes.push("disadvantage");
+  }
+  if (hasEffect(attackerEffects, "invisible")) standardModes.push("advantage");
+
+  if (["blinded", "restrained", "paralyzed", "stunned", "unconscious"].some((effect) => hasEffect(targetEffects, effect))) {
+    standardModes.push("advantage");
+  }
+  if (hasEffect(targetEffects, "invisible")) standardModes.push("disadvantage");
+  if (hasEffect(targetEffects, "prone")) standardModes.push(distanceFeet <= 5 ? "advantage" : "disadvantage");
+
+  return combineFightRollModes(
+    actionMode,
+    ...attacker.effects.map((effect) => effect.attackRollMode),
+    ...target.effects.map((effect) => effect.attacksAgainstRollMode),
+    ...standardModes
+  );
+};
 
 export const fightSaveRollMode = (target: FightBattleCombatantState): FightRollMode =>
   combineFightRollModes(...target.effects.map((effect) => effect.saveRollMode));
+
+export const isFightIncapacitated = (combatant: FightBattleCombatantState): boolean => {
+  const keys = effectKeys(combatant);
+  return ["incapacitated", "paralyzed", "stunned", "unconscious"].some((effect) => hasEffect(keys, effect));
+};
+
+export const fightMovementAllowance = (combatant: FightBattleCombatantState): number => {
+  const keys = effectKeys(combatant);
+  if (["grappled", "restrained", "paralyzed", "stunned", "unconscious"].some((effect) => hasEffect(keys, effect))) return 0;
+  return Math.max(0, combatant.profile.speedFeet ?? 30);
+};
 
 export const getFightDamageMultiplier = (profile: FightCombatantProfile, damageType: string): number => {
   const normalized = normalizeFightDamageType(damageType);
