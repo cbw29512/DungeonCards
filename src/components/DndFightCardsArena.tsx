@@ -16,7 +16,7 @@ type HeroOption = {
 
 type MonsterOption = {
   name: string;
-  cr: number;
+  cr: string;
   type: string;
   profile: FightCombatantProfile;
 };
