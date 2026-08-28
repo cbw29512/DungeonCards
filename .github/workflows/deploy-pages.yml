@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - agent/fight-card-rules-engine
   workflow_dispatch:
 
 permissions:
