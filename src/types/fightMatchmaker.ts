@@ -22,6 +22,7 @@ export type FightCombatantProfile = {
   damageResistances?: string[];
   damageImmunities?: string[];
   damageVulnerabilities?: string[];
+  conditionImmunities?: string[];
   actions?: FightActionDefinition[];
   resources?: FightResourceDefinition[];
   level?: number;
