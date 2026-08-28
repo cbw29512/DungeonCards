@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { hearthglowPack } from "../data/hearthglowPack";
 import { createAdventureState } from "./adventureRuntime";
 import {
@@ -22,6 +22,21 @@ describe("adventure initiative", () => {
     const roundOne = advanceAdventureTurn(result);
     expect(roundOne.round).toBe(1);
     expect(roundOne.initiative[roundOne.activeTurn]?.cardId).toBe(result.initiative[0]?.cardId);
+  });
+
+  it("uses the canonical secure RNG instead of Math.random by default", () => {
+    const random = vi.spyOn(Math, "random").mockImplementation(() => {
+      throw new Error("Math.random must not be used for live dice.");
+    });
+    const state = {
+      ...createAdventureState(hearthglowPack),
+      roomId: "foundry",
+      claimedCharacterId: "PC-001"
+    };
+    const result = rollRoomInitiative(hearthglowPack, state);
+    expect(result.initiative.length).toBeGreaterThan(0);
+    expect(result.initiative.every((entry) => entry.roll >= 1 && entry.roll <= 20)).toBe(true);
+    random.mockRestore();
   });
 
   it("uses the full ability chain to resolve equal totals", () => {

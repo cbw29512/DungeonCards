@@ -4,6 +4,7 @@ import type {
   AdventurePack,
   AdventureRuntimeState
 } from "../types/adventurePack";
+import { secureRandomInteger } from "./randomInteger";
 
 const abilityOrder = [
   "dexterity", "strength", "constitution", "intelligence", "wisdom", "charisma"
@@ -20,7 +21,7 @@ const compareCards = (left: AdventureCard, right: AdventureCard): number => {
 export const rollRoomInitiative = (
   pack: AdventurePack,
   state: AdventureRuntimeState,
-  d20: () => number = () => Math.floor(Math.random() * 20) + 1
+  d20: () => number = () => secureRandomInteger(1, 20)
 ): AdventureRuntimeState => {
   try {
     const roomIds = new Set(state.placedCardIdsByRoom[state.roomId] ?? []);
