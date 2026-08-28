@@ -1,6 +1,7 @@
 import type { DndAbilityId } from "./dndCharacter";
 import type {
   FightActionDefinition,
+  FightAttackFollowUpDefinition,
   FightFailedSaveRerollDefinition,
   FightResourceDefinition,
   FightRollMode
@@ -26,6 +27,7 @@ export type FightCombatantProfile = {
   speedFeet?: number;
   savingThrowBonuses?: Partial<Record<DndAbilityId, number>>;
   failedSaveRerolls?: FightFailedSaveRerollDefinition[];
+  attackFollowUps?: FightAttackFollowUpDefinition[];
   damageResistances?: string[];
   damageImmunities?: string[];
   damageVulnerabilities?: string[];
