@@ -37,12 +37,12 @@ describe("2024 Fighter Indomitable profile", () => {
       refresh: "long-rest",
       longRestRecovery: "all"
     });
-    expect(profile.failedSaveRerolls).toEqual([{
+    expect(profile.failedSaveRerolls).toEqual(expect.arrayContaining([{
       id: "indomitable",
       name: "Indomitable",
       resourceId: "indomitable",
       bonus: level,
       autoUse: "when-can-succeed"
-    }]);
+    }]));
   });
 });

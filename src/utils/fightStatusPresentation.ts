@@ -35,6 +35,7 @@ const STATUS_GLYPHS: Record<string, string> = {
   recharge: "↻",
   movement: "→",
   resource: "◆",
+  reroll: "↺",
   downed: "☓"
 };
 
@@ -62,6 +63,7 @@ export const fightPresentationGlyph = (event: FightPresentationEvent): string =>
   if (known) return known;
   if (event.type === "critical") return "★";
   if (event.type === "miss") return "×";
+  if (event.type === "attack-reroll" || event.type === "save-reroll") return "↺";
   if (event.type === "save-success") return "✓";
   if (event.type === "save-failure") return "!";
   if (event.type === "healing") return "+";
@@ -73,7 +75,7 @@ export const fightPresentationGlyph = (event: FightPresentationEvent): string =>
   if (event.type === "damage-vulnerable") return "▽";
   if (event.type === "recharge-ready") return "↻";
   if (event.type === "movement") return "→";
-  if (event.type === "resource-used") return "◆";
+  if (event.type === "resource-used" || event.type === "resource-gained") return "◆";
   if (event.type === "downed") return "☓";
   if (event.type === "effect-removed") return "↘";
   if (event.type === "effect-applied") {
@@ -94,6 +96,7 @@ export const fightPresentationDetail = (event: FightPresentationEvent): string =
   }
   if (event.type === "movement" && event.amount !== undefined) return `${event.amount} ft`;
   if (event.type === "resource-used" && event.amount !== undefined) return `${event.amount} use${event.amount === 1 ? "" : "s"}`;
+  if (event.type === "resource-gained" && event.amount !== undefined) return `+${event.amount}`;
   if (event.amount !== undefined) {
     return event.type === "healing" || event.type === "temporary-hit-points"
       ? `+${event.amount}`
