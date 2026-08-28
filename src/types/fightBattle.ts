@@ -14,6 +14,7 @@ export type FightPresentationEventType =
   | "critical"
   | "save-success"
   | "save-failure"
+  | "save-reroll"
   | "healing"
   | "temporary-hit-points"
   | "effect-applied"
