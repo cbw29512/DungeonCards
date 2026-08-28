@@ -288,7 +288,7 @@
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.55); }
   18% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
   72% { opacity: 1; }
-  100% { opacity: 0.15; transform: translate(-50%, -62%) scale(0.96); }
+  100% { opacity: 0; transform: translate(-50%, -62%) scale(0.96); }
 }
 
 @media (max-width: 720px) {
