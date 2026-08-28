@@ -1,0 +1,26 @@
+name: Fight Cards Range Validation
+
+on:
+  push:
+    branches:
+      - agent/fight-cards-range-bands
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Range contracts
+        run: npx vitest run src/utils/fightAttackRange.test.ts src/utils/fightBattleRange.test.ts src/utils/fightProfileAdapters.test.ts src/utils/fightSrdSpellAdapter.test.ts
+      - name: Full suite
+        run: npm test
+      - name: Production build
+        run: npm run build
