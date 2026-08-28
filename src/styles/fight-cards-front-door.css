@@ -1,0 +1,113 @@
+.fight-front-door {
+  min-height: 100vh;
+  padding: 0 clamp(1rem, 3vw, 2.5rem) 2rem;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(151, 52, 39, 0.22), transparent 34rem),
+    linear-gradient(180deg, #0a0c11 0%, #11151c 52%, #090b10 100%);
+}
+
+.fight-front-door__bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1240px, 100%);
+  min-height: 64px;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(226, 184, 102, 0.18);
+}
+
+.fight-front-door__brand {
+  color: #e2b866;
+  font-size: 0.92rem;
+  font-weight: 1000;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+}
+
+.fight-front-door__nav {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.fight-front-door__nav button,
+.fight-front-door__footer button,
+.fight-front-door__other-games > button {
+  min-height: 40px;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(226, 184, 102, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d6d0c7;
+  font-size: 0.82rem;
+}
+
+.fight-front-door__intro {
+  display: grid;
+  gap: 0.55rem;
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: clamp(2.4rem, 7vw, 5.5rem) 0 clamp(1.2rem, 3vw, 2rem);
+  text-align: center;
+}
+
+.fight-front-door__eyebrow {
+  margin: 0;
+  color: #e2b866;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.fight-front-door__intro h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 8vw, 5.5rem);
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.fight-front-door__intro > p:last-child {
+  max-width: 680px;
+  margin: 0.4rem auto 0;
+  color: #c9c2b6;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
+.fight-front-door__arena {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+}
+
+.fight-front-door__footer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: min(900px, 100%);
+  margin: 1.5rem auto 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(226, 184, 102, 0.12);
+  color: #8f8a82;
+  font-size: 0.8rem;
+}
+
+.fight-front-door__other-games {
+  min-height: 100vh;
+  padding: 1rem;
+  background: #0a0c11;
+}
+
+.fight-front-door__other-games > button {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 650px) {
+  .fight-front-door { padding-inline: 0.75rem; }
+  .fight-front-door__bar { min-height: 56px; }
+  .fight-front-door__nav button { padding-inline: 0.55rem; font-size: 0.72rem; }
+  .fight-front-door__brand { font-size: 0.8rem; letter-spacing: 0.16em; }
+  .fight-front-door__intro { padding-top: 2rem; }
+}
