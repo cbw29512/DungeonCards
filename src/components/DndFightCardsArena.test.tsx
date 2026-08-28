@@ -14,9 +14,12 @@ describe("Fight Cards showdown", () => {
     expect(html).toContain(">FIGHT</button>");
     expect(html).toContain("No hidden balancing. The cards fight with their actual game stats.");
     expect(html).toContain("DM Details");
-    expect(html).toContain("Average fight");
-    expect(html).toContain("Simulate 500 fights");
-    expect((html.match(/<option/g) ?? [])).toHaveLength(568);
+    expect(html).toContain("Solo average");
+    expect(html).toContain("Simulate 500 solo fights");
+    expect(html).toContain("Party average");
+    expect(html).toContain("+ Add party member");
+    expect(html).toContain("Simulate 300 party fights");
+    expect((html.match(/<option/g) ?? [])).toHaveLength(570);
     expect((html.match(/fight-showcase-card /g) ?? [])).toHaveLength(2);
 
     expect(html).not.toContain("AUTO-FIGHT CERTIFIED");
