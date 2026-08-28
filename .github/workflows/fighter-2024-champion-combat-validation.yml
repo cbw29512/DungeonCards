@@ -1,0 +1,55 @@
+name: Champion Combat Validation
+
+on:
+  push:
+    branches:
+      - agent/fighter-2024-champion-combat
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fighter-2024-champion-combat
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Apply exact Champion combat integration
+        run: node scripts/applyChampionCombatPatch.mjs
+
+      - name: Focused Champion contracts
+        run: >-
+          npx vitest run
+          src/utils/fighter2024ChampionCombat.test.ts
+          src/utils/fighter2024StudiedAttacks.test.ts
+          src/utils/fightSavingThrow.test.ts
+          src/utils/fightAttackFollowUps.test.ts
+          src/utils/fightBattle.test.ts
+          src/utils/fightAttackRange.test.ts
+          src/utils/fightProfileAdapters.test.ts
+
+      - name: Full repository suite
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Commit verified integration
+        run: |
+          rm scripts/applyChampionCombatPatch.mjs
+          rm .github/workflows/fighter-2024-champion-combat-validation.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: integrate 5.5e Champion combat features"
+          git push origin HEAD:agent/fighter-2024-champion-combat
