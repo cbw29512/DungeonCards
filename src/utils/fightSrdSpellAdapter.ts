@@ -127,10 +127,12 @@ export const buildSrdSpellFightAction = ({
     resourceCosts: resourceCosts(spell)
   };
   const damage = damageComponents(spell, characterLevel);
-  if (/\b(?:melee|ranged) spell attack\b/i.test(spell.description) && damage.length) {
+  const spellAttack = spell.description.match(/\b(melee|ranged) spell attack\b/i);
+  if (spellAttack && damage.length) {
     return {
       ...base,
       kind: "attack",
+      attackMode: spellAttack[1].toLowerCase() as "melee" | "ranged",
       attackBonus: spellAttackBonus,
       criticalAt: 20,
       damage
