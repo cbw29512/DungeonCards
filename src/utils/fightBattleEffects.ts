@@ -10,8 +10,7 @@ import {
   appendFightPresentationEvents,
   effectDelivery
 } from "./fightPresentationEvents";
-import { fightSaveRollMode } from "./fightRules";
-import { rollDiceFormula } from "./rollDice";
+import { resolveFightSavingThrow } from "./fightSavingThrow";
 
 const normalizeEffect = (effect: FightEffectState): FightEffectState => ({
   ...effect,
@@ -154,14 +153,26 @@ export const resolveFightTimedEffectSaves = (
   for (const effectId of effectIds) {
     const effect = next[side].effects.find((candidate) => candidate.id === effectId);
     if (!effect?.saveAbility || !effect.saveDc) continue;
-    const bonus = next[side].profile.savingThrowBonuses?.[effect.saveAbility] ?? 0;
-    const formula = `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
-    const rolled = rollDiceFormula(formula, {
-      advantageMode: fightSaveRollMode(next[side]),
+    const result = resolveFightSavingThrow({
+      state: next,
+      side,
+      ability: effect.saveAbility,
+      dc: effect.saveDc,
       randomInteger
     });
-    const kept = rolled.dice[0]?.keptResults?.[0] ?? rolled.dice[0]?.results[0] ?? 1;
-    next = resolveFightEffectSave({ state: next, side, effectId, naturalRoll: kept, saveBonus: bonus }).state;
+    next = appendFightPresentationEvent(result.state, {
+      type: result.succeeded ? "save-success" : "save-failure",
+      delivery: effectDelivery(effect.kind),
+      side,
+      sourceSide: effect.concentrationOwner,
+      label: `${effect.name}: save ${result.succeeded ? "succeeds" : "fails"}`,
+      iconKey: effect.iconKey,
+      sourceName: effect.sourceName,
+      saveAbility: effect.saveAbility,
+      saveDc: effect.saveDc,
+      saveTotal: result.total
+    });
+    if (result.succeeded) next = removeFightEffect(next, side, effectId);
   }
   return next;
 };
