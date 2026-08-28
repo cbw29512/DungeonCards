@@ -1,0 +1,227 @@
+name: Integrate 5.5e Indomitable Saves
+
+on:
+  push:
+    branches:
+      - agent/fighter-2024-indomitable
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fighter-2024-indomitable
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Route all saving throws through the canonical reroll engine
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def exact(path, old, new, label):
+              p = Path(path)
+              text = p.read_text()
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected 1 exact match, got {count}')
+              p.write_text(text.replace(old, new, 1))
+
+          effects = Path('src/utils/fightBattleEffects.ts')
+          text = effects.read_text()
+          old_imports = 'import { fightSaveRollMode } from "./fightRules";\nimport { rollDiceFormula } from "./rollDice";'
+          if text.count(old_imports) != 1:
+              raise SystemExit(f'effects save imports: expected 1, got {text.count(old_imports)}')
+          text = text.replace(old_imports, 'import { resolveFightSavingThrow } from "./fightSavingThrow";', 1)
+          pattern = re.compile(
+              r'export const resolveFightTimedEffectSaves = \(.*?\n\};\n\nexport const startFightConcentration =',
+              re.S
+          )
+          replacement = '''export const resolveFightTimedEffectSaves = (
+  state: FightBattleState,
+  side: FightSide,
+  timing: Exclude<FightEffectTickTiming, "manual">,
+  randomInteger?: RandomIntegerSource
+): FightBattleState => {
+  let next = state;
+  const effectIds = next[side].effects
+    .filter((effect) => effect.saveTiming === timing && effect.saveAbility && effect.saveDc)
+    .map((effect) => effect.id);
+  for (const effectId of effectIds) {
+    const effect = next[side].effects.find((candidate) => candidate.id === effectId);
+    if (!effect?.saveAbility || !effect.saveDc) continue;
+    const result = resolveFightSavingThrow({
+      state: next,
+      side,
+      ability: effect.saveAbility,
+      dc: effect.saveDc,
+      randomInteger
+    });
+    next = appendFightPresentationEvent(result.state, {
+      type: result.succeeded ? "save-success" : "save-failure",
+      delivery: effectDelivery(effect.kind),
+      side,
+      sourceSide: effect.concentrationOwner,
+      label: `${effect.name}: save ${result.succeeded ? "succeeds" : "fails"}`,
+      iconKey: effect.iconKey,
+      sourceName: effect.sourceName,
+      saveAbility: effect.saveAbility,
+      saveDc: effect.saveDc,
+      saveTotal: result.total
+    });
+    if (result.succeeded) next = removeFightEffect(next, side, effectId);
+  }
+  return next;
+};
+
+export const startFightConcentration ='''
+          text, count = pattern.subn(replacement, text, count=1)
+          if count != 1:
+              raise SystemExit(f'timed effect save function: expected 1 match, got {count}')
+          effects.write_text(text)
+
+          battle = Path('src/utils/fightBattle.ts')
+          text = battle.read_text()
+          if 'import { resolveFightSavingThrow } from "./fightSavingThrow";' not in text:
+              anchor = 'import { assertFightBattleProfile } from "./fightBattleValidation";\n'
+              if text.count(anchor) != 1:
+                  raise SystemExit(f'battle save import anchor: expected 1, got {text.count(anchor)}')
+              text = text.replace(anchor, anchor + 'import { resolveFightSavingThrow } from "./fightSavingThrow";\n', 1)
+          text = text.replace('  fightSaveRollMode,\n', '', 1)
+
+          concentration_pattern = re.compile(
+              r'const resolveConcentrationDamageCheck = \(.*?\n\};\n\nconst completeIfDowned =',
+              re.S
+          )
+          concentration_replacement = '''const resolveConcentrationDamageCheck = (
+  state: FightBattleState,
+  target: FightSide,
+  damage: number,
+  randomInteger?: RandomIntegerSource
+): FightBattleState => {
+  if (damage <= 0 || !state[target].concentration || state[target].currentHitPoints <= 0) return state;
+  const dc = Math.max(10, Math.floor(damage / 2));
+  const result = resolveFightSavingThrow({
+    state,
+    side: target,
+    ability: "con",
+    dc,
+    randomInteger
+  });
+  let next = appendFightPresentationEvent(result.state, {
+    type: result.succeeded ? "save-success" : "save-failure",
+    delivery: "spell",
+    side: target,
+    sourceSide: target,
+    label: `Concentration save ${result.succeeded ? "succeeds" : "fails"}`,
+    iconKey: "concentration",
+    sourceName: state[target].concentration?.sourceName,
+    saveAbility: "con",
+    saveDc: dc,
+    saveTotal: result.total
+  });
+  if (!result.succeeded) next = breakFightConcentration(next, target);
+  return next;
+};
+
+const completeIfDowned ='''
+          text, count = concentration_pattern.subn(concentration_replacement, text, count=1)
+          if count != 1:
+              raise SystemExit(f'concentration save function: expected 1 match, got {count}')
+
+          save_pattern = re.compile(
+              r'(const resolveSaveAction = \(.*?\): FightBattleState => \{\n  const target: FightSide = attacker === "character" \? "monster" : "character";\n)'
+              r'.*?'
+              r'(  const successMode = action\.damageOnSuccess \?\? "none";)',
+              re.S
+          )
+          save_replacement = r'''\1  const result = resolveFightSavingThrow({
+    state,
+    side: target,
+    ability: action.saveAbility,
+    dc: action.saveDc,
+    randomInteger
+  });
+  const succeeded = result.succeeded;
+  const delivery = action.delivery ?? "spell";
+  let next = appendFightPresentationEvent(result.state, {
+    type: succeeded ? "save-success" : "save-failure",
+    delivery,
+    side: target,
+    sourceSide: attacker,
+    label: `${action.name}: ${action.saveAbility.toUpperCase()} save ${succeeded ? "succeeds" : "fails"}`,
+    sourceName: action.name,
+    saveAbility: action.saveAbility,
+    saveDc: action.saveDc,
+    saveTotal: result.total
+  });
+\2'''
+          text, count = save_pattern.subn(save_replacement, text, count=1)
+          if count != 1:
+              raise SystemExit(f'ordinary save action: expected 1 match, got {count}')
+          battle.write_text(text)
+
+          adapters = Path('src/utils/fightProfileAdapters.ts')
+          text = adapters.read_text()
+          old_resources = '  const resources: NonNullable<FightCombatantProfile["resources"]> = [];\n'
+          new_resources = old_resources + '  const failedSaveRerolls: NonNullable<FightCombatantProfile["failedSaveRerolls"]> = [];\n'
+          if text.count(old_resources) != 1:
+              raise SystemExit(f'fighter resource declaration: expected 1, got {text.count(old_resources)}')
+          text = text.replace(old_resources, new_resources, 1)
+          marker = '  }\n  const spells = characterSpellActions(character);'
+          if text.count(marker) != 1:
+              raise SystemExit(f'fighter block close marker: expected 1, got {text.count(marker)}')
+          indomitable = '''    if (character.ruleset === "srd-5.2.1-2024" && character.level >= 9) {
+      const maximum = character.level >= 17 ? 3 : character.level >= 13 ? 2 : 1;
+      resources.push({
+        id: "indomitable",
+        name: "Indomitable",
+        maximum,
+        refresh: "long-rest",
+        longRestRecovery: "all"
+      });
+      failedSaveRerolls.push({
+        id: "indomitable",
+        name: "Indomitable",
+        resourceId: "indomitable",
+        bonus: character.level,
+        autoUse: "when-can-succeed"
+      });
+    }
+'''
+          text = text.replace(marker, indomitable + marker, 1)
+          profile_marker = '      savingThrowBonuses: characterSaveBonuses(character),\n'
+          if text.count(profile_marker) != 1:
+              raise SystemExit(f'profile save bonus marker: expected 1, got {text.count(profile_marker)}')
+          text = text.replace(
+              profile_marker,
+              profile_marker + '      failedSaveRerolls: failedSaveRerolls.length ? failedSaveRerolls : undefined,\n',
+              1
+          )
+          adapters.write_text(text)
+          PY
+      - name: Focused Indomitable contracts
+        run: npx vitest run src/utils/fightSavingThrow.test.ts src/utils/fighter2024Indomitable.test.ts src/utils/fighter2024IndomitableIntegration.test.ts src/utils/fightBattleEffects.test.ts src/utils/fightBattle.test.ts src/utils/fightProfileAdapters.test.ts
+      - name: Full repository suite
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Commit verified integration and remove helper workflow
+        shell: bash
+        run: |
+          rm .github/workflows/fighter-2024-indomitable-integration.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/utils/fightBattleEffects.ts src/utils/fightBattle.ts src/utils/fightProfileAdapters.ts .github/workflows/fighter-2024-indomitable-integration.yml
+          git commit -m "feat: integrate 5.5e Indomitable saving throws"
+          git push origin HEAD:agent/fighter-2024-indomitable
