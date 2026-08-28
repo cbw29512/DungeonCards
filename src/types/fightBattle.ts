@@ -6,6 +6,42 @@ export type FightAttackOutcome = "miss" | "hit" | "critical";
 export type FightEffectKind = "condition" | "buff" | "debuff";
 export type FightEffectTickTiming = "start" | "end" | "manual";
 
+export type FightPresentationEventType =
+  | "hit"
+  | "miss"
+  | "critical"
+  | "save-success"
+  | "save-failure"
+  | "healing"
+  | "temporary-hit-points"
+  | "effect-applied"
+  | "effect-removed"
+  | "concentration-started"
+  | "concentration-broken"
+  | "downed";
+
+export type FightPresentationDelivery = "weapon" | "spell" | "condition" | "buff" | "debuff" | "system";
+
+export type FightPresentationEvent = {
+  id: number;
+  round: number;
+  type: FightPresentationEventType;
+  delivery: FightPresentationDelivery;
+  side: FightSide;
+  sourceSide?: FightSide;
+  label: string;
+  iconKey?: string;
+  sourceName?: string;
+  amount?: number;
+  saveAbility?: string;
+  saveDc?: number;
+  saveTotal?: number;
+};
+
+export type FightConcentrationState = {
+  sourceName: string;
+};
+
 export type FightEffectState = {
   id: string;
   name: string;
@@ -16,12 +52,14 @@ export type FightEffectState = {
   tickTiming: FightEffectTickTiming;
   saveAbility?: string;
   saveDc?: number;
-  concentration?: boolean;
+  concentrationOwner?: FightSide;
 };
 
 export type FightBattleCombatantState = {
   profile: FightCombatantProfile;
   currentHitPoints: number;
+  temporaryHitPoints?: number;
+  concentration?: FightConcentrationState;
   effects: FightEffectState[];
 };
 
@@ -44,6 +82,7 @@ export type FightAttackEvent = {
   attackTotal: number;
   outcome: FightAttackOutcome;
   damage: number;
+  temporaryHitPointsAbsorbed?: number;
   targetHitPointsAfter: number;
   summary: string;
 };
@@ -57,4 +96,5 @@ export type FightBattleState = {
   monster: FightBattleCombatantState;
   winner?: FightSide;
   events: FightAttackEvent[];
+  presentationEvents?: FightPresentationEvent[];
 };
