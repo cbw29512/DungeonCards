@@ -10,6 +10,16 @@ describe("adventure events", () => {
       .toBe("EVENT-07");
   });
 
+  it("uses the canonical secure RNG instead of Math.random by default", () => {
+    const random = vi.spyOn(Math, "random").mockImplementation(() => {
+      throw new Error("Math.random must not be used for live dice.");
+    });
+    const state = createAdventureState(hearthglowPack);
+    const result = rollAdventureEvent(state, hearthglowPack);
+    expect(result.activeEventCardId).toMatch(/^EVENT-(?:0[1-9]|10)$/);
+    random.mockRestore();
+  });
+
   it("keeps state safe when a roller returns an invalid result", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
     const state = createAdventureState(hearthglowPack);
