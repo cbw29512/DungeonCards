@@ -1,6 +1,6 @@
 import type { FightBattleCombatantState, FightBattleState, FightSide } from "../types/fightBattle";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
-import { createFightBattle, fightActionsForProfile, resolveFightTurn } from "./fightBattle";
+import { createFightBattle, resolveFightTurn } from "./fightBattle";
 import type { RandomIntegerSource } from "./randomInteger";
 import { rollDiceFormula } from "./rollDice";
 import { createSeededFightRandomInteger, stableFightSimulationSeed } from "./fightSimulation";
@@ -55,15 +55,6 @@ const median = (values: number[]): number => {
 };
 const d20Formula = (bonus: number): string => `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
 
-const hasConcentrationDependency = (profile: FightCombatantProfile): boolean => fightActionsForProfile(profile).some((action) => (
-  action.requiresConcentration
-  || (action.kind === "attack" && action.effectsOnHit?.some((effect) => effect.concentrationLinked))
-  || (action.kind === "save" && (
-    action.effectsOnFailure?.some((effect) => effect.concentrationLinked)
-    || action.effectsOnSuccess?.some((effect) => effect.concentrationLinked)
-  ))
-));
-
 export const getFightPartySimulationIssue = (
   heroes: FightCombatantProfile[],
   monster: FightCombatantProfile
@@ -72,10 +63,6 @@ export const getFightPartySimulationIssue = (
   if (heroes.length > 6) return "Party simulation currently supports up to six heroes.";
   const rulesets = new Set([...heroes.map((hero) => hero.ruleset), monster.ruleset]);
   if (rulesets.size !== 1) return "Party simulation requires every combatant to use the same ruleset.";
-  const concentrationProfile = [...heroes, monster].find(hasConcentrationDependency);
-  if (concentrationProfile) {
-    return `${concentrationProfile.name} uses concentration-linked combat mechanics. Party simulation waits until concentration ownership is tracked by unique combatant ID.`;
-  }
   return undefined;
 };
 
@@ -130,6 +117,66 @@ const transientBattle = ({
   presentationEvents: []
 });
 
+const tagConcentrationOwnerIds = (state: FightBattleState): FightBattleState => {
+  const tag = (combatant: FightBattleCombatantState): FightBattleCombatantState => ({
+    ...combatant,
+    effects: combatant.effects.map((effect) => {
+      if (effect.concentrationOwnerId || !effect.concentrationOwner) return effect;
+      return {
+        ...effect,
+        concentrationOwnerId: state[effect.concentrationOwner].combatantId
+      };
+    })
+  });
+  return { ...state, character: tag(state.character), monster: tag(state.monster) };
+};
+
+export const stripFightPartyConcentrationEffects = (
+  combatant: FightBattleCombatantState,
+  ownerCombatantId: string
+): FightBattleCombatantState => ({
+  ...combatant,
+  effects: combatant.effects.filter((effect) => effect.concentrationOwnerId !== ownerCombatantId)
+});
+
+const syncCrossPartyConcentration = ({
+  heroes,
+  activeHeroId,
+  monster,
+  resolved
+}: {
+  heroes: PartyHeroState[];
+  activeHeroId: string;
+  monster: FightBattleCombatantState;
+  resolved: FightBattleState;
+}): FightBattleCombatantState => {
+  const concentrationEvents = (resolved.presentationEvents ?? []).filter((event) => (
+    event.type === "concentration-broken" || event.type === "concentration-started"
+  ));
+  let syncedMonster = monster;
+
+  for (const event of concentrationEvents) {
+    const owner = event.side;
+    const ownerId = resolved[owner].combatantId;
+    if (!ownerId) continue;
+    if (owner === "monster") {
+      for (const hero of heroes) {
+        if (hero.id === activeHeroId) continue;
+        hero.combatant = stripFightPartyConcentrationEffects(hero.combatant, ownerId);
+      }
+    } else {
+      // The active transient duel already contains the authoritative monster state,
+      // including any newly applied replacement concentration effect.
+      for (const hero of heroes) {
+        if (hero.id === activeHeroId) continue;
+        hero.combatant = stripFightPartyConcentrationEffects(hero.combatant, ownerId);
+      }
+      syncedMonster = resolved.monster;
+    }
+  }
+  return syncedMonster;
+};
+
 const chooseMonsterTarget = (
   heroes: PartyHeroState[],
   policy: FightPartyMonsterTargetPolicy,
@@ -160,13 +207,18 @@ const runPartyEncounter = ({
   randomInteger: RandomIntegerSource;
   maxRounds?: number;
 }) => {
+  const monsterId = `monster:${monsterProfile.id}`;
   const first = createFightBattle(heroProfiles[0], monsterProfile);
-  const heroes: PartyHeroState[] = heroProfiles.map((profile, index) => ({
-    id: `${profile.id}:${index}`,
-    profile,
-    combatant: createFightBattle(profile, monsterProfile).character
-  }));
-  let monster = first.monster;
+  const heroes: PartyHeroState[] = heroProfiles.map((profile, index) => {
+    const id = `hero:${profile.id}:${index}`;
+    const created = createFightBattle(profile, monsterProfile);
+    return {
+      id,
+      profile,
+      combatant: { ...created.character, combatantId: id }
+    };
+  });
+  let monster: FightBattleCombatantState = { ...first.monster, combatantId: monsterId };
   let distanceFeet = first.distanceFeet;
   const order = initiativeOrder(heroes, monsterProfile, randomInteger);
   let round = 1;
@@ -185,16 +237,18 @@ const runPartyEncounter = ({
         const hero = heroes.find((candidate) => candidate.id === entry.heroId);
         if (!hero || hero.combatant.currentHitPoints <= 0) continue;
         const duel = transientBattle({ hero: hero.combatant, monster, actor: "character", round, distanceFeet });
-        const resolved = resolveFightTurn(duel, randomInteger);
+        const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger));
         hero.combatant = resolved.character;
         monster = resolved.monster;
+        monster = syncCrossPartyConcentration({ heroes, activeHeroId: hero.id, monster, resolved });
         distanceFeet = resolved.distanceFeet;
       } else {
         const target = chooseMonsterTarget(heroes, targetPolicy, randomInteger);
         const duel = transientBattle({ hero: target.combatant, monster, actor: "monster", round, distanceFeet });
-        const resolved = resolveFightTurn(duel, randomInteger);
+        const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger));
         target.combatant = resolved.character;
         monster = resolved.monster;
+        monster = syncCrossPartyConcentration({ heroes, activeHeroId: target.id, monster, resolved });
         distanceFeet = resolved.distanceFeet;
       }
     }
@@ -264,7 +318,7 @@ export const simulateFightPartyMatchup = ({
     averagePartyHitPointsOnWin: roundOne(average(partyWinHitPoints)),
     averageMonsterHitPointsOnWin: roundOne(average(monsterWinHitPoints)),
     heroSurvival: heroes.map((hero, index) => ({
-      id: `${hero.id}:${index}`,
+      id: `hero:${hero.id}:${index}`,
       name: hero.name,
       survivalRate: roundOne((survivalCounts[index] / sampleSize) * 100)
     }))

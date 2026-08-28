@@ -22,6 +22,7 @@ const normalizeEffect = (effect: FightEffectState): FightEffectState => ({
 });
 
 const normalizeCondition = (value: string): string => value.trim().toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
+const concentrationOwnerId = (state: FightBattleState, side: FightSide): string | undefined => state[side].combatantId;
 
 const effectRemovedEvent = (side: FightSide, effect: FightEffectState) => ({
   type: "effect-removed" as const,
@@ -173,7 +174,13 @@ export const startFightConcentration = (
   const cleanName = sourceName.trim();
   if (!cleanName) return state;
   const cleared = state[side].concentration ? breakFightConcentration(state, side) : state;
-  const next = { ...cleared, [side]: { ...cleared[side], concentration: { sourceName: cleanName } } };
+  const next = {
+    ...cleared,
+    [side]: {
+      ...cleared[side],
+      concentration: { sourceName: cleanName, ownerCombatantId: concentrationOwnerId(cleared, side) }
+    }
+  };
   return appendFightPresentationEvent(next, {
     type: "concentration-started",
     delivery: "spell",
@@ -190,14 +197,21 @@ export const breakFightConcentration = (
   owner: FightSide
 ): FightBattleState => {
   const concentration = state[owner].concentration;
+  const ownerId = concentration?.ownerCombatantId ?? concentrationOwnerId(state, owner);
   const removed: Array<{ side: FightSide; effect: FightEffectState }> = [];
   const strip = (side: FightSide) => state[side].effects.filter((effect) => {
-    if (effect.concentrationOwner !== owner) return true;
+    const matchesId = ownerId && effect.concentrationOwnerId === ownerId;
+    const legacyMatch = !effect.concentrationOwnerId && effect.concentrationOwner === owner;
+    if (!matchesId && !legacyMatch) return true;
     removed.push({ side, effect });
     return false;
   });
-  if (!concentration && !state.character.effects.some((effect) => effect.concentrationOwner === owner)
-    && !state.monster.effects.some((effect) => effect.concentrationOwner === owner)) return state;
+  const hasLinked = state.character.effects.some((effect) => (
+    ownerId ? effect.concentrationOwnerId === ownerId : effect.concentrationOwner === owner
+  )) || state.monster.effects.some((effect) => (
+    ownerId ? effect.concentrationOwnerId === ownerId : effect.concentrationOwner === owner
+  ));
+  if (!concentration && !hasLinked) return state;
   const characterEffects = strip("character");
   const monsterEffects = strip("monster");
   let next: FightBattleState = {
