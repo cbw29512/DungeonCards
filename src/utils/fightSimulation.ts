@@ -5,11 +5,17 @@ import {
   rollFightInitiative,
   runFightToCompletion
 } from "./fightBattle";
+import {
+  fightStartingDistanceForIteration,
+  normalizeFightStartingDistances,
+  setFightStartingDistance
+} from "./fightEncounterSetup";
 import type { RandomIntegerSource } from "./randomInteger";
 
 export type FightSimulationSummary = {
   iterations: number;
   seed: number;
+  startingDistancesFeet: number[];
   characterWins: number;
   monsterWins: number;
   unresolved: number;
@@ -61,14 +67,22 @@ export const simulateFightMatchup = ({
   character,
   monster,
   iterations = 500,
-  seed = stableFightSimulationSeed(character.id, monster.id, character.ruleset)
+  startingDistancesFeet,
+  seed = stableFightSimulationSeed(
+    character.id,
+    monster.id,
+    character.ruleset,
+    normalizeFightStartingDistances(startingDistancesFeet).join(",")
+  )
 }: {
   character: FightCombatantProfile;
   monster: FightCombatantProfile;
   iterations?: number;
+  startingDistancesFeet?: readonly number[];
   seed?: number;
 }): FightSimulationSummary => {
   const sampleSize = clampIterations(iterations);
+  const distances = normalizeFightStartingDistances(startingDistancesFeet);
   const randomInteger = createSeededFightRandomInteger(seed);
   const rounds: number[] = [];
   const characterWinHitPoints: number[] = [];
@@ -78,7 +92,9 @@ export const simulateFightMatchup = ({
   let unresolved = 0;
 
   for (let index = 0; index < sampleSize; index += 1) {
-    let fight = rollFightInitiative(createFightBattle(character, monster), randomInteger);
+    const startingDistance = fightStartingDistanceForIteration(index, distances);
+    let fight = setFightStartingDistance(createFightBattle(character, monster), startingDistance);
+    fight = rollFightInitiative(fight, randomInteger);
     if (fight.status === "initiative-tie") {
       fight = resolveFightInitiativeTie(fight, randomInteger(0, 1) === 0 ? "character" : "monster");
     }
@@ -101,6 +117,7 @@ export const simulateFightMatchup = ({
   return {
     iterations: sampleSize,
     seed: seed >>> 0,
+    startingDistancesFeet: distances,
     characterWins,
     monsterWins,
     unresolved,
