@@ -28,6 +28,9 @@ export type FightPresentationEventType =
   | "recharge-ready"
   | "movement"
   | "resource-used"
+  | "attack-follow-up"
+  | "attack-follow-up-consumed"
+  | "attack-follow-up-expired"
   | "downed";
 
 export type FightPresentationDelivery = "weapon" | "spell" | "condition" | "buff" | "debuff" | "system";
@@ -73,6 +76,15 @@ export type FightEffectState = {
   saveRollMode?: FightRollMode;
 };
 
+export type FightAttackFollowUpState = {
+  id: string;
+  name: string;
+  targetCombatantId: string;
+  rollMode: FightRollMode;
+  /** The benefit remains valid through the end of this numbered turn of its owner. */
+  expiresAfterOwnerTurn: number;
+};
+
 export type FightTurnEconomyState = {
   actionsAvailable: number;
   bonusActionsAvailable: number;
@@ -85,11 +97,14 @@ export type FightBattleCombatantState = {
   combatantId?: string;
   /** Position on the current abstract combat lane, in feet. Omitted by legacy serialized duel state. */
   positionFeet?: number;
+  /** Number of turns this combatant has started. Needed for per-creature "end of your next turn" expirations. */
+  turnsStarted?: number;
   profile: FightCombatantProfile;
   currentHitPoints: number;
   temporaryHitPoints?: number;
   concentration?: FightConcentrationState;
   effects: FightEffectState[];
+  attackFollowUps?: FightAttackFollowUpState[];
   resources: Record<string, number>;
   rechargeReady: Record<string, boolean>;
   economy: FightTurnEconomyState;
