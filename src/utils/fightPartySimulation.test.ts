@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import type { FightBattleCombatantState } from "../types/fightBattle";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import {
   getFightPartySimulationIssue,
-  simulateFightPartyMatchup
+  simulateFightPartyMatchup,
+  stripFightPartyConcentrationEffects
 } from "./fightPartySimulation";
 
 const profile = (name: string, overrides: Partial<FightCombatantProfile> = {}): FightCombatantProfile => ({
@@ -20,6 +22,17 @@ const profile = (name: string, overrides: Partial<FightCombatantProfile> = {}): 
   sourceActionName: "Longsword",
   speedFeet: 30,
   ...overrides
+});
+
+const combatant = (name: string, id: string): FightBattleCombatantState => ({
+  combatantId: id,
+  profile: profile(name),
+  currentHitPoints: 30,
+  temporaryHitPoints: 0,
+  effects: [],
+  resources: {},
+  rechargeReady: {},
+  economy: { actionsAvailable: 1, bonusActionsAvailable: 1, reactionAvailable: true, movementRemainingFeet: 30 }
 });
 
 describe("Fight Cards party simulation", () => {
@@ -61,7 +74,7 @@ describe("Fight Cards party simulation", () => {
     expect(result.partyWins + result.monsterWins + result.unresolved).toBe(80);
   });
 
-  it("fails closed when concentration ownership cannot yet be represented per hero", () => {
+  it("allows concentration-dependent party profiles now that owners are keyed to combatant identity", () => {
     const concentrating = profile("Caster", {
       actions: [{
         id: "hold",
@@ -83,9 +96,32 @@ describe("Fight Cards party simulation", () => {
     });
     const monster = profile("Monster");
 
-    expect(getFightPartySimulationIssue([concentrating], monster)).toMatch(/concentration ownership/i);
-    expect(() => simulateFightPartyMatchup({ heroes: [concentrating], monster, iterations: 10 }))
-      .toThrow(/concentration ownership/i);
+    expect(getFightPartySimulationIssue([concentrating], monster)).toBeUndefined();
+    const result = simulateFightPartyMatchup({ heroes: [concentrating], monster, iterations: 10, seed: 712 });
+    expect(result.partyWins + result.monsterWins + result.unresolved).toBe(10);
+  });
+
+  it("removes only effects owned by the combatant whose concentration ended", () => {
+    const target = combatant("Target", "hero:target:0");
+    target.effects = [
+      {
+        id: "hero-one-hold",
+        name: "Held by Hero One",
+        kind: "condition",
+        tickTiming: "manual",
+        concentrationOwnerId: "hero:one:0"
+      },
+      {
+        id: "hero-two-bane",
+        name: "Bane from Hero Two",
+        kind: "debuff",
+        tickTiming: "manual",
+        concentrationOwnerId: "hero:two:1"
+      }
+    ];
+
+    const stripped = stripFightPartyConcentrationEffects(target, "hero:one:0");
+    expect(stripped.effects.map((effect) => effect.id)).toEqual(["hero-two-bane"]);
   });
 
   it("rejects silent cross-edition party mixing", () => {
