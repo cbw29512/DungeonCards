@@ -68,6 +68,16 @@ export type FightResourceDefinition = {
   longRestRecovery?: number | "all";
 };
 
+export type FightFailedSaveRerollDefinition = {
+  id: string;
+  name: string;
+  resourceId: string;
+  /** Added to the ordinary saving-throw modifier on the reroll. */
+  bonus: number;
+  /** Auto-combat policy. RAW still owns whether the feature is optional. */
+  autoUse: "when-can-succeed" | "always";
+};
+
 type FightActionBase = {
   id: string;
   name: string;
