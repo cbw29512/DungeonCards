@@ -1,0 +1,28 @@
+name: Fight Cards Simulation Validation
+
+on:
+  push:
+    branches:
+      - agent/fight-cards-simulation
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Simulation contract
+        run: npx vitest run src/utils/fightSimulation.test.ts src/components/DndFightCardsArena.test.tsx
+      - name: Combat regressions
+        run: npx vitest run src/utils/fightRules.test.ts src/utils/fightBattle.test.ts src/utils/fightBattleRules.test.ts
+      - name: Full suite
+        run: npm test
+      - name: Production build
+        run: npm run build
