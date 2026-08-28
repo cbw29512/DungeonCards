@@ -114,6 +114,9 @@ const attackMonster = (): FightCombatantProfile => ({
   }]
 });
 
+const lastSuccessfulSaveTotal = (battle: ReturnType<typeof createFightBattle>): number | undefined =>
+  [...(battle.presentationEvents ?? [])].reverse().find((event) => event.type === "save-success")?.saveTotal;
+
 describe("2024 Indomitable canonical integration", () => {
   it("rerolls a failed monster/spell save through the ordinary save-action path", () => {
     const fighter = indomitableFighter();
@@ -124,7 +127,7 @@ describe("2024 Indomitable canonical integration", () => {
     expect(battle.character.resources.indomitable).toBe(0);
     expect(battle.presentationEvents?.filter((event) => ["resource-used", "save-reroll", "save-success"].includes(event.type)).map((event) => event.type))
       .toEqual(["resource-used", "save-reroll", "save-success"]);
-    expect(battle.presentationEvents?.findLast((event) => event.type === "save-success")?.saveTotal).toBe(21);
+    expect(lastSuccessfulSaveTotal(battle)).toBe(21);
   });
 
   it("uses the same reroll after damage to preserve concentration", () => {
@@ -139,6 +142,6 @@ describe("2024 Indomitable canonical integration", () => {
     expect(battle.character.resources.indomitable).toBe(0);
     expect(battle.presentationEvents?.filter((event) => ["resource-used", "save-reroll", "save-success"].includes(event.type)).map((event) => event.type))
       .toEqual(["resource-used", "save-reroll", "save-success"]);
-    expect(battle.presentationEvents?.findLast((event) => event.type === "save-success")?.saveTotal).toBe(17);
+    expect(lastSuccessfulSaveTotal(battle)).toBe(17);
   });
 });
