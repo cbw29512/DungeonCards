@@ -69,7 +69,7 @@ export const fightPresentationGlyph = (event: FightPresentationEvent): string =>
   if (event.type === "concentration-started") return "◎";
   if (event.type === "concentration-broken") return "◌";
   if (event.type === "damage-resisted") return "◈";
-  if (event.type === "damage-immune") return "◆";
+  if (event.type === "damage-immune" || event.type === "effect-immune") return "◆";
   if (event.type === "damage-vulnerable") return "▽";
   if (event.type === "recharge-ready") return "↻";
   if (event.type === "movement") return "→";
