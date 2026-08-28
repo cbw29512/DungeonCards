@@ -153,11 +153,20 @@ export const breakFightConcentration = (
   });
   if (!concentration && !state.character.effects.some((effect) => effect.concentrationOwner === owner)
     && !state.monster.effects.some((effect) => effect.concentrationOwner === owner)) return state;
+  const characterEffects = strip("character");
+  const monsterEffects = strip("monster");
   let next: FightBattleState = {
     ...state,
-    character: { ...state.character, effects: strip("character") },
-    monster: { ...state.monster, effects: strip("monster") },
-    [owner]: { ...state[owner], concentration: undefined }
+    character: {
+      ...state.character,
+      effects: characterEffects,
+      concentration: owner === "character" ? undefined : state.character.concentration
+    },
+    monster: {
+      ...state.monster,
+      effects: monsterEffects,
+      concentration: owner === "monster" ? undefined : state.monster.concentration
+    }
   };
   next = appendFightPresentationEvents(next, removed.map(({ side, effect }) => effectRemovedEvent(side, effect)));
   return appendFightPresentationEvent(next, {
