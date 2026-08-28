@@ -18,6 +18,7 @@ export type FightPresentationEventType =
   | "temporary-hit-points"
   | "effect-applied"
   | "effect-removed"
+  | "effect-immune"
   | "concentration-started"
   | "concentration-broken"
   | "damage-resisted"
