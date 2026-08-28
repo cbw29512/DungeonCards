@@ -45,6 +45,19 @@
 .fight-runner__winner { display: grid; text-align: center; }
 .fight-runner__winner span { color: #e2b866; font-size: 0.75rem; font-weight: 900; letter-spacing: 0.2em; }
 .fight-runner__winner strong { font-size: clamp(1.6rem, 4vw, 2.7rem); }
+.fight-runner__winner-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; justify-content: center; }
+
+.fight-runner__details {
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+.fight-runner__details summary {
+  cursor: pointer;
+  color: #c9c2b6;
+  font-weight: 800;
+  text-align: center;
+}
+.fight-runner__details[open] summary { margin-bottom: 0.65rem; }
 
 .fight-runner__log {
   display: grid;
