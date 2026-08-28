@@ -179,6 +179,7 @@ const championCritical = !isSupportedChampion || character.level < 3
   }
 
   const resources: NonNullable<FightCombatantProfile["resources"]> = [];
+  const failedSaveRerolls: NonNullable<FightCombatantProfile["failedSaveRerolls"]> = [];
   const supportedFighter = character.classId === "fighter"
     && (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024");
   if (supportedFighter) {
@@ -224,6 +225,23 @@ const championCritical = !isSupportedChampion || character.level < 3
         resourceCosts: [{ resourceId: "action-surge", amount: 1 }]
       });
     }
+    if (character.ruleset === "srd-5.2.1-2024" && character.level >= 9) {
+      const indomitableMaximum = character.level >= 17 ? 3 : character.level >= 13 ? 2 : 1;
+      resources.push({
+        id: "indomitable",
+        name: "Indomitable",
+        maximum: indomitableMaximum,
+        refresh: "long-rest",
+        longRestRecovery: "all"
+      });
+      failedSaveRerolls.push({
+        id: "indomitable",
+        name: "Indomitable",
+        resourceId: "indomitable",
+        bonus: character.level,
+        autoUse: "when-can-succeed"
+      });
+    }
   }
   const spells = characterSpellActions(character);
   actions.unshift(...spells.actions);
@@ -251,6 +269,7 @@ const championCritical = !isSupportedChampion || character.level < 3
       attackDelivery: "weapon",
       speedFeet: character.speedFeet,
       savingThrowBonuses: characterSaveBonuses(character),
+      failedSaveRerolls: failedSaveRerolls.length ? failedSaveRerolls : undefined,
       actions,
       resources,
       level: character.level

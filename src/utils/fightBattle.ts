@@ -27,10 +27,10 @@ import {
 import { fightActionMaximumRangeFeet, fightAttackDistanceRollMode } from "./fightAttackRange";
 import { appendFightPresentationEvent, recordFightAttackPresentation } from "./fightPresentationEvents";
 import { assertFightBattleProfile } from "./fightBattleValidation";
+import { resolveFightSavingThrow } from "./fightSavingThrow";
 import {
   fightAttackRollMode,
   fightMovementAllowance,
-  fightSaveRollMode,
   isFightIncapacitated,
   rollFightDamageComponents
 } from "./fightRules";
@@ -447,25 +447,26 @@ const resolveConcentrationDamageCheck = (
 ): FightBattleState => {
   if (damage <= 0 || !state[target].concentration || state[target].currentHitPoints <= 0) return state;
   const dc = Math.max(10, Math.floor(damage / 2));
-  const bonus = state[target].profile.savingThrowBonuses?.con ?? 0;
-  const roll = rollDiceFormula(attackFormula(bonus), {
-    advantageMode: fightSaveRollMode(state[target]),
+  const result = resolveFightSavingThrow({
+    state,
+    side: target,
+    ability: "con",
+    dc,
     randomInteger
   });
-  const succeeded = roll.total >= dc;
-  let next = appendFightPresentationEvent(state, {
-    type: succeeded ? "save-success" : "save-failure",
+  let next = appendFightPresentationEvent(result.state, {
+    type: result.succeeded ? "save-success" : "save-failure",
     delivery: "spell",
     side: target,
     sourceSide: target,
-    label: `Concentration save ${succeeded ? "succeeds" : "fails"}`,
+    label: `Concentration save ${result.succeeded ? "succeeds" : "fails"}`,
     iconKey: "concentration",
     sourceName: state[target].concentration?.sourceName,
     saveAbility: "con",
     saveDc: dc,
-    saveTotal: roll.total
+    saveTotal: result.total
   });
-  if (!succeeded) next = breakFightConcentration(next, target);
+  if (!result.succeeded) next = breakFightConcentration(next, target);
   return next;
 };
 
@@ -573,14 +574,16 @@ const resolveSaveAction = (
   options: FightTurnOptions = {}
 ): FightBattleState => {
   const target: FightSide = attacker === "character" ? "monster" : "character";
-  const bonus = state[target].profile.savingThrowBonuses?.[action.saveAbility] ?? 0;
-  const saveRoll = rollDiceFormula(attackFormula(bonus), {
-    advantageMode: fightSaveRollMode(state[target]),
+  const result = resolveFightSavingThrow({
+    state,
+    side: target,
+    ability: action.saveAbility,
+    dc: action.saveDc,
     randomInteger
   });
-  const succeeded = saveRoll.total >= action.saveDc;
+  const succeeded = result.succeeded;
   const delivery = action.delivery ?? "spell";
-  let next = appendFightPresentationEvent(state, {
+  let next = appendFightPresentationEvent(result.state, {
     type: succeeded ? "save-success" : "save-failure",
     delivery,
     side: target,
@@ -589,7 +592,7 @@ const resolveSaveAction = (
     sourceName: action.name,
     saveAbility: action.saveAbility,
     saveDc: action.saveDc,
-    saveTotal: saveRoll.total
+    saveTotal: result.total
   });
   const successMode = action.damageOnSuccess ?? "none";
   const damageFraction: 0 | 0.5 | 1 = succeeded
