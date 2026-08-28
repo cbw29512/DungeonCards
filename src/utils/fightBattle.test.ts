@@ -7,7 +7,7 @@ import {
   rollFightInitiative,
   runFightToCompletion
 } from "./fightBattle";
-import { grantFightTemporaryHitPoints } from "./fightBattleEffects";
+import { applyFightEffect, grantFightTemporaryHitPoints, startFightConcentration } from "./fightBattleEffects";
 
 const fighter: FightCombatantProfile = {
   id: "fighter",
@@ -102,6 +102,31 @@ describe("fight battle engine", () => {
     expect(state.monster.currentHitPoints).toBe(0);
     expect(state.events).toHaveLength(1);
     expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "downed", side: "monster" });
+  });
+
+  it("breaks a downed combatant's concentration and clears linked effects before declaring downed", () => {
+    const fragileCaster = { ...monster, hitPoints: 5 };
+    let state = createFightBattle(fighter, fragileCaster);
+    state = startFightConcentration(state, "monster", "Hold Person");
+    state = applyFightEffect(state, "character", {
+      id: "paralyzed",
+      name: "Paralyzed",
+      kind: "condition",
+      iconKey: "paralyzed",
+      tickTiming: "manual",
+      concentrationOwner: "monster"
+    });
+    state = rollFightInitiative(state, sequence(18, 2));
+    state = resolveFightTurn(state, sequence(15, 5));
+
+    expect(state.monster.currentHitPoints).toBe(0);
+    expect(state.monster.concentration).toBeUndefined();
+    expect(state.character.effects).toEqual([]);
+    expect(state.presentationEvents?.slice(-3).map((event) => event.type)).toEqual([
+      "effect-removed",
+      "concentration-broken",
+      "downed"
+    ]);
   });
 
   it("can auto-resolve an active fight to a victor", () => {
