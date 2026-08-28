@@ -14,11 +14,24 @@ export const buildCriticalBonusFormula = (formula: string): string | null => {
   }
 };
 
-export const parseSrdInitiativeBonus = (rawText: string): number | undefined => {
-  const modifier = rawText.match(/\bDEX\s+\d+\s*\(\s*([+-]\d+)\s*\)/i);
-  if (modifier) return Number(modifier[1]);
+const signedInteger = (value: string): number => Number(value.replace(/[−–—]/g, "-"));
 
-  const score = rawText.match(/\bDEX\s+(\d+)\b/i);
-  if (!score) return undefined;
-  return Math.floor((Number(score[1]) - 10) / 2);
+export const parseSrdInitiativeBonus = (rawText: string): number | undefined => {
+  const normalized = String(rawText || "")
+    .replace(/\r/g, "")
+    .replace(/[\t ]+/g, " ")
+    .replace(/\n/g, " ")
+    .trim();
+
+  const labeledDex = normalized.match(/\bDEX\s+(\d+)\s+(?:\(([+\-−–—]?\d+)\)|([+\-−–—]\d+))/i);
+  if (labeledDex) return signedInteger(labeledDex[2] ?? labeledDex[3]);
+
+  const headerThenValues = normalized.match(
+    /STR\s+DEX\s+CON\s+INT\s+WIS\s+CHA\s+\d+\s+\([+\-−–—]?\d+\)\s+\d+\s+\(([+\-−–—]?\d+)\)/i
+  );
+  if (headerThenValues) return signedInteger(headerThenValues[1]);
+
+  const scoreOnly = normalized.match(/\bDEX\s+(\d+)\b/i);
+  if (!scoreOnly) return undefined;
+  return Math.floor((Number(scoreOnly[1]) - 10) / 2);
 };
