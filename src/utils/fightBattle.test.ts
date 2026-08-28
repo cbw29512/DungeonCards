@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import {
   createFightBattle,
+  fightBattleDistanceFeet,
   resolveFightInitiativeTie,
   resolveFightTurn,
   rollFightInitiative,
@@ -91,6 +92,49 @@ describe("fight battle engine", () => {
     expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "hit", amount: 8 });
   });
 
+  it("tracks combatant positions and synchronizes distance after movement", () => {
+    let state = rollFightInitiative(createFightBattle(fighter, monster), sequence(18, 2));
+    expect(state.character.positionFeet).toBe(0);
+    expect(state.monster.positionFeet).toBe(30);
+    expect(fightBattleDistanceFeet(state)).toBe(30);
+
+    state = resolveFightTurn(state, sequence(15, 5));
+
+    expect(state.character.positionFeet).toBe(25);
+    expect(state.monster.positionFeet).toBe(30);
+    expect(state.character.economy.movementRemainingFeet).toBe(5);
+    expect(state.distanceFeet).toBe(5);
+    expect(fightBattleDistanceFeet(state)).toBe(5);
+    expect(state.presentationEvents?.some((event) => event.type === "movement" && event.amount === 25)).toBe(true);
+  });
+
+  it("keeps legacy distance-only battle state executable when positions are absent", () => {
+    let state = createFightBattle(fighter, monster);
+    const { positionFeet: _characterPosition, ...character } = state.character;
+    const { positionFeet: _monsterPosition, ...legacyMonster } = state.monster;
+    state = {
+      ...state,
+      status: "active",
+      distanceFeet: 20,
+      activeIndex: 0,
+      initiative: {
+        characterNaturalRoll: 18,
+        characterTotal: 20,
+        monsterNaturalRoll: 2,
+        monsterTotal: 3,
+        order: ["character", "monster"]
+      },
+      character,
+      monster: legacyMonster
+    };
+
+    const resolved = resolveFightTurn(state, sequence(15, 5));
+    expect(resolved.character.positionFeet).toBeUndefined();
+    expect(resolved.monster.positionFeet).toBeUndefined();
+    expect(resolved.distanceFeet).toBe(5);
+    expect(resolved.character.economy.movementRemainingFeet).toBe(15);
+  });
+
   it("stops remaining attacks immediately when the target reaches 0 HP and emits downed", () => {
     const multi = { ...fighter, attacksPerRound: 2 };
     const fragile = { ...monster, hitPoints: 5 };
@@ -104,7 +148,7 @@ describe("fight battle engine", () => {
     expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "downed", side: "monster" });
   });
 
-  it("retargets remaining Multiattack strikes through the canonical turn without restarting turn effects", () => {
+  it("retargets remaining Multiattack strikes to a replacement position without restarting turn effects", () => {
     const fragile = { ...fighter, id: "fragile", name: "Fragile Hero", armorClass: 10, hitPoints: 5 };
     const backup = { ...fighter, id: "backup", name: "Backup Hero", armorClass: 10, hitPoints: 20 };
     const hunter: FightCombatantProfile = {
@@ -148,8 +192,8 @@ describe("fight battle engine", () => {
         monsterTotal: 20,
         order: ["monster", "character"]
       },
-      character: { ...state.character, combatantId: "hero:fragile" },
-      monster: { ...state.monster, combatantId: "monster:hunter" }
+      character: { ...state.character, combatantId: "hero:fragile", positionFeet: 0 },
+      monster: { ...state.monster, combatantId: "monster:hunter", positionFeet: 30 }
     };
     state = applyFightEffect(state, "monster", {
       id: "turn-clock",
@@ -160,7 +204,8 @@ describe("fight battle engine", () => {
     });
     const replacement = {
       ...createFightBattle(backup, hunter).character,
-      combatantId: "hero:backup"
+      combatantId: "hero:backup",
+      positionFeet: 15
     };
     const downed: string[] = [];
 
@@ -168,6 +213,7 @@ describe("fight battle engine", () => {
       onOpponentDowned: (downedState, attacker, target) => {
         expect(attacker).toBe("monster");
         expect(target).toBe("character");
+        expect(downedState.monster.positionFeet).toBe(5);
         downed.push(downedState.character.combatantId ?? "missing");
         return replacement;
       }
@@ -178,6 +224,9 @@ describe("fight battle engine", () => {
     expect(resolved.winner).toBeUndefined();
     expect(resolved.character.combatantId).toBe("hero:backup");
     expect(resolved.character.currentHitPoints).toBe(14);
+    expect(resolved.monster.positionFeet).toBe(10);
+    expect(resolved.monster.economy.movementRemainingFeet).toBe(0);
+    expect(fightBattleDistanceFeet(resolved)).toBe(5);
     expect(resolved.events).toHaveLength(2);
     expect(resolved.events.map((event) => event.damage)).toEqual([6, 6]);
     expect(resolved.monster.effects.find((effect) => effect.id === "turn-clock")?.remainingRounds).toBe(1);
