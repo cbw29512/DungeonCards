@@ -25,7 +25,13 @@ import {
 } from "./fightBattleEffects";
 import { appendFightPresentationEvent, recordFightAttackPresentation } from "./fightPresentationEvents";
 import { assertFightBattleProfile } from "./fightBattleValidation";
-import { fightAttackRollMode, fightSaveRollMode, rollFightDamageComponents } from "./fightRules";
+import {
+  fightAttackRollMode,
+  fightMovementAllowance,
+  fightSaveRollMode,
+  isFightIncapacitated,
+  rollFightDamageComponents
+} from "./fightRules";
 
 const attackFormula = (bonus: number): string => `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
 const naturalRoll = (result: ReturnType<typeof rollDiceFormula>): number =>
@@ -156,12 +162,18 @@ const resetTurnState = (state: FightBattleState, side: FightSide): FightBattleSt
   for (const definition of profile.resources ?? []) {
     if (definition.refresh === "turn" || definition.refresh === "round") resources[definition.id] = definition.maximum;
   }
+  const incapacitated = isFightIncapacitated(state[side]);
   return {
     ...state,
     [side]: {
       ...state[side],
       resources,
-      economy: initialEconomy(profile)
+      economy: {
+        actionsAvailable: incapacitated ? 0 : 1,
+        bonusActionsAvailable: incapacitated ? 0 : 1,
+        reactionAvailable: !incapacitated,
+        movementRemainingFeet: fightMovementAllowance(state[side])
+      }
     }
   };
 };
@@ -209,7 +221,8 @@ const hasEconomy = (state: FightBattleState, side: FightSide, action: FightActio
 };
 
 const canUseAction = (state: FightBattleState, side: FightSide, action: FightActionDefinition): boolean =>
-  hasEconomy(state, side, action)
+  !isFightIncapacitated(state[side])
+  && hasEconomy(state, side, action)
   && hasResourceCosts(state, side, action)
   && (!action.recharge || state[side].rechargeReady[action.id] !== false);
 
@@ -411,7 +424,7 @@ const resolveAttackAction = (
 ): FightBattleState => {
   const target: FightSide = attacker === "character" ? "monster" : "character";
   const roll = rollDiceFormula(attackFormula(action.attackBonus), {
-    advantageMode: fightAttackRollMode(state[attacker], state[target], action.attackRollMode),
+    advantageMode: fightAttackRollMode(state[attacker], state[target], action.attackRollMode, state.distanceFeet),
     naturalRollRule: "attack",
     randomInteger
   });
@@ -613,31 +626,34 @@ export const resolveFightTurn = (state: FightBattleState, randomInteger?: Random
   next = tickFightEffects(next, attacker, "start");
   next = resetTurnState(next, attacker);
   next = refreshRecharge(next, attacker, randomInteger);
-  next = useSupportAction(next, attacker, randomInteger);
 
-  const usedFreeActions = new Set<string>();
-  while (next.status === "active" && next[attacker].economy.actionsAvailable > 0) {
-    const action = primaryAction(next, attacker);
-    if (!action) break;
-    const actionsBefore = next[attacker].economy.actionsAvailable;
-    next = executeAction(next, attacker, action, randomInteger);
-    if (next.status !== "active") return next;
-    if (next[attacker].economy.actionsAvailable === actionsBefore) break;
+  if (!isFightIncapacitated(next[attacker])) {
+    next = useSupportAction(next, attacker, randomInteger);
+    const usedFreeActions = new Set<string>();
+    while (next.status === "active" && next[attacker].economy.actionsAvailable > 0) {
+      const action = primaryAction(next, attacker);
+      if (!action) break;
+      const actionsBefore = next[attacker].economy.actionsAvailable;
+      next = executeAction(next, attacker, action, randomInteger);
+      if (next.status !== "active") return next;
+      if (next[attacker].economy.actionsAvailable === actionsBefore) break;
 
-    const grant = fightActionsForProfile(next[attacker].profile).find((candidate) =>
-      candidate.kind === "grant-action"
-      && !usedFreeActions.has(candidate.id)
-      && canUseAction(next, attacker, candidate));
-    if (grant) {
-      usedFreeActions.add(grant.id);
-      next = executeAction(next, attacker, grant, randomInteger);
+      const grant = fightActionsForProfile(next[attacker].profile).find((candidate) =>
+        candidate.kind === "grant-action"
+        && !usedFreeActions.has(candidate.id)
+        && canUseAction(next, attacker, candidate));
+      if (grant) {
+        usedFreeActions.add(grant.id);
+        next = executeAction(next, attacker, grant, randomInteger);
+      }
+    }
+
+    if (next.status === "active") {
+      const bonus = offensiveBonusAction(next, attacker);
+      if (bonus) next = executeAction(next, attacker, bonus, randomInteger);
     }
   }
 
-  if (next.status === "active") {
-    const bonus = offensiveBonusAction(next, attacker);
-    if (bonus) next = executeAction(next, attacker, bonus, randomInteger);
-  }
   if (next.status !== "active") return next;
   next = resolveFightTimedEffectSaves(next, attacker, "end", randomInteger);
   next = tickFightEffects(next, attacker, "end");
