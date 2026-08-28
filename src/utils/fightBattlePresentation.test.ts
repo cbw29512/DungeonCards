@@ -26,7 +26,6 @@ const profile = (id: string, name: string): FightCombatantProfile => ({
 const combatantState = (combatantProfile: FightCombatantProfile, currentHitPoints: number) => ({
   profile: combatantProfile,
   currentHitPoints,
-  temporaryHitPoints: 0,
   effects: [],
   resources: {},
   rechargeReady: {},
@@ -95,65 +94,34 @@ describe("fight battle pixel presentation", () => {
     state.events.push({
       id: 1,
       round: 2,
-      attacker: "character",
-      target: "monster",
+      attacker: "monster",
+      target: "character",
       attackNumber: 1,
-      sourceActionName: "Longsword",
+      sourceActionName: "Claw",
       naturalRoll: 20,
       attackTotal: 25,
       outcome: "critical",
-      rawDamage: 12,
-      damage: 12,
-      damageTypes: ["slashing"],
-      targetHitPointsAfter: 0,
-      summary: "Hero Longsword: critical hit for 12 damage."
+      damage: 14,
+      targetHitPointsAfter: 6,
+      summary: "Monster Claw: critical for 14 damage."
     });
     expect(deriveFightPixelFrame(state)).toMatchObject({
-      characterCue: "attack",
-      monsterCue: "downed",
-      headline: "CRITICAL!",
-      damageNumber: 12,
-      damageTarget: "monster"
+      characterCue: "hurt",
+      monsterCue: "critical",
+      headline: "CRITICAL HIT!",
+      damageNumber: 14,
+      damageTarget: "character"
     });
   });
 
-  it("uses presentation events for spell, condition, healing, and defense cues", () => {
+  it("renders winner and KO only after the rules engine completes combat", () => {
     const state = activeState();
-    state.presentationEvents = [{
-      id: 1,
-      round: 2,
-      type: "damage-resisted",
-      delivery: "system",
-      side: "monster",
-      sourceSide: "character",
-      label: "Resists fire",
-      sourceName: "Fire Bolt",
-      damageType: "fire"
-    }];
-    expect(deriveFightPixelFrame(state)).toMatchObject({
-      characterCue: "cast",
-      monsterCue: "resist",
-      headline: "RESIST!"
-    });
-  });
-
-  it("renders applied conditions as exact target status cues", () => {
-    const state = activeState();
-    state.presentationEvents = [{
-      id: 1,
-      round: 2,
-      type: "effect-applied",
-      delivery: "condition",
-      side: "character",
-      sourceSide: "monster",
-      label: "Poisoned applied",
-      sourceName: "Poison Breath",
-      iconKey: "poisoned"
-    }];
-    expect(deriveFightPixelFrame(state)).toMatchObject({
-      characterCue: "condition",
-      monsterCue: "cast",
-      headline: "POISONED"
-    });
+    state.status = "complete";
+    state.winner = "monster";
+    state.character.currentHitPoints = 0;
+    const frame = deriveFightPixelFrame(state);
+    expect(frame.monsterCue).toBe("victory");
+    expect(frame.characterCue).toBe("ko");
+    expect(frame.headline).toBe("Monster WINS!");
   });
 });
