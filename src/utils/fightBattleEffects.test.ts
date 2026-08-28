@@ -7,6 +7,7 @@ import {
   grantFightTemporaryHitPoints,
   healFightCombatant,
   resolveFightEffectSave,
+  resolveFightTimedEffectSaves,
   startFightConcentration,
   tickFightEffects
 } from "./fightBattleEffects";
@@ -23,7 +24,8 @@ const profile = (name: string): FightCombatantProfile => ({
   initiativeBonus: 2,
   attackDamageFormula: "1d8+3",
   criticalBonusFormula: "1d8",
-  sourceActionName: "Longsword"
+  sourceActionName: "Longsword",
+  savingThrowBonuses: { con: 3 }
 });
 
 describe("Fight Cards status lifecycle", () => {
@@ -79,7 +81,7 @@ describe("Fight Cards status lifecycle", () => {
       kind: "condition",
       iconKey: "poisoned",
       tickTiming: "manual",
-      saveAbility: "CON",
+      saveAbility: "con",
       saveDc: 14
     });
     const failed = resolveFightEffectSave({ state, side: "character", effectId: "poisoned", naturalRoll: 8, saveBonus: 3 });
@@ -91,6 +93,23 @@ describe("Fight Cards status lifecycle", () => {
     expect(passed.succeeded).toBe(true);
     expect(passed.state.character.effects).toEqual([]);
     expect(passed.state.presentationEvents?.slice(-2).map((event) => event.type)).toEqual(["save-success", "effect-removed"]);
+  });
+
+  it("automatically resolves a configured end-of-turn repeat save", () => {
+    let state = createFightBattle(profile("Hero"), profile("Monster"));
+    state = applyFightEffect(state, "character", {
+      id: "poisoned",
+      name: "Poisoned",
+      kind: "condition",
+      iconKey: "poisoned",
+      tickTiming: "manual",
+      saveAbility: "con",
+      saveDc: 14,
+      saveTiming: "end"
+    });
+    state = resolveFightTimedEffectSaves(state, "character", "end", () => 11);
+    expect(state.character.effects).toEqual([]);
+    expect(state.presentationEvents?.slice(-2).map((event) => event.type)).toEqual(["save-success", "effect-removed"]);
   });
 
   it("breaks concentration and clears every linked effect across both cards", () => {
