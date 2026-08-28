@@ -132,19 +132,19 @@ describe("Champion critical thresholds", () => {
   });
 
   it("does not turn an expanded Champion crit-range roll into an automatic hit when the attack total misses AC", () => {
-    let battle = rollFightInitiative(createFightBattle(attacker(18), target(30), 5), sequence(20, 1));
+    let battle = rollFightInitiative(createFightBattle(attacker(18), target(30)), sequence(20, 1));
     battle = resolveFightTurn(battle, sequence(18));
     expect(battle.events.at(-1)).toMatchObject({ naturalRoll: 18, attackTotal: 23, outcome: "miss", damage: 0 });
   });
 
   it("scores an expanded-range critical when the attack total hits AC", () => {
-    let battle = rollFightInitiative(createFightBattle(attacker(18), target(23), 5), sequence(20, 1));
+    let battle = rollFightInitiative(createFightBattle(attacker(18), target(23)), sequence(20, 1));
     battle = resolveFightTurn(battle, sequence(18, 4));
     expect(battle.events.at(-1)).toMatchObject({ naturalRoll: 18, attackTotal: 23, outcome: "critical", damage: 15 });
   });
 
   it("keeps a natural 20 an automatic critical hit regardless of AC", () => {
-    let battle = rollFightInitiative(createFightBattle(attacker(18), target(99), 5), sequence(20, 1));
+    let battle = rollFightInitiative(createFightBattle(attacker(18), target(99)), sequence(20, 1));
     battle = resolveFightTurn(battle, sequence(20, 4));
     expect(battle.events.at(-1)).toMatchObject({ naturalRoll: 20, outcome: "critical", damage: 15 });
   });
