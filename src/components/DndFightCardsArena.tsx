@@ -34,42 +34,34 @@ type MonsterOption = {
   issue?: string;
 };
 
-const heroOptions: HeroOption[] = dndPregenClassDefinitions
-  .filter((definition) => definition.ruleset === FIGHT_2024_RULESET)
-  .flatMap((definition) => Array.from({ length: 20 }, (_, index) => {
-    const level = index + 1;
-    const build = dndVaultReadyBuilds.find((candidate) => (
-      candidate.ruleset === FIGHT_2024_RULESET
-      && candidate.classId === definition.classId
-      && candidate.subclassId === definition.subclassId
-      && candidate.level === level
-    ));
-    if (!build) {
-      return {
-        id: `${FIGHT_2024_RULESET}:${definition.classId}:${definition.subclassId}:${level}`,
-        classId: definition.classId,
-        className: definition.className,
-        subclassName: definition.subclassName,
-        level,
-        name: `${definition.className} ${level}`,
-        issue: `The reviewed ${definition.className} level ${level} / ${definition.subclassName} pregen is not certified yet.`
-      };
-    }
+type Props = {
+  compactHeading?: boolean;
+};
 
-    const result = buildCharacterFightProfile(build.character);
-    if (!result.ok) {
-      return {
-        id: build.id,
-        classId: definition.classId,
-        className: definition.className,
-        subclassName: definition.subclassName,
-        level,
-        name: build.character.name,
-        character: build.character,
-        issue: result.issues.join(" ")
-      };
-    }
-    const issue = getFightBattleProfileIssue(result.profile);
+const classDefinitions2024 = dndPregenClassDefinitions.filter((definition) => definition.ruleset === FIGHT_2024_RULESET);
+
+const heroOptions: HeroOption[] = classDefinitions2024.flatMap((definition) => Array.from({ length: 20 }, (_, index) => {
+  const level = index + 1;
+  const build = dndVaultReadyBuilds.find((candidate) => (
+    candidate.ruleset === FIGHT_2024_RULESET
+    && candidate.classId === definition.classId
+    && candidate.subclassId === definition.subclassId
+    && candidate.level === level
+  ));
+  if (!build) {
+    return {
+      id: `${FIGHT_2024_RULESET}:${definition.classId}:${definition.subclassId}:${level}`,
+      classId: definition.classId,
+      className: definition.className,
+      subclassName: definition.subclassName,
+      level,
+      name: `${definition.className} ${level}`,
+      issue: `The reviewed ${definition.className} level ${level} / ${definition.subclassName} pregen is not certified yet.`
+    };
+  }
+
+  const result = buildCharacterFightProfile(build.character);
+  if (!result.ok) {
     return {
       id: build.id,
       classId: definition.classId,
@@ -78,10 +70,22 @@ const heroOptions: HeroOption[] = dndPregenClassDefinitions
       level,
       name: build.character.name,
       character: build.character,
-      profile: result.profile,
-      issue
+      issue: result.issues.join(" ")
     };
-  }));
+  }
+  const issue = getFightBattleProfileIssue(result.profile);
+  return {
+    id: build.id,
+    classId: definition.classId,
+    className: definition.className,
+    subclassName: definition.subclassName,
+    level,
+    name: build.character.name,
+    character: build.character,
+    profile: result.profile,
+    issue
+  };
+}));
 
 const monsterOptions: MonsterOption[] = srdMonsters
   .filter((monster) => monster.edition === FIGHT_2024_RULESET)
@@ -93,7 +97,7 @@ const monsterOptions: MonsterOption[] = srdMonsters
   });
 
 const preferredHeroIndex = Math.max(0, heroOptions.findIndex((option) => (
-  option.classId === "fighter" && option.level === 3 && option.profile
+  option.classId === "fighter" && option.level === 3 && option.profile && !option.issue
 )));
 const preferredMonsterIndex = Math.max(0, monsterOptions.findIndex((option) => option.profile && !option.issue));
 
@@ -104,7 +108,7 @@ const cycleIndex = (index: number, length: number, delta: number): number => {
 
 const firstNumber = (value: string): string => value.match(/\d+/)?.[0] ?? "—";
 const attackLabel = (profile?: FightCombatantProfile): string => {
-  if (!profile) return "Certification pending";
+  if (!profile) return "Not ready yet";
   const action = profile.sourceActionName ?? profile.actions?.[0]?.name ?? "Attack";
   const bonus = profile.attackBonus >= 0 ? `+${profile.attackBonus}` : String(profile.attackBonus);
   return `${action} ${bonus}`;
@@ -131,13 +135,12 @@ const ShowdownCard = ({
   side: "hero" | "monster";
   ready: boolean;
 }) => (
-  <article className={`fight-showcase-card fight-showcase-card--${side}`}>
+  <article className={`fight-showcase-card fight-showcase-card--${side}`} data-ready={ready ? "true" : "false"}>
     <div className="fight-showcase-card__portrait" aria-hidden="true"><span>{glyph}</span></div>
     <header>
       <span className="fight-showcase-card__badge">{badge}</span>
       <h2>{name}</h2>
       <p>{subtitle}</p>
-      <strong>{ready ? "AUTO-FIGHT CERTIFIED" : "SOURCE CARD · AUTOMATION PENDING"}</strong>
     </header>
     <dl className="fight-showcase-card__stats">
       <div><dt>AC</dt><dd>{armorClass}</dd></div>
@@ -147,7 +150,7 @@ const ShowdownCard = ({
   </article>
 );
 
-export const DndFightCardsArena = () => {
+export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
   const [heroIndex, setHeroIndex] = useState(preferredHeroIndex);
   const [monsterIndex, setMonsterIndex] = useState(preferredMonsterIndex);
   const [fightNumber, setFightNumber] = useState(0);
@@ -177,25 +180,26 @@ export const DndFightCardsArena = () => {
     return (
       <section className="fight-showcase fight-showcase--empty" role="status">
         <h1>Fight Cards</h1>
-        <p>The 2024 SRD roster could not be loaded.</p>
+        <p>The fighters could not be loaded.</p>
       </section>
     );
   }
 
   const heroIdentity = characterPixelIdentity(hero.className);
   const monsterIdentity = monsterPixelIdentity(monster.monster.name, monster.monster.type);
+  const selectedIssue = hero.issue ?? monster.issue;
 
   return (
     <section
-      className="fight-showcase"
+      className={`fight-showcase${compactHeading ? " fight-showcase--compact" : ""}`}
       aria-labelledby="fight-showcase-title"
       data-hero-slot-count={heroOptions.length}
       data-monster-count={monsterOptions.length}
     >
       <header className="fight-showcase__hero">
-        <span>FIGHT CARDS · 5.5e</span>
-        <h1 id="fight-showcase-title">Pregen Heroes vs. Every SRD Monster. Who Will Win?</h1>
-        <p>All {FIGHT_2024_EXPECTED_HERO_COUNT} hero slots and all {FIGHT_2024_EXPECTED_MONSTER_COUNT} official SRD 5.2.1 monsters stay visible. Unsupported mechanics are reported, never hidden.</p>
+        <span>FIGHT CARDS</span>
+        <h1 id="fight-showcase-title">{compactHeading ? "Choose your fighters" : "Pick two cards. Press FIGHT."}</h1>
+        {!compactHeading ? <p>Choose a hero. Choose a monster. Watch the fight happen.</p> : null}
       </header>
 
       {!fighting ? (
@@ -203,7 +207,7 @@ export const DndFightCardsArena = () => {
           <div className="fight-showcase__cards">
             <div className="fight-showcase__pick">
               <ShowdownCard
-                badge="PREGEN HERO"
+                badge="YOUR HERO"
                 glyph={heroIdentity.fallbackGlyph}
                 name={hero.name}
                 ready={Boolean(hero.profile && !hero.issue)}
@@ -211,23 +215,26 @@ export const DndFightCardsArena = () => {
                 hitPoints={hero.profile?.hitPoints ?? hero.character?.maximumHitPoints ?? "—"}
                 attack={attackLabel(hero.profile)}
                 side="hero"
-                subtitle={`${hero.className} ${hero.level} · ${hero.subclassName} · ${RULESET_LABELS[FIGHT_2024_RULESET]}`}
+                subtitle={`${hero.className} ${hero.level} · ${hero.subclassName}`}
               />
               <div className="fight-showcase__chooser">
                 <button aria-label="Previous hero" onClick={() => chooseHero(cycleIndex(heroIndex, heroOptions.length, -1))} type="button">‹</button>
                 <label>
                   <span>Choose hero</span>
                   <select onChange={(event) => chooseHero(Number(event.target.value))} value={heroIndex}>
-                    {heroOptions.map((option, index) => (
-                      <option key={option.id} value={index}>
-                        {option.name} · {option.className} {option.level}{option.issue ? " · pending" : ""}
-                      </option>
+                    {classDefinitions2024.map((definition) => (
+                      <optgroup key={definition.classId} label={definition.className}>
+                        {heroOptions.map((option, index) => option.classId === definition.classId ? (
+                          <option key={option.id} value={index}>
+                            {option.name} · Level {option.level}{option.issue ? " · not ready yet" : ""}
+                          </option>
+                        ) : null)}
+                      </optgroup>
                     ))}
                   </select>
                 </label>
                 <button aria-label="Next hero" onClick={() => chooseHero(cycleIndex(heroIndex, heroOptions.length, 1))} type="button">›</button>
               </div>
-              {hero.issue ? <p className="fight-showcase__promise" role="status"><strong>Automation blocker:</strong> {hero.issue}</p> : null}
             </div>
 
             <div className="fight-showcase__versus" aria-hidden="true">VS</div>
@@ -242,28 +249,39 @@ export const DndFightCardsArena = () => {
                 hitPoints={monster.profile?.hitPoints ?? firstNumber(monster.monster.hitPoints)}
                 attack={attackLabel(monster.profile)}
                 side="monster"
-                subtitle={`CR ${monster.monster.challenge} · ${RULESET_LABELS[FIGHT_2024_RULESET]}`}
+                subtitle={`CR ${monster.monster.challenge} · ${monster.monster.type}`}
               />
               <div className="fight-showcase__chooser">
                 <button aria-label="Previous monster" onClick={() => chooseMonster(cycleIndex(monsterIndex, monsterOptions.length, -1))} type="button">‹</button>
                 <label>
-                  <span>Choose monster · all {monsterOptions.length}</span>
+                  <span>Choose monster</span>
                   <select onChange={(event) => chooseMonster(Number(event.target.value))} value={monsterIndex}>
                     {monsterOptions.map((option, index) => (
                       <option key={option.monster.id} value={index}>
-                        {option.monster.name} · CR {option.monster.challenge}{option.issue ? " · pending" : ""}
+                        {option.monster.name} · CR {option.monster.challenge}{option.issue ? " · not ready yet" : ""}
                       </option>
                     ))}
                   </select>
                 </label>
                 <button aria-label="Next monster" onClick={() => chooseMonster(cycleIndex(monsterIndex, monsterOptions.length, 1))} type="button">›</button>
               </div>
-              {monster.issue ? <p className="fight-showcase__promise" role="status"><strong>Automation blocker:</strong> {monster.issue}</p> : null}
             </div>
           </div>
 
           <button className="fight-showcase__fight" disabled={!canFight} onClick={startFight} type="button">FIGHT</button>
-          <p className="fight-showcase__promise">No CR gate. No stat fudging. No hidden balancing. Every official SRD monster remains selectable while certification drives automation blockers to zero.</p>
+          {selectedIssue ? <p className="fight-showcase__not-ready" role="status">That card is not ready for the arena yet. Pick another card for now.</p> : null}
+          <p className="fight-showcase__promise">No hidden balancing. The cards fight with their actual game stats.</p>
+
+          <details className="fight-showcase__dm-details">
+            <summary>DM Details</summary>
+            <div>
+              <p><strong>Current mode:</strong> solo hero vs. one monster using D&amp;D 2024 / SRD 5.2.1 data.</p>
+              <p><strong>Heroic Crits:</strong> a critical hit adds maximum crit-eligible base dice to one normal damage roll; flat modifiers apply once. This is a Fight Cards house rule.</p>
+              <p><strong>Roster:</strong> {FIGHT_2024_EXPECTED_HERO_COUNT} hero level slots and {FIGHT_2024_EXPECTED_MONSTER_COUNT} SRD monsters stay available in the selector.</p>
+              {selectedIssue ? <p><strong>Automation detail:</strong> {selectedIssue}</p> : <p><strong>Selected cards:</strong> ready for automated combat.</p>}
+              <p><strong>Ruleset:</strong> {RULESET_LABELS[FIGHT_2024_RULESET]}.</p>
+            </div>
+          </details>
         </>
       ) : hero.profile && monster.profile ? (
         <DndFightBattleRunner
