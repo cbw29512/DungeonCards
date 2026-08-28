@@ -2,8 +2,17 @@ import type { FightBattleCombatantState } from "../types/fightBattle";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import type { FightDamageComponent, FightRollMode } from "../types/fightRules";
 import type { RandomIntegerSource } from "./randomInteger";
+import { parseDiceFormula } from "./diceParser";
 import { buildCriticalBonusFormula } from "./fightExecutionProfile";
 import { rollDiceFormula } from "./rollDice";
+
+export type FightCriticalDamageRule = "standard-extra-dice" | "heroic-max-plus-roll";
+
+/**
+ * Fight Cards' presentation default. This is an explicit house rule, not
+ * D&D 2024 RAW. RAW conformance tests pass `standard-extra-dice` directly.
+ */
+export const FIGHT_CARDS_DEFAULT_CRITICAL_DAMAGE_RULE: FightCriticalDamageRule = "heroic-max-plus-roll";
 
 const normalizeList = (values: string[] | undefined): string[] =>
   (values ?? []).map((value) => value.trim().toLowerCase()).filter(Boolean);
@@ -87,16 +96,28 @@ export type FightResolvedDamageComponent = {
   multiplier: number;
 };
 
+export const maximumFightCriticalDice = (formula: string): number => {
+  const parsed = parseDiceFormula(formula);
+  if (parsed.diceTerms.some((term) => term.sign < 0)) {
+    throw new Error("Heroic critical damage does not support subtractive critical dice.");
+  }
+  return parsed.diceTerms.reduce((sum, term) => (
+    sum + (term.keep?.count ?? term.count) * term.sides
+  ), 0);
+};
+
 export const rollFightDamageComponents = ({
   target,
   components,
   critical,
+  criticalDamageRule = FIGHT_CARDS_DEFAULT_CRITICAL_DAMAGE_RULE,
   damageFraction = 1,
   randomInteger
 }: {
   target: FightCombatantProfile;
   components: FightDamageComponent[];
   critical: boolean;
+  criticalDamageRule?: FightCriticalDamageRule;
   damageFraction?: 0 | 0.5 | 1;
   randomInteger?: RandomIntegerSource;
 }): {
@@ -108,7 +129,9 @@ export const rollFightDamageComponents = ({
     const base = Math.max(0, rollDiceFormula(component.formula, { randomInteger }).total);
     const criticalFormula = component.criticalBonusFormula ?? buildCriticalBonusFormula(component.formula);
     const criticalBonus = critical && criticalFormula
-      ? Math.max(0, rollDiceFormula(criticalFormula, { randomInteger }).total)
+      ? criticalDamageRule === "heroic-max-plus-roll"
+        ? maximumFightCriticalDice(criticalFormula)
+        : Math.max(0, rollDiceFormula(criticalFormula, { randomInteger }).total)
       : 0;
     const rawDamage = base + criticalBonus;
     const modifiedDamage = Math.floor(rawDamage * damageFraction);
