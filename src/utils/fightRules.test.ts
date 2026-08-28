@@ -3,11 +3,13 @@ import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import { createFightBattle } from "./fightBattle";
 import { applyFightEffect } from "./fightBattleEffects";
 import {
+  FIGHT_CARDS_DEFAULT_CRITICAL_DAMAGE_RULE,
   combineFightRollModes,
   fightAttackRollMode,
   fightMovementAllowance,
   getFightDamageMultiplier,
   isFightIncapacitated,
+  maximumFightCriticalDice,
   rollFightDamageComponents
 } from "./fightRules";
 
@@ -59,6 +61,41 @@ describe("Fight Card rules helpers", () => {
       { damageType: "fire", rawDamage: 4, modifiedDamage: 2, appliedDamage: 4, multiplier: 2 }
     ]);
     expect(result.appliedTotal).toBe(6);
+  });
+
+  it("uses Heroic Crits by default: max eligible base dice plus one normal roll, modifier once", () => {
+    expect(FIGHT_CARDS_DEFAULT_CRITICAL_DAMAGE_RULE).toBe("heroic-max-plus-roll");
+    expect(maximumFightCriticalDice("1d8")).toBe(8);
+    expect(maximumFightCriticalDice("2d6")).toBe(12);
+    expect(maximumFightCriticalDice("1d8+2d6")).toBe(20);
+
+    const oneDie = rollFightDamageComponents({
+      target: profile("Target"),
+      components: [{ formula: "1d8+3", damageType: "slashing", criticalBonusFormula: "1d8" }],
+      critical: true,
+      randomInteger: () => 4
+    });
+    expect(oneDie.rawTotal).toBe(15); // 1d8 roll 4 + 3 + max d8 8
+
+    const twoDice = rollFightDamageComponents({
+      target: profile("Target"),
+      components: [{ formula: "2d6+4", damageType: "slashing", criticalBonusFormula: "2d6" }],
+      critical: true,
+      randomInteger: () => 3
+    });
+    expect(twoDice.rawTotal).toBe(22); // 2d6 roll 6 + 4 + max 2d6 12
+  });
+
+  it("keeps standard D&D critical damage independently executable for RAW certification", () => {
+    const values = [4, 5];
+    const result = rollFightDamageComponents({
+      target: profile("Target"),
+      components: [{ formula: "1d8+3", damageType: "slashing", criticalBonusFormula: "1d8" }],
+      critical: true,
+      criticalDamageRule: "standard-extra-dice",
+      randomInteger: () => values.shift() ?? 1
+    });
+    expect(result.rawTotal).toBe(12); // normal 4 + 3, extra RAW crit die 5; modifier once
   });
 
   it("derives standard condition roll consequences from persistent engine state", () => {
