@@ -31,9 +31,12 @@ import {
   fightAttackFollowUpRollMode,
   recordFightAttackFollowUps
 } from "./fightAttackFollowUps";
+import { resolveFightAttackRoll, fightAttackHits } from "./fightAttackReroll";
+import { resolveFightPostCriticalMovement } from "./fightPostCriticalMovement";
 import { appendFightPresentationEvent, recordFightAttackPresentation } from "./fightPresentationEvents";
 import { assertFightBattleProfile } from "./fightBattleValidation";
 import { resolveFightSavingThrow } from "./fightSavingThrow";
+import { resolveFightTurnStartTraits } from "./fightTurnStart";
 import {
   combineFightRollModes,
   fightAttackRollMode,
@@ -524,15 +527,23 @@ const resolveAttackAction = (
   const distanceRollMode = fightAttackDistanceRollMode(action, distanceFeet, state[target]);
   const followUpRollMode = fightAttackFollowUpRollMode(state[attacker], state[target]);
   const actionRollMode = combineFightRollModes(action.attackRollMode, distanceRollMode, followUpRollMode);
-  const roll = rollDiceFormula(attackFormula(action.attackBonus), {
-    advantageMode: fightAttackRollMode(state[attacker], state[target], actionRollMode, distanceFeet),
-    naturalRollRule: "attack",
+  const rollMode = fightAttackRollMode(state[attacker], state[target], actionRollMode, distanceFeet);
+  const roll = resolveFightAttackRoll({
+    state,
+    side: attacker,
+    action,
+    armorClass: state[target].profile.armorClass,
+    rollMode,
     randomInteger
   });
-  const natural = naturalRoll(roll);
+  const natural = roll.naturalRoll;
   const criticalAt = Math.min(20, Math.max(2, Math.trunc(action.criticalAt ?? 20)));
-  const hitsArmorClass = natural === 20
-  || (natural !== 1 && roll.total >= state[target].profile.armorClass);
+  const hitsArmorClass = fightAttackHits({
+    natural,
+    total: roll.total,
+    armorClass: state[target].profile.armorClass,
+    criticalAt
+  });
 const outcome = !hitsArmorClass
   ? "miss"
   : natural === 20 || natural >= criticalAt
@@ -546,7 +557,7 @@ const outcome = !hitsArmorClass
         critical: outcome === "critical",
         randomInteger
       });
-  let next = consumeFightAttackFollowUps(state, attacker, target);
+  let next = consumeFightAttackFollowUps(roll.state, attacker, target);
   next = recordDamageDefenses(next, target, attacker, action.name, damage.components);
   const applied = applyDamage(next, target, damage.appliedTotal);
   next = applied.state;
@@ -578,6 +589,9 @@ const outcome = !hitsArmorClass
     damage: damage.appliedTotal,
     delivery: action.delivery ?? state[attacker].profile.attackDelivery ?? "weapon"
   });
+  if (outcome === "critical") {
+    next = resolveFightPostCriticalMovement({ state: next, attacker, target, action });
+  }
   next = recordFightAttackFollowUps({
     state: next,
     attacker,
@@ -774,7 +788,8 @@ export const resolveFightTurn = (
 ): FightBattleState => {
   if (state.status !== "active" || !state.initiative?.order) throw new Error("A fight turn requires resolved initiative.");
   const attacker = state.initiative.order[state.activeIndex];
-  let next = resolveFightTimedEffectSaves(state, attacker, "start", randomInteger);
+  let next = resolveFightTurnStartTraits(state, attacker);
+  next = resolveFightTimedEffectSaves(next, attacker, "start", randomInteger);
   next = tickFightEffects(next, attacker, "start");
   next = resetTurnState(next, attacker);
   next = refreshRecharge(next, attacker, randomInteger);

@@ -180,7 +180,11 @@ const championCritical = !isSupportedChampion || character.level < 3
 
   const resources: NonNullable<FightCombatantProfile["resources"]> = [];
   const failedSaveRerolls: NonNullable<FightCombatantProfile["failedSaveRerolls"]> = [];
+  const failedAttackRerolls: NonNullable<FightCombatantProfile["failedAttackRerolls"]> = [];
   const attackFollowUps: NonNullable<FightCombatantProfile["attackFollowUps"]> = [];
+  const turnStartResourceGrants: NonNullable<FightCombatantProfile["turnStartResourceGrants"]> = [];
+  const turnStartHealing: NonNullable<FightCombatantProfile["turnStartHealing"]> = [];
+  const postCriticalMovement: NonNullable<FightCombatantProfile["postCriticalMovement"]> = [];
   const supportedFighter = character.classId === "fighter"
     && (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024");
   if (supportedFighter) {
@@ -224,6 +228,53 @@ const championCritical = !isSupportedChampion || character.level < 3
         grants: "action",
         ...(character.ruleset === "srd-5.2.1-2024" ? { excludedDelivery: "spell" as const } : {}),
         resourceCosts: [{ resourceId: "action-surge", amount: 1 }]
+      });
+    }
+    if (character.ruleset === "srd-5.2.1-2024" && isSupportedChampion && character.level >= 3) {
+      postCriticalMovement.push({
+        id: "remarkable-athlete",
+        name: "Remarkable Athlete",
+        maximumFeet: Math.floor(character.speedFeet / 2),
+        opportunityAttackSafe: true,
+        autoUse: "retreat-ranged-without-leaving-normal-range"
+      });
+    }
+    if (character.ruleset === "srd-5.2.1-2024" && isSupportedChampion && character.level >= 10) {
+      resources.push({
+        id: "heroic-inspiration",
+        name: "Heroic Inspiration",
+        maximum: 1,
+        initial: 0,
+        refresh: "none"
+      });
+      turnStartResourceGrants.push({
+        id: "heroic-warrior",
+        name: "Heroic Warrior",
+        resourceId: "heroic-inspiration",
+        amount: 1,
+        when: "missing"
+      });
+      failedAttackRerolls.unshift({
+        id: "heroic-inspiration",
+        name: "Heroic Inspiration",
+        resourceId: "heroic-inspiration",
+        autoUse: "when-can-hit"
+      });
+      failedSaveRerolls.unshift({
+        id: "heroic-inspiration",
+        name: "Heroic Inspiration",
+        resourceId: "heroic-inspiration",
+        bonus: 0,
+        autoUse: "when-can-succeed"
+      });
+    }
+    if (character.ruleset === "srd-5.2.1-2024" && isSupportedChampion && character.level >= 18) {
+      turnStartHealing.push({
+        id: "heroic-rally",
+        name: "Heroic Rally",
+        amount: Math.max(0, 5 + abilityModifier(character.abilityScores.con)),
+        minimumHitPoints: 1,
+        maximumHitPointFraction: 0.5
       });
     }
     if (character.ruleset === "srd-5.2.1-2024" && character.level >= 9) {
@@ -281,7 +332,11 @@ const championCritical = !isSupportedChampion || character.level < 3
       speedFeet: character.speedFeet,
       savingThrowBonuses: characterSaveBonuses(character),
       failedSaveRerolls: failedSaveRerolls.length ? failedSaveRerolls : undefined,
+      failedAttackRerolls: failedAttackRerolls.length ? failedAttackRerolls : undefined,
       attackFollowUps: attackFollowUps.length ? attackFollowUps : undefined,
+      turnStartResourceGrants: turnStartResourceGrants.length ? turnStartResourceGrants : undefined,
+      turnStartHealing: turnStartHealing.length ? turnStartHealing : undefined,
+      postCriticalMovement: postCriticalMovement.length ? postCriticalMovement : undefined,
       actions,
       resources,
       level: character.level
