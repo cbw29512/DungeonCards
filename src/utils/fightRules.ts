@@ -47,6 +47,7 @@ export const getFightDamageMultiplier = (profile: FightCombatantProfile, damageT
 export type FightResolvedDamageComponent = {
   damageType: string;
   rawDamage: number;
+  modifiedDamage: number;
   appliedDamage: number;
   multiplier: number;
 };
@@ -55,11 +56,13 @@ export const rollFightDamageComponents = ({
   target,
   components,
   critical,
+  damageFraction = 1,
   randomInteger
 }: {
   target: FightCombatantProfile;
   components: FightDamageComponent[];
   critical: boolean;
+  damageFraction?: 0 | 0.5 | 1;
   randomInteger?: RandomIntegerSource;
 }): {
   rawTotal: number;
@@ -73,11 +76,13 @@ export const rollFightDamageComponents = ({
       ? Math.max(0, rollDiceFormula(criticalFormula, { randomInteger }).total)
       : 0;
     const rawDamage = base + criticalBonus;
+    const modifiedDamage = Math.floor(rawDamage * damageFraction);
     const multiplier = getFightDamageMultiplier(target, component.damageType);
     return {
       damageType: normalizeFightDamageType(component.damageType),
       rawDamage,
-      appliedDamage: Math.floor(rawDamage * multiplier),
+      modifiedDamage,
+      appliedDamage: Math.floor(modifiedDamage * multiplier),
       multiplier
     };
   });
