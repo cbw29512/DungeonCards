@@ -40,7 +40,7 @@
 .fight-status-card__health {
   position: relative;
   height: 25px;
-  margin: 0.65rem 0;
+  margin: 0.65rem 0 0.35rem;
   border: 3px solid #161616;
   background: #3b1010;
   overflow: hidden;
@@ -65,7 +65,20 @@
   text-shadow: 1px 1px #111;
 }
 
+.fight-status-card__temp-hp {
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0.18rem 0.4rem;
+  border: 2px solid #161616;
+  background: #bfe8f5;
+  box-shadow: 2px 2px 0 #161616;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
 .fight-status-card__stage {
+  position: relative;
   min-height: 180px;
   display: grid;
   place-items: center;
@@ -151,6 +164,56 @@
   transform: rotate(180deg);
 }
 
+.fight-status-burst {
+  position: absolute;
+  z-index: 6;
+  top: 42%;
+  left: 50%;
+  display: grid;
+  min-width: 116px;
+  max-width: 90%;
+  place-items: center;
+  gap: 0.08rem;
+  padding: 0.45rem 0.55rem;
+  border: 3px solid #161616;
+  background: #fff3bd;
+  box-shadow: 4px 4px 0 #161616;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: fight-status-burst-pop 900ms steps(6, end) both;
+}
+
+.fight-status-burst > b {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.fight-status-burst > strong {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+}
+
+.fight-status-burst > small {
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.fight-status-burst--critical { background: #ffe36c; transform: translate(-50%, -50%) rotate(-2deg) scale(1.08); }
+.fight-status-burst--miss { background: #dedede; }
+.fight-status-burst--save-success,
+.fight-status-burst--healing,
+.fight-status-burst--temporary-hit-points { background: #bde7c4; }
+.fight-status-burst--save-failure,
+.fight-status-burst--downed,
+.fight-status-burst--debuff { background: #f1b9b1; }
+.fight-status-burst--spell { box-shadow: 4px 4px 0 #161616, 0 0 18px rgb(122 73 186 / 65%); }
+.fight-status-burst--condition { background: #e1c2ef; }
+
 .fight-status-card__effects {
   display: flex;
   flex-wrap: wrap;
@@ -200,6 +263,7 @@
 .fight-status-chip--condition { background: #e1c2ef; }
 .fight-status-chip--buff { background: #bde7c4; }
 .fight-status-chip--debuff { background: #f1b9b1; }
+.fight-status-chip--concentration { background: #c9d2ff; }
 
 @keyframes fight-stick-lunge {
   0% { transform: translateX(0); }
@@ -218,6 +282,13 @@
   0% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
   100% { transform: translateY(0); }
+}
+
+@keyframes fight-status-burst-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.55); }
+  18% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  72% { opacity: 1; }
+  100% { opacity: 0.15; transform: translate(-50%, -62%) scale(0.96); }
 }
 
 @media (max-width: 720px) {
@@ -240,11 +311,14 @@
   .fight-status-card__stage { min-height: 145px; }
   .fight-stick { transform: scale(0.82); }
   .fight-status-chip small { display: none; }
+  .fight-status-burst { min-width: 92px; padding: 0.35rem; }
+  .fight-status-burst > strong { font-size: 0.62rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .fight-stick,
-  .fight-status-card__health i {
+  .fight-status-card__health i,
+  .fight-status-burst {
     animation: none !important;
     transition: none !important;
   }
