@@ -430,7 +430,7 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
                     </ul>
                     <p>Sample: {partySimulation.iterations} fights · unresolved {partySimulation.unresolved} · seed {partySimulation.seed}. Monster tactic: {partySimulation.targetPolicy === "random" ? "spread attacks among living heroes" : "focus the living hero with the lowest current HP"}.</p>
                   </div>
-                ) : <p>Party simulation uses individual combatants—not combined party HP or averaged party DPR. Current baseline uses one shared abstract range and does not retarget leftover attacks after a target drops.</p>}
+                ) : <p>Party simulation uses individual combatants—not combined party HP or averaged party DPR. Concentration ownership and remaining Multiattack/Extra Attack/bonus attacks stay attached to exact combatants; the current baseline still uses one shared abstract range.</p>}
               </section>
             </div>
           </details>
