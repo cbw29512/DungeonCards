@@ -43,7 +43,7 @@ const fighter = (level = 3): DndCharacterRecord => ({
   spellcastingExpected: false,
   spellcasting: { kind: "none" },
   classFeatures: ["Second Wind", "Action Surge"],
-  subclassFeatures: [],
+  subclassFeatures: ["Improved Critical"],
   advancementChoices: [],
   equipment: ["Longsword", "Shield"],
   currencyGp: 0,
@@ -81,7 +81,7 @@ describe("fight profile adapters", () => {
     expect(averageDiceFormula("damage varies")).toBeNull();
   });
 
-  it("derives Carnar's executable level 3 fighter profile from the pregen attack record", () => {
+  it("derives Carnar's 2014 Champion actions, saves, Second Wind, and Action Surge", () => {
     const result = buildCharacterFightProfile(fighter());
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -94,8 +94,18 @@ describe("fight profile adapters", () => {
       initiativeBonus: 1,
       attackDamageFormula: "1d8 + 3",
       criticalBonusFormula: "1d8",
-      sourceActionName: "Longsword"
+      sourceActionName: "Longsword",
+      speedFeet: 30,
+      savingThrowBonuses: { str: 5, con: 4 }
     });
+    expect(result.profile.actions?.find((action) => action.name === "Longsword")).toMatchObject({
+      kind: "attack",
+      criticalAt: 19,
+      delivery: "weapon"
+    });
+    expect(result.profile.actions?.some((action) => action.kind === "heal" && action.name === "Second Wind")).toBe(true);
+    expect(result.profile.actions?.some((action) => action.kind === "grant-action" && action.name === "Action Surge")).toBe(true);
+    expect(result.profile.resources?.map((resource) => resource.id)).toEqual(expect.arrayContaining(["second-wind", "action-surge"]));
   });
 
   it("uses the fighter Extra Attack progression without changing the character record", () => {
@@ -104,10 +114,15 @@ describe("fight profile adapters", () => {
     const result = buildCharacterFightProfile(character);
 
     expect(result.ok && result.profile.attacksPerRound).toBe(4);
+    if (result.ok) {
+      expect(result.profile.actions?.find((action) => action.kind === "multiattack")).toMatchObject({
+        sequence: [{ count: 4 }]
+      });
+    }
     expect(character).toEqual(snapshot);
   });
 
-  it("derives Bob from high-confidence SRD attack text and selects Greataxe", () => {
+  it("derives Bob from high-confidence SRD attack text and preserves typed attacks", () => {
     const result = buildSrdMonsterFightProfile(bob);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -121,11 +136,17 @@ describe("fight profile adapters", () => {
       attackDamageFormula: "2d12 + 4",
       criticalBonusFormula: "2d12",
       sourceActionName: "Greataxe",
-      challengeRating: 3
+      challengeRating: 3,
+      speedFeet: 40,
+      savingThrowBonuses: { str: 4, dex: 0, con: 3 }
+    });
+    expect(result.profile.actions?.find((action) => action.name === "Greataxe")).toMatchObject({
+      kind: "attack",
+      damage: [{ damageType: "slashing" }]
     });
   });
 
-  it("refuses ambiguous Multiattack rather than inventing an attacks-per-round value", () => {
+  it("refuses ambiguous Multiattack rather than inventing component attacks", () => {
     const result = buildSrdMonsterFightProfile({
       ...bob,
       actions: `Multiattack. The minotaur makes two attacks.\n${bob.actions}`
@@ -135,12 +156,34 @@ describe("fight profile adapters", () => {
     expect(result.issues[0]).toContain("Multiattack");
   });
 
-  it("refuses a compound damage attack until all damage components are modeled", () => {
+  it("reconciles a high-confidence Multiattack to its canonical component attack", () => {
+    const result = buildSrdMonsterFightProfile({
+      ...bob,
+      actions: `Multiattack. The minotaur makes two attacks with its greataxe.\n${bob.actions}`
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.profile.attacksPerRound).toBe(2);
+    expect(result.profile.actions?.find((action) => action.kind === "multiattack")).toMatchObject({
+      sequence: [{ count: 2 }]
+    });
+  });
+
+  it("models compound typed damage instead of silently dropping the rider", () => {
     const result = buildSrdMonsterFightProfile({
       ...bob,
       name: "Acid Biter",
       actions: "Bite. Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) piercing damage plus 4 (1d8) acid damage."
     });
-    expect(result.ok).toBe(false);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const bite = result.profile.actions?.find((action) => action.kind === "attack");
+    expect(bite).toMatchObject({
+      damage: [
+        { damageType: "piercing", formula: "1d8 + 3" },
+        { damageType: "acid", formula: "1d8" }
+      ]
+    });
+    expect(result.profile.averageDamageOnHit).toBe(12);
   });
 });
