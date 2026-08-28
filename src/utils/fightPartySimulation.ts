@@ -1,6 +1,11 @@
 import type { FightBattleCombatantState, FightBattleState, FightSide } from "../types/fightBattle";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import { createFightBattle, resolveFightTurn } from "./fightBattle";
+import {
+  fightStartingDistanceForIteration,
+  normalizeFightStartingDistances,
+  setFightStartingDistance
+} from "./fightEncounterSetup";
 import type { RandomIntegerSource } from "./randomInteger";
 import { rollDiceFormula } from "./rollDice";
 import { createSeededFightRandomInteger, stableFightSimulationSeed } from "./fightSimulation";
@@ -17,6 +22,7 @@ export type FightPartySimulationSummary = {
   iterations: number;
   seed: number;
   targetPolicy: FightPartyMonsterTargetPolicy;
+  startingDistancesFeet: number[];
   partyWins: number;
   monsterWins: number;
   unresolved: number;
@@ -200,20 +206,22 @@ const runPartyEncounter = ({
   heroProfiles,
   monsterProfile,
   targetPolicy,
+  startingDistanceFeet,
   randomInteger,
   maxRounds = 100
 }: {
   heroProfiles: FightCombatantProfile[];
   monsterProfile: FightCombatantProfile;
   targetPolicy: FightPartyMonsterTargetPolicy;
+  startingDistanceFeet: number;
   randomInteger: RandomIntegerSource;
   maxRounds?: number;
 }) => {
   const monsterId = `monster:${monsterProfile.id}`;
-  const first = createFightBattle(heroProfiles[0], monsterProfile);
+  const first = setFightStartingDistance(createFightBattle(heroProfiles[0], monsterProfile), startingDistanceFeet);
   const heroes: PartyHeroState[] = heroProfiles.map((profile, index) => {
     const id = `hero:${profile.id}:${index}`;
-    const created = createFightBattle(profile, monsterProfile);
+    const created = setFightStartingDistance(createFightBattle(profile, monsterProfile), startingDistanceFeet);
     return {
       id,
       profile,
@@ -280,17 +288,26 @@ export const simulateFightPartyMatchup = ({
   monster,
   iterations = 300,
   targetPolicy = "random",
-  seed = stableFightSimulationSeed(...heroes.map((hero) => hero.id), monster.id, monster.ruleset, targetPolicy)
+  startingDistancesFeet,
+  seed = stableFightSimulationSeed(
+    ...heroes.map((hero) => hero.id),
+    monster.id,
+    monster.ruleset,
+    targetPolicy,
+    normalizeFightStartingDistances(startingDistancesFeet).join(",")
+  )
 }: {
   heroes: FightCombatantProfile[];
   monster: FightCombatantProfile;
   iterations?: number;
   targetPolicy?: FightPartyMonsterTargetPolicy;
+  startingDistancesFeet?: readonly number[];
   seed?: number;
 }): FightPartySimulationSummary => {
   const issue = getFightPartySimulationIssue(heroes, monster);
   if (issue) throw new Error(issue);
   const sampleSize = Math.min(2000, Math.max(1, Math.trunc(iterations)));
+  const distances = normalizeFightStartingDistances(startingDistancesFeet);
   const randomInteger = createSeededFightRandomInteger(seed);
   const rounds: number[] = [];
   const partyWinStanding: number[] = [];
@@ -302,7 +319,14 @@ export const simulateFightPartyMatchup = ({
   let unresolved = 0;
 
   for (let iteration = 0; iteration < sampleSize; iteration += 1) {
-    const result = runPartyEncounter({ heroProfiles: heroes, monsterProfile: monster, targetPolicy, randomInteger });
+    const startingDistance = fightStartingDistanceForIteration(iteration, distances);
+    const result = runPartyEncounter({
+      heroProfiles: heroes,
+      monsterProfile: monster,
+      targetPolicy,
+      startingDistanceFeet: startingDistance,
+      randomInteger
+    });
     rounds.push(result.round);
     result.heroes.forEach((hero, index) => {
       if (hero.combatant.currentHitPoints > 0) survivalCounts[index] += 1;
@@ -325,6 +349,7 @@ export const simulateFightPartyMatchup = ({
     iterations: sampleSize,
     seed: seed >>> 0,
     targetPolicy,
+    startingDistancesFeet: distances,
     partyWins,
     monsterWins,
     unresolved,
