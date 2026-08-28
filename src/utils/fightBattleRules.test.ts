@@ -38,7 +38,7 @@ describe("rules-driven Fight Card battle execution", () => {
     expect(state.events).toHaveLength(1);
   });
 
-  it("treats a Champion natural 19 as a critical and rolls only extra damage dice", () => {
+  it("treats a Champion natural 19 as a Heroic Crit with max base dice plus one normal damage roll", () => {
     const hero = legacyProfile("Champion", {
       actions: [{
         id: "longsword",
@@ -54,9 +54,9 @@ describe("rules-driven Fight Card battle execution", () => {
     });
     let state = createFightBattle(hero, legacyProfile("Monster"));
     state = rollFightInitiative(state, sequence([20, 1]));
-    state = resolveFightTurn(state, sequence([19, 4, 5]));
+    state = resolveFightTurn(state, sequence([19, 4]));
 
-    expect(state.events[0]).toMatchObject({ outcome: "critical", naturalRoll: 19, rawDamage: 12, damage: 12 });
+    expect(state.events[0]).toMatchObject({ outcome: "critical", naturalRoll: 19, rawDamage: 15, damage: 15 });
   });
 
   it("resolves a save-half effect before resistance", () => {
