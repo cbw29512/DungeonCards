@@ -502,11 +502,13 @@ const resolveAttackAction = (
   });
   const natural = naturalRoll(roll);
   const criticalAt = Math.min(20, Math.max(2, Math.trunc(action.criticalAt ?? 20)));
-  const outcome = natural === 1
-    ? "miss"
-    : natural === 20 || natural >= criticalAt
-      ? "critical"
-      : roll.total >= state[target].profile.armorClass ? "hit" : "miss";
+  const hitsArmorClass = natural === 20
+  || (natural !== 1 && roll.total >= state[target].profile.armorClass);
+const outcome = !hitsArmorClass
+  ? "miss"
+  : natural === 20 || natural >= criticalAt
+    ? "critical"
+    : "hit";
   const damage = outcome === "miss"
     ? { rawTotal: 0, appliedTotal: 0, components: [] }
     : rollFightDamageComponents({

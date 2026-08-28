@@ -141,12 +141,14 @@ const characterSpellActions = (
 };
 
 export const buildCharacterFightProfile = (character: DndCharacterRecord): FightProfileBuildResult => {
-  const championCritical = character.ruleset === "srd-5.1-2014"
-    && character.classId === "fighter"
-    && character.level >= 3
-    && /champion/i.test(character.subclassName)
-    ? 19
-    : 20;
+  const isSupportedChampion = (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024")
+  && character.classId === "fighter"
+  && /champion/i.test(character.subclassName);
+const championCritical = !isSupportedChampion || character.level < 3
+  ? 20
+  : character.level >= 15
+    ? 18
+    : 19;
   const attackActions = character.attacks.flatMap((attack) => {
     const action = characterAttackAction(character, attack, championCritical);
     return action ? [{ attack, action }] : [];
