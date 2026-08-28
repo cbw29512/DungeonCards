@@ -14,6 +14,7 @@ import {
 import { getFightBattleProfileIssue } from "../utils/fightBattleValidation";
 import { buildCharacterFightProfile, buildSrdMonsterFightProfile } from "../utils/fightProfileAdapters";
 import { characterPixelIdentity, monsterPixelIdentity } from "../utils/fightBattlePresentation";
+import { simulateFightMatchup, type FightSimulationSummary } from "../utils/fightSimulation";
 import { DndFightBattleRunner } from "./DndFightBattleRunner";
 
 type HeroOption = {
@@ -155,6 +156,7 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
   const [monsterIndex, setMonsterIndex] = useState(preferredMonsterIndex);
   const [fightNumber, setFightNumber] = useState(0);
   const [fighting, setFighting] = useState(false);
+  const [simulation, setSimulation] = useState<FightSimulationSummary>();
 
   const hero = heroOptions[heroIndex] ?? heroOptions[0];
   const monster = monsterOptions[monsterIndex] ?? monsterOptions[0];
@@ -163,17 +165,24 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
   const chooseHero = (nextIndex: number) => {
     setHeroIndex(nextIndex);
     setFighting(false);
+    setSimulation(undefined);
   };
 
   const chooseMonster = (nextIndex: number) => {
     setMonsterIndex(nextIndex);
     setFighting(false);
+    setSimulation(undefined);
   };
 
   const startFight = () => {
     if (!canFight) return;
     setFightNumber((value) => value + 1);
     setFighting(true);
+  };
+
+  const simulateAverageFight = () => {
+    if (!hero?.profile || hero.issue || !monster?.profile || monster.issue) return;
+    setSimulation(simulateFightMatchup({ character: hero.profile, monster: monster.profile, iterations: 500 }));
   };
 
   if (!hero || !monster) {
@@ -280,6 +289,26 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
               <p><strong>Roster:</strong> {FIGHT_2024_EXPECTED_HERO_COUNT} hero level slots and {FIGHT_2024_EXPECTED_MONSTER_COUNT} SRD monsters stay available in the selector.</p>
               {selectedIssue ? <p><strong>Automation detail:</strong> {selectedIssue}</p> : <p><strong>Selected cards:</strong> ready for automated combat.</p>}
               <p><strong>Ruleset:</strong> {RULESET_LABELS[FIGHT_2024_RULESET]}.</p>
+
+              <section className="fight-showcase__simulation" aria-label="Average fight simulator">
+                <header>
+                  <strong>Average fight</strong>
+                  <span>Run the same battle engine 500 times.</span>
+                </header>
+                <button disabled={!canFight} onClick={simulateAverageFight} type="button">Simulate 500 fights</button>
+                {simulation ? (
+                  <div className="fight-showcase__simulation-results" role="status">
+                    <dl>
+                      <div><dt>{hero.name} wins</dt><dd>{simulation.characterWinRate}%</dd></div>
+                      <div><dt>{monster.monster.name} wins</dt><dd>{simulation.monsterWinRate}%</dd></div>
+                      <div><dt>Typical fight</dt><dd>{simulation.medianRounds} rounds</dd></div>
+                      <div><dt>Average fight</dt><dd>{simulation.averageRounds} rounds</dd></div>
+                    </dl>
+                    <p>When {hero.name} wins: {simulation.averageCharacterHitPointsOnWin} HP left on average. When {monster.monster.name} wins: {simulation.averageMonsterHitPointsOnWin} HP left on average.</p>
+                    <p>Sample: {simulation.iterations} fights · unresolved {simulation.unresolved} · seed {simulation.seed}. Initiative ties are broken randomly for simulation only.</p>
+                  </div>
+                ) : <p>Use this to estimate how this solo matchup tends to play out—not to alter either card.</p>}
+              </section>
             </div>
           </details>
         </>

@@ -142,6 +142,74 @@
   margin: 0;
 }
 
+.fight-showcase__simulation {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.55rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(226, 184, 102, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.fight-showcase__simulation header {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.fight-showcase__simulation header strong {
+  color: #e4d9c6;
+  font-size: 1rem;
+}
+
+.fight-showcase__simulation header span {
+  color: #948d83;
+  font-size: 0.76rem;
+}
+
+.fight-showcase__simulation > button {
+  justify-self: start;
+  min-height: 40px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(226, 184, 102, 0.35);
+  background: rgba(169, 64, 49, 0.32);
+  color: #f3e8d2;
+  font-weight: 850;
+}
+
+.fight-showcase__simulation-results {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.fight-showcase__simulation-results dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.fight-showcase__simulation-results dl div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.55rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.fight-showcase__simulation-results dt {
+  color: #9f978c;
+  font-size: 0.68rem;
+}
+
+.fight-showcase__simulation-results dd {
+  margin: 0;
+  color: #e2b866;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
 .fight-front-door__footer {
   display: flex;
   gap: 1rem;
@@ -175,4 +243,5 @@
   .fight-front-door__brand { font-size: 0.8rem; letter-spacing: 0.16em; }
   .fight-front-door__intro { padding-top: 2rem; }
   .fight-showcase__chooser { grid-template-columns: 42px minmax(0, 1fr) 42px; }
+  .fight-showcase__simulation-results dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

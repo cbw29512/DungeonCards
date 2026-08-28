@@ -14,6 +14,8 @@ describe("Fight Cards showdown", () => {
     expect(html).toContain(">FIGHT</button>");
     expect(html).toContain("No hidden balancing. The cards fight with their actual game stats.");
     expect(html).toContain("DM Details");
+    expect(html).toContain("Average fight");
+    expect(html).toContain("Simulate 500 fights");
     expect((html.match(/<option/g) ?? [])).toHaveLength(568);
     expect((html.match(/fight-showcase-card /g) ?? [])).toHaveLength(2);
 
