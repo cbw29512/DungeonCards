@@ -14,6 +14,12 @@ import {
 import { getFightBattleProfileIssue } from "../utils/fightBattleValidation";
 import { buildCharacterFightProfile, buildSrdMonsterFightProfile } from "../utils/fightProfileAdapters";
 import { characterPixelIdentity, monsterPixelIdentity } from "../utils/fightBattlePresentation";
+import {
+  getFightPartySimulationIssue,
+  simulateFightPartyMatchup,
+  type FightPartyMonsterTargetPolicy,
+  type FightPartySimulationSummary
+} from "../utils/fightPartySimulation";
 import { simulateFightMatchup, type FightSimulationSummary } from "../utils/fightSimulation";
 import { DndFightBattleRunner } from "./DndFightBattleRunner";
 
@@ -157,21 +163,36 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
   const [fightNumber, setFightNumber] = useState(0);
   const [fighting, setFighting] = useState(false);
   const [simulation, setSimulation] = useState<FightSimulationSummary>();
+  const [extraPartyHeroIndexes, setExtraPartyHeroIndexes] = useState<number[]>([]);
+  const [partyTargetPolicy, setPartyTargetPolicy] = useState<FightPartyMonsterTargetPolicy>("random");
+  const [partySimulation, setPartySimulation] = useState<FightPartySimulationSummary>();
 
   const hero = heroOptions[heroIndex] ?? heroOptions[0];
   const monster = monsterOptions[monsterIndex] ?? monsterOptions[0];
   const canFight = Boolean(hero?.profile && !hero.issue && monster?.profile && !monster.issue);
+  const partyMembers = [hero, ...extraPartyHeroIndexes.map((index) => heroOptions[index]).filter((option): option is HeroOption => Boolean(option))];
+  const partyProfiles = partyMembers.flatMap((member) => member.profile && !member.issue ? [member.profile] : []);
+  const partyIssue = !monster?.profile || monster.issue
+    ? monster?.issue ?? "Choose a monster that is ready for automated combat."
+    : partyProfiles.length !== partyMembers.length
+      ? "Every selected party member must be ready for automated combat."
+      : getFightPartySimulationIssue(partyProfiles, monster.profile);
+
+  const clearAnalysis = () => {
+    setSimulation(undefined);
+    setPartySimulation(undefined);
+  };
 
   const chooseHero = (nextIndex: number) => {
     setHeroIndex(nextIndex);
     setFighting(false);
-    setSimulation(undefined);
+    clearAnalysis();
   };
 
   const chooseMonster = (nextIndex: number) => {
     setMonsterIndex(nextIndex);
     setFighting(false);
-    setSimulation(undefined);
+    clearAnalysis();
   };
 
   const startFight = () => {
@@ -183,6 +204,40 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
   const simulateAverageFight = () => {
     if (!hero?.profile || hero.issue || !monster?.profile || monster.issue) return;
     setSimulation(simulateFightMatchup({ character: hero.profile, monster: monster.profile, iterations: 500 }));
+  };
+
+  const addPartyMember = () => {
+    if (extraPartyHeroIndexes.length >= 5) return;
+    const used = new Set([heroIndex, ...extraPartyHeroIndexes]);
+    for (let offset = 1; offset <= heroOptions.length; offset += 1) {
+      const index = (heroIndex + offset) % heroOptions.length;
+      const option = heroOptions[index];
+      if (!used.has(index) && option?.profile && !option.issue) {
+        setExtraPartyHeroIndexes((current) => [...current, index]);
+        setPartySimulation(undefined);
+        return;
+      }
+    }
+  };
+
+  const changePartyMember = (slot: number, nextIndex: number) => {
+    setExtraPartyHeroIndexes((current) => current.map((value, index) => index === slot ? nextIndex : value));
+    setPartySimulation(undefined);
+  };
+
+  const removePartyMember = (slot: number) => {
+    setExtraPartyHeroIndexes((current) => current.filter((_value, index) => index !== slot));
+    setPartySimulation(undefined);
+  };
+
+  const simulatePartyAverage = () => {
+    if (partyIssue || !monster.profile) return;
+    setPartySimulation(simulateFightPartyMatchup({
+      heroes: partyProfiles,
+      monster: monster.profile,
+      iterations: 300,
+      targetPolicy: partyTargetPolicy
+    }));
   };
 
   if (!hero || !monster) {
@@ -284,18 +339,18 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
           <details className="fight-showcase__dm-details">
             <summary>DM Details</summary>
             <div>
-              <p><strong>Current mode:</strong> solo hero vs. one monster using D&amp;D 2024 / SRD 5.2.1 data.</p>
+              <p><strong>Live arena:</strong> one hero vs. one monster using D&amp;D 2024 / SRD 5.2.1 data.</p>
               <p><strong>Heroic Crits:</strong> a critical hit adds maximum crit-eligible base dice to one normal damage roll; flat modifiers apply once. This is a Fight Cards house rule.</p>
               <p><strong>Roster:</strong> {FIGHT_2024_EXPECTED_HERO_COUNT} hero level slots and {FIGHT_2024_EXPECTED_MONSTER_COUNT} SRD monsters stay available in the selector.</p>
               {selectedIssue ? <p><strong>Automation detail:</strong> {selectedIssue}</p> : <p><strong>Selected cards:</strong> ready for automated combat.</p>}
               <p><strong>Ruleset:</strong> {RULESET_LABELS[FIGHT_2024_RULESET]}.</p>
 
-              <section className="fight-showcase__simulation" aria-label="Average fight simulator">
+              <section className="fight-showcase__simulation" aria-label="Solo average fight simulator">
                 <header>
-                  <strong>Average fight</strong>
+                  <strong>Solo average</strong>
                   <span>Run the same battle engine 500 times.</span>
                 </header>
-                <button disabled={!canFight} onClick={simulateAverageFight} type="button">Simulate 500 fights</button>
+                <button disabled={!canFight} onClick={simulateAverageFight} type="button">Simulate 500 solo fights</button>
                 {simulation ? (
                   <div className="fight-showcase__simulation-results" role="status">
                     <dl>
@@ -308,6 +363,74 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
                     <p>Sample: {simulation.iterations} fights · unresolved {simulation.unresolved} · seed {simulation.seed}. Initiative ties are broken randomly for simulation only.</p>
                   </div>
                 ) : <p>Use this to estimate how this solo matchup tends to play out—not to alter either card.</p>}
+              </section>
+
+              <section className="fight-showcase__simulation fight-showcase__party-simulation" aria-label="Party average fight simulator">
+                <header>
+                  <strong>Party average</strong>
+                  <span>Each hero keeps separate initiative, HP, resources, effects, and survival results.</span>
+                </header>
+
+                <div className="fight-showcase__party-members">
+                  <div className="fight-showcase__party-member fight-showcase__party-member--primary">
+                    <span>Hero 1</span>
+                    <strong>{hero.name} · {hero.className} {hero.level}</strong>
+                  </div>
+                  {extraPartyHeroIndexes.map((index, slot) => {
+                    const member = heroOptions[index];
+                    return (
+                      <div className="fight-showcase__party-member" key={`party-${slot}`}>
+                        <label>
+                          <span>Hero {slot + 2}</span>
+                          <select onChange={(event) => changePartyMember(slot, Number(event.target.value))} value={index}>
+                            {heroOptions.map((option, optionIndex) => (
+                              <option disabled={!option.profile || Boolean(option.issue)} key={`${option.id}:${optionIndex}`} value={optionIndex}>
+                                {option.name} · {option.className} {option.level}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <button aria-label={`Remove hero ${slot + 2}`} onClick={() => removePartyMember(slot)} type="button">Remove</button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="fight-showcase__party-controls">
+                  <button disabled={extraPartyHeroIndexes.length >= 5} onClick={addPartyMember} type="button">+ Add party member</button>
+                  <label>
+                    <span>Monster tactics</span>
+                    <select
+                      onChange={(event) => {
+                        setPartyTargetPolicy(event.target.value as FightPartyMonsterTargetPolicy);
+                        setPartySimulation(undefined);
+                      }}
+                      value={partyTargetPolicy}
+                    >
+                      <option value="random">Spread attacks</option>
+                      <option value="focus-lowest-hp">Focus fire</option>
+                    </select>
+                  </label>
+                </div>
+
+                <button disabled={Boolean(partyIssue)} onClick={simulatePartyAverage} type="button">Simulate 300 party fights</button>
+                {partyIssue ? <p className="fight-showcase__party-issue"><strong>Party simulation blocker:</strong> {partyIssue}</p> : null}
+
+                {partySimulation ? (
+                  <div className="fight-showcase__simulation-results" role="status">
+                    <dl>
+                      <div><dt>Party wins</dt><dd>{partySimulation.partyWinRate}%</dd></div>
+                      <div><dt>TPKs</dt><dd>{partySimulation.monsterWinRate}%</dd></div>
+                      <div><dt>Typical fight</dt><dd>{partySimulation.medianRounds} rounds</dd></div>
+                      <div><dt>Heroes standing</dt><dd>{partySimulation.averageHeroesStandingOnPartyWin}</dd></div>
+                    </dl>
+                    <p>Party wins finish with {partySimulation.averagePartyHitPointsOnWin} combined HP among surviving heroes on average. Monster wins finish with {partySimulation.averageMonsterHitPointsOnWin} HP on average.</p>
+                    <ul className="fight-showcase__survival-list">
+                      {partySimulation.heroSurvival.map((member, index) => <li key={member.id}><span>Hero {index + 1} · {member.name}</span><strong>{member.survivalRate}% survive</strong></li>)}
+                    </ul>
+                    <p>Sample: {partySimulation.iterations} fights · unresolved {partySimulation.unresolved} · seed {partySimulation.seed}. Monster tactic: {partySimulation.targetPolicy === "random" ? "spread attacks among living heroes" : "focus the living hero with the lowest current HP"}.</p>
+                  </div>
+                ) : <p>Party simulation uses individual combatants—not combined party HP or averaged party DPR. Current baseline uses one shared abstract range and does not retarget leftover attacks after a target drops.</p>}
               </section>
             </div>
           </details>
