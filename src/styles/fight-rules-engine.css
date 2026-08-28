@@ -1,0 +1,64 @@
+.fight-status-card__economy,
+.fight-status-card__resources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.fight-status-card__economy {
+  margin-top: 0.45rem;
+  padding: 0.3rem 0;
+  border-top: 2px dashed rgb(20 20 20 / 38%);
+  border-bottom: 2px dashed rgb(20 20 20 / 38%);
+}
+
+.fight-status-card__economy span,
+.fight-status-card__resources span {
+  padding: 0.16rem 0.3rem;
+  border: 2px solid #161616;
+  background: #eee3c7;
+  box-shadow: 2px 2px 0 #161616;
+  font-size: 0.58rem;
+  font-weight: 950;
+  letter-spacing: 0.035em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.fight-status-card__economy .is-ready,
+.fight-status-card__resources .is-ready {
+  background: #bde7c4;
+}
+
+.fight-status-card__economy .is-spent,
+.fight-status-card__resources .is-spent {
+  background: #d7d0c2;
+  opacity: 0.68;
+}
+
+.fight-status-card__resources {
+  min-height: 27px;
+  padding: 0.35rem 0 0.45rem;
+  border-top: 2px solid rgb(20 20 20 / 32%);
+}
+
+.fight-status-burst--damage-resisted { background: #c8dcf1; }
+.fight-status-burst--damage-immune { background: #d9d9e8; }
+.fight-status-burst--damage-vulnerable { background: #f2bdad; }
+.fight-status-burst--recharge-ready { background: #c8ead0; }
+.fight-status-burst--movement,
+.fight-status-burst--resource-used { background: #e7ddbd; }
+
+@media (max-width: 720px) {
+  .fight-status-card__economy,
+  .fight-status-card__resources {
+    gap: 0.18rem;
+  }
+
+  .fight-status-card__economy span,
+  .fight-status-card__resources span {
+    padding: 0.12rem 0.2rem;
+    font-size: 0.5rem;
+  }
+}
