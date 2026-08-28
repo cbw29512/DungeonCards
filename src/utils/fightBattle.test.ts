@@ -7,6 +7,7 @@ import {
   rollFightInitiative,
   runFightToCompletion
 } from "./fightBattle";
+import { grantFightTemporaryHitPoints } from "./fightBattleEffects";
 
 const fighter: FightCombatantProfile = {
   id: "fighter",
@@ -22,6 +23,7 @@ const fighter: FightCombatantProfile = {
   attackDamageFormula: "1d8+3",
   criticalBonusFormula: "1d8",
   sourceActionName: "Longsword",
+  attackDelivery: "weapon",
   level: 3
 };
 
@@ -39,6 +41,7 @@ const monster: FightCombatantProfile = {
   attackDamageFormula: "1d6+2",
   criticalBonusFormula: "1d6",
   sourceActionName: "Greataxe",
+  attackDelivery: "weapon",
   challengeRating: 3
 };
 
@@ -63,19 +66,32 @@ describe("fight battle engine", () => {
     expect(resolved.initiative?.order).toEqual(["monster", "character"]);
   });
 
-  it("honors natural 1 misses and natural 20 critical damage", () => {
+  it("honors natural 1 misses and natural 20 critical damage and emits matching presentation events", () => {
     let state = rollFightInitiative(createFightBattle(fighter, monster), sequence(10, 8));
     state = resolveFightTurn(state, sequence(1));
     expect(state.monster.currentHitPoints).toBe(20);
     expect(state.events[0].outcome).toBe("miss");
+    expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "miss", delivery: "weapon", side: "monster" });
 
     state = resolveFightTurn(state, sequence(20, 4, 5));
     expect(state.character.currentHitPoints).toBe(9);
     expect(state.events[1]).toMatchObject({ outcome: "critical", damage: 11, naturalRoll: 20 });
+    expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "critical", amount: 11, side: "character" });
     expect(state.round).toBe(2);
   });
 
-  it("stops remaining attacks immediately when the target reaches 0 HP", () => {
+  it("spends temporary HP before real HP while preserving total incoming damage", () => {
+    let state = rollFightInitiative(createFightBattle(fighter, monster), sequence(10, 8));
+    state = grantFightTemporaryHitPoints(state, "monster", 5, "Heroism");
+    state = resolveFightTurn(state, sequence(15, 5));
+
+    expect(state.monster.temporaryHitPoints).toBe(0);
+    expect(state.monster.currentHitPoints).toBe(17);
+    expect(state.events.at(-1)).toMatchObject({ damage: 8, temporaryHitPointsAbsorbed: 5, targetHitPointsAfter: 17 });
+    expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "hit", amount: 8 });
+  });
+
+  it("stops remaining attacks immediately when the target reaches 0 HP and emits downed", () => {
     const multi = { ...fighter, attacksPerRound: 2 };
     const fragile = { ...monster, hitPoints: 5 };
     let state = rollFightInitiative(createFightBattle(multi, fragile), sequence(18, 2));
@@ -85,6 +101,7 @@ describe("fight battle engine", () => {
     expect(state.winner).toBe("character");
     expect(state.monster.currentHitPoints).toBe(0);
     expect(state.events).toHaveLength(1);
+    expect(state.presentationEvents?.at(-1)).toMatchObject({ type: "downed", side: "monster" });
   });
 
   it("can auto-resolve an active fight to a victor", () => {
@@ -95,6 +112,7 @@ describe("fight battle engine", () => {
     expect(state.winner).toBe("character");
     expect(state.monster.currentHitPoints).toBe(0);
     expect(state.events.some((event) => event.outcome === "critical")).toBe(true);
+    expect(state.presentationEvents?.at(-1)?.type).toBe("downed");
   });
 
   it("fails closed when a profile lacks executable attack data", () => {
