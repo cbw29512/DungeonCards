@@ -77,7 +77,7 @@ export const DndFightBattleRunner = ({ character, monster, characterIdentity, mo
           </ol>
         </details>
       ) : null}
-      <p className="fight-runner__scope">Only combat actions the rules engine can execute safely are included; unsupported abilities are never invented.</p>
+      <p className="fight-runner__scope"><strong>Heroic Crits:</strong> a crit adds the maximum value of the attack&apos;s crit-eligible base dice to one normal damage roll; flat modifiers are added once. This is an explicit Fight Cards house rule, not 2024 RAW. Unsupported abilities are never invented.</p>
     </section>
   );
 };
