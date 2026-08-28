@@ -107,12 +107,12 @@ describe("fight battle engine", () => {
   it("breaks a downed combatant's concentration and clears linked effects before declaring downed", () => {
     const fragileCaster = { ...monster, hitPoints: 5 };
     let state = createFightBattle(fighter, fragileCaster);
-    state = startFightConcentration(state, "monster", "Hold Person");
+    state = startFightConcentration(state, "monster", "Concentration Test");
     state = applyFightEffect(state, "character", {
-      id: "paralyzed",
-      name: "Paralyzed",
-      kind: "condition",
-      iconKey: "paralyzed",
+      id: "concentration-link",
+      name: "Concentration Link",
+      kind: "buff",
+      iconKey: "concentration",
       tickTiming: "manual",
       concentrationOwner: "monster"
     });
