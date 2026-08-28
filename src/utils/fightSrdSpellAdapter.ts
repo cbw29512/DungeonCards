@@ -55,7 +55,7 @@ const damageComponents = (spell: SrdSpellRecord, characterLevel: number): FightD
 };
 
 const supportedCondition = (description: string): string | undefined =>
-  description.match(/\b(?:is|becomes)\s+(blinded|charmed|deafened|frightened|grappled|incapacitated|invisible|paralyzed|petrified|poisoned|prone|restrained|stunned|unconscious)\b/i)?.[1]?.toLowerCase();
+  description.match(/\b(?:is|becomes|be)\s+(blinded|charmed|deafened|frightened|grappled|incapacitated|invisible|paralyzed|petrified|poisoned|prone|restrained|stunned|unconscious)\b/i)?.[1]?.toLowerCase();
 
 const conditionEffect = (
   spell: SrdSpellRecord,
