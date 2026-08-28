@@ -14,6 +14,7 @@ import {
 import { getFightBattleProfileIssue } from "../utils/fightBattleValidation";
 import { buildCharacterFightProfile, buildSrdMonsterFightProfile } from "../utils/fightProfileAdapters";
 import { characterPixelIdentity, monsterPixelIdentity } from "../utils/fightBattlePresentation";
+import { FIGHT_WATCHED_STARTING_DISTANCE_FEET } from "../utils/fightEncounterSetup";
 import {
   getFightPartySimulationIssue,
   simulateFightPartyMatchup,
@@ -339,7 +340,7 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
           <details className="fight-showcase__dm-details">
             <summary>DM Details</summary>
             <div>
-              <p><strong>Live arena:</strong> one hero vs. one monster using D&amp;D 2024 / SRD 5.2.1 data.</p>
+              <p><strong>Live arena:</strong> one hero vs. one monster using D&amp;D 2024 / SRD 5.2.1 data. The neutral watched fight begins {FIGHT_WATCHED_STARTING_DISTANCE_FEET} ft apart; D&amp;D itself leaves encounter positions to the GM.</p>
               <p><strong>Heroic Crits:</strong> a critical hit adds maximum crit-eligible base dice to one normal damage roll; flat modifiers apply once. This is a Fight Cards house rule.</p>
               <p><strong>Roster:</strong> {FIGHT_2024_EXPECTED_HERO_COUNT} hero level slots and {FIGHT_2024_EXPECTED_MONSTER_COUNT} SRD monsters stay available in the selector.</p>
               {selectedIssue ? <p><strong>Automation detail:</strong> {selectedIssue}</p> : <p><strong>Selected cards:</strong> ready for automated combat.</p>}
@@ -348,7 +349,7 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
               <section className="fight-showcase__simulation" aria-label="Solo average fight simulator">
                 <header>
                   <strong>Solo average</strong>
-                  <span>Run the same battle engine 500 times.</span>
+                  <span>Run the same battle engine 500 times across multiple encounter distances.</span>
                 </header>
                 <button disabled={!canFight} onClick={simulateAverageFight} type="button">Simulate 500 solo fights</button>
                 {simulation ? (
@@ -360,15 +361,15 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
                       <div><dt>Average fight</dt><dd>{simulation.averageRounds} rounds</dd></div>
                     </dl>
                     <p>When {hero.name} wins: {simulation.averageCharacterHitPointsOnWin} HP left on average. When {monster.monster.name} wins: {simulation.averageMonsterHitPointsOnWin} HP left on average.</p>
-                    <p>Sample: {simulation.iterations} fights · unresolved {simulation.unresolved} · seed {simulation.seed}. Initiative ties are broken randomly for simulation only.</p>
+                    <p>Sample: {simulation.iterations} fights · starts {simulation.startingDistancesFeet.join(" / ")} ft apart · unresolved {simulation.unresolved} · seed {simulation.seed}. Initiative ties are broken randomly for simulation only.</p>
                   </div>
-                ) : <p>Use this to estimate how this solo matchup tends to play out—not to alter either card.</p>}
+                ) : <p>Use this to estimate how this solo matchup tends to play out. The default average samples 30, 60, and 90 ft starts instead of assuming melee range.</p>}
               </section>
 
               <section className="fight-showcase__simulation fight-showcase__party-simulation" aria-label="Party average fight simulator">
                 <header>
                   <strong>Party average</strong>
-                  <span>Each hero keeps separate initiative, HP, resources, effects, and survival results.</span>
+                  <span>Each hero keeps separate initiative, HP, resources, effects, position, and survival results.</span>
                 </header>
 
                 <div className="fight-showcase__party-members">
@@ -428,9 +429,9 @@ export const DndFightCardsArena = ({ compactHeading = false }: Props) => {
                     <ul className="fight-showcase__survival-list">
                       {partySimulation.heroSurvival.map((member, index) => <li key={member.id}><span>Hero {index + 1} · {member.name}</span><strong>{member.survivalRate}% survive</strong></li>)}
                     </ul>
-                    <p>Sample: {partySimulation.iterations} fights · unresolved {partySimulation.unresolved} · seed {partySimulation.seed}. Monster tactic: {partySimulation.targetPolicy === "random" ? "spread attacks among living heroes" : "focus the living hero with the lowest current HP"}.</p>
+                    <p>Sample: {partySimulation.iterations} fights · starts {partySimulation.startingDistancesFeet.join(" / ")} ft apart · unresolved {partySimulation.unresolved} · seed {partySimulation.seed}. Monster tactic: {partySimulation.targetPolicy === "random" ? "spread attacks among living heroes" : "focus the living hero with the lowest current HP"}.</p>
                   </div>
-                ) : <p>Party simulation uses individual combatants—not combined party HP or averaged party DPR. Concentration ownership and remaining Multiattack/Extra Attack/bonus attacks stay attached to exact combatants; the current baseline still uses one shared abstract range.</p>}
+                ) : <p>Party simulation uses individual combatants—not combined party HP or averaged party DPR. The party begins together, the monster starts 30/60/90 ft away across the sample, and each hero and monster then keeps an independent position as movement and retargeting resolve.</p>}
               </section>
             </div>
           </details>

@@ -34,19 +34,39 @@ describe("Fight Cards matchup simulation", () => {
     expect(firstSequence.every((value) => value >= 1 && value <= 20)).toBe(true);
   });
 
-  it("returns the same average-fight report for the same matchup, sample size, and seed", () => {
+  it("returns the same average-fight report for the same matchup, sample size, seed, and encounter-distance mix", () => {
     const hero = profile("Hero");
     const monster = profile("Monster", { initiativeBonus: 0 });
-    const seed = stableFightSimulationSeed(hero.id, monster.id, hero.ruleset);
+    const seed = stableFightSimulationSeed(hero.id, monster.id, hero.ruleset, "30,60,90");
 
-    const first = simulateFightMatchup({ character: hero, monster, iterations: 100, seed });
-    const second = simulateFightMatchup({ character: hero, monster, iterations: 100, seed });
+    const first = simulateFightMatchup({ character: hero, monster, iterations: 99, seed });
+    const second = simulateFightMatchup({ character: hero, monster, iterations: 99, seed });
 
     expect(first).toEqual(second);
-    expect(first.iterations).toBe(100);
-    expect(first.characterWins + first.monsterWins + first.unresolved).toBe(100);
+    expect(first.iterations).toBe(99);
+    expect(first.startingDistancesFeet).toEqual([30, 60, 90]);
+    expect(first.characterWins + first.monsterWins + first.unresolved).toBe(99);
     expect(first.averageRounds).toBeGreaterThan(0);
     expect(first.medianRounds).toBeGreaterThan(0);
+  });
+
+  it("supports a DM-specified starting distance without changing either combatant profile", () => {
+    const hero = profile("Hero");
+    const monster = profile("Monster");
+    const beforeHero = structuredClone(hero);
+    const beforeMonster = structuredClone(monster);
+
+    const result = simulateFightMatchup({
+      character: hero,
+      monster,
+      iterations: 12,
+      startingDistancesFeet: [120],
+      seed: 91
+    });
+
+    expect(result.startingDistancesFeet).toEqual([120]);
+    expect(hero).toEqual(beforeHero);
+    expect(monster).toEqual(beforeMonster);
   });
 
   it("uses the actual battle engine strongly enough to reflect an overwhelming matchup", () => {
@@ -68,7 +88,7 @@ describe("Fight Cards matchup simulation", () => {
       initiativeBonus: 0
     });
 
-    const result = simulateFightMatchup({ character: hero, monster, iterations: 200, seed: 77 });
+    const result = simulateFightMatchup({ character: hero, monster, iterations: 198, seed: 77 });
 
     expect(result.characterWinRate).toBeGreaterThan(95);
     expect(result.unresolved).toBe(0);

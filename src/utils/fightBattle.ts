@@ -60,6 +60,22 @@ const attackFormula = (bonus: number): string => `1d20${bonus >= 0 ? "+" : ""}${
 const naturalRoll = (result: ReturnType<typeof rollDiceFormula>): number =>
   result.dice[0]?.keptResults?.[0] ?? result.dice[0]?.results[0] ?? 0;
 
+const finitePosition = (value: number | undefined): value is number => Number.isFinite(value);
+
+export const fightBattleDistanceFeet = (state: FightBattleState): number => {
+  const characterPosition = state.character.positionFeet;
+  const monsterPosition = state.monster.positionFeet;
+  if (finitePosition(characterPosition) && finitePosition(monsterPosition)) {
+    return Math.abs(characterPosition - monsterPosition);
+  }
+  return Math.max(0, state.distanceFeet);
+};
+
+const synchronizeFightDistance = (state: FightBattleState): FightBattleState => ({
+  ...state,
+  distanceFeet: fightBattleDistanceFeet(state)
+});
+
 const safeActionId = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "attack";
 
 const legacyActionsForProfile = (profile: FightCombatantProfile): FightActionDefinition[] => {
@@ -126,6 +142,7 @@ export const createFightBattle = (
     activeIndex: 0,
     distanceFeet: 30,
     character: {
+      positionFeet: 0,
       profile: character,
       currentHitPoints: character.hitPoints,
       temporaryHitPoints: 0,
@@ -135,6 +152,7 @@ export const createFightBattle = (
       economy: initialEconomy(character)
     },
     monster: {
+      positionFeet: 30,
       profile: monster,
       currentHitPoints: monster.hitPoints,
       temporaryHitPoints: 0,
@@ -293,21 +311,32 @@ const spendAction = (
 
 const moveIntoRange = (state: FightBattleState, side: FightSide, action: FightActionDefinition): FightBattleState => {
   const rangeFeet = action.rangeFeet ?? 5;
-  if (rangeFeet === 0 || state.distanceFeet <= rangeFeet) return state;
-  const movement = Math.min(state[side].economy.movementRemainingFeet, state.distanceFeet - rangeFeet);
-  if (movement <= 0) return state;
-  const nextDistance = Math.max(0, state.distanceFeet - movement);
+  const currentDistance = fightBattleDistanceFeet(state);
+  if (rangeFeet === 0 || currentDistance <= rangeFeet) return synchronizeFightDistance(state);
+  const movement = Math.min(state[side].economy.movementRemainingFeet, currentDistance - rangeFeet);
+  if (movement <= 0) return synchronizeFightDistance(state);
+
+  const target: FightSide = side === "character" ? "monster" : "character";
+  const actorPosition = state[side].positionFeet;
+  const targetPosition = state[target].positionFeet;
+  const nextPosition = finitePosition(actorPosition) && finitePosition(targetPosition)
+    ? actorPosition + Math.sign(targetPosition - actorPosition) * movement
+    : undefined;
+  const nextDistance = Math.max(0, currentDistance - movement);
+
   let next: FightBattleState = {
     ...state,
     distanceFeet: nextDistance,
     [side]: {
       ...state[side],
+      ...(finitePosition(nextPosition) ? { positionFeet: nextPosition } : {}),
       economy: {
         ...state[side].economy,
         movementRemainingFeet: state[side].economy.movementRemainingFeet - movement
       }
     }
   };
+  next = synchronizeFightDistance(next);
   next = appendFightPresentationEvent(next, {
     type: "movement",
     delivery: "system",
@@ -444,12 +473,12 @@ const completeIfDowned = (
   });
   const replacement = options.onOpponentDowned?.(next, attacker, target);
   if (replacement && replacement.currentHitPoints > 0) {
-    return {
+    return synchronizeFightDistance({
       ...next,
       status: "active",
       winner: undefined,
       [target]: replacement
-    };
+    });
   }
   return { ...next, status: "complete", winner: attacker };
 };
@@ -463,7 +492,7 @@ const resolveAttackAction = (
 ): FightBattleState => {
   const target: FightSide = attacker === "character" ? "monster" : "character";
   const roll = rollDiceFormula(attackFormula(action.attackBonus), {
-    advantageMode: fightAttackRollMode(state[attacker], state[target], action.attackRollMode, state.distanceFeet),
+    advantageMode: fightAttackRollMode(state[attacker], state[target], action.attackRollMode, fightBattleDistanceFeet(state)),
     naturalRollRule: "attack",
     randomInteger
   });
@@ -591,7 +620,7 @@ const executeAction = (
   if (!options.skipEconomy && !canUseAction(state, attacker, action)) return state;
   let next = moveIntoRange(state, attacker, action);
   if ((action.rangeFeet ?? 5) > 0
-    && next.distanceFeet > (action.rangeFeet ?? 5)
+    && fightBattleDistanceFeet(next) > (action.rangeFeet ?? 5)
     && action.kind !== "heal"
     && action.kind !== "temporary-hit-points"
     && action.kind !== "grant-action") return next;

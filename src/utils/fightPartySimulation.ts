@@ -1,6 +1,11 @@
 import type { FightBattleCombatantState, FightBattleState, FightSide } from "../types/fightBattle";
 import type { FightCombatantProfile } from "../types/fightMatchmaker";
 import { createFightBattle, resolveFightTurn } from "./fightBattle";
+import {
+  fightStartingDistanceForIteration,
+  normalizeFightStartingDistances,
+  setFightStartingDistance
+} from "./fightEncounterSetup";
 import type { RandomIntegerSource } from "./randomInteger";
 import { rollDiceFormula } from "./rollDice";
 import { createSeededFightRandomInteger, stableFightSimulationSeed } from "./fightSimulation";
@@ -17,6 +22,7 @@ export type FightPartySimulationSummary = {
   iterations: number;
   seed: number;
   targetPolicy: FightPartyMonsterTargetPolicy;
+  startingDistancesFeet: number[];
   partyWins: number;
   monsterWins: number;
   unresolved: number;
@@ -54,6 +60,12 @@ const median = (values: number[]): number => {
   return sorted.length % 2 === 0 ? (sorted[middle - 1] + sorted[middle]) / 2 : sorted[middle];
 };
 const d20Formula = (bonus: number): string => `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
+const combatantDistance = (hero: FightBattleCombatantState, monster: FightBattleCombatantState): number => {
+  if (Number.isFinite(hero.positionFeet) && Number.isFinite(monster.positionFeet)) {
+    return Math.abs((hero.positionFeet as number) - (monster.positionFeet as number));
+  }
+  return 30;
+};
 
 export const getFightPartySimulationIssue = (
   heroes: FightCombatantProfile[],
@@ -91,19 +103,17 @@ const transientBattle = ({
   hero,
   monster,
   actor,
-  round,
-  distanceFeet
+  round
 }: {
   hero: FightBattleCombatantState;
   monster: FightBattleCombatantState;
   actor: FightSide;
   round: number;
-  distanceFeet: number;
 }): FightBattleState => ({
   status: "active",
   round,
   activeIndex: 0,
-  distanceFeet,
+  distanceFeet: combatantDistance(hero, monster),
   initiative: {
     characterNaturalRoll: 0,
     characterTotal: 0,
@@ -196,20 +206,22 @@ const runPartyEncounter = ({
   heroProfiles,
   monsterProfile,
   targetPolicy,
+  startingDistanceFeet,
   randomInteger,
   maxRounds = 100
 }: {
   heroProfiles: FightCombatantProfile[];
   monsterProfile: FightCombatantProfile;
   targetPolicy: FightPartyMonsterTargetPolicy;
+  startingDistanceFeet: number;
   randomInteger: RandomIntegerSource;
   maxRounds?: number;
 }) => {
   const monsterId = `monster:${monsterProfile.id}`;
-  const first = createFightBattle(heroProfiles[0], monsterProfile);
+  const first = setFightStartingDistance(createFightBattle(heroProfiles[0], monsterProfile), startingDistanceFeet);
   const heroes: PartyHeroState[] = heroProfiles.map((profile, index) => {
     const id = `hero:${profile.id}:${index}`;
-    const created = createFightBattle(profile, monsterProfile);
+    const created = setFightStartingDistance(createFightBattle(profile, monsterProfile), startingDistanceFeet);
     return {
       id,
       profile,
@@ -217,7 +229,6 @@ const runPartyEncounter = ({
     };
   });
   let monster: FightBattleCombatantState = { ...first.monster, combatantId: monsterId };
-  let distanceFeet = first.distanceFeet;
   const order = initiativeOrder(heroes, monsterProfile, randomInteger);
   let round = 1;
 
@@ -234,17 +245,16 @@ const runPartyEncounter = ({
       if (entry.kind === "hero") {
         const hero = heroes.find((candidate) => candidate.id === entry.heroId);
         if (!hero || hero.combatant.currentHitPoints <= 0) continue;
-        const duel = transientBattle({ hero: hero.combatant, monster, actor: "character", round, distanceFeet });
+        const duel = transientBattle({ hero: hero.combatant, monster, actor: "character", round });
         const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger));
         hero.combatant = resolved.character;
         monster = resolved.monster;
         monster = syncCrossPartyConcentration({ heroes, activeHeroId: hero.id, monster, resolved });
-        distanceFeet = resolved.distanceFeet;
       } else {
         const firstTarget = chooseMonsterTarget(heroes, targetPolicy, randomInteger);
         if (!firstTarget) return { winner: "monster" as const, round, heroes, monster };
         let activeTarget = firstTarget;
-        const duel = transientBattle({ hero: activeTarget.combatant, monster, actor: "monster", round, distanceFeet });
+        const duel = transientBattle({ hero: activeTarget.combatant, monster, actor: "monster", round });
         const resolved = tagConcentrationOwnerIds(resolveFightTurn(duel, randomInteger, {
           onOpponentDowned: (downedState, attacker, targetSide) => {
             if (attacker !== "monster" || targetSide !== "character") return undefined;
@@ -266,7 +276,6 @@ const runPartyEncounter = ({
         activeTarget.combatant = resolved.character;
         monster = resolved.monster;
         monster = syncCrossPartyConcentration({ heroes, activeHeroId: activeTarget.id, monster, resolved });
-        distanceFeet = resolved.distanceFeet;
       }
     }
   }
@@ -279,17 +288,26 @@ export const simulateFightPartyMatchup = ({
   monster,
   iterations = 300,
   targetPolicy = "random",
-  seed = stableFightSimulationSeed(...heroes.map((hero) => hero.id), monster.id, monster.ruleset, targetPolicy)
+  startingDistancesFeet,
+  seed = stableFightSimulationSeed(
+    ...heroes.map((hero) => hero.id),
+    monster.id,
+    monster.ruleset,
+    targetPolicy,
+    normalizeFightStartingDistances(startingDistancesFeet).join(",")
+  )
 }: {
   heroes: FightCombatantProfile[];
   monster: FightCombatantProfile;
   iterations?: number;
   targetPolicy?: FightPartyMonsterTargetPolicy;
+  startingDistancesFeet?: readonly number[];
   seed?: number;
 }): FightPartySimulationSummary => {
   const issue = getFightPartySimulationIssue(heroes, monster);
   if (issue) throw new Error(issue);
   const sampleSize = Math.min(2000, Math.max(1, Math.trunc(iterations)));
+  const distances = normalizeFightStartingDistances(startingDistancesFeet);
   const randomInteger = createSeededFightRandomInteger(seed);
   const rounds: number[] = [];
   const partyWinStanding: number[] = [];
@@ -301,7 +319,14 @@ export const simulateFightPartyMatchup = ({
   let unresolved = 0;
 
   for (let iteration = 0; iteration < sampleSize; iteration += 1) {
-    const result = runPartyEncounter({ heroProfiles: heroes, monsterProfile: monster, targetPolicy, randomInteger });
+    const startingDistance = fightStartingDistanceForIteration(iteration, distances);
+    const result = runPartyEncounter({
+      heroProfiles: heroes,
+      monsterProfile: monster,
+      targetPolicy,
+      startingDistanceFeet: startingDistance,
+      randomInteger
+    });
     rounds.push(result.round);
     result.heroes.forEach((hero, index) => {
       if (hero.combatant.currentHitPoints > 0) survivalCounts[index] += 1;
@@ -324,6 +349,7 @@ export const simulateFightPartyMatchup = ({
     iterations: sampleSize,
     seed: seed >>> 0,
     targetPolicy,
+    startingDistancesFeet: distances,
     partyWins,
     monsterWins,
     unresolved,

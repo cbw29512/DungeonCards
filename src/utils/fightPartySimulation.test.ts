@@ -26,6 +26,7 @@ const profile = (name: string, overrides: Partial<FightCombatantProfile> = {}): 
 
 const combatant = (name: string, id: string): FightBattleCombatantState => ({
   combatantId: id,
+  positionFeet: 0,
   profile: profile(name),
   currentHitPoints: 30,
   temporaryHitPoints: 0,
@@ -36,7 +37,7 @@ const combatant = (name: string, id: string): FightBattleCombatantState => ({
 });
 
 describe("Fight Cards party simulation", () => {
-  it("keeps each hero independent and produces a reproducible party report", () => {
+  it("keeps each hero independent and produces a reproducible multi-distance party report", () => {
     const heroes = [
       profile("Fighter", { hitPoints: 42, armorClass: 18 }),
       profile("Rogue", { hitPoints: 26, initiativeBonus: 4, attackDamageFormula: "1d8+4", criticalBonusFormula: "1d8" }),
@@ -44,11 +45,12 @@ describe("Fight Cards party simulation", () => {
     ];
     const monster = profile("Ogre", { hitPoints: 70, armorClass: 11, attackBonus: 6, attackDamageFormula: "2d8+4", criticalBonusFormula: "2d8" });
 
-    const first = simulateFightPartyMatchup({ heroes, monster, iterations: 100, seed: 4242 });
-    const second = simulateFightPartyMatchup({ heroes, monster, iterations: 100, seed: 4242 });
+    const first = simulateFightPartyMatchup({ heroes, monster, iterations: 99, seed: 4242 });
+    const second = simulateFightPartyMatchup({ heroes, monster, iterations: 99, seed: 4242 });
 
     expect(first).toEqual(second);
-    expect(first.partyWins + first.monsterWins + first.unresolved).toBe(100);
+    expect(first.startingDistancesFeet).toEqual([30, 60, 90]);
+    expect(first.partyWins + first.monsterWins + first.unresolved).toBe(99);
     expect(first.heroSurvival).toHaveLength(3);
     expect(first.heroSurvival.map((hero) => hero.name)).toEqual(["Fighter", "Rogue", "Barbarian"]);
     expect(first.medianRounds).toBeGreaterThan(0);
@@ -64,14 +66,35 @@ describe("Fight Cards party simulation", () => {
     const result = simulateFightPartyMatchup({
       heroes,
       monster,
-      iterations: 80,
+      iterations: 81,
       seed: 99,
       targetPolicy: "focus-lowest-hp"
     });
 
     expect(result.targetPolicy).toBe("focus-lowest-hp");
+    expect(result.startingDistancesFeet).toEqual([30, 60, 90]);
     expect(result.heroSurvival[1].survivalRate).toBeLessThanOrEqual(result.heroSurvival[0].survivalRate);
-    expect(result.partyWins + result.monsterWins + result.unresolved).toBe(80);
+    expect(result.partyWins + result.monsterWins + result.unresolved).toBe(81);
+  });
+
+  it("allows a DM to model a specific encounter distance while preserving individual combatants", () => {
+    const heroes = [profile("Frontliner"), profile("Archer", { attackDamageFormula: "1d8+4", criticalBonusFormula: "1d8" })];
+    const monster = profile("Monster");
+    const beforeHeroes = structuredClone(heroes);
+    const beforeMonster = structuredClone(monster);
+
+    const result = simulateFightPartyMatchup({
+      heroes,
+      monster,
+      iterations: 12,
+      startingDistancesFeet: [120],
+      seed: 812
+    });
+
+    expect(result.startingDistancesFeet).toEqual([120]);
+    expect(result.heroSurvival).toHaveLength(2);
+    expect(heroes).toEqual(beforeHeroes);
+    expect(monster).toEqual(beforeMonster);
   });
 
   it("allows concentration-dependent party profiles now that owners are keyed to combatant identity", () => {
@@ -97,8 +120,8 @@ describe("Fight Cards party simulation", () => {
     const monster = profile("Monster");
 
     expect(getFightPartySimulationIssue([concentrating], monster)).toBeUndefined();
-    const result = simulateFightPartyMatchup({ heroes: [concentrating], monster, iterations: 10, seed: 712 });
-    expect(result.partyWins + result.monsterWins + result.unresolved).toBe(10);
+    const result = simulateFightPartyMatchup({ heroes: [concentrating], monster, iterations: 12, seed: 712 });
+    expect(result.partyWins + result.monsterWins + result.unresolved).toBe(12);
   });
 
   it("removes only effects owned by the combatant whose concentration ended", () => {
