@@ -1,0 +1,83 @@
+name: Apply Champion Critical RAW Patch
+
+on:
+  push:
+    branches:
+      - agent/champion-critical-thresholds
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/champion-critical-thresholds
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply narrow Champion RAW corrections
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          adapters = Path('src/utils/fightProfileAdapters.ts')
+          text = adapters.read_text()
+          old = '''  const championCritical = character.ruleset === "srd-5.1-2014"
+            && character.classId === "fighter"
+            && character.level >= 3
+            && /champion/i.test(character.subclassName)
+            ? 19
+            : 20;'''
+          new = '''  const isSupportedChampion = (character.ruleset === "srd-5.1-2014" || character.ruleset === "srd-5.2.1-2024")
+            && character.classId === "fighter"
+            && /champion/i.test(character.subclassName);
+          const championCritical = !isSupportedChampion || character.level < 3
+            ? 20
+            : character.level >= 15
+              ? 18
+              : 19;'''
+          if text.count(old) != 1:
+              raise SystemExit('Expected exactly one Champion threshold block.')
+          adapters.write_text(text.replace(old, new, 1))
+
+          battle = Path('src/utils/fightBattle.ts')
+          text = battle.read_text()
+          old = '''  const outcome = natural === 1
+            ? "miss"
+            : natural === 20 || natural >= criticalAt
+              ? "critical"
+              : roll.total >= state[target].profile.armorClass ? "hit" : "miss";'''
+          new = '''  const hitsArmorClass = natural === 20
+            || (natural !== 1 && roll.total >= state[target].profile.armorClass);
+          const outcome = !hitsArmorClass
+            ? "miss"
+            : natural === 20 || natural >= criticalAt
+              ? "critical"
+              : "hit";'''
+          if text.count(old) != 1:
+              raise SystemExit('Expected exactly one attack outcome block.')
+          battle.write_text(text.replace(old, new, 1))
+          PY
+      - name: Focused Champion contracts
+        run: npx vitest run src/utils/championCriticalThresholds.test.ts src/utils/fightBattle.test.ts src/utils/fightProfileAdapters.test.ts
+      - name: Full repository suite
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Commit verified source patch and remove helper workflow
+        shell: bash
+        run: |
+          rm .github/workflows/champion-critical-patch.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/utils/fightProfileAdapters.ts src/utils/fightBattle.ts .github/workflows/champion-critical-patch.yml
+          git commit -m "fix: apply RAW Champion critical thresholds"
+          git push origin HEAD:agent/champion-critical-thresholds
