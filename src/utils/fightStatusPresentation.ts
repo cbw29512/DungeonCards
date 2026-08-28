@@ -29,8 +29,12 @@ const STATUS_GLYPHS: Record<string, string> = {
   shield: "▣",
   resistant: "◈",
   resistance: "◈",
+  immune: "◆",
   vulnerable: "▽",
   vulnerability: "▽",
+  recharge: "↻",
+  movement: "→",
+  resource: "◆",
   downed: "☓"
 };
 
@@ -64,6 +68,12 @@ export const fightPresentationGlyph = (event: FightPresentationEvent): string =>
   if (event.type === "temporary-hit-points") return "◇";
   if (event.type === "concentration-started") return "◎";
   if (event.type === "concentration-broken") return "◌";
+  if (event.type === "damage-resisted") return "◈";
+  if (event.type === "damage-immune") return "◆";
+  if (event.type === "damage-vulnerable") return "▽";
+  if (event.type === "recharge-ready") return "↻";
+  if (event.type === "movement") return "→";
+  if (event.type === "resource-used") return "◆";
   if (event.type === "downed") return "☓";
   if (event.type === "effect-removed") return "↘";
   if (event.type === "effect-applied") {
@@ -82,10 +92,12 @@ export const fightPresentationDetail = (event: FightPresentationEvent): string =
     const dc = event.saveDc === undefined ? "" : ` / DC ${event.saveDc}`;
     return `${ability}${total}${dc}`.trim();
   }
+  if (event.type === "movement" && event.amount !== undefined) return `${event.amount} ft`;
+  if (event.type === "resource-used" && event.amount !== undefined) return `${event.amount} use${event.amount === 1 ? "" : "s"}`;
   if (event.amount !== undefined) {
     return event.type === "healing" || event.type === "temporary-hit-points"
       ? `+${event.amount}`
       : `-${event.amount}`;
   }
-  return event.sourceName ?? "";
+  return event.damageType ?? event.sourceName ?? "";
 };
