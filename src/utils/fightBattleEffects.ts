@@ -21,6 +21,8 @@ const normalizeEffect = (effect: FightEffectState): FightEffectState => ({
   saveDc: effect.saveDc === undefined ? undefined : Math.max(1, Math.trunc(effect.saveDc))
 });
 
+const normalizeCondition = (value: string): string => value.trim().toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
+
 const effectRemovedEvent = (side: FightSide, effect: FightEffectState) => ({
   type: "effect-removed" as const,
   delivery: effectDelivery(effect.kind),
@@ -38,6 +40,21 @@ export const applyFightEffect = (
 ): FightBattleState => {
   const normalized = normalizeEffect(effect);
   if (!normalized.id || !normalized.name) return state;
+  if (normalized.kind === "condition") {
+    const immunities = new Set((state[side].profile.conditionImmunities ?? []).map(normalizeCondition));
+    const condition = normalizeCondition(normalized.iconKey ?? normalized.id ?? normalized.name);
+    if (immunities.has(condition) || immunities.has(normalizeCondition(normalized.name))) {
+      return appendFightPresentationEvent(state, {
+        type: "effect-immune",
+        delivery: "condition",
+        side,
+        sourceSide: normalized.concentrationOwner,
+        label: `Immune to ${normalized.name}`,
+        iconKey: normalized.iconKey,
+        sourceName: normalized.sourceName
+      });
+    }
+  }
   const effects = state[side].effects.filter((candidate) => candidate.id !== normalized.id);
   const next = {
     ...state,
