@@ -25,10 +25,17 @@ import {
   tickFightEffects
 } from "./fightBattleEffects";
 import { fightActionMaximumRangeFeet, fightAttackDistanceRollMode } from "./fightAttackRange";
+import {
+  consumeFightAttackFollowUps,
+  expireFightAttackFollowUps,
+  fightAttackFollowUpRollMode,
+  recordFightAttackFollowUps
+} from "./fightAttackFollowUps";
 import { appendFightPresentationEvent, recordFightAttackPresentation } from "./fightPresentationEvents";
 import { assertFightBattleProfile } from "./fightBattleValidation";
 import { resolveFightSavingThrow } from "./fightSavingThrow";
 import {
+  combineFightRollModes,
   fightAttackRollMode,
   fightMovementAllowance,
   isFightIncapacitated,
@@ -144,21 +151,27 @@ export const createFightBattle = (
     activeIndex: 0,
     distanceFeet: 30,
     character: {
+      combatantId: character.id,
       positionFeet: 0,
+      turnsStarted: 0,
       profile: character,
       currentHitPoints: character.hitPoints,
       temporaryHitPoints: 0,
       effects: [],
+      attackFollowUps: [],
       resources: initialResources(character),
       rechargeReady: initialRecharge(character),
       economy: initialEconomy(character)
     },
     monster: {
+      combatantId: monster.id,
       positionFeet: 30,
+      turnsStarted: 0,
       profile: monster,
       currentHitPoints: monster.hitPoints,
       temporaryHitPoints: 0,
       effects: [],
+      attackFollowUps: [],
       resources: initialResources(monster),
       rechargeReady: initialRecharge(monster),
       economy: initialEconomy(monster)
@@ -216,6 +229,7 @@ const resetTurnState = (state: FightBattleState, side: FightSide): FightBattleSt
     ...state,
     [side]: {
       ...state[side],
+      turnsStarted: (state[side].turnsStarted ?? 0) + 1,
       resources,
       economy: {
         actionsAvailable: incapacitated ? 0 : 1,
@@ -508,8 +522,10 @@ const resolveAttackAction = (
   const target: FightSide = attacker === "character" ? "monster" : "character";
   const distanceFeet = fightBattleDistanceFeet(state);
   const distanceRollMode = fightAttackDistanceRollMode(action, distanceFeet, state[target]);
+  const followUpRollMode = fightAttackFollowUpRollMode(state[attacker], state[target]);
+  const actionRollMode = combineFightRollModes(action.attackRollMode, distanceRollMode, followUpRollMode);
   const roll = rollDiceFormula(attackFormula(action.attackBonus), {
-    advantageMode: fightAttackRollMode(state[attacker], state[target], distanceRollMode, distanceFeet),
+    advantageMode: fightAttackRollMode(state[attacker], state[target], actionRollMode, distanceFeet),
     naturalRollRule: "attack",
     randomInteger
   });
@@ -530,7 +546,8 @@ const outcome = !hitsArmorClass
         critical: outcome === "critical",
         randomInteger
       });
-  let next = recordDamageDefenses(state, target, attacker, action.name, damage.components);
+  let next = consumeFightAttackFollowUps(state, attacker, target);
+  next = recordDamageDefenses(next, target, attacker, action.name, damage.components);
   const applied = applyDamage(next, target, damage.appliedTotal);
   next = applied.state;
   const attackNumber = next.events.filter((event) => event.round === next.round && event.attacker === attacker).length + 1;
@@ -560,6 +577,13 @@ const outcome = !hitsArmorClass
     outcome,
     damage: damage.appliedTotal,
     delivery: action.delivery ?? state[attacker].profile.attackDelivery ?? "weapon"
+  });
+  next = recordFightAttackFollowUps({
+    state: next,
+    attacker,
+    target,
+    outcome,
+    damage: damage.appliedTotal
   });
   if (outcome !== "miss") next = applyActionEffects(next, target, attacker, action.name, action.effectsOnHit);
   if (applied.hitPointsAfter === 0) return completeIfDowned(next, target, attacker, options);
@@ -785,6 +809,7 @@ export const resolveFightTurn = (
   if (next.status !== "active") return next;
   next = resolveFightTimedEffectSaves(next, attacker, "end", randomInteger);
   next = tickFightEffects(next, attacker, "end");
+  next = expireFightAttackFollowUps(next, attacker);
   return next.activeIndex === 0
     ? { ...next, activeIndex: 1 }
     : { ...next, activeIndex: 0, round: next.round + 1 };
