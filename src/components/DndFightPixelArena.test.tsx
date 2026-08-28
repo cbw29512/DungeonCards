@@ -15,6 +15,7 @@ const profile = (name: string): FightCombatantProfile => ({
   attackBonus: 5,
   averageDamageOnHit: 7,
   attacksPerRound: 1,
+  initiativeBonus: 2,
   attackDamageFormula: "1d8+3",
   criticalBonusFormula: "1d8",
   sourceActionName: "Longsword"
