@@ -1,5 +1,6 @@
 import type {
   FightAttackEvent,
+  FightBattleCombatantState,
   FightBattleState,
   FightInitiativeState,
   FightSide
@@ -32,6 +33,28 @@ import {
   isFightIncapacitated,
   rollFightDamageComponents
 } from "./fightRules";
+
+export type FightTurnOptions = {
+  /**
+   * Optional party/multi-target hook. Called only after the current opponent is
+   * actually reduced to 0 HP, their concentration is broken, and the downed
+   * event has been recorded. Returning a living replacement keeps the same
+   * turn/action sequence active so remaining Multiattack/Extra Attack/bonus
+   * attacks resolve through this canonical engine. Returning undefined keeps
+   * normal duel behavior and completes the fight.
+   */
+  onOpponentDowned?: (
+    state: FightBattleState,
+    attacker: FightSide,
+    target: FightSide
+  ) => FightBattleCombatantState | undefined;
+};
+
+type FightActionExecutionOptions = {
+  skipEconomy?: boolean;
+  skipResources?: boolean;
+  turnOptions?: FightTurnOptions;
+};
 
 const attackFormula = (bonus: number): string => `1d20${bonus >= 0 ? "+" : ""}${bonus}`;
 const naturalRoll = (result: ReturnType<typeof rollDiceFormula>): number =>
@@ -230,7 +253,7 @@ const spendAction = (
   state: FightBattleState,
   side: FightSide,
   action: FightActionDefinition,
-  options: { skipEconomy?: boolean; skipResources?: boolean } = {}
+  options: FightActionExecutionOptions = {}
 ): FightBattleState => {
   let next = state;
   if (!options.skipEconomy) {
@@ -315,6 +338,7 @@ const applyActionEffects = (
   saveDc: effect.saveDc,
   saveTiming: effect.saveTiming,
   concentrationOwner: effect.concentrationLinked ? source : undefined,
+  concentrationOwnerId: effect.concentrationLinked ? state[source].combatantId : undefined,
   attackRollMode: effect.attackRollMode,
   attacksAgainstRollMode: effect.attacksAgainstRollMode,
   saveRollMode: effect.saveRollMode
@@ -402,7 +426,12 @@ const resolveConcentrationDamageCheck = (
   return next;
 };
 
-const completeIfDowned = (state: FightBattleState, target: FightSide, attacker: FightSide): FightBattleState => {
+const completeIfDowned = (
+  state: FightBattleState,
+  target: FightSide,
+  attacker: FightSide,
+  options: FightTurnOptions = {}
+): FightBattleState => {
   if (state[target].currentHitPoints > 0) return state;
   let next = breakFightConcentration(state, target);
   next = appendFightPresentationEvent(next, {
@@ -413,6 +442,15 @@ const completeIfDowned = (state: FightBattleState, target: FightSide, attacker: 
     label: `${next[target].profile.name} is down`,
     iconKey: "downed"
   });
+  const replacement = options.onOpponentDowned?.(next, attacker, target);
+  if (replacement && replacement.currentHitPoints > 0) {
+    return {
+      ...next,
+      status: "active",
+      winner: undefined,
+      [target]: replacement
+    };
+  }
   return { ...next, status: "complete", winner: attacker };
 };
 
@@ -420,7 +458,8 @@ const resolveAttackAction = (
   state: FightBattleState,
   attacker: FightSide,
   action: FightAttackAction,
-  randomInteger?: RandomIntegerSource
+  randomInteger?: RandomIntegerSource,
+  options: FightTurnOptions = {}
 ): FightBattleState => {
   const target: FightSide = attacker === "character" ? "monster" : "character";
   const roll = rollDiceFormula(attackFormula(action.attackBonus), {
@@ -475,7 +514,7 @@ const resolveAttackAction = (
     delivery: action.delivery ?? state[attacker].profile.attackDelivery ?? "weapon"
   });
   if (outcome !== "miss") next = applyActionEffects(next, target, attacker, action.name, action.effectsOnHit);
-  if (applied.hitPointsAfter === 0) return completeIfDowned(next, target, attacker);
+  if (applied.hitPointsAfter === 0) return completeIfDowned(next, target, attacker, options);
   return resolveConcentrationDamageCheck(next, target, damage.appliedTotal, randomInteger);
 };
 
@@ -483,7 +522,8 @@ const resolveSaveAction = (
   state: FightBattleState,
   attacker: FightSide,
   action: FightSaveAction,
-  randomInteger?: RandomIntegerSource
+  randomInteger?: RandomIntegerSource,
+  options: FightTurnOptions = {}
 ): FightBattleState => {
   const target: FightSide = attacker === "character" ? "monster" : "character";
   const bonus = state[target].profile.savingThrowBonuses?.[action.saveAbility] ?? 0;
@@ -528,7 +568,7 @@ const resolveSaveAction = (
       sourceName: action.name,
       amount: damage.appliedTotal || undefined
     });
-    if (applied.hitPointsAfter === 0) return completeIfDowned(next, target, attacker);
+    if (applied.hitPointsAfter === 0) return completeIfDowned(next, target, attacker, options);
     next = resolveConcentrationDamageCheck(next, target, damage.appliedTotal, randomInteger);
   }
   next = applyActionEffects(
@@ -546,7 +586,7 @@ const executeAction = (
   attacker: FightSide,
   action: FightActionDefinition,
   randomInteger?: RandomIntegerSource,
-  options: { skipEconomy?: boolean; skipResources?: boolean } = {}
+  options: FightActionExecutionOptions = {}
 ): FightBattleState => {
   if (!options.skipEconomy && !canUseAction(state, attacker, action)) return state;
   let next = moveIntoRange(state, attacker, action);
@@ -558,8 +598,8 @@ const executeAction = (
   next = spendAction(next, attacker, action, options);
   if (action.requiresConcentration) next = startFightConcentration(next, attacker, action.name);
 
-  if (action.kind === "attack") return resolveAttackAction(next, attacker, action, randomInteger);
-  if (action.kind === "save") return resolveSaveAction(next, attacker, action, randomInteger);
+  if (action.kind === "attack") return resolveAttackAction(next, attacker, action, randomInteger, options.turnOptions);
+  if (action.kind === "save") return resolveSaveAction(next, attacker, action, randomInteger, options.turnOptions);
   if (action.kind === "heal") {
     const amount = Math.max(0, rollDiceFormula(action.formula, { randomInteger }).total);
     return healFightCombatant(next, attacker, amount, action.name);
@@ -582,7 +622,11 @@ const executeAction = (
     const component = fightActionsForProfile(next[attacker].profile).find((candidate) => candidate.id === step.actionId);
     if (!component || component.kind === "multiattack") continue;
     for (let count = 0; count < step.count && next.status === "active"; count += 1) {
-      next = executeAction(next, attacker, component, randomInteger, { skipEconomy: true, skipResources: true });
+      next = executeAction(next, attacker, component, randomInteger, {
+        skipEconomy: true,
+        skipResources: true,
+        turnOptions: options.turnOptions
+      });
     }
   }
   return next;
@@ -607,19 +651,24 @@ const offensiveBonusAction = (state: FightBattleState, side: FightSide): FightAc
 const useSupportAction = (
   state: FightBattleState,
   side: FightSide,
-  randomInteger?: RandomIntegerSource
+  randomInteger?: RandomIntegerSource,
+  turnOptions: FightTurnOptions = {}
 ): FightBattleState => {
   const actions = fightActionsForProfile(state[side].profile);
   const wounded = state[side].currentHitPoints <= Math.floor(state[side].profile.hitPoints / 2);
   const heal = wounded ? actions.find((action) => action.kind === "heal" && canUseAction(state, side, action)) : undefined;
-  if (heal) return executeAction(state, side, heal, randomInteger);
+  if (heal) return executeAction(state, side, heal, randomInteger, { turnOptions });
   const temp = (state[side].temporaryHitPoints ?? 0) === 0
     ? actions.find((action) => action.kind === "temporary-hit-points" && canUseAction(state, side, action))
     : undefined;
-  return temp ? executeAction(state, side, temp, randomInteger) : state;
+  return temp ? executeAction(state, side, temp, randomInteger, { turnOptions }) : state;
 };
 
-export const resolveFightTurn = (state: FightBattleState, randomInteger?: RandomIntegerSource): FightBattleState => {
+export const resolveFightTurn = (
+  state: FightBattleState,
+  randomInteger?: RandomIntegerSource,
+  options: FightTurnOptions = {}
+): FightBattleState => {
   if (state.status !== "active" || !state.initiative?.order) throw new Error("A fight turn requires resolved initiative.");
   const attacker = state.initiative.order[state.activeIndex];
   let next = resolveFightTimedEffectSaves(state, attacker, "start", randomInteger);
@@ -628,13 +677,13 @@ export const resolveFightTurn = (state: FightBattleState, randomInteger?: Random
   next = refreshRecharge(next, attacker, randomInteger);
 
   if (!isFightIncapacitated(next[attacker])) {
-    next = useSupportAction(next, attacker, randomInteger);
+    next = useSupportAction(next, attacker, randomInteger, options);
     const usedFreeActions = new Set<string>();
     while (next.status === "active" && next[attacker].economy.actionsAvailable > 0) {
       const action = primaryAction(next, attacker);
       if (!action) break;
       const actionsBefore = next[attacker].economy.actionsAvailable;
-      next = executeAction(next, attacker, action, randomInteger);
+      next = executeAction(next, attacker, action, randomInteger, { turnOptions: options });
       if (next.status !== "active") return next;
       if (next[attacker].economy.actionsAvailable === actionsBefore) break;
 
@@ -644,13 +693,13 @@ export const resolveFightTurn = (state: FightBattleState, randomInteger?: Random
         && canUseAction(next, attacker, candidate));
       if (grant) {
         usedFreeActions.add(grant.id);
-        next = executeAction(next, attacker, grant, randomInteger);
+        next = executeAction(next, attacker, grant, randomInteger, { turnOptions: options });
       }
     }
 
     if (next.status === "active") {
       const bonus = offensiveBonusAction(next, attacker);
-      if (bonus) next = executeAction(next, attacker, bonus, randomInteger);
+      if (bonus) next = executeAction(next, attacker, bonus, randomInteger, { turnOptions: options });
     }
   }
 
